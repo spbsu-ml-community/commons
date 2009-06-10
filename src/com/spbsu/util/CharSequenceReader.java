@@ -22,7 +22,7 @@ public class CharSequenceReader extends Reader {
   public int read(char[] cbuf, int off, int len) throws IOException {
     int read;
     for(read = 0; read < len && currentOffset < seq.length(); read++){
-      cbuf[off + len] = seq.charAt(currentOffset++);
+      cbuf[off + read] = seq.charAt(currentOffset++);
     }
     return read;
   }
