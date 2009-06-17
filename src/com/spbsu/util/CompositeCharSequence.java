@@ -6,7 +6,7 @@ public class CompositeCharSequence extends CharSequenceBase {
   private CharSequence activeFragment = null;
 
   private int activeFragmentRangeStart = -1;
-  public CompositeCharSequence(final CharSequence[] fragments) {
+  public CompositeCharSequence(final CharSequence... fragments) {
     fragmentsCount = fragments.length;
     this.fragments = compact(fragments);
   }
@@ -18,14 +18,40 @@ public class CompositeCharSequence extends CharSequenceBase {
 
   private CharSequence[] compact(final CharSequence[] fragments) {
     final int oldFragmentsCount = fragmentsCount;
+    CharArrayCharSequence prev = null;
+    int prevPos = -1;
+    for (int i = 0; i < oldFragmentsCount; i++) {
+      final CharSequence fragment = fragments[i];
+      if(fragment instanceof CharArrayCharSequence) {
+        final CharArrayCharSequence sequence = (CharArrayCharSequence) fragment;
+        if(prev != null && prev.array == sequence.array && prev.end == sequence.start) { // merge consequent parts
+          fragments[prevPos] = prev = new CharArrayCharSequence(prev.array, prev.start, sequence.end);
+          fragments[i] = null;
+        }
+        else {
+          prev = sequence;
+          prevPos = i;
+        }
+      }
+    }
+
+    boolean needCompaction = false;
     for (int i = 0; i < oldFragmentsCount; i++) {
       final CharSequence fragment = fragments[i];
       if(fragment instanceof CompositeCharSequence) {
         final CompositeCharSequence compositeCharSequence = (CompositeCharSequence) fragment;
+        if (compositeCharSequence.fragmentsCount == 1)
+          fragments[i] = compositeCharSequence.fragments[0];
+        else needCompaction = true;
         fragmentsCount += compositeCharSequence.fragmentsCount - 1;
       }
+      else if(fragment == null) {
+        fragmentsCount--;
+        needCompaction = true;
+      }
     }
-    if(fragmentsCount == oldFragmentsCount) return fragments;
+
+    if(!needCompaction) return fragments;
 
     final CharSequence[] compacted = new CharSequence[fragmentsCount];
     int index = 0;
@@ -37,7 +63,8 @@ public class CompositeCharSequence extends CharSequenceBase {
            compacted[index++] = compositeCharSequence.fragments[j];
         }
       }
-      else compacted[index++] = fragment;
+      else if (fragment != null)
+        compacted[index++] = fragment;
     }
     return compacted;
   }

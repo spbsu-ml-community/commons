@@ -20,12 +20,11 @@ public class CharSequenceReader extends Reader {
   }
 
   public int read(char[] cbuf, int off, int len) throws IOException {
-    if (len == 0) return -1;
     int read;
-    for(read = -1; read < len && currentOffset < seq.length(); read++){
-      cbuf[off + read + 1] = seq.charAt(currentOffset++);
+    for(read = 0; read < len && currentOffset < seq.length(); read++){
+      cbuf[off + read] = seq.charAt(currentOffset++);
     }
-    return read >= 0 ? read + 1 : -1;
+    return read == 0 && currentOffset == seq.length() ? -1 : read;
   }
 
   @Override
