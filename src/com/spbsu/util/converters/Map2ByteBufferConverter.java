@@ -19,7 +19,7 @@ public class Map2ByteBufferConverter<K,V> implements Converter<Map<K,V>, ByteBuf
   final Converter<K, ByteBuffer> keyConverter;
   final Converter<V, ByteBuffer> valuesConverter;
 
-  public Map2ByteBufferConverter(Converter<V, ByteBuffer> valuesConverter, Converter<K, ByteBuffer> keyConverter) {
+  public Map2ByteBufferConverter(Converter<K, ByteBuffer> keyConverter, Converter<V, ByteBuffer> valuesConverter) {
     this.valuesConverter = valuesConverter;
     this.keyConverter = keyConverter;
   }
