@@ -232,7 +232,7 @@
   </component>
   <component name="ProjectFileVersion" converted="true" />
   <component name="ProjectKey">
-    <option name="state" value="http://oasis.apmath.spbu.ru/svn/reps/commons/trunk/commons.ipr" />
+    <option name="state" value="https://svn2.xp-dev.com/svn/igorkuralenok-commons/trunk/commons.ipr" />
   </component>
   <component name="ProjectModuleManager">
     <modules>
@@ -257,6 +257,17 @@
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
   </component>
   <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="https://svn2.xp-dev.com/svn/igorkuralenok-commons/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="myVersion" value="124" />
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
