@@ -22,11 +22,11 @@ public class List2ByteBufferConverter<T> implements Converter<List<T>, ByteBuffe
   }
 
   public List<T> convertTo(ByteBuffer source) {
-    if(source.remaining() < 4) return null;
-    int size = ConverterUtil.restoreSize(source);
-//    int size = source.getInt();
-
-    ArrayList<T> result = new ArrayList<T>(size);
+    if(source.remaining() < 1) return null;
+    final int size = ConverterUtil.restoreSize(source);
+    if(size > 10000)
+      System.out.println("" + size);
+    final List<T> result = new ArrayList<T>(size);
     for (int i = 0; i < size; i++) {
       final T t = converter.convertTo(source);
       if(t == null) return null;
@@ -50,7 +50,9 @@ public class List2ByteBufferConverter<T> implements Converter<List<T>, ByteBuffe
     for (ByteBuffer next : buffersArray) {
       buffer.put(next);
     }
+    final int pos = buffer.position();
     buffer.rewind();
+    buffer.limit(pos);
     return buffer;
   }
 

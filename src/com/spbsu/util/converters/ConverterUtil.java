@@ -11,7 +11,8 @@ import java.nio.ByteBuffer;
  */
 public class ConverterUtil {
   public static void storeSize(int toEncode, ByteBuffer buffer) {
-    if(toEncode >= (1 << (7 * 4))) throw new RuntimeException("Such long arrays are not supported by this converter");
+    if(toEncode >= (1 << (7 * 4)))
+      throw new RuntimeException("Such long arrays are not supported by this converter");
     boolean started = false;
     for(int i = 0; i < 4; i++){
       byte current = (byte)(toEncode >> ((3 - i) * 7) & 0x7F);
@@ -20,8 +21,6 @@ public class ConverterUtil {
         buffer.put(current);
         started = true;
       }
-      else
-        buffer.limit(buffer.limit() - 1);
     }
   }
 

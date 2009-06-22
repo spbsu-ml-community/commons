@@ -38,18 +38,20 @@ public class Map2ByteBufferConverter<K,V> implements Converter<Map<K,V>, ByteBuf
     int totalSize = 0;
     for (final Map.Entry<K, V> entry : map.entrySet()) {
       final ByteBuffer key = keyConverter.convertFrom(entry.getKey());
-      final ByteBuffer value = keyConverter.convertFrom(entry.getKey());
+      final ByteBuffer value = valuesConverter.convertFrom(entry.getValue());
       buffersArray.add(key);
       buffersArray.add(value);
       totalSize += key.remaining() + value.remaining();
     }
     final ByteBuffer buffer = ByteBuffer.allocate(totalSize + 4);
-    ConverterUtil.storeSize(buffersArray.size(), buffer);
+    ConverterUtil.storeSize(map.size(), buffer);
 
     for (ByteBuffer buff : buffersArray) {
       buffer.put(buff);
     }
+    final int avaliable = buffer.position();
     buffer.rewind();
+    buffer.limit(avaliable);
     return buffer;
   }
 }

@@ -3,6 +3,7 @@ package com.spbsu.util.converters;
 import com.spbsu.util.Converter;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,22 +13,27 @@ import java.nio.ByteBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class String2ByteBufferConverter implements Converter<String, ByteBuffer> {
+  private static final Charset UTF = Charset.forName("UTF-8");
+
   public String convertTo(ByteBuffer source) {
-    if(source.remaining() < 2) return null;
-    final int length = source.getShort();
-    if(length < 0 || source.remaining() < length * 2)
+    if(source.remaining() < 1)
       return null;
-    final char[] chars = new char[length];
-    source.asCharBuffer().get(chars);
-    source.position(source.position() + length * 2);
-    return new String(chars);
+    final int length = ConverterUtil.restoreSize(source);
+    if(length < 0 || source.remaining() < length)
+      return null;
+    final byte[] chars = new byte[length];
+    source.get(chars);
+    return new String(chars, UTF);
   }
 
   public ByteBuffer convertFrom(String object) {
-    final ByteBuffer buffer = ByteBuffer.allocate((object.length() + 1) * 2);
-    buffer.putShort((short) object.length());
-    buffer.asCharBuffer().put(object.toCharArray());
+    final byte[] bytes = object.getBytes(UTF);
+    final ByteBuffer buffer = ByteBuffer.allocate(4 + bytes.length);
+    ConverterUtil.storeSize(bytes.length, buffer);
+    buffer.put(bytes);
+    final int available = buffer.position();
     buffer.rewind();
+    buffer.limit(available);
     return buffer;
   }
 }
