@@ -36,10 +36,8 @@ public class DateParser {
 
   /**
    * Parses source as date in form 'dd MMM yyyy HH:mm:ss'
-   *
-   * @param source
    */
-
+  @SuppressWarnings({"JavaDoc"})
   public static Date parseDate(final String source) {
     try {
       final SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", Locale.US);
@@ -81,12 +79,10 @@ public class DateParser {
 
   /**
    * Parses source as date in form 'dd MMM yyyy HH:mm:ss'
-   * @param source
-   *
-   * 2 times faster than
    */
+  @SuppressWarnings({"JavaDoc"})
   public static Date parseDate2(final String source) {
-    final int day, month, year, hours, minuts, seconds;
+    final int day, month, year, hours, minutes, seconds;
     final Scanner scanner = new Scanner(source.replace(':', ' '));
     final String ss = source.substring(0, 3);
 //    System.out.println("source = " + source);
@@ -98,8 +94,8 @@ public class DateParser {
     month = monthToIntMap.get(scanner.next().toLowerCase());
     year = scanner.nextInt();
     hours = scanner.nextInt();
-    minuts = scanner.nextInt();
+    minutes = scanner.nextInt();
     seconds = scanner.nextInt();
-    return new Date(year, month, day, hours, minuts, seconds);
+    return new GregorianCalendar(year + 1900, month, day, hours, minutes, seconds).getTime();
   }
 }
