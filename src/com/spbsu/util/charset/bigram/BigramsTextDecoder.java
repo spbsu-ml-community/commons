@@ -1,14 +1,15 @@
 package com.spbsu.util.charset.bigram;
 
+import com.spbsu.util.Logger;
+import com.spbsu.util.charset.TextDecoder;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.Charset;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.util.*;
-
-import com.spbsu.util.charset.TextDecoder;
-import com.spbsu.util.Logger;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * @author lyadzhin
@@ -52,7 +53,7 @@ public class BigramsTextDecoder implements TextDecoder {
       charset2Text.put(charset, text.toString()); //todo: string?
       final BigramsTable textBigramsTable = textAnalyzer.buildBigramsTable(text);
       final double delta = getBigramTablesDelta(baseBigramsTable, textBigramsTable, text.length());
-      log.info("charset: " + charset + ", delta: " + delta);
+//      log.info("charset: " + charset + ", delta: " + delta);
       delta2Charset.put(delta, charset);
     }
     final Charset mostProbableCharset = delta2Charset.firstEntry().getValue();
