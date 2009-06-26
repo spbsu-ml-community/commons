@@ -60,4 +60,8 @@ public class Logger extends java.util.logging.Logger {
     this.log(Level.SEVERE, message);
     throw new RuntimeException(message);
   }
+
+  public void info(CharSequence message) {
+    this.log(Level.INFO, message.toString());
+  }
 }
