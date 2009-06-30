@@ -1,19 +1,18 @@
 package com.spbsu.util;
 
+import com.spbsu.util.charset.TextDecoder;
+import com.spbsu.util.charset.bigram.BigramsTable;
+import com.spbsu.util.charset.bigram.BigramsTextAnalyzer;
+import com.spbsu.util.charset.bigram.BigramsTextDecoder;
+import com.spbsu.util.charset.bigram.CharFilter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.UnsupportedEncodingException;
-import java.io.InputStream;
 import java.io.IOException;
-import java.util.*;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-
-import com.spbsu.util.charset.bigram.BigramsTable;
-import com.spbsu.util.charset.bigram.BigramsTextDecoder;
-import com.spbsu.util.charset.bigram.BigramsTextAnalyzer;
-import com.spbsu.util.charset.bigram.CharFilter;
-import com.spbsu.util.charset.TextDecoder;
+import java.util.*;
 
 /**
  * @author solar
@@ -58,7 +57,7 @@ public class TextUtil {
     textAnalyzer.setIgnoreCase(true);
     textAnalyzer.setCharFilter(CharFilter.NOT_ASCII_FILTER);
     textAnalyzer.setMaxAnalysisLength(500);
-    final Set<Charset> cyrillicCharsets = new HashSet<Charset>();
+    final List<Charset> cyrillicCharsets = new ArrayList<Charset>();
     for (String charset : CYRILLIC_CHARSETS) {
       cyrillicCharsets.add(Charset.forName(charset));
     }

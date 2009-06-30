@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -25,10 +26,10 @@ public class BigramsTextDecoder implements TextDecoder {
   private static final double LACK_OF_BIGRAMS_PENALTY = 15;
 
   private final BigramsTable baseBigramsTable;
-  private final Set<Charset> availableCharsets;
+  private final List<Charset> availableCharsets;
   private BigramsTextAnalyzer textAnalyzer = new BigramsTextAnalyzer().setCharFilter(CharFilter.NOT_ASCII_FILTER);
 
-  public BigramsTextDecoder(@NotNull BigramsTable baseBigramsTable, @NotNull Set<Charset> availableCharsets) {
+  public BigramsTextDecoder(@NotNull BigramsTable baseBigramsTable, @NotNull List<Charset> availableCharsets) {
     if (availableCharsets.size() < 2) {
       throw new IllegalArgumentException("must have at least two available charsets");
     }
