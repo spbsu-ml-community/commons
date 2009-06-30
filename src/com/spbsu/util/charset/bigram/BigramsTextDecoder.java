@@ -68,25 +68,41 @@ public class BigramsTextDecoder implements TextDecoder {
       return "";
     }
 
+    // Analyzer fails to work on long sequences
+    final CharSequence toAnalyze = input.length() < 200 ? input : input.subSequence(0, 200);
+
     final TreeMap<Double, Pair<Charset,Charset>> delta2Charset = new TreeMap<Double, Pair<Charset,Charset>>();
-    final HashMap<Pair<Charset,Charset>, CharSequence> charset2Text = new HashMap<Pair<Charset, Charset>, CharSequence>();
+
+    {
+      // At first, process input as is in UTF-8
+      final byte[] utf8Bytes = TextUtil.getBytes(toAnalyze, "UTF-8");
+
+      final Charset charset = Charset.forName("UTF-8");
+
+      final BigramsTable textBigramsTable = textAnalyzer.buildBigramsTable(toAnalyze);
+      final double delta = getBigramTablesDelta(baseBigramsTable, textBigramsTable, toAnalyze.length());
+
+      delta2Charset.put(delta, Pair.create(charset, charset));
+    }
+
     for (final Charset textIn : availableCharsets) {
-      final byte[] bytes = TextUtil.getBytes(input, textIn.name());
+      final byte[] bytes = TextUtil.getBytes(toAnalyze, textIn.name());
       final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+
       for (final Charset textOut : availableCharsets) {
+        if (textIn == textOut) continue;
+
         final CharBuffer text = textOut.decode(byteBuffer);
         byteBuffer.rewind();
-        final Pair<Charset, Charset> pair = Pair.create(textIn, textOut);
-        charset2Text.put(pair, text);
 
         final BigramsTable textBigramsTable = textAnalyzer.buildBigramsTable(text);
         final double delta = getBigramTablesDelta(baseBigramsTable, textBigramsTable, text.length());
 //      log.info("charset: " + charset + ", delta: " + delta);
-        delta2Charset.put(delta, pair);
+        delta2Charset.put(delta, Pair.create(textIn, textOut));
       }
     }
-    final Pair<Charset, Charset> mostProbableCharset = delta2Charset.firstEntry().getValue();
-    return charset2Text.get(mostProbableCharset);
+    final Pair<Charset, Charset> mostProbable = delta2Charset.firstEntry().getValue();
+    return mostProbable.getSecond().decode(ByteBuffer.wrap(TextUtil.getBytes(input, mostProbable.getFirst().name())));
   }
 
   private double getBigramTablesDelta(BigramsTable base, BigramsTable another, int textLength) {
