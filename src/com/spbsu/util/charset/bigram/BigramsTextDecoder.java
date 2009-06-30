@@ -1,6 +1,7 @@
 package com.spbsu.util.charset.bigram;
 
 import com.spbsu.util.Logger;
+import com.spbsu.util.Pair;
 import com.spbsu.util.TextUtil;
 import com.spbsu.util.charset.TextDecoder;
 import org.jetbrains.annotations.NotNull;
@@ -66,17 +67,25 @@ public class BigramsTextDecoder implements TextDecoder {
     if (input.length() == 0) {
       return "";
     }
-    final TreeMap<Double, Charset> delta2Charset = new TreeMap<Double, Charset>();
-    final HashMap<Charset, CharSequence> charset2Text = new HashMap<Charset, CharSequence>();
-    for (final Charset charset : availableCharsets) {
-      final CharSequence text = decodeText(TextUtil.getBytes(input, charset.name()));
-      charset2Text.put(charset, text);
-      final BigramsTable textBigramsTable = textAnalyzer.buildBigramsTable(text);
-      final double delta = getBigramTablesDelta(baseBigramsTable, textBigramsTable, text.length());
+
+    final TreeMap<Double, Pair<Charset,Charset>> delta2Charset = new TreeMap<Double, Pair<Charset,Charset>>();
+    final HashMap<Pair<Charset,Charset>, CharSequence> charset2Text = new HashMap<Pair<Charset, Charset>, CharSequence>();
+    for (final Charset textIn : availableCharsets) {
+      final byte[] bytes = TextUtil.getBytes(input, textIn.name());
+      final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+      for (final Charset textOut : availableCharsets) {
+        final CharBuffer text = textOut.decode(byteBuffer);
+        byteBuffer.rewind();
+        final Pair<Charset, Charset> pair = Pair.create(textIn, textOut);
+        charset2Text.put(pair, text);
+
+        final BigramsTable textBigramsTable = textAnalyzer.buildBigramsTable(text);
+        final double delta = getBigramTablesDelta(baseBigramsTable, textBigramsTable, text.length());
 //      log.info("charset: " + charset + ", delta: " + delta);
-      delta2Charset.put(delta, charset);
+        delta2Charset.put(delta, pair);
+      }
     }
-    final Charset mostProbableCharset = delta2Charset.firstEntry().getValue();
+    final Pair<Charset, Charset> mostProbableCharset = delta2Charset.firstEntry().getValue();
     return charset2Text.get(mostProbableCharset);
   }
 
