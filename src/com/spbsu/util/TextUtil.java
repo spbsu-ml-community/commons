@@ -68,6 +68,10 @@ public class TextUtil {
     return cyrillicTextDecoder.decodeText(bytes);
   }
 
+  public static CharSequence decodeCyrillicText(@NotNull CharSequence text) {
+    return cyrillicTextDecoder.decodeText(text);
+  }
+
   public static CharSequence removeIllegalXMLCharacters(@Nullable CharSequence charSequence) {
     if (charSequence == null) {
       return null;

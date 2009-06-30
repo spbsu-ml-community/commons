@@ -1,6 +1,7 @@
 package com.spbsu.util.charset.bigram;
 
 import com.spbsu.util.Logger;
+import com.spbsu.util.TextUtil;
 import com.spbsu.util.charset.TextDecoder;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,6 +53,24 @@ public class BigramsTextDecoder implements TextDecoder {
       final CharBuffer text = charset.decode(byteBuffer);
       byteBuffer.rewind();
       charset2Text.put(charset, text.toString()); //todo: string?
+      final BigramsTable textBigramsTable = textAnalyzer.buildBigramsTable(text);
+      final double delta = getBigramTablesDelta(baseBigramsTable, textBigramsTable, text.length());
+//      log.info("charset: " + charset + ", delta: " + delta);
+      delta2Charset.put(delta, charset);
+    }
+    final Charset mostProbableCharset = delta2Charset.firstEntry().getValue();
+    return charset2Text.get(mostProbableCharset);
+  }
+
+  public CharSequence decodeText(@NotNull final CharSequence input) {
+    if (input.length() == 0) {
+      return "";
+    }
+    final TreeMap<Double, Charset> delta2Charset = new TreeMap<Double, Charset>();
+    final HashMap<Charset, CharSequence> charset2Text = new HashMap<Charset, CharSequence>();
+    for (final Charset charset : availableCharsets) {
+      final CharSequence text = decodeText(TextUtil.getBytes(input, charset.name()));
+      charset2Text.put(charset, text);
       final BigramsTable textBigramsTable = textAnalyzer.buildBigramsTable(text);
       final double delta = getBigramTablesDelta(baseBigramsTable, textBigramsTable, text.length());
 //      log.info("charset: " + charset + ", delta: " + delta);

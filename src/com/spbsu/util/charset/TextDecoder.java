@@ -7,4 +7,5 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface TextDecoder {
   CharSequence decodeText(@NotNull byte[] bytes);
+  CharSequence decodeText(@NotNull CharSequence bytes);
 }
