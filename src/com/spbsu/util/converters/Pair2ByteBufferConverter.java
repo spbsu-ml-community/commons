@@ -28,7 +28,9 @@ public class Pair2ByteBufferConverter<A, B> implements Converter<Pair<A, B>, Byt
   public ByteBuffer convertFrom(Pair<A, B> object) {
     final ByteBuffer byteBufferA = converterA.convertFrom(object.getFirst());
     final ByteBuffer byteBufferB = converterB.convertFrom(object.getSecond());
-    final ByteBuffer byteBuffer = ByteBuffer.allocate(byteBufferA.capacity() + byteBufferB.capacity()).put(byteBufferA).put(byteBufferB);
+    final ByteBuffer byteBuffer = ByteBuffer.allocate(
+      byteBufferA.limit() + byteBufferB.limit()
+    ).put(byteBufferA).put(byteBufferB);
     byteBuffer.rewind();
     return byteBuffer;
   }
