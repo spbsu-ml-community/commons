@@ -1,7 +1,7 @@
 package com.spbsu.util.cache;
 
-import com.spbsu.util.Pair;
 import com.spbsu.util.Computable;
+import com.spbsu.util.Pair;
 import com.spbsu.util.cache.impl.LRUStrategy;
 
 import java.lang.ref.Reference;
@@ -9,6 +9,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,14 +18,25 @@ import java.util.Map;
  * Time: 14:50:48
  * To change this template use File | Settings | File Templates.
  */
-public class FixedSizeCache<K, V> {
-  private final Map<K, Pair<Integer, WeakReference<V>>> accessMap = new HashMap<K, Pair<Integer, WeakReference<V>>>();
-  private final Map<WeakReference<V>, K> invertedAccessMap = new HashMap<WeakReference<V>, K>();
+public class FixedSizeCache<K, V> implements Cache<K, V>{
+  private final Map<K, Pair<Integer, WeakReference<V>>> accessMap;
+  private final Map<WeakReference<V>, K> invertedAccessMap;
   private final Pair<K, V>[] cache;
   private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
   private final CacheStrategy strategy;
 
   public FixedSizeCache(int size, CacheStrategy.Type strategyType) {
+    this(size, strategyType, false);
+  }
+
+  public FixedSizeCache(int size, CacheStrategy.Type strategyType, boolean concurrency) {
+    if (concurrency) {
+      accessMap = new ConcurrentHashMap<K, Pair<Integer, WeakReference<V>>>();
+      invertedAccessMap = new ConcurrentHashMap<WeakReference<V>, K>();
+    } else {
+      accessMap = new HashMap<K, Pair<Integer, WeakReference<V>>>();
+      invertedAccessMap = new HashMap<WeakReference<V>, K>();
+    }
     switch(strategyType){
       case LRU: strategy = new LRUStrategy(size); break;
       default: strategy = null;
@@ -33,8 +45,8 @@ public class FixedSizeCache<K, V> {
     cache = (Pair<K, V>[])new Pair[size];
   }
 
-  public void put(K key, V value) {
-    if(value == null) return;
+  public V put(K key, V value) {
+    if(value == null) return value;
     final int position = strategy.getStorePosition();
     final WeakReference<V> reference = new WeakReference<V>(value, queue);
     accessMap.put(key, Pair.create(position, reference));
@@ -49,6 +61,7 @@ public class FixedSizeCache<K, V> {
     }
     cache[position] = Pair.create(key, value);
     strategy.registerAccess(position);
+    return value;
   }
 
   public V get(K key){
@@ -96,6 +109,12 @@ public class FixedSizeCache<K, V> {
       System.out.println("Strange");
     }
     return result;
+  }
+
+  public void flush() {
+    for (int i = 0; i < cache.length; i++) {
+      cache[i] = null;
+    }
   }
 
   private synchronized void processReferenceQueue() {
