@@ -65,56 +65,42 @@ public class FixedSizeCache<K, V> implements Cache<K, V>{
   }
 
   public V get(K key){
-    final Pair<Integer, WeakReference<V>> pair = accessMap.get(key);
-    if(pair == null){
-      strategy.registerCacheMiss();
-      return null;
-    }
-    final int position = pair.getFirst();
-    final WeakReference<V> resultRef = pair.getSecond();
-    final V result = resultRef.get();
-    if(result == null || cache[position].getFirst() != key){
-      strategy.registerCacheMiss();
-      processReferenceQueue();
-    }
-    else{
-      strategy.registerAccess(position);
-    }
-    return result;
+    return get(key, null);
   }
 
+  private int accessIndex = 0;
   public V get(K key, Computable<K, V> wayToGet){
-    final Pair<Integer, WeakReference<V>> pair = accessMap.get(key);
-    if(pair == null){
-      strategy.registerCacheMiss();
-      processReferenceQueue();
-      final V result = wayToGet.compute(key);
-      put(key, result);
+    try {
+      V result = null;
+      Pair<Integer, WeakReference<V>> pair = accessMap.get(key);
+      if(pair != null){
+        final int position = pair.getFirst();
+        result = pair.getSecond().get();
+        if(cache[position] != null && (cache[position].getFirst() == key || cache[position].getFirst().equals(key)))
+          strategy.registerAccess(position);
+      }
+
+      if (result == null) {
+        if (wayToGet != null)
+          result = wayToGet.compute(key);
+        if(result != null) {
+          strategy.registerCacheMiss();
+          put(key, result);
+        }
+      }
       return result;
     }
-    final int position = pair.getFirst();
-    V result = pair.getSecond().get();
-    if(result == null){
-      result = wayToGet.compute(key);
-      if(result != null){
-        strategy.registerCacheMiss();
+    finally {
+      if(accessIndex++ % 10000 == 0)
         processReferenceQueue();
-        put(key, result);
-      }
     }
-    else if(cache[position].getFirst() == key || cache[position].getFirst().equals(key)){
-      strategy.registerAccess(position);
-    }
-    else if(result instanceof CacheItem){ // the item was notified
-      System.out.println("Strange");
-    }
-    return result;
   }
 
   public void flush() {
     for (int i = 0; i < cache.length; i++) {
       cache[i] = null;
     }
+    strategy.clear();
   }
 
   private synchronized void processReferenceQueue() {
