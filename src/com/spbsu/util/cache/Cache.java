@@ -1,7 +1,7 @@
 package com.spbsu.util.cache;
 
-import org.jetbrains.annotations.Nullable;
 import com.spbsu.util.Computable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * User: alms
@@ -14,7 +14,10 @@ public interface Cache<K, V> {
 
   @Nullable
   V get(K key);
+
   V get(K key, Computable<K, V> computor);
 
   void flush();
+
+  void clear();
 }
