@@ -5,6 +5,7 @@ package com.spbsu.util;
  * Date: Jun 25, 2009
  */
 public class StringUtils {
+  public static final String[] EMPTY = new String[0];
   /**
    * Copy-pasted from apache StringUtils
    */

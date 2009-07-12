@@ -223,4 +223,31 @@ public class TextUtil {
 
   private TextUtil() {
   }
+
+  public static int getWordCount(final CharSequence s) {
+    if (s == null) return 0;
+
+    int wordCount = 0;
+    final Holder<CharSequence> wordHolder = new Holder<CharSequence>();
+    for (CharSequence text = s; text.length() > 0; text = nextWord(text, wordHolder), wordCount++);
+    return wordCount;
+  }
+
+  public static CharSequence[] getSentences(final CharSequence input) {
+    if (input == null) return StringUtils.EMPTY;
+
+    final ArrayList<CharSequence> sentences = new ArrayList<CharSequence>();
+    final CharSequenceTokenizer tok = new CharSequenceTokenizer(input, ".!?", true);
+    while (tok.hasMoreTokens()) {
+      final StringBuilder builder = new StringBuilder();
+      final CharSequence sentence = tok.nextToken();
+      builder.append(sentence);
+      if (tok.hasMoreTokens()) {
+        final CharSequence delimeter = tok.nextToken();
+        builder.append(delimeter);
+      }
+      sentences.add(builder);
+    }
+    return sentences.toArray(new CharSequence[sentences.size()]);
+  }
 }
