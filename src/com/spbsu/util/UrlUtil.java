@@ -7,11 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Dan Dyugurov
  * Date: 20.07.2006
- * Time: 12:05:30
- * To change this template use File | Settings | File Templates.
  */
 public class UrlUtil {
 

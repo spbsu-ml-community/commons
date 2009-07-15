@@ -6,11 +6,8 @@ import com.spbsu.util.Pair;
 import java.nio.ByteBuffer;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 03.09.2006
- * Time: 20:19:01
- * To change this template use File | Settings | File Templates.
  */
 public class Pair2ByteBufferConverter<A, B> implements Converter<Pair<A, B>, ByteBuffer> {
   private final Converter<A, ByteBuffer> converterA;

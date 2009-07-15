@@ -5,11 +5,8 @@ import java.io.InputStream;
 import java.io.IOException;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Dan Dyugurov
  * Date: 08.08.2006
- * Time: 23:48:14
- * To change this template use File | Settings | File Templates.
  */
 public class ByteCountInputStream extends FilterInputStream {
 

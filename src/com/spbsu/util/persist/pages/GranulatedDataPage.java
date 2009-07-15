@@ -7,11 +7,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 08.04.2008
- * Time: 15:44:00
- * To change this template use File | Settings | File Templates.
  */
 public class GranulatedDataPage extends DataPage {
   int chunkSize;

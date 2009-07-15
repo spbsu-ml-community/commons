@@ -6,11 +6,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 19.09.2006
- * Time: 18:59:41
- * To change this template use File | Settings | File Templates.
  */
 public class LowCapacitySet<T> implements Set<T> {
   Set<T> currentContainer = EmptySet.emptySet();

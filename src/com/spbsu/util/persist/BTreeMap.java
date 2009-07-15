@@ -14,11 +14,8 @@ import java.nio.channels.FileChannel;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 08.04.2008
- * Time: 15:44:15
- * To change this template use File | Settings | File Templates.
  */
 public class BTreeMap<K, V> implements Map<K, V> {
   private final FileChannel file;

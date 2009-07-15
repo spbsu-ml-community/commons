@@ -4,11 +4,8 @@ import com.spbsu.text.stemmer.Stemmer;
 import junit.framework.TestCase;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Dan Dyugurov
  * Date: 05.11.2006
- * Time: 12:39:21
- * To change this template use File | Settings | File Templates.
  */
 public class StemmerTest extends TestCase {
   public void testStemer() {

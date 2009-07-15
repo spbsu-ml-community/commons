@@ -9,11 +9,8 @@ import java.util.LinkedList;
 import java.util.HashMap;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 21.06.2009
- * Time: 14:36:12
- * To change this template use File | Settings | File Templates.
  */
 public class Map2ByteBufferConverter<K,V> implements Converter<Map<K,V>, ByteBuffer> {
   final Converter<K, ByteBuffer> keyConverter;

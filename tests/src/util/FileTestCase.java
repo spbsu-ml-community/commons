@@ -5,11 +5,8 @@ import junit.framework.TestCase;
 import java.io.*;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 24.05.2006
- * Time: 20:52:05
- * To change this template use File | Settings | File Templates.
  */
 public abstract class FileTestCase extends TestCase {
   public static final File TESTS_DIR = new File("./wd/tests");

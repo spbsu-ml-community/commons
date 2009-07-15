@@ -6,11 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 02.09.2006
- * Time: 15:27:51
- * To change this template use File | Settings | File Templates.
  */
 public class String2ByteBufferConverter implements Converter<String, ByteBuffer> {
   private static final Charset UTF = Charset.forName("UTF-8");

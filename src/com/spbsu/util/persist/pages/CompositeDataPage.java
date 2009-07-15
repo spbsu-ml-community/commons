@@ -9,11 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 08.04.2008
- * Time: 15:44:00
- * To change this template use File | Settings | File Templates.
  */
 public class CompositeDataPage extends DataPage {
   public static int COMPOSITE_PAGE_LENGTH = BTreeMap.SLOT_CAPACITY - 1 - 4 - 4; // type, length, next page pointer

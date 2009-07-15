@@ -7,11 +7,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 25.03.2006
- * Time: 16:40:37
- * To change this template use File | Settings | File Templates.
  */
 public class StreamUtil {
   private static final Logger LOG = Logger.create("com.spbsu.util.StreamUtil");

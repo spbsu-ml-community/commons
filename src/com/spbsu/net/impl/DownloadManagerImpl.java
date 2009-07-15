@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * User: solar
  * Date: 10.06.2007
- * Time: 16:33:44
  */
 @SuppressWarnings({"ALL"})
 public class DownloadManagerImpl implements DownloadManager {

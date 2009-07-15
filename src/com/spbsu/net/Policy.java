@@ -1,11 +1,8 @@
 package com.spbsu.net;
 
 /**
- * Created by IntelliJ IDEA.
  * User: lawless
  * Date: 02.07.2007
- * Time: 15:32:13
- * To change this template use File | Settings | File Templates.
  */
 public final class Policy {
   private final int maxConnection;

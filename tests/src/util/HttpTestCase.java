@@ -10,7 +10,6 @@ import org.mortbay.jetty.servlet.ServletHandler;
 /**
  * User: solar
  * Date: 16.06.2007
- * Time: 14:23:02
  */
 public abstract class HttpTestCase extends TestCase {
   private Server jetty = null;

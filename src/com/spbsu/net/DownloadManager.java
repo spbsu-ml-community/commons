@@ -6,11 +6,8 @@ import com.spbsu.util.Task;
 import java.io.IOException;
 
 /**
- * Created by IntelliJ IDEA.
  * User: solar
  * Date: 10.06.2007
- * Time: 13:55:36
- * To change this template use File | Settings | File Templates.
  */
 public interface DownloadManager {
   void request(String url, Task<CharSequence> resultHandler);

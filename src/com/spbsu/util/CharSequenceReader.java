@@ -4,11 +4,8 @@ import java.io.Reader;
 import java.io.IOException;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 09.06.2009
- * Time: 8:24:42
- * To change this template use File | Settings | File Templates.
  */
 public class CharSequenceReader extends Reader {
   private int currentOffset = 0;

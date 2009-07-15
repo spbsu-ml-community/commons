@@ -5,11 +5,8 @@ import com.spbsu.util.Converter;
 import java.nio.ByteBuffer;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 09.04.2008
- * Time: 14:30:18
- * To change this template use File | Settings | File Templates.
  */
 public class IntegerArray2ByteBufferConverter  implements Converter<int[], ByteBuffer> {
   public int[] convertTo(ByteBuffer source) {

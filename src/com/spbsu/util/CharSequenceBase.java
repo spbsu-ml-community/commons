@@ -3,11 +3,8 @@ package com.spbsu.util;
 import java.io.Serializable;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 10.05.2006
- * Time: 17:55:23
- * To change this template use File | Settings | File Templates.
  */
 public abstract class CharSequenceBase implements CharSequence, Serializable {
   public static final CharSequence EMPTY = "";

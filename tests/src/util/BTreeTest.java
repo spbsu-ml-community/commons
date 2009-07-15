@@ -17,11 +17,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 08.04.2008
- * Time: 16:02:22
- * To change this template use File | Settings | File Templates.
  */
 @SuppressWarnings({"unchecked"})
 public class BTreeTest extends TestCase {

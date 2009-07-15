@@ -9,11 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 22.06.2009
- * Time: 12:07:30
- * To change this template use File | Settings | File Templates.
  */
 public class ConverterTest extends TestCase {
   public void testSizeConvertion() {

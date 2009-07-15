@@ -8,11 +8,8 @@ import java.util.List;
 import java.util.LinkedList;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 09.04.2008
- * Time: 14:30:18
- * To change this template use File | Settings | File Templates.
  */
 public class List2ByteBufferConverter<T> implements Converter<List<T>, ByteBuffer> {
   final Converter<T, ByteBuffer> converter;

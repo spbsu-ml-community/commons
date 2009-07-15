@@ -1,11 +1,8 @@
 package util;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 31.08.2006
- * Time: 16:36:19
- * To change this template use File | Settings | File Templates.
  */
 public final class Interval {
   static long ourStartTime;

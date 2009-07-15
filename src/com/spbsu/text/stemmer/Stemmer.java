@@ -4,11 +4,8 @@ import com.spbsu.text.stemmer.ext.EnglishStemmer;
 import com.spbsu.text.stemmer.ext.RussianStemmer;
 
 /**
- * Created by IntelliJ IDEA.
  * User: solar
  * Date: 01.07.2007
- * Time: 17:14:30
- * To change this template use File | Settings | File Templates.
  */
 public class Stemmer {
   public final EnglishStemmer english = new EnglishStemmer();

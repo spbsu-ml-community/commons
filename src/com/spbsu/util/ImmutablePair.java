@@ -1,11 +1,8 @@
 package com.spbsu.util;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 02.07.2009
- * Time: 10:30:48
- * To change this template use File | Settings | File Templates.
  */
 public class ImmutablePair<U, V> extends Pair<U, V> {
   private int hash = 0;

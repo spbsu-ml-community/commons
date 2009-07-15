@@ -1,11 +1,8 @@
 package com.spbsu.util.filters;
 
 /**
- * Created by IntelliJ IDEA.
  * User: dunisher
  * Date: 07.06.2007
- * Time: 23:29:31
- * To change this template use File | Settings | File Templates.
  */
 public class NotFilter<T> implements Filter<T> {
   private Filter<T> filter;

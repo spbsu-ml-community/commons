@@ -1,11 +1,8 @@
 package com.spbsu.util.filters;
 
 /**
- * Created by IntelliJ IDEA.
  * User: dunisher
  * Date: 07.06.2007
- * Time: 23:23:54
- * To change this template use File | Settings | File Templates.
  */
 public class AndFilter<T> implements Filter<T> {
   private Filter<T> firstFilter;

@@ -21,11 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
 /**
- * Created by IntelliJ IDEA.
  * User: solar
  * Date: 16.06.2007
- * Time: 14:02:37
- * To change this template use File | Settings | File Templates.
  */
 public class DownloadManagerTest extends HttpTestCase {
   public void testCharGet() throws Exception {

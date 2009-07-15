@@ -6,7 +6,6 @@ import junit.framework.TestCase;
 /**
  * User: Igor Kuralenok
  * Date: 16.05.2006
- * Time: 18:19:24
  */
 public class CharSequenceTest extends TestCase {
   public void testEmpty(){

@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * User: alms
  * Date: 21.01.2009
- * Time: 14:31:41
  */
 public interface Cache<K, V> {
 

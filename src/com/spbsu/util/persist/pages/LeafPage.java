@@ -10,11 +10,8 @@ import java.util.Arrays;
 import java.util.Stack;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 08.04.2008
- * Time: 18:55:07
- * To change this template use File | Settings | File Templates.
  */
 public class LeafPage extends IndexPage {
   private static final int B = (BTreeMap.SLOT_CAPACITY - 3) / (8+4);

@@ -13,11 +13,8 @@ import java.util.List;
 
 
 /**
- * Created by IntelliJ IDEA.
  * User: solar
  * Date: 10.06.2007
- * Time: 17:25:29
- * To change this template use File | Settings | File Templates.
  */
 public class URLStatusImpl implements DownloadManager.URLStatus {
   private static final Logger LOG = Logger.create("com.spbsu.net.impl.URLStatusImpl");

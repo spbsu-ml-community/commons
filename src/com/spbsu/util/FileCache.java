@@ -10,11 +10,8 @@ import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Dunisher
  * Date: 03.02.2006
- * Time: 14:57:19
- * To change this template use File | Settings | File Templates.
  */
 public class FileCache {
   private FileChannel cachingFile;

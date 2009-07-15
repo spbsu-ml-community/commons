@@ -11,11 +11,8 @@ import java.util.Stack;
 import java.util.TreeMap;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 08.04.2008
- * Time: 18:55:07
- * To change this template use File | Settings | File Templates.
  */
 public class NodePage extends IndexPage {
   private static final int B = (BTreeMap.SLOT_CAPACITY - 1) / 8;

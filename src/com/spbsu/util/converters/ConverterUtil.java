@@ -3,11 +3,8 @@ package com.spbsu.util.converters;
 import java.nio.ByteBuffer;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 21.06.2009
- * Time: 14:53:15
- * To change this template use File | Settings | File Templates.
  */
 public class ConverterUtil {
   public static void storeSize(int toEncode, ByteBuffer buffer) {

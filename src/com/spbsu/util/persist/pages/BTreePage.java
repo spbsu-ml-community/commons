@@ -7,11 +7,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 08.04.2008
- * Time: 17:28:01
- * To change this template use File | Settings | File Templates.
  */
 @SuppressWarnings({"unchecked"})
 public abstract class BTreePage implements CacheItem {

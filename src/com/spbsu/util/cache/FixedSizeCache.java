@@ -12,11 +12,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 31.08.2006
- * Time: 14:50:48
- * To change this template use File | Settings | File Templates.
  */
 public class FixedSizeCache<K, V> implements Cache<K, V>{
   private final Map<K, Pair<Integer, WeakReference<V>>> accessMap;

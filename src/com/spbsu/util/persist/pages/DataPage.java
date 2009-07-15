@@ -5,11 +5,8 @@ import com.spbsu.util.persist.BTreeMap;
 import java.nio.ByteBuffer;
 
 /**
- * Created by IntelliJ IDEA.
  * User: igorkuralenok
  * Date: 18.04.2008
- * Time: 0:21:09
- * To change this template use File | Settings | File Templates.
  */
 public abstract class DataPage extends BTreePage{
   public static int COMPOSITE_PAGE_LENGTH = BTreeMap.SLOT_CAPACITY - 1 - 4 - 4; // type, length, next page pointer

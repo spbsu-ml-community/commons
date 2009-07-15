@@ -14,7 +14,6 @@ import java.net.URL;
 /**
  * User: solar
  * Date: 16.06.2007
- * Time: 14:34:44
  */
 public class HttpTestCaseTest extends HttpTestCase {
   protected String getBasePath() {

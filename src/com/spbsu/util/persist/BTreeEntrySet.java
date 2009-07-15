@@ -10,11 +10,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
 * User: igorkuralenok
 * Date: 17.04.2008
-* Time: 23:37:24
-* To change this template use File | Settings | File Templates.
 */
 class BTreeEntrySet<K, V> implements Set<Map.Entry<K, V>> {
   private static Logger LOG = Logger.create(BTreeEntrySet.class);

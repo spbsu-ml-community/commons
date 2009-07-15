@@ -1,11 +1,8 @@
 package com.spbsu.util;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 03.09.2006
- * Time: 12:22:43
- * To change this template use File | Settings | File Templates.
  */
 public class Holder<T> {
   T value;

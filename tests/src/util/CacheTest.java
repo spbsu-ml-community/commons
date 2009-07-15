@@ -10,11 +10,8 @@ import junit.framework.TestCase;
 import java.util.Random;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 31.08.2006
- * Time: 16:13:16
- * To change this template use File | Settings | File Templates.
  */
 public class CacheTest extends TestCase {
   public static final String KEY1 = "key1";

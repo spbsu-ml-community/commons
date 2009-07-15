@@ -3,11 +3,8 @@ package com.spbsu.util.cache.impl;
 import com.spbsu.util.cache.CacheStrategy;
 
 /**
- * Created by IntelliJ IDEA.
  * User: Igor Kuralenok
  * Date: 31.08.2006
- * Time: 15:39:12
- * To change this template use File | Settings | File Templates.
  */
 public class LRUStrategy implements CacheStrategy {
   private int misses;
