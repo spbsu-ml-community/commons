@@ -5,7 +5,7 @@ package com.spbsu.util;
  * Date: 16.06.2007
  */
 public abstract class TaskBase<T> implements Task<T>{
-  boolean completedFlag = false;
+  protected boolean completedFlag = false;
   public synchronized void setCompleted() {
     completedFlag = true;
     notifyAll();
