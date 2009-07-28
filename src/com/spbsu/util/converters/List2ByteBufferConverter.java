@@ -21,8 +21,6 @@ public class List2ByteBufferConverter<T> implements Converter<List<T>, ByteBuffe
   public List<T> convertTo(ByteBuffer source) {
     if(source.remaining() < 1) return null;
     final int size = ConverterUtil.restoreSize(source);
-    if(size > 10000)
-      System.out.println("" + size);
     final List<T> result = new ArrayList<T>(size);
     for (int i = 0; i < size; i++) {
       final T t = converter.convertTo(source);
@@ -43,7 +41,6 @@ public class List2ByteBufferConverter<T> implements Converter<List<T>, ByteBuffe
     final ByteBuffer buffer = ByteBuffer.allocate(totalSize + 4);
 
     ConverterUtil.storeSize(object.size(), buffer);
-//    buffer.putInt(object.length);
     for (ByteBuffer next : buffersArray) {
       buffer.put(next);
     }

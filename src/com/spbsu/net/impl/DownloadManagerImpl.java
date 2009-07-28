@@ -100,7 +100,6 @@ public class DownloadManagerImpl implements DownloadManager {
                   if (time < timeMs - customPolicy.intervalMs()) iterator.remove();
                 }
                 if (connectionCount >= customPolicy.maxConnection() || history.size() >= customPolicy.maxConnectionPerInterval()) {
-//                  System.out.println(connectionCount + " " + history.size());
                   tasksQueue.add(pair);
                   try {
                     tasksQueue.wait();

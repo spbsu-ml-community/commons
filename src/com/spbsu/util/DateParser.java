@@ -85,8 +85,6 @@ public class DateParser {
     final int day, month, year, hours, minutes, seconds;
     final Scanner scanner = new Scanner(source.replace(':', ' '));
     final String ss = source.substring(0, 3);
-//    System.out.println("source = " + source);
-//    System.out.println("ss = " + ss);
     if (weekDays.contains(ss.toLowerCase())) {
       scanner.next();
     }

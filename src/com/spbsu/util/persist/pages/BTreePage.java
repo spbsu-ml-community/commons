@@ -82,8 +82,6 @@ public abstract class BTreePage implements CacheItem {
     try{
       if(changed)
         write(this);
-//      else
-//        System.out.println("Skip");
     }
     catch (IOException ioe){
       throw new RuntimeException("Unable to write page!", ioe);
