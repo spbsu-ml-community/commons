@@ -250,4 +250,17 @@ public class TextUtil {
     }
     return sentences.toArray(new CharSequence[sentences.size()]);
   }
+
+  public static CharSequence join(String separator, String[] strings) {
+    final StringBuilder builder = new StringBuilder();
+    boolean first = true;
+    for (String string : strings) {
+      if(!first)
+        builder.append(separator);
+      else
+        first = false;
+      builder.append(string);
+    }
+    return builder;
+  }
 }

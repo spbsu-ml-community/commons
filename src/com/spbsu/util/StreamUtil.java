@@ -73,6 +73,8 @@ public class StreamUtil {
       bufferedOut.write(buffer, 0, read);
     }
     bufferedOut.flush();
+    in.close();
+    out.close();
   }
 
   public static void transferData(final Reader in, final Writer out) throws IOException {
