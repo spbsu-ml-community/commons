@@ -67,9 +67,18 @@ public class DateParser {
     catch (ParseException e) {
       // Next step
     }
+
     // "EEE, d MMM yyyy HH:mm:ss Z"
     try {
       final SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
+      return format.parse(source);
+    }
+    catch (ParseException e) {
+      // Next step
+    }
+    // "EEE, d MMM yyyy HH:mm:ss Z"
+    try {
+      final SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss +SZ", Locale.US);
       return format.parse(source);
     }
     catch (ParseException e) {
