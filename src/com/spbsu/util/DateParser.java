@@ -76,6 +76,14 @@ public class DateParser {
     catch (ParseException e) {
       // Next step
     }
+    // "yyyy-MM-dd HHmmssZ" BBC format
+    try {
+      final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HHmmssZ", Locale.US);
+      return format.parse(source.replace('T', ' ').replace(":", ""));
+    }
+    catch (ParseException e) {
+      // Next step
+    }
     // "EEE, d MMM yyyy HH:mm:ss Z"
     try {
       final SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss +SZ", Locale.US);
