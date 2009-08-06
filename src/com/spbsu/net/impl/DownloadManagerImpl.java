@@ -363,5 +363,5 @@ public class DownloadManagerImpl implements DownloadManager {
     }
   }
 
-  public static final Policy DEFAULT_POLICY = new Policy(5, 5, 1000);
+  public static final Policy DEFAULT_POLICY = new PolicyImpl(5, 5, 1000);
 }

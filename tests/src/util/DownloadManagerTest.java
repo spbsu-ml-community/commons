@@ -1,7 +1,7 @@
 package util;
 
 import com.spbsu.net.DownloadManager;
-import com.spbsu.net.Policy;
+import com.spbsu.net.impl.PolicyImpl;
 import com.spbsu.net.impl.DownloadManagerImpl;
 import com.spbsu.util.Holder;
 import com.spbsu.util.Pair;
@@ -243,7 +243,7 @@ public class DownloadManagerTest extends HttpTestCase {
     addServlet("/hang", HangingServlet.class.getName());
     final AtomicInteger finishedTaskCount = new AtomicInteger(0);
     final int intervalMs = 10*1000;
-    final DownloadManagerImpl manager = new DownloadManagerImpl(new Policy(3, 3, intervalMs));
+    final DownloadManagerImpl manager = new DownloadManagerImpl(new PolicyImpl(3, 3, intervalMs));
     final long startTimeMs = System.currentTimeMillis();
     for (int i = 0; i < 3; i++) {
       final TaskBase<Pair<DownloadManager.URLStatus, CharSequence>> task = new TaskBase<Pair<DownloadManager.URLStatus, CharSequence>>() {
