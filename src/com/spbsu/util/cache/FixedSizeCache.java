@@ -105,7 +105,8 @@ public class FixedSizeCache<K, V> implements Cache<K, V>{
     while((ref = queue.poll()) != null){
       //noinspection SuspiciousMethodCalls
       final K key = invertedAccessMap.remove(ref);
-      accessMap.remove(key);
+      if (key != null)
+        accessMap.remove(key);
     }
   }
 
