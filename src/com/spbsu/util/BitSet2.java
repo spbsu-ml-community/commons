@@ -534,9 +534,15 @@ public class BitSet2 implements Cloneable, java.io.Serializable {
       if (word != 0 && oword != 0) {
         final int v = u * BITS_PER_WORD;
         final int bit1 = Long.numberOfTrailingZeros(word);
-        final int bit2 = Long.numberOfTrailingZeros(oword);
-        if (bit1 == bit2) {
+        if ((oword & (1L << bit1)) != 0) {
           return v + bit1;
+        }
+        else {
+          final int nextIndex = fromIndex + v + bit1 + 1;
+          if (wordIndex(nextIndex) == u) {
+            word &= WORD_MASK << nextIndex;
+            continue;
+          }
         }
       }
       if (++u == minWordsInUse) return -1;
