@@ -123,7 +123,8 @@ public class FixedSizeCache<K, V> implements Cache<K, V>{
     invertedAccessMap.clear();
     strategy.clear();
     for (int i = 0; i < cache.length; i++) {
-      if(cache[i] != null && cache[i].getSecond() instanceof CacheItem) ((CacheItem) cache[i].getSecond()).notifyRemove();
+      if(cache[i] != null && cache[i].getSecond() instanceof CacheItem)
+        ((CacheItem) cache[i].getSecond()).notifyRemove();
       cache[i] = null;
     }
   }

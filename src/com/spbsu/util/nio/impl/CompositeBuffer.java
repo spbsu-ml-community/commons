@@ -105,7 +105,7 @@ public class CompositeBuffer implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putByte(byte b, int pos) {
+  public WriteBuffer putByte(int pos, byte b) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -125,7 +125,7 @@ public class CompositeBuffer implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putChar(char c, int pos) {
+  public WriteBuffer putChar(int pos, char c) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -148,7 +148,7 @@ public class CompositeBuffer implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putInt(int i, int pos) {
+  public WriteBuffer putInt(int pos, int i) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -175,7 +175,7 @@ public class CompositeBuffer implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putLong(long l, int pos) {
+  public WriteBuffer putLong(int pos, long l) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -191,16 +191,16 @@ public class CompositeBuffer implements RWBuffer {
     return putInt(Float.floatToIntBits(f));
   }
 
-  public WriteBuffer putFloat(float f, int pos) {
-    return putInt(Float.floatToIntBits(f), pos);
+  public WriteBuffer putFloat(int pos, float f) {
+    return putInt(pos, Float.floatToIntBits(f));
   }
 
   public WriteBuffer putDouble(double d) {
     return putLong(Double.doubleToLongBits(d));
   }
 
-  public WriteBuffer putDouble(double d, int pos) {
-    return putLong(Double.doubleToLongBits(d), pos);
+  public WriteBuffer putDouble(int pos, double d) {
+    return putLong(pos, Double.doubleToLongBits(d));
   }
 
   public byte getByte() {

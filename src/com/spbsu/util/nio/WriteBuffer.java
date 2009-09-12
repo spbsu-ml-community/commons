@@ -9,20 +9,20 @@ package com.spbsu.util.nio;
  */
 public interface WriteBuffer extends Buffer{
   WriteBuffer putByte(byte b);
-  WriteBuffer putByte(byte b, int pos);
+  WriteBuffer putByte(int pos, byte b);
 
   WriteBuffer putChar(char c);
-  WriteBuffer putChar(char c, int pos);
+  WriteBuffer putChar(int pos, char c);
 
   WriteBuffer putInt(int i);
-  WriteBuffer putInt(int i, int pos);
+  WriteBuffer putInt(int pos, int i);
 
   WriteBuffer putLong(long l);
-  WriteBuffer putLong(long l, int pos);
+  WriteBuffer putLong(int pos, long l);
 
   WriteBuffer putFloat(float f);
-  WriteBuffer putFloat(float f, int pos);
+  WriteBuffer putFloat(int pos, float f);
 
   WriteBuffer putDouble(double d);
-  WriteBuffer putDouble(double d, int pos);
+  WriteBuffer putDouble(int pos, double d);
 }

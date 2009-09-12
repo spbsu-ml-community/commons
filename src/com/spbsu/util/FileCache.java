@@ -1,7 +1,9 @@
 package com.spbsu.util;
 
-import com.spbsu.util.cache.FixedSizeCache;
 import com.spbsu.util.cache.CacheStrategy;
+import com.spbsu.util.cache.FixedSizeCache;
+import com.spbsu.util.nio.BufferFactory;
+import com.spbsu.util.nio.RWBuffer;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -16,28 +18,28 @@ import java.util.Arrays;
 public class FileCache {
   private FileChannel cachingFile;
   private int slotCapacity;
-  private FixedSizeCache<Integer, ByteBuffer> slots;
+  private FixedSizeCache<Integer, RWBuffer> slots;
 
   public FileCache(RandomAccessFile cachingFile, int slotCapacity, int cacheCapacity) {
     this.cachingFile = cachingFile.getChannel();
     this.slotCapacity = slotCapacity;
-    slots = new FixedSizeCache<Integer, ByteBuffer>(cacheCapacity, CacheStrategy.Type.LRU);
+    slots = new FixedSizeCache<Integer, RWBuffer>(cacheCapacity, CacheStrategy.Type.LRU);
     //todo: may be not WeakMap.
   }
 
-  public ByteBuffer getPage(int fileOffset) throws IOException {
+  public RWBuffer getPage(int fileOffset) throws IOException {
     final int pageID = fileOffset / slotCapacity;
-    final ByteBuffer page = slots.get(pageID);
+    final RWBuffer page = slots.get(pageID);
     return page != null ? page : loadPage(pageID);
   }
 
-  public ByteBuffer getPageByNo(int pageNum) throws IOException {
-    final ByteBuffer page = slots.get(pageNum);
+  public RWBuffer getPageByNo(int pageNum) throws IOException {
+    final RWBuffer page = slots.get(pageNum);
     return page != null ? page : loadPage(pageNum);
   }
 
-  private ByteBuffer loadPage(int pageID) throws IOException {
-    final ByteBuffer buffer;
+  private RWBuffer loadPage(int pageID) throws IOException {
+    final RWBuffer buffer;
     final int pageOffset = pageID * slotCapacity;
     if (cachingFile.size() < pageOffset + slotCapacity) {
       final int buffSize = pageOffset + slotCapacity - (int) cachingFile.size();
@@ -45,7 +47,7 @@ public class FileCache {
       Arrays.fill(tmpBuff, (byte) 0);
       cachingFile.position(cachingFile.size()).write(ByteBuffer.wrap(tmpBuff));
     }
-    buffer = cachingFile.map(FileChannel.MapMode.READ_WRITE, pageOffset, slotCapacity);
+    buffer = BufferFactory.wrap(cachingFile.map(FileChannel.MapMode.READ_WRITE, pageOffset, slotCapacity));
     slots.put(pageID, buffer);
 
     return buffer;

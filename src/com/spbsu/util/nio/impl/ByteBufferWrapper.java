@@ -99,7 +99,7 @@ public class ByteBufferWrapper implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putByte(byte b, int pos) {
+  public WriteBuffer putByte(int pos, byte b) {
     buffer.put(pos, b);
     return this;
   }
@@ -109,7 +109,7 @@ public class ByteBufferWrapper implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putChar(char c, int pos) {
+  public WriteBuffer putChar(int pos, char c) {
     buffer.putChar(pos, c);
     return this;
   }
@@ -119,7 +119,7 @@ public class ByteBufferWrapper implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putInt(int i, int pos) {
+  public WriteBuffer putInt(int pos, int i) {
     buffer.putInt(pos, i);
     return this;
   }
@@ -129,7 +129,7 @@ public class ByteBufferWrapper implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putLong(long l, int pos) {
+  public WriteBuffer putLong(int pos, long l) {
     buffer.putLong(pos, l);
     return this;
   }
@@ -139,7 +139,7 @@ public class ByteBufferWrapper implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putFloat(float f, int pos) {
+  public WriteBuffer putFloat(int pos, float f) {
     buffer.putFloat(pos, f);
     return this;
   }
@@ -149,7 +149,7 @@ public class ByteBufferWrapper implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putDouble(double d, int pos) {
+  public WriteBuffer putDouble(int pos, double d) {
     buffer.putDouble(pos, d);
     return this;
   }
