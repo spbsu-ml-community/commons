@@ -1,7 +1,4 @@
-package com.spbsu.util.nio.impl;
-
-import com.spbsu.util.nio.RWBuffer;
-import com.spbsu.util.nio.WriteBuffer;
+package com.spbsu.util.nio;
 
 import java.nio.ByteBuffer;
 import java.nio.BufferOverflowException;
@@ -14,23 +11,34 @@ import java.nio.BufferUnderflowException;
  * Time: 15:50:48
  * To change this template use File | Settings | File Templates.
  */
-public class CompositeBuffer implements RWBuffer {
-  private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
-  private final ByteBuffer[] buffers;
+public class CompositeBuffer implements Buffer {
+  private static final Buffer EMPTY = BufferFactory.wrap(new byte[0]);
+  private final Buffer[] buffers;
   private final int capacity;
 
   private int position;
   private int limit;
 
-  private ByteBuffer active;
+  private Buffer active;
   private int activeNo;
   private int localPos;
 
-  public CompositeBuffer(ByteBuffer... buffers){
+  private static Buffer[] copyTo(ByteBuffer[] buffers) {
+    final Buffer[] rw = new Buffer[buffers.length];
+    for (int i = 0; i < buffers.length; i++)
+      rw[i] = BufferFactory.wrap(buffers[i]);
+    return rw;
+  }
+
+  public CompositeBuffer(ByteBuffer... buffers) {
+    this(copyTo(buffers));
+  }
+
+  public CompositeBuffer(Buffer... buffers){
     this.buffers = buffers;
     int capacity = 0;
     active = EMPTY;
-    for (ByteBuffer buffer : buffers) {
+    for (Buffer buffer : buffers) {
       if (active == EMPTY)
         active = buffer;
       capacity += buffer.remaining();
@@ -42,7 +50,6 @@ public class CompositeBuffer implements RWBuffer {
     activeNo = 0;
     localPos = 0;
   }
-
 
   public int capacity() {
     return capacity;
@@ -70,7 +77,7 @@ public class CompositeBuffer implements RWBuffer {
     }
     int index = 0;
     active = null;
-    for (ByteBuffer buffer : buffers) {
+    for (Buffer buffer : buffers) {
       if (pos <= buffer.remaining()) {
         active = buffer;
         break;
@@ -92,7 +99,7 @@ public class CompositeBuffer implements RWBuffer {
     return new CompositeBuffer(buffers);
   }
 
-  public WriteBuffer putByte(byte b) {
+  public Buffer putByte(byte b) {
     if (active.remaining() < localPos + 1) {
       if (activeNo >= buffers.length)
         throw new BufferOverflowException();
@@ -100,12 +107,12 @@ public class CompositeBuffer implements RWBuffer {
       localPos = 0;
       return putByte(b);
     }
-    active.put(localPos++, b);
+    active.putByte(localPos++, b);
     position++;
     return this;
   }
 
-  public WriteBuffer putByte(int pos, byte b) {
+  public Buffer putByte(int pos, byte b) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -117,7 +124,7 @@ public class CompositeBuffer implements RWBuffer {
     }
   }
 
-  public WriteBuffer putChar(char c) {
+  public Buffer putChar(char c) {
     if (active.remaining() < localPos + 2)
       return putByte((byte)((c >> 8) & 0xFF)).putByte((byte)(c & 0xFF));
     active.putChar(localPos += 2, c);
@@ -125,7 +132,7 @@ public class CompositeBuffer implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putChar(int pos, char c) {
+  public Buffer putChar(int pos, char c) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -137,7 +144,7 @@ public class CompositeBuffer implements RWBuffer {
     }
   }
 
-  public WriteBuffer putInt(int i) {
+  public Buffer putInt(int i) {
     if (active.remaining() < localPos + 4)
       return putByte((byte)((i >> 24) & 0xFF))
               .putByte((byte)((i >> 16) & 0xFF))
@@ -148,7 +155,7 @@ public class CompositeBuffer implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putInt(int pos, int i) {
+  public Buffer putInt(int pos, int i) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -160,7 +167,7 @@ public class CompositeBuffer implements RWBuffer {
     }
   }
 
-  public WriteBuffer putLong(long l) {
+  public Buffer putLong(long l) {
     if (active.remaining() < localPos + 8)
       return putByte((byte)((l >> 56) & 0xFF))
               .putByte((byte)((l >> 48) & 0xFF))
@@ -175,7 +182,7 @@ public class CompositeBuffer implements RWBuffer {
     return this;
   }
 
-  public WriteBuffer putLong(int pos, long l) {
+  public Buffer putLong(int pos, long l) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -187,19 +194,19 @@ public class CompositeBuffer implements RWBuffer {
     }
   }
 
-  public WriteBuffer putFloat(float f) {
+  public Buffer putFloat(float f) {
     return putInt(Float.floatToIntBits(f));
   }
 
-  public WriteBuffer putFloat(int pos, float f) {
+  public Buffer putFloat(int pos, float f) {
     return putInt(pos, Float.floatToIntBits(f));
   }
 
-  public WriteBuffer putDouble(double d) {
+  public Buffer putDouble(double d) {
     return putLong(Double.doubleToLongBits(d));
   }
 
-  public WriteBuffer putDouble(int pos, double d) {
+  public Buffer putDouble(int pos, double d) {
     return putLong(pos, Double.doubleToLongBits(d));
   }
 
@@ -212,7 +219,7 @@ public class CompositeBuffer implements RWBuffer {
       return getByte();
     }
     position++;
-    return active.get(localPos++);
+    return active.getByte(localPos++);
   }
 
   public byte getByte(int pos) {
@@ -304,5 +311,9 @@ public class CompositeBuffer implements RWBuffer {
 
   public double getDouble(int pos) {
     return Double.longBitsToDouble(getLong(pos));
+  }
+
+  public Buffer[] getParts() {
+    return buffers;
   }
 }

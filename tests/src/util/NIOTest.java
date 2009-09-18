@@ -1,7 +1,7 @@
 package util;
 
 import com.spbsu.util.nio.BufferFactory;
-import com.spbsu.util.nio.RWBuffer;
+import com.spbsu.util.nio.Buffer;
 import junit.framework.TestCase;
 
 import java.nio.BufferUnderflowException;
@@ -16,7 +16,7 @@ import java.nio.ByteBuffer;
  */
 public class NIOTest extends TestCase {
   public void testComposite0() {
-    final RWBuffer b = BufferFactory.wrap();
+    final Buffer b = BufferFactory.wrap();
     boolean caught = false;
     try {
       b.getInt();
@@ -28,21 +28,21 @@ public class NIOTest extends TestCase {
   }
 
   public void testComposite1() {
-    final RWBuffer b = BufferFactory.wrap(new byte[4]);
+    final Buffer b = BufferFactory.wrap(new byte[4]);
     b.putInt(48);
     b.position(0);
     assertEquals(48, b.getInt());
   }
 
   public void testComposite2() {
-    final RWBuffer b = BufferFactory.wrap(ByteBuffer.wrap(new byte[2]), ByteBuffer.wrap(new byte[2]));
+    final Buffer b = BufferFactory.wrap(ByteBuffer.wrap(new byte[2]), ByteBuffer.wrap(new byte[2]));
     b.putInt(48);
     b.position(0);
     assertEquals(48, b.getInt());
   }
 
   public void testComposite3() {
-    final RWBuffer b = BufferFactory.wrap(ByteBuffer.wrap(new byte[2]), ByteBuffer.wrap(new byte[2]));
+    final Buffer b = BufferFactory.wrap(ByteBuffer.wrap(new byte[2]), ByteBuffer.wrap(new byte[2]));
     b.putInt(48);
     b.position(0);
     assertEquals(48, b.getInt());
@@ -50,7 +50,7 @@ public class NIOTest extends TestCase {
   }
 
   public void testComposite4() {
-    final RWBuffer b = BufferFactory.wrap(ByteBuffer.wrap(new byte[2]), ByteBuffer.wrap(new byte[2]));
+    final Buffer b = BufferFactory.wrap(ByteBuffer.wrap(new byte[2]), ByteBuffer.wrap(new byte[2]));
     b.putFloat(0.187236f);
     b.position(0);
     assertEquals(1044363979, b.getInt(0));
@@ -59,7 +59,7 @@ public class NIOTest extends TestCase {
   }
 
   public void testComposite5() {
-    final RWBuffer b = BufferFactory.wrap(ByteBuffer.wrap(new byte[1]), ByteBuffer.wrap(new byte[1]));
+    final Buffer b = BufferFactory.wrap(ByteBuffer.wrap(new byte[1]), ByteBuffer.wrap(new byte[1]));
     b.putChar('ф');
     b.position(0);
     assertEquals('ф', b.getChar());

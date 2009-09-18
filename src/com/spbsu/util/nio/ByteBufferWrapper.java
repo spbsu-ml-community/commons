@@ -1,7 +1,4 @@
-package com.spbsu.util.nio.impl;
-
-import com.spbsu.util.nio.RWBuffer;
-import com.spbsu.util.nio.WriteBuffer;
+package com.spbsu.util.nio;
 
 import java.nio.ByteBuffer;
 
@@ -12,7 +9,7 @@ import java.nio.ByteBuffer;
  * Time: 15:32:51
  * To change this template use File | Settings | File Templates.
  */
-public class ByteBufferWrapper implements RWBuffer {
+public class ByteBufferWrapper implements Buffer {
   private final ByteBuffer buffer;
   public ByteBufferWrapper(ByteBuffer buffer) {
     this.buffer = buffer;
@@ -94,62 +91,62 @@ public class ByteBufferWrapper implements RWBuffer {
     return buffer.getDouble(pos);
   }
 
-  public WriteBuffer putByte(byte b) {
+  public Buffer putByte(byte b) {
     buffer.put(b);
     return this;
   }
 
-  public WriteBuffer putByte(int pos, byte b) {
+  public Buffer putByte(int pos, byte b) {
     buffer.put(pos, b);
     return this;
   }
 
-  public WriteBuffer putChar(char c) {
+  public Buffer putChar(char c) {
     buffer.putChar(c);
     return this;
   }
 
-  public WriteBuffer putChar(int pos, char c) {
+  public Buffer putChar(int pos, char c) {
     buffer.putChar(pos, c);
     return this;
   }
 
-  public WriteBuffer putInt(int i) {
+  public Buffer putInt(int i) {
     buffer.putInt(i);
     return this;
   }
 
-  public WriteBuffer putInt(int pos, int i) {
+  public Buffer putInt(int pos, int i) {
     buffer.putInt(pos, i);
     return this;
   }
 
-  public WriteBuffer putLong(long l) {
+  public Buffer putLong(long l) {
     buffer.putLong(l);
     return this;
   }
 
-  public WriteBuffer putLong(int pos, long l) {
+  public Buffer putLong(int pos, long l) {
     buffer.putLong(pos, l);
     return this;
   }
 
-  public WriteBuffer putFloat(float f) {
+  public Buffer putFloat(float f) {
     buffer.putFloat(f);
     return this;
   }
 
-  public WriteBuffer putFloat(int pos, float f) {
+  public Buffer putFloat(int pos, float f) {
     buffer.putFloat(pos, f);
     return this;
   }
 
-  public WriteBuffer putDouble(double d) {
+  public Buffer putDouble(double d) {
     buffer.putDouble(d);
     return this;
   }
 
-  public WriteBuffer putDouble(int pos, double d) {
+  public Buffer putDouble(int pos, double d) {
     buffer.putDouble(pos, d);
     return this;
   }

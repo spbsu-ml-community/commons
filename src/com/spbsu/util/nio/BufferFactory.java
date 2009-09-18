@@ -1,7 +1,7 @@
 package com.spbsu.util.nio;
 
-import com.spbsu.util.nio.impl.ByteBufferWrapper;
-import com.spbsu.util.nio.impl.CompositeBuffer;
+import com.spbsu.util.nio.ByteBufferWrapper;
+import com.spbsu.util.nio.CompositeBuffer;
 
 import java.nio.ByteBuffer;
 
@@ -13,33 +13,19 @@ import java.nio.ByteBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class BufferFactory {
-  public static ReadBuffer wrapOnRead(byte[] array) {
+  public static Buffer wrap(byte[] array) {
     return new ByteBufferWrapper(ByteBuffer.wrap(array));
   }
 
-  public static WriteBuffer wrapOnWrite(byte[] array) {
-    return new ByteBufferWrapper(ByteBuffer.wrap(array));
-  }
-
-  public static RWBuffer wrap(byte[] array) {
-    return new ByteBufferWrapper(ByteBuffer.wrap(array));
-  }
-
-  public static ReadBuffer wrapOnRead(ByteBuffer... buffers) {
+  public static Buffer wrap(ByteBuffer... buffers) {
     if (buffers.length == 1)
       return new ByteBufferWrapper(buffers[0]);
     return new CompositeBuffer(buffers);
   }
 
-  public static WriteBuffer wrapOnWrite(ByteBuffer... buffers) {
+  public static Buffer compile(Buffer... buffers) {
     if (buffers.length == 1)
-      return new ByteBufferWrapper(buffers[0]);
-    return new CompositeBuffer(buffers);
-  }
-
-  public static RWBuffer wrap(ByteBuffer... buffers) {
-    if (buffers.length == 1)
-      return new ByteBufferWrapper(buffers[0]);
+      return buffers[0];
     return new CompositeBuffer(buffers);
   }
 

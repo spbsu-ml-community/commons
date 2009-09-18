@@ -2,8 +2,8 @@ package com.spbsu.util;
 
 import com.spbsu.util.cache.CacheStrategy;
 import com.spbsu.util.cache.FixedSizeCache;
+import com.spbsu.util.nio.Buffer;
 import com.spbsu.util.nio.BufferFactory;
-import com.spbsu.util.nio.RWBuffer;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -18,28 +18,32 @@ import java.util.Arrays;
 public class FileCache {
   private FileChannel cachingFile;
   private int slotCapacity;
-  private FixedSizeCache<Integer, RWBuffer> slots;
+  private FixedSizeCache<Integer, Buffer> slots;
 
   public FileCache(RandomAccessFile cachingFile, int slotCapacity, int cacheCapacity) {
     this.cachingFile = cachingFile.getChannel();
     this.slotCapacity = slotCapacity;
-    slots = new FixedSizeCache<Integer, RWBuffer>(cacheCapacity, CacheStrategy.Type.LRU);
+    slots = new FixedSizeCache<Integer, Buffer>(cacheCapacity, CacheStrategy.Type.LRU);
     //todo: may be not WeakMap.
   }
 
-  public RWBuffer getPage(int fileOffset) throws IOException {
+  public Buffer getPage(int fileOffset) throws IOException {
     final int pageID = fileOffset / slotCapacity;
-    final RWBuffer page = slots.get(pageID);
+    final Buffer page = slots.get(pageID);
     return page != null ? page : loadPage(pageID);
   }
 
-  public RWBuffer getPageByNo(int pageNum) throws IOException {
-    final RWBuffer page = slots.get(pageNum);
+  public Buffer getPageByNo(int pageNum) throws IOException {
+    final Buffer page = slots.get(pageNum);
     return page != null ? page : loadPage(pageNum);
   }
 
-  private RWBuffer loadPage(int pageID) throws IOException {
-    final RWBuffer buffer;
+  public int size() throws IOException {
+    return (int)(cachingFile.size() / slotCapacity);
+  }
+
+  private Buffer loadPage(int pageID) throws IOException {
+    final Buffer buffer;
     final int pageOffset = pageID * slotCapacity;
     if (cachingFile.size() < pageOffset + slotCapacity) {
       final int buffSize = pageOffset + slotCapacity - (int) cachingFile.size();
