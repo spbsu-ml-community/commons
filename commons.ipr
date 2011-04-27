@@ -45,7 +45,6 @@
   </component>
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
-    <option name="DEPLOY_AFTER_MAKE" value="0" />
     <resourceExtensions>
       <entry name=".+\.(properties|xml|html|dtd|tld)" />
       <entry name=".+\.(gif|png|jpeg|jpg)" />
@@ -307,9 +306,9 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="Logging">
+    <library name="Jetty">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/lib/commons-logging.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/org.mortbay.jetty.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
@@ -321,16 +320,16 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="Servlet-API">
+    <library name="Logging">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/lib/servlet-api-2.5.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/commons-logging.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="Jetty">
+    <library name="Servlet-API">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/lib/org.mortbay.jetty.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/servlet-api-2.5.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
