@@ -1,0 +1,21 @@
+package com.spbsu.commons.filters;
+
+/**
+ * User: terry
+ * Date: 16.11.2007
+ * Time: 14:18:51
+ */
+public class FalseFilter<T> implements Filter<T> {
+  public boolean accept(T t) {
+    return false;
+  }
+
+  public boolean accept(FilterVisitor visitor) {
+    visitor.visit(this);
+    return true;
+  }
+
+  public static <T> Filter<T> create() {
+    return new FalseFilter<T>();
+  }
+}

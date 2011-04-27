@@ -41,7 +41,6 @@
     <orderEntry type="library" name="Jetty" level="project" />
     <orderEntry type="library" name="Troove" level="project" />
     <orderEntry type="library" name="Servlet-API" level="project" />
-    <orderEntry type="module" module-name="libs" />
   </component>
 </module>
 
