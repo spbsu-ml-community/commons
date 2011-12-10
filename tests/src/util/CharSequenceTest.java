@@ -1,6 +1,6 @@
 package util;
 
-import com.spbsu.util.CompositeCharSequence;
+import com.spbsu.commons.text.CompositeCharSequence;
 import junit.framework.TestCase;
 
 /**

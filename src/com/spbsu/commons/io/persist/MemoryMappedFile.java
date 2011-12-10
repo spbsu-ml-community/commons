@@ -4,7 +4,6 @@ import com.spbsu.commons.io.Buffer;
 import com.spbsu.commons.io.BufferFactory;
 import com.spbsu.commons.util.cache.Cache;
 import com.spbsu.commons.util.logging.Logger;
-import net.jcip.annotations.NotThreadSafe;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +17,6 @@ import java.util.Arrays;
  * Date: 03.02.2006
  */
 
-@NotThreadSafe
 public class MemoryMappedFile {
   private static final Logger LOG = Logger.create(MemoryMappedFile.class);
 
