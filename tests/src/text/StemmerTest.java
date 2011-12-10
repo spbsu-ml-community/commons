@@ -1,6 +1,6 @@
 package text;
 
-import com.spbsu.text.stemmer.Stemmer;
+import com.spbsu.commons.text.stem.Stemmer;
 import junit.framework.TestCase;
 
 /**

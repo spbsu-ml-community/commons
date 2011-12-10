@@ -1,5 +1,9 @@
 package com.spbsu.util.charset.bigram;
 
+import com.spbsu.commons.text.charset.bigram.BigramsTable;
+import com.spbsu.commons.text.charset.bigram.BigramsTextAnalyzer;
+import com.spbsu.commons.text.charset.bigram.CharBigram;
+import com.spbsu.commons.text.charset.bigram.CharFilter;
 import junit.framework.TestCase;
 
 /**

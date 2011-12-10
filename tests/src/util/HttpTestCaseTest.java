@@ -1,6 +1,6 @@
 package util;
 
-import com.spbsu.util.StreamUtil;
+import com.spbsu.commons.io.StreamTools;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -22,14 +22,14 @@ public class HttpTestCaseTest extends HttpTestCase {
 
   public void testPlainHTML() throws Exception {
     final URL url = new URL("http://localhost:" + PORT + "/hello.html");
-    final CharSequence result = StreamUtil.readStream(url.openConnection().getInputStream());
+    final CharSequence result = StreamTools.readStream(url.openConnection().getInputStream());
     assertEquals("Hello", result.toString());
   }
 
   public void testServlet() throws Exception {
     final URL url = new URL("http://localhost:" + PORT + "/xxx");
     addServlet("/xxx", FakeServlet.class.getName());
-    final CharSequence result = StreamUtil.readStream(url.openConnection().getInputStream());
+    final CharSequence result = StreamTools.readStream(url.openConnection().getInputStream());
     assertEquals("Hello off.", result.toString().trim());
   }
 

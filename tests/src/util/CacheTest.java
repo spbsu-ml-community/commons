@@ -1,10 +1,10 @@
 package util;
 
-import com.spbsu.util.Holder;
-import com.spbsu.util.Computable;
-import com.spbsu.util.cache.CacheStrategy;
-import com.spbsu.util.cache.FixedSizeCache;
-import com.spbsu.util.cache.impl.LRUStrategy;
+import com.spbsu.commons.func.Computable;
+import com.spbsu.commons.util.Holder;
+import com.spbsu.commons.util.cache.CacheStrategy;
+import com.spbsu.commons.util.cache.impl.FixedSizeCache;
+import com.spbsu.commons.util.cache.impl.LRUStrategy;
 import junit.framework.TestCase;
 
 import java.util.Random;

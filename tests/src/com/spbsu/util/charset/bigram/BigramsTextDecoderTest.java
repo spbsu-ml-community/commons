@@ -1,7 +1,7 @@
 package com.spbsu.util.charset.bigram;
 
+import com.spbsu.commons.text.charset.TextDecoderTools;
 import junit.framework.TestCase;
-import com.spbsu.util.TextUtil;
 
 import java.nio.charset.Charset;
 
@@ -110,9 +110,9 @@ public class BigramsTextDecoderTest extends TestCase {
   }
 
   private void performTest(String s) {
-    for (String charset : TextUtil.CYRILLIC_CHARSETS) {
+    for (String charset : TextDecoderTools.CYRILLIC_CHARSETS) {
       final byte[] bytes = s.getBytes(Charset.forName(charset));
-      assertEquals(charset, s, TextUtil.decodeCyrillicText(bytes));
+      assertEquals(charset, s, TextDecoderTools.decodeCyrillicText(bytes));
     }
   }
 }

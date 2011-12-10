@@ -125,6 +125,17 @@ public class VectorsTest extends TestCase {
     assertEquals(2.0, VecTools.infinityNorm(vector));
   }
 
+  public void testDel2LastValues() {
+    final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz", "ss", "asdasd");
+    final DVector<CharSequence> vector =
+        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2, 3, 0});
+    final VecIterator iterator = vector.nonZeroes();
+    while (iterator.advance()) {
+      if(iterator.index() > 1)
+        iterator.setValue(0);
+    }
+  }
+
   public void testIterator() throws Exception {
     final DVector<CharSequence> v = new DVector<CharSequence>(
       new CharSequence[] {"1", "2", "3", "5", "10", "11", "13", "15"},
@@ -132,7 +143,6 @@ public class VectorsTest extends TestCase {
     );
     final HashSet<CharSequence> found = new HashSet<CharSequence>();
     v.forEach(new TObjectDoubleProcedure<CharSequence>() {
-      @Override
       public boolean execute(CharSequence charSequence, double v) {
         found.add(charSequence);
         return true;

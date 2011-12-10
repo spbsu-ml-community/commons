@@ -1,5 +1,6 @@
 package com.spbsu.util.charset.bigram;
 
+import com.spbsu.commons.text.charset.bigram.CharBigram;
 import junit.framework.TestCase;
 
 /**
