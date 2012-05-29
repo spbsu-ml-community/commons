@@ -213,6 +213,15 @@ public class VecTools {
     return copy;
   }
 
+  public static double l1(Vec vec) {
+    double result = 0;
+    final VecIterator iterator = vec.nonZeroes();
+    while (iterator.advance()) {
+      result += Math.abs(iterator.value());
+    }
+    return result;
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;
