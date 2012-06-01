@@ -18,7 +18,7 @@ public class Vec2StringConverter implements Converter<Vec, String>{
     SparseVec vec = new SparseVec(new IntBasis(Integer.parseInt(tok.nextToken())));
     while(tok.hasMoreElements()) {
       StringTokenizer p = new StringTokenizer(tok.nextToken(), ":");
-      vec.set(Integer.parseInt(p.nextToken()), Integer.parseInt(p.nextToken()));
+      vec.set(Integer.parseInt(p.nextToken()), Double.parseDouble(p.nextToken()));
     }
     return vec;
   }
