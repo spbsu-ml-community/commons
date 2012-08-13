@@ -6,12 +6,22 @@ package com.spbsu.commons.math.vectors;
  * Time: 16:25:41
  */
 public class ArrayVec implements Vec {
-  final double[] values;
+  public final double[] values;
   private final IntBasis basis;
 
   public ArrayVec(double... values) {
     this.values = values;
     basis = new IntBasis(values.length);
+  }
+
+  public ArrayVec(int dim) {
+    this.values = new double[dim];
+    basis = new IntBasis(dim);
+  }
+
+  @Override
+  public int dim() {
+    return values.length;
   }
 
   @Override
@@ -33,6 +43,7 @@ public class ArrayVec implements Vec {
 
   @Override
   public VecIterator nonZeroes() {
+    final int dim = dim();
     return new VecIterator() {
       int index = -1;
 
@@ -42,20 +53,21 @@ public class ArrayVec implements Vec {
       }
       @Override
       public double value() {
-        return values[index];
+        return get(index);
       }
       @Override
       public boolean isValid() {
-        return index < values.length && index >= 0;
+        return index < dim && index >= 0;
       }
       @Override
       public boolean advance() {
-        while(++index < values.length && values[index] == 0);
+        while(++index < dim && get(index) == 0);
         return isValid();
       }
       @Override
       public double setValue(double v) {
-        return values[index] = v;
+        set(index, v);
+        return v;
       }
     };
   }
@@ -86,7 +98,15 @@ public class ArrayVec implements Vec {
     }
     return hashCode;
   }
- 
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < dim(); i++)
+      builder.append(i > 0 ? " " : "").append(get(i));
+    return builder.toString();
+  }
+
   @Override
   public Basis basis() {
     return basis;

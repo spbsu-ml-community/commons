@@ -12,5 +12,7 @@ public interface Vec {
   VecIterator nonZeroes();
   int nonZeroesCount();
   Basis basis();
+
+  int dim();
 }
 

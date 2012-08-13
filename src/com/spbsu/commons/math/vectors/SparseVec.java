@@ -135,6 +135,11 @@ public class SparseVec<B extends Basis> implements Vec {
   }
 
   @Override
+  public int dim() {
+    return basis.size();
+  }
+
+  @Override
   public boolean equals(Object o) {
     return o instanceof Vec && VecTools.equals(this, (Vec)o);
   }

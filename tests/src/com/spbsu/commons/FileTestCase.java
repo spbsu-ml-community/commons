@@ -50,8 +50,8 @@ public abstract class FileTestCase extends TestCase {
   }
 
   public static byte[] readStream(InputStream inputStream) throws IOException {
-    byte[] result = new byte[128];
-    final byte[] buffer = new byte[256];
+    byte[] result = new byte[512 * 1024];
+    final byte[] buffer = new byte[256 * 1024];
     int read;
     int size = 0;
     while ((read = inputStream.read(buffer)) >= 0) {
