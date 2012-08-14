@@ -213,7 +213,7 @@ public class VecTools {
         double l1 = larray.values[i] - rarray.values[i];
         result += l1 * l1;
       }
-      return result;
+      return Math.sqrt(result);
     }
     final VecIterator liter = left.nonZeroes();
     final VecIterator riter = right.nonZeroes();

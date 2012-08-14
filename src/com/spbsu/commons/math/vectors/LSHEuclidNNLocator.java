@@ -17,6 +17,7 @@ import java.util.Random;
 public class LSHEuclidNNLocator {
   private final List<Axis> axes = new ArrayList<Axis>();
   private final List<Vec> pool;
+
   private static class Axis {
     Vec a;
     double[] splits;
@@ -76,7 +77,7 @@ public class LSHEuclidNNLocator {
   public int nearest(Vec x, int count, int[] nearest, double[] distance) {
     final int[] candidates;
     {
-      final TIntHashSet found = new TIntHashSet(count * 5);
+      final TIntHashSet found = new TIntHashSet(axes.size() * axes.get(0).splits.length);
       for (Axis axis : axes) {
         double product = VecTools.multiply(axis.a, x);
         int split = Arrays.binarySearch(axis.splits, product);
@@ -99,6 +100,10 @@ public class LSHEuclidNNLocator {
       distance[i] = distances[i];
     }
     return rSize;
+  }
+
+  public int nearest(Vec vec, int size, int[] result) {
+    return nearest(vec, size, result, new double[size]);
   }
 
   public Vec[] nearest(Vec x, int count) {
