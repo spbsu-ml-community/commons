@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.Math.*;
+
 /**
  * User: solar
  * Date: 16.01.2010
@@ -171,7 +173,7 @@ public class VecTools {
       final double rv = right.get(i);
       result += (lv - rv) * (lv - rv);
     }
-    return Math.sqrt(result);
+    return sqrt(result);
   }
 
   public static double distanceAVJS12(Vec left, Vec right) {
@@ -182,11 +184,11 @@ public class VecTools {
     for (int i = 0; i < size; i++) {
       final double p = left.get(i);
       final double q = right.get(i);
-      final double pr = p == 0 ? 0 : p * Math.log(2 * p / (p + q));
-      final double qr = q == 0 ? 0 : q * Math.log(2 * q / (p + q));
+      final double pr = p == 0 ? 0 : p * log(2 * p / (p + q));
+      final double qr = q == 0 ? 0 : q * log(2 * q / (p + q));
       result += pr + qr;
     }
-    return Math.sqrt(result);
+    return sqrt(result);
   }
 
   public static double distance(Vec left, Vec right) {
@@ -213,7 +215,7 @@ public class VecTools {
         double l1 = larray.values[i] - rarray.values[i];
         result += l1 * l1;
       }
-      return Math.sqrt(result);
+      return sqrt(result);
     }
     final VecIterator liter = left.nonZeroes();
     final VecIterator riter = right.nonZeroes();
@@ -242,7 +244,7 @@ public class VecTools {
           lindex = liter.index();
       }
     }
-    return Math.sqrt(result);
+    return sqrt(result);
   }
 
   public static double distanceJS12(Vec left, Vec right) {
@@ -258,24 +260,24 @@ public class VecTools {
       if (rindex == lindex) {
         final double p = liter.value();
         final double q = riter.value();
-        result += p * Math.log(2 * p / (p + q)) + q * Math.log(2 * q / (p + q));
+        result += p * log(2 * p / (p + q)) + q * log(2 * q / (p + q));
         if (liter.advance())
           lindex = liter.index();
         if (riter.advance())
           rindex = riter.index();
       }
       else if (lindex > rindex) {
-        result += riter.value() * Math.log(2);
+        result += riter.value() * log(2);
         if(riter.advance())
           rindex = riter.index();
       }
       else {
-        result += liter.value() * Math.log(2);
+        result += liter.value() * log(2);
         if(liter.advance())
           lindex = liter.index();
       }
     }
-    return Math.sqrt(result);
+    return sqrt(result);
   }
 
   public static Vec copySparse(Vec vec) {
@@ -288,7 +290,7 @@ public class VecTools {
     double result = 0;
     final VecIterator iterator = vec.nonZeroes();
     while (iterator.advance()) {
-      result += Math.abs(iterator.value());
+      result += abs(iterator.value());
     }
     return result;
   }
@@ -321,7 +323,7 @@ public class VecTools {
     int dim = a.columns();
     for (int i = 0; i < dim; i++)
       for (int j = 0; j < dim; j++)
-        if (Math.abs(a.get(i, j) - a.get(j, i)) > EPSILON)
+        if (abs(a.get(i, j) - a.get(j, i)) > EPSILON)
           return false;
     return true;
   }
@@ -377,7 +379,7 @@ public class VecTools {
       double diagonal = a.get(i, i) - sum2;
       if (diagonal < 0)
         throw new IllegalArgumentException("Matrix must be positive definite!");
-      l.set(i, i, Math.sqrt(diagonal));
+      l.set(i, i, sqrt(diagonal));
     }
     return l;
   }
@@ -432,6 +434,10 @@ public class VecTools {
   }
 
   public static Vec copy(Vec vec) {
+    if (vec instanceof VecBasedMx) {
+      final VecBasedMx mx = (VecBasedMx) vec;
+      return new VecBasedMx(mx.columns, copy(mx.vec));
+    }
     if (vec instanceof ArrayVec) {
       final ArrayVec arrayVec = (ArrayVec) vec;
       return new ArrayVec(arrayVec.values.clone());
@@ -447,6 +453,18 @@ public class VecTools {
     }
     return result;
   }
+
+  public static Mx transposeIt(Mx a) {
+    for (int i = 0; i < a.rows(); i++) {
+      for (int j = i+1; j < a.columns(); j++) {
+        double save = a.get(i, j);
+        a.set(i, j, a.get(j, i));
+        a.set(j, i, save);
+      }
+    }
+    return a;
+  }
+
 
   public static void assign(Vec a, Vec vec) {
     scale(a, 0);
@@ -474,6 +492,62 @@ public class VecTools {
     VecTools.scale(covar, 1./pool.size());
     final Mx l = VecTools.choleskyDecomposition(covar);
     return VecTools.inverseLTriangle(l);
+  }
+
+  public static void householderLQ(Mx A, Mx L, Mx QTransposed) {
+    final int cols = A.columns();
+    final int rows = A.rows();
+    assign(L, A);
+    if (QTransposed != null) {
+      VecTools.scale(QTransposed, 0.);
+      for (int i = 0; i < cols; i++)
+        QTransposed.set(i, i, 1.);
+    }
+    Vec hhplane = new ArrayVec(cols);
+    for (int i = 0; i < cols - 1; i++) {
+      if (i > 0)
+        hhplane.set(i - 1, 0);
+      double diag2 = 0;
+      for (int j = i; j < cols; j++) {
+        final double Lij = L.get(i, j);
+        diag2 += Lij * Lij;
+      }
+      final double origDiag = L.get(i, i);
+      double diag = -signum(origDiag) * sqrt(diag2);
+      double r = 2 * sqrt(0.5 * (diag2 - diag * origDiag));
+      hhplane.set(i, (origDiag - diag)/r);
+      for (int j = i + 1; j < cols; j++) {
+        hhplane.set(j, L.get(i, j) / r);
+      }
+      L.set(i, i, diag);
+      for (int j = i + 1; j < cols; j++) {
+        L.set(i, j, 0.);
+      }
+      for (int k = i+1; k < rows; k++) {
+        double product = 0.;
+        for (int j = i; j < cols; j++)
+          product += L.get(k, j) * hhplane.get(j);
+        product *= -2.;
+        for (int j = i; j < cols; j++)
+          L.adjust(k, j, hhplane.get(j) * product);
+      }
+      if (QTransposed != null) {
+//        Mx copyQ = (Mx)copy(QTransposed);
+        for (int j = 0; j < cols; j++) {
+          double product = 0.;
+          for (int k = i; k < cols; k++)
+            product += QTransposed.get(j, k) * hhplane.get(k);
+          product *= -2.;
+
+          for (int k = i; k < cols; k++)
+            QTransposed.adjust(j, k, product * hhplane.get(k));
+        }
+//        if (distance(E(cols), multiply(transpose(QTransposed), QTransposed)) > 0.001) {
+//          System.out.println(QTransposed.toString());
+//          System.out.println(multiply(copyQ, append(E(cols), outer(hhplane, hhplane))));
+//        }
+      }
+    }
   }
 
   private static class IndexedVecIter {
@@ -609,7 +683,7 @@ public class VecTools {
       result += value * value;
     }
 
-    return Math.sqrt(result);
+    return sqrt(result);
   }
 
   @SuppressWarnings({"UnusedDeclaration"})
@@ -617,7 +691,7 @@ public class VecTools {
     final VecIterator iter = v.nonZeroes();
     double result = 0;
     while (iter.advance()) {
-      result += Math.abs(iter.value());
+      result += abs(iter.value());
     }
 
     return result;
