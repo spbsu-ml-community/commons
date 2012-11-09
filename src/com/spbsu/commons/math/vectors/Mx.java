@@ -1,5 +1,7 @@
 package com.spbsu.commons.math.vectors;
 
+import java.util.List;
+
 /**
  * User: solar
  * Date: 26.07.12
@@ -11,6 +13,8 @@ public interface Mx extends Vec {
   Mx adjust(int i, int j, double increment);
 
   Mx sub(int i, int j, int height, int width);
+  Vec row(int i);
+  Vec col(int j);
 
   MxIterator nonZeroes();
   MxBasis basis();

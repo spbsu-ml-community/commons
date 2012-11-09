@@ -1,4 +1,8 @@
-package com.spbsu.commons.math.vectors;
+package com.spbsu.commons.math.vectors.impl;
+
+import com.spbsu.commons.math.vectors.*;
+import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
+import com.spbsu.commons.math.vectors.impl.iterators.MyMxIterator;
 
 /**
  * User: solar
@@ -7,7 +11,7 @@ package com.spbsu.commons.math.vectors;
  */
 public class VecBasedMx implements Mx {
   public final Vec vec;
-  final int columns;
+  public final int columns;
 
   public VecBasedMx(int columns, Vec vec) {
     this.columns = columns;
@@ -20,7 +24,7 @@ public class VecBasedMx implements Mx {
 
   public VecBasedMx(Mx mx) {
     if (mx instanceof VecBasedMx)
-      vec = VecTools.copy(((VecBasedMx)mx).vec);
+      vec = VecTools.copy(((VecBasedMx) mx).vec);
     else vec = mx;
     columns = mx.columns();
   }
@@ -42,10 +46,19 @@ public class VecBasedMx implements Mx {
 
   @Override
   public Mx sub(int i, int j, int height, int width) {
-    final int columns = width < 0 ? columns() - i : width;
-    final int rows = height < 0 ? rows() - j : height;
-    final int start = i * columns() + j;
-    return new SubMx(start, columns, rows, this);
+    return new VecBasedMx(width, new IndexTransVec(vec,
+            new SubMxTransformation(columns(), i, j, width, height),
+            new IntBasis(height * width)));
+  }
+
+  @Override
+  public Vec row(int i) {
+    return new IndexTransVec(vec, new SubMxTransformation(columns(), i, 0, columns(), 1), new IntBasis(columns()));
+  }
+
+  @Override
+  public Vec col(int j) {
+    return new IndexTransVec(vec, new SubMxTransformation(columns(), 0, j, 1, rows()), new IntBasis(rows()));
   }
 
   @Override
@@ -80,47 +93,9 @@ public class VecBasedMx implements Mx {
 
   @Override
   public MxIterator nonZeroes() {
-    return new MxIterator() {
-      VecIterator it = vec.nonZeroes();
-
-      @Override
-      public int column() {
-        return it.index() % columns;
-      }
-
-      @Override
-      public int row() {
-        return it.index() / columns;
-      }
-      @Override
-      public double value() {
-        return it.value();
-      }
-      @Override
-      public boolean isValid() {
-        return it.isValid();
-      }
-      @Override
-      public boolean advance() {
-        return it.advance();
-      }
-      @Override
-      public double setValue(double v) {
-        return it.setValue(v);
-      }
-      @Override
-      public int index() {
-        return it.index();
-      }
-    };
-
+    return new MyMxIterator(vec.nonZeroes(), columns);
   }
  
-  @Override
-  public int nonZeroesCount() {
-    return vec.nonZeroesCount();
-  }
-
   @Override
   public MxBasis basis() {
     return new MxBasisImpl(columns, rows());
@@ -129,6 +104,16 @@ public class VecBasedMx implements Mx {
   @Override
   public int dim() {
     return vec.dim();
+  }
+
+  @Override
+  public double[] toArray() {
+    return new double[0];  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public boolean sparse() {
+    return vec.sparse();
   }
 
   @Override
@@ -150,5 +135,4 @@ public class VecBasedMx implements Mx {
   public int hashCode() {
     return (vec.hashCode() << 1) + columns;
   }
-
 }

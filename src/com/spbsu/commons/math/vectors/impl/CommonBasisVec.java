@@ -1,5 +1,9 @@
-package com.spbsu.commons.math.vectors;
+package com.spbsu.commons.math.vectors.impl;
 
+import com.spbsu.commons.math.vectors.BasisVecIterator;
+import com.spbsu.commons.math.vectors.GenericBasis;
+import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.impl.iterators.ObjectBasisVecIterator;
 import com.spbsu.commons.util.Pair;
 
 import java.util.ArrayList;
@@ -45,36 +49,11 @@ public class CommonBasisVec<T> extends SparseVec<GenericBasis<T>> {
   }
 
   public BasisVecIterator<T> iterator() {
-    return new BasisVecIterator<T>() {
-      VecIterator iter = nonZeroes();
-      @Override
-      public int index() {
-        return iter.index();
-      }
-      @Override
-      public double value() {
-        return iter.value();
-      }
-      @Override
-      public T key() {
-        return basis().fromIndex(iter.index());
-      }
+    return new ObjectBasisVecIterator<T>(nonZeroes(), basis);
+  }
 
-      @Override
-      public boolean isValid() {
-        return iter.isValid();
-      }
-
-      @Override
-      public boolean advance() {
-        return iter.advance();
-      }
-
-      @Override
-      public double setValue(double v) {
-        return iter.setValue(v);
-      }
-    };
+  public GenericBasis<T> basis() {
+    return basis;
   }
 
   @Override
@@ -97,4 +76,5 @@ public class CommonBasisVec<T> extends SparseVec<GenericBasis<T>> {
     }
     return buffer.toString();
   }
+
 }

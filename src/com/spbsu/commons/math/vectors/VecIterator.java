@@ -11,6 +11,7 @@ public interface VecIterator {
 
   boolean isValid();
   boolean advance();
+  boolean seek(int pos);
 
   double setValue(double v);
 }

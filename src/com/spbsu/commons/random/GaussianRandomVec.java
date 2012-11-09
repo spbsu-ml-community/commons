@@ -1,6 +1,6 @@
 package com.spbsu.commons.random;
 
-import com.spbsu.commons.math.vectors.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.ArrayVec;
 import com.spbsu.commons.math.vectors.Mx;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecTools;

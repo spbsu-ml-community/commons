@@ -5,11 +5,11 @@ package com.spbsu.commons.math.vectors;
 * Date: 01.08.12
 * Time: 15:51
 */
-class MxBasisImpl implements MxBasis {
+public class MxBasisImpl implements MxBasis {
   private final int columns;
   private final int rows;
   private final int size;
-  public MxBasisImpl(int columns, int rows) {
+  public MxBasisImpl(int rows, int columns) {
     this.columns = columns;
     this.rows = rows;
     size = columns * rows;

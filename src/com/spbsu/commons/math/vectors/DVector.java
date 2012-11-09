@@ -1,5 +1,6 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.math.vectors.impl.CommonBasisVec;
 import gnu.trove.TObjectDoubleHashMap;
 import gnu.trove.TObjectDoubleProcedure;
 

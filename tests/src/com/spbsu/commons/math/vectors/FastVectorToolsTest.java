@@ -106,7 +106,6 @@ public class FastVectorToolsTest extends TestCase {
   }
 
   public static <A> void assertVectorsEqual(final DVector<A> v1, final DVector<A> v2) {
-    assertEquals(v1.nonZeroesCount(), v2.nonZeroesCount());
     final BasisVecIterator<A> iter1 = v1.iterator();
     final BasisVecIterator<A> iter2 = v2.iterator();
     while (iter1.advance()) {

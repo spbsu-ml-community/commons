@@ -1,4 +1,7 @@
-package com.spbsu.commons.math.vectors;
+package com.spbsu.commons.math.vectors.impl;
+
+import com.spbsu.commons.math.vectors.*;
+import com.spbsu.commons.math.vectors.impl.iterators.ArrayVecNZIterator;
 
 /**
  * User: solar
@@ -25,6 +28,16 @@ public class ArrayVec implements Vec {
   }
 
   @Override
+  public double[] toArray() {
+    return values;
+  }
+
+  @Override
+  public boolean sparse() {
+    return false;
+  }
+
+  @Override
   public double get(int i) {
     return values[i];
   }
@@ -43,48 +56,12 @@ public class ArrayVec implements Vec {
 
   @Override
   public VecIterator nonZeroes() {
-    final int dim = dim();
-    return new VecIterator() {
-      int index = -1;
-
-      @Override
-      public int index() {
-        return index;
-      }
-      @Override
-      public double value() {
-        return get(index);
-      }
-      @Override
-      public boolean isValid() {
-        return index < dim && index >= 0;
-      }
-      @Override
-      public boolean advance() {
-        while(++index < dim && get(index) == 0);
-        return isValid();
-      }
-      @Override
-      public double setValue(double v) {
-        set(index, v);
-        return v;
-      }
-    };
-  }
- 
-  @Override
-  public int nonZeroesCount() {
-    int count = 0;
-    for (double value : values) {
-      if (value != 0)
-        count++;
-    }
-    return count;
+    return new ArrayVecNZIterator(this);
   }
 
   @Override
   public boolean equals(Object o) {
-    return o instanceof Vec && VecTools.equals(this, (Vec)o);
+    return o instanceof Vec && VecTools.equals(this, (Vec) o);
   }
 
   @Override
@@ -111,4 +88,5 @@ public class ArrayVec implements Vec {
   public Basis basis() {
     return basis;
   }
+
 }

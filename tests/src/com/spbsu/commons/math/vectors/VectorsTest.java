@@ -1,5 +1,8 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.math.vectors.impl.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.SparseVec;
+import com.spbsu.commons.math.vectors.impl.VecBasedMx;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.random.GaussianRandomVec;
 import com.spbsu.commons.util.ArrayTools;
@@ -7,16 +10,20 @@ import com.spbsu.commons.util.Factories;
 import gnu.trove.TIntHashSet;
 import gnu.trove.TObjectDoubleProcedure;
 import junit.framework.TestCase;
+import util.Interval;
 
 import java.util.*;
 
 import static com.spbsu.commons.math.vectors.VecTools.*;
+import static com.spbsu.commons.math.vectors.VecTools.multiply;
 
 /**
  * User: terry
  * Date: 17.12.2009
  */
 public class VectorsTest extends TestCase {
+
+  public static final double EPSILON = 0.0001;
 
   public void testDoubleVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
@@ -42,7 +49,7 @@ public class VectorsTest extends TestCase {
     assertEquals(3.0, sum.get("h"));
     assertEquals(4.0, sum.get("hz"));
 
-    assertEquals(0, append(new DVector<CharSequence>(CharSequence.class), vector, minusVector).nonZeroesCount());
+    assertEquals(false, append(new DVector<CharSequence>(CharSequence.class), vector, minusVector).nonZeroes().advance());
   }
 
   public void testDoubletoBinaryVector() {
@@ -51,7 +58,6 @@ public class VectorsTest extends TestCase {
         new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
     toBinary(vector);
 
-    assertEquals(2, vector.nonZeroesCount());
     assertEquals(1.0, vector.get("h"));
     assertEquals(1.0, vector.get("hz"));
   }
@@ -71,7 +77,6 @@ public class VectorsTest extends TestCase {
         new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
     final DVector<CharSequence> newVector = scale(vector, 2.0);
 
-    assertEquals(2, newVector.nonZeroesCount());
     assertEquals(3.0, newVector.get("h"));
     assertEquals(4.0, newVector.get("hz"));
   }
@@ -353,6 +358,159 @@ public class VectorsTest extends TestCase {
     householderLQ(a, l, qt);
     final Mx invL = inverseLTriangle(l);
     final Mx invA = multiply(qt, invL);
-    assertTrue(distance(E(5), multiply(invA, a)) < 0.0001);
+    assertTrue(distance(E(5), multiply(invA, a)) < EPSILON);
   }
+
+  public void testSubMx1() {
+    Mx a = new VecBasedMx(3, new ArrayVec(
+            1, 0, 0,
+            1, 2, 0,
+            1, 2, 3
+    ));
+    matrixTest(a);
+  }
+
+  public void testSubMxSparse1() {
+    Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
+            1, 0, 0,
+            1, 2, 0,
+            1, 2, 3
+    )));
+    matrixTest(a);
+  }
+
+  public void testSubMxInverse1() {
+    Mx temp = new VecBasedMx(4, copySparse(new ArrayVec(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 1, 2, 0,
+            0, 1, 2, 3
+    )));
+    Mx sub = temp.sub(1, 1, 3, 3);
+    Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
+            1, 0, 0,
+            1, 2, 0,
+            1, 2, 3
+    )));
+    final Mx invSub = inverseLTriangle(sub);
+    final Mx invA = inverseLTriangle(a);
+    assertTrue(distance(invSub, invA) < EPSILON);
+  }
+
+  public void testSubMxWriteSparse() {
+    Mx refResult = new VecBasedMx(4, copySparse(new ArrayVec(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 1, 2, 0,
+            0, 1, 2, 3
+    )));
+    Mx temp = E(4);
+    Mx sub = temp.sub(1, 1, 3, 3);
+    Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
+            1, 0, 0,
+            1, 2, 0,
+            1, 2, 3
+    )));
+    assign(sub, a);
+    assertTrue(distance(refResult, temp) < EPSILON);
+  }
+
+  public void testSubMxWrite() {
+    Mx refResult = new VecBasedMx(4, new ArrayVec(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 1, 2, 0,
+            0, 1, 2, 3
+    ));
+    Mx temp = E(4);
+    Mx sub = temp.sub(1, 1, 3, 3);
+    Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
+            1, 0, 0,
+            1, 2, 0,
+            1, 2, 3
+    )));
+    assign(sub, a);
+    assertTrue(distance(refResult, temp) < EPSILON);
+  }
+
+  public void testStressMultiply() {
+    Random rnd = new FastRandom();
+    Mx temp = E(1000);
+    Interval.start();
+    Interval.suspend();
+    for (int i = 0; i < 10; i++) {
+      Mx mx = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
+      for (int j = 0; j < mx.dim(); j++)
+        mx.set(j, rnd.nextGaussian());
+      Interval.resume();
+      Mx result = multiply(temp, mx);
+      Interval.suspend();
+      if (distance(mx, result) > EPSILON)
+        assertTrue(distance(mx, result) < EPSILON);
+    }
+    Interval.stopAndPrint();
+  }
+
+  public void testStressMultiplySparse() {
+    Random rnd = new FastRandom();
+    Mx temp = sparseE(1000);
+    Interval.start();
+    Interval.suspend();
+    for (int i = 0; i < 10; i++) {
+      Mx mx = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
+      for (int j = 0; j < mx.dim(); j++)
+        mx.set(j, rnd.nextGaussian());
+      Interval.resume();
+      Mx result = multiply(temp, mx);
+      Interval.suspend();
+      if (distance(mx, result) > EPSILON)
+        assertTrue(distance(mx, result) < EPSILON);
+    }
+    Interval.stopAndPrint();
+  }
+
+  public void testStressMultiplyDSparse() {
+    Random rnd = new FastRandom();
+    Interval.start();
+    Interval.suspend();
+    for (int i = 0; i < 1; i++) {
+      Mx mxA = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
+      for (int j = 0; j < mxA.dim(); j++)
+        if (rnd.nextDouble() < 0.05)
+          mxA.set(j, rnd.nextGaussian());
+      Mx mxB = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
+      for (int j = 0; j < mxB.dim(); j++)
+        if (rnd.nextDouble() < 0.05)
+          mxB.set(j, rnd.nextGaussian());
+      Interval.resume();
+      Mx resultDense = null;
+      for (int t = 0; t < 1; t++)
+        resultDense = multiply(mxA, mxB);
+      Interval.suspend();
+
+      Mx sparseA = new VecBasedMx(1000, copySparse(((VecBasedMx)mxA).vec));
+      Mx sparseB = new VecBasedMx(1000, copySparse(((VecBasedMx)mxB).vec));
+      Mx resultSparse = null;
+      Interval.resume();
+      for (int t = 0; t < 10; t++)
+        resultSparse = multiply(sparseA, sparseB);
+      Interval.suspend();
+      if (distance(resultDense, resultSparse) > EPSILON)
+        assertTrue(distance(resultDense, resultSparse) < EPSILON);
+    }
+    Interval.stopAndPrint();
+  }
+
+  private void matrixTest(Mx a) {
+    for (int k = 0; k < 3; k++) {
+      Mx col = a.sub(0, k, 3, 1);
+      MxIterator iterator = col.nonZeroes();
+      int i;
+      for (i = 0; iterator.advance() && i < a.rows(); i++) {
+        assertEquals(a.get(iterator.index(), k), iterator.value());
+      }
+      assertTrue(!iterator.isValid() && (i == a.rows() - k));
+    }
+  }
+
 }

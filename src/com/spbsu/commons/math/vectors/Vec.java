@@ -10,9 +10,12 @@ public interface Vec {
   Vec set(int i, double val);
   Vec adjust(int i, double increment);
   VecIterator nonZeroes();
-  int nonZeroesCount();
   Basis basis();
 
   int dim();
+
+  double[] toArray();
+
+  boolean sparse();
 }
 

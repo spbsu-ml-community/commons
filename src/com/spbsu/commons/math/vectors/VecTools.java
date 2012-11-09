@@ -1,6 +1,9 @@
 package com.spbsu.commons.math.vectors;
 
 import com.spbsu.commons.math.MathTools;
+import com.spbsu.commons.math.vectors.impl.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.SparseVec;
+import com.spbsu.commons.math.vectors.impl.VecBasedMx;
 import com.spbsu.commons.util.RBTreeNode;
 import com.spbsu.commons.util.RBTreeNodeBase;
 import com.spbsu.commons.util.RedBlackTree;
@@ -28,8 +31,8 @@ public class VecTools {
       return false;
     if (left.getClass() == right.getClass()) {
       if (left instanceof SparseVec) {
-        return ((SparseVec) left).indexTransform.equals(((SparseVec) right).indexTransform)
-            && ((SparseVec) left).values.equals(((SparseVec) right).values);
+        return ((SparseVec) left).indices.equals(((SparseVec) right).indices)
+                && ((SparseVec) left).values.equals(((SparseVec) right).values);
       } else if (left instanceof ArrayVec) {
         return Arrays.equals(((ArrayVec) left).values, ((ArrayVec) right).values);
       }
@@ -102,7 +105,7 @@ public class VecTools {
             iterRight.advance();
           }
         }
-        ((SparseVec) left).indexTransform = newIndeces;
+        ((SparseVec) left).indices = newIndeces;
         ((SparseVec) left).values = newValues;
       }
       else {
@@ -139,26 +142,23 @@ public class VecTools {
     }
     final VecIterator liter = left.nonZeroes();
     final VecIterator riter = right.nonZeroes();
+    return multiply(liter, riter);
+  }
+
+  private static double multiply(VecIterator liter, VecIterator riter) {
     double result = 0;
     if (!liter.advance() || !riter.advance())
       return 0;
-    int lindex = liter.index(), rindex = riter.index();
-     while (liter.isValid() && riter.isValid()) {
-      if (rindex == lindex) {
+    while (liter.isValid() && riter.isValid()) {
+      int lindex = liter.index(), rindex = riter.index();
+      if (lindex == rindex) {
         result += liter.value() * riter.value();
-        if (liter.advance())
-          lindex = liter.index();
-        if (riter.advance())
-          rindex = riter.index();
+        liter.advance();
+        riter.advance();
       }
-      else if (lindex > rindex) {
-        if(riter.advance())
-          rindex = riter.index();
-      }
-      else {
-        if(liter.advance())
-          lindex = liter.index();
-      }
+      while (lindex > riter.index() && riter.advance());
+      rindex = riter.index();
+      while (rindex > liter.index() && liter.advance());
     }
     return result;
   }
@@ -207,7 +207,7 @@ public class VecTools {
       final int alignedDim = (dim / 4) * 4;
       for (int i = 0; i < alignedDim; i+=4) {
         double r1 = larray.values[i] - rarray.values[i], r2 = larray.values[i + 1] - rarray.values[i + 1],
-               r3 = larray.values[i + 2] - rarray.values[i + 2], r4 = larray.values[i + 3] - rarray.values[i + 3];
+                r3 = larray.values[i + 2] - rarray.values[i + 2], r4 = larray.values[i + 3] - rarray.values[i + 3];
         result += r1 * r1 + r2 * r2 + r3 * r3 + r4 * r4;
       }
 
@@ -225,7 +225,7 @@ public class VecTools {
     if (!lStart && !rStart)
       return 0;
     int lindex = lStart ? liter.index() : Integer.MAX_VALUE, rindex = rStart ? riter.index() : Integer.MAX_VALUE;
-     while (liter.isValid() && riter.isValid()) {
+    while (liter.isValid() && riter.isValid()) {
       if (rindex == lindex && liter.isValid() && riter.isValid()) {
         result += (liter.value() - riter.value()) * (liter.value() - riter.value());
         if (liter.advance())
@@ -256,7 +256,7 @@ public class VecTools {
     if (!liter.advance() || !riter.advance())
       return 0;
     int lindex = liter.index(), rindex = riter.index();
-     while (liter.isValid() && riter.isValid()) {
+    while (liter.isValid() && riter.isValid()) {
       if (rindex == lindex) {
         final double p = liter.value();
         final double q = riter.value();
@@ -414,6 +414,13 @@ public class VecTools {
     return result;
   }
 
+  public static Mx sparseE(int dim) {
+    final Mx result = new VecBasedMx(dim, new SparseVec<IntBasis>(new IntBasis(dim * dim)));
+    for (int i = 0; i < dim; i++)
+      result.set(i, i, 1);
+    return result;
+  }
+
   public static Mx multiply(Mx a, Mx b) {
     final int dim = a.columns();
     if (dim != b.rows())
@@ -422,27 +429,55 @@ public class VecTools {
     final int columns = b.columns();
     final VecBasedMx mx = new VecBasedMx(rows, columns);
     double[] result = ((ArrayVec)mx.vec).values;
-    for (int i = 0; i < rows; i++) {
-      int offset = i * columns;
-      for (int t = 0; t < dim; t++) {
+    if (!a.sparse() && !b.sparse()) {
+      for (int i = 0; i < rows; i++) {
+        int offset = i * columns;
+        for (int t = 0; t < dim; t++) {
+          for (int j = 0; j < columns; j++) {
+            result[offset + j] += a.get(i, t) * b.get(t, j);
+          }
+        }
+      }
+    }
+    else {
+      VecIterator[] colsV = new VecIterator[columns];
+      for (int j = 0; j < columns; j++) {
+        colsV[j] = b.col(j).nonZeroes();
+      }
+      double[] rowCache = new double[columns];
+      for (int i = 0; i < rows; i++) {
+        final VecIterator a_i = a.row(i).nonZeroes();
+        while (a_i.advance()) {
+          rowCache[a_i.index()] = a_i.value();
+        }
+        int offset = i * columns;
         for (int j = 0; j < columns; j++) {
-          result[offset + j] += a.get(i, t) * b.get(t, j);
+          final VecIterator b_j = colsV[j];
+          b_j.seek(0);
+          double c_ij = 0;
+          while(b_j.advance())
+            c_ij += b_j.value() * rowCache[b_j.index()];
+          result[offset + j] = c_ij;
+        }
+        a_i.seek(0);
+        while (a_i.advance()) {
+          rowCache[a_i.index()] = 0;
         }
       }
     }
     return mx;
   }
 
-  public static Vec copy(Vec vec) {
+  public static <T extends Vec> T copy(T vec) {
     if (vec instanceof VecBasedMx) {
       final VecBasedMx mx = (VecBasedMx) vec;
-      return new VecBasedMx(mx.columns, copy(mx.vec));
+      return (T)new VecBasedMx(mx.columns(), copy(mx.vec));
     }
     if (vec instanceof ArrayVec) {
       final ArrayVec arrayVec = (ArrayVec) vec;
-      return new ArrayVec(arrayVec.values.clone());
+      return (T)new ArrayVec(arrayVec.values.clone());
     }
-    return copySparse(vec);
+    return (T)copySparse(vec);
   }
 
   public static Mx transpose(Mx a) {
@@ -700,7 +735,7 @@ public class VecTools {
 
   private static int countNonZeroesUpperBound(Vec v) {
     if (v instanceof SparseVec) {
-      return ((SparseVec) v).indexTransform.size();
+      return ((SparseVec) v).indices.size();
     }
     return v.basis().size();
   }

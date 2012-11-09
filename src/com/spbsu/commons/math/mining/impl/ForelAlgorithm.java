@@ -2,7 +2,7 @@ package com.spbsu.commons.math.mining.impl;
 
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.math.mining.ClusterizationAlgorithm;
-import com.spbsu.commons.math.vectors.SparseVec;
+import com.spbsu.commons.math.vectors.impl.SparseVec;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
 import com.spbsu.commons.math.vectors.VecTools;
