@@ -25,7 +25,7 @@ public class RowsPermutation implements IndexTransformation {
 
   @Override
   public int forward(int index) {
-    return perm[index/columns] + index % columns;
+    return perm[index/columns] * columns + index % columns;
   }
 
   @Override

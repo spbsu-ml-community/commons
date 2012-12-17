@@ -46,8 +46,8 @@ class CompositeTransformation implements IndexTransformation {
   @Override
   public IndexTransformation apply(IndexTransformation trans) {
     IndexTransformation[] sequence = new IndexTransformation[this.sequence.length + 1];
-    System.arraycopy(this.sequence, 0, sequence, 0, this.sequence.length);
-    sequence[sequence.length - 1] = trans;
+    System.arraycopy(this.sequence, 0, sequence, 1, this.sequence.length);
+    sequence[0] = trans;
     return new CompositeTransformation(sequence);
   }
 }

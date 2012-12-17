@@ -26,6 +26,17 @@ import static java.lang.Math.*;
 public class VecTools {
   private static final double EPSILON = 1e-7;
 
+  public static int hashCode(Vec v) {
+    int hashCode = 0;
+    final VecIterator iter = v.nonZeroes();
+    while (iter.advance()) {
+      hashCode <<= 1;
+      hashCode += iter.index();
+      hashCode += iter.value() * 10000;
+    }
+    return hashCode;
+  }
+
   public static boolean equals(final Vec left, final Vec right) {
     if (!left.basis().equals(right.basis()))
       return false;
@@ -444,7 +455,7 @@ public class VecTools {
       for (int j = 0; j < columns; j++) {
         colsV[j] = b.col(j).nonZeroes();
       }
-      double[] rowCache = new double[columns];
+      double[] rowCache = new double[a.columns()];
       for (int i = 0; i < rows; i++) {
         final VecIterator a_i = a.row(i).nonZeroes();
         while (a_i.advance()) {
@@ -583,6 +594,15 @@ public class VecTools {
 //        }
       }
     }
+  }
+
+  public static double sum(Vec target) {
+    final VecIterator iterator = target.nonZeroes();
+    double sum = 0;
+    while(iterator.advance()) {
+      sum += iterator.value();
+    }
+    return sum;
   }
 
   private static class IndexedVecIter {

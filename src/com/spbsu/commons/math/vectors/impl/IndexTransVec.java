@@ -1,6 +1,8 @@
 package com.spbsu.commons.math.vectors.impl;
 
+import com.spbsu.commons.io.converters.Vec2StringConverter;
 import com.spbsu.commons.math.vectors.*;
+import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 import com.spbsu.commons.math.vectors.impl.iterators.TransformedArrayVecNZIterator;
 import com.spbsu.commons.math.vectors.impl.iterators.TransformedSparseVecIterator;
 import com.spbsu.commons.util.ArrayTools;
@@ -20,7 +22,7 @@ public class IndexTransVec implements Vec {
     if (base instanceof IndexTransVec) {
       final IndexTransVec transVec = (IndexTransVec) base;
       this.base = transVec.base;
-      this.transformation = transVec.transformation.apply(transformation);
+      this.transformation = transformation.apply(transVec.transformation);
       this.basis = basis;
     }
     else {
@@ -43,6 +45,11 @@ public class IndexTransVec implements Vec {
   }
 
   public VecIterator nonZeroes() {
+    Vec base = this.base;
+    if (this.base instanceof VecBasedMx) {
+      base = ((VecBasedMx)this.base).vec;
+    }
+    VecIterator result;
     if (base instanceof SparseVec) {
       SparseVec sparseVec = (SparseVec)base;
       TIntArrayList indices = sparseVec.indices;
@@ -65,12 +72,13 @@ public class IndexTransVec implements Vec {
       int[] transA = transformed.toNativeArray();
       int[] nzIndicesA = nzIndices.toNativeArray();
       ArrayTools.parallelSort(nzIndicesA, transA);
-      return new TransformedSparseVecIterator(indices, sparseVec.values, new TIntArrayList(nzIndicesA), new TIntArrayList(transA));
+      result = new TransformedSparseVecIterator(indices, sparseVec.values, new TIntArrayList(nzIndicesA), new TIntArrayList(transA));
     }
     else if (base instanceof ArrayVec) {
-      return new TransformedArrayVecNZIterator(((ArrayVec)base).values, transformation);
+      result = new TransformedArrayVecNZIterator(((ArrayVec)base).values, transformation);
     }
     else throw new IllegalArgumentException("Can not produce NZ itarator for base type " + base.getClass().toString());
+    return this.base instanceof VecBasedMx ? new MxIteratorImpl(result, ((VecBasedMx) this.base).columns()) : result;
   }
 
   public Basis basis() {
@@ -93,5 +101,20 @@ public class IndexTransVec implements Vec {
   @Override
   public boolean sparse() {
     return base.sparse();
+  }
+
+  @Override
+  public String toString() {
+    return new Vec2StringConverter().convertTo(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof Vec && VecTools.equals(this, (Vec)obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return VecTools.hashCode(this);
   }
 }

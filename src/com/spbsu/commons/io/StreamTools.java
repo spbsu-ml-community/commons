@@ -3,6 +3,7 @@ package com.spbsu.commons.io;
 
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.util.logging.Logger;
+import gnu.trove.TByteArrayList;
 
 import java.io.*;
 import java.net.URL;
@@ -254,5 +255,34 @@ public class StreamTools {
     finally {
       input.close();
     }
+  }
+
+  public static TByteArrayList transformByExternalCommand(String command, InputStream input) throws IOException {
+    final Process process = Runtime.getRuntime().exec(command);
+    final InputStream in = process.getInputStream();
+    final OutputStream out = process.getOutputStream();
+    TByteArrayList bytes = new TByteArrayList(100500);
+    byte[] buffer = new byte[1024 * 1024];
+    try {
+      int read;
+      while ((read = input.read(buffer)) > 0) {
+        out.write(buffer, 0, read);
+        if (in.available() > 0) {
+          read = in.read(buffer);
+          bytes.add(buffer, 0, read);
+        }
+      }
+      out.close();
+      while ((read = in.read(buffer)) > 0) {
+        bytes.add(buffer, 0, read);
+      }
+      in.close();
+    }
+    catch (IOException ioe) {
+      System.err.println(readByteStream(process.getErrorStream()));
+      LOG.error(ioe);
+      throw ioe;
+    }
+    return bytes;
   }
 }

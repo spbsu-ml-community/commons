@@ -8,10 +8,11 @@ import java.util.Map;
  * Date: 10/8/12
  * Time: 8:24 PM
  */
-public class CacheHolderImpl {
+public class CacheHolderImpl implements CacheHolder {
   Map<Class<? extends Computable<? extends CacheHolderImpl, ?>>, ?> cache = new HashMap<Class<? extends Computable<? extends CacheHolderImpl, ?>>, Object>();
 
-  public synchronized <CH extends CacheHolderImpl, R> R cache(Class<? extends Computable<CH, R>> type) {
+  @Override
+  public synchronized <CH extends CacheHolder, R> R cache(Class<? extends Computable<CH, R>> type) {
     Object result = cache.get(type);
     if (result == null) {
       try {
@@ -25,5 +26,4 @@ public class CacheHolderImpl {
     //noinspection unchecked
     return (R)result;
   }
-
 }

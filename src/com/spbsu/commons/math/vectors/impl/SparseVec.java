@@ -120,14 +120,7 @@ public class SparseVec<B extends Basis> implements Vec {
 
   @Override
   public int hashCode() {
-    int hashCode = 0;
-    final VecIterator iter = nonZeroes();
-    while (iter.advance()) {
-      hashCode <<= 1;
-      hashCode += iter.index();
-      hashCode += iter.value() * 10000;
-    }
-    return hashCode;
+    return VecTools.hashCode(this);
   }
 
 }

@@ -1,7 +1,6 @@
 package com.spbsu.commons.math.vectors.impl.idxtrans;
 
 import com.spbsu.commons.math.vectors.IndexTransformation;
-import com.spbsu.commons.math.vectors.Order;
 
 import java.util.Arrays;
 
@@ -53,5 +52,13 @@ public class ArrayPermutation implements IndexTransformation {
             this, trans
     };
     return new CompositeTransformation(sequence);
+  }
+
+  public int[] direct() {
+    return perm;
+  }
+
+  public int[] reverse() {
+    return backPerm;
   }
 }

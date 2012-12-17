@@ -2,7 +2,7 @@ package com.spbsu.commons.math.vectors.impl;
 
 import com.spbsu.commons.math.vectors.*;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
-import com.spbsu.commons.math.vectors.impl.iterators.MyMxIterator;
+import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 
 /**
  * User: solar
@@ -93,7 +93,7 @@ public class VecBasedMx implements Mx {
 
   @Override
   public MxIterator nonZeroes() {
-    return new MyMxIterator(vec.nonZeroes(), columns);
+    return new MxIteratorImpl(vec.nonZeroes(), columns);
   }
  
   @Override
