@@ -624,7 +624,7 @@ public class VecTools {
     }
   }
 
-  private static double nonTriangularWeight(Mx mx) {
+  public static double nonTriangularWeight(Mx mx) {
     double lower = 0;
     double upper = 0;
     MxIterator mxIterator = mx.nonZeroes();
@@ -637,6 +637,21 @@ public class VecTools {
 
     return Math.sqrt(Math.max(lower, upper));
   }
+
+  public static double nonDiagonalWeight(Mx mx) {
+    double lower = 0;
+    double upper = 0;
+    MxIterator mxIterator = mx.nonZeroes();
+    while (mxIterator.advance()) {
+      if (mxIterator.row() > mxIterator.column())
+        upper += mxIterator.value() * mxIterator.value();
+      if (mxIterator.row() < mxIterator.column())
+        lower += mxIterator.value() * mxIterator.value();
+    }
+
+    return Math.sqrt(lower + upper);
+  }
+
 
   private static class IndexedVecIter {
     VecIterator iter;

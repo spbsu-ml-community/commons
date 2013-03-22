@@ -9,7 +9,7 @@ import java.util.Map;
  * Time: 8:24 PM
  */
 public class CacheHolderImpl implements CacheHolder {
-  Map<Class<? extends Computable<? extends CacheHolderImpl, ?>>, ?> cache = new HashMap<Class<? extends Computable<? extends CacheHolderImpl, ?>>, Object>();
+  Map<Class<? extends Computable<? extends CacheHolderImpl, ?>>, Object> cache = new HashMap<Class<? extends Computable<? extends CacheHolderImpl, ?>>, Object>();
 
   @Override
   public synchronized <CH extends CacheHolder, R> R cache(Class<? extends Computable<CH, R>> type) {
@@ -19,6 +19,8 @@ public class CacheHolderImpl implements CacheHolder {
         final Computable<CH, R> calculator = type.newInstance();
         //noinspection unchecked
         result = calculator.compute((CH)this);
+        //noinspection unchecked
+        cache.put((Class<? extends Computable<? extends CacheHolderImpl, ?>>) type, result);
       } catch (Exception e) {
         e.printStackTrace(); // I'd be extremely surprised if this happen :)
       }
