@@ -2,6 +2,7 @@ package com.spbsu.commons.math.vectors.impl;
 
 import com.spbsu.commons.math.vectors.GenericBasis;
 import gnu.trove.TObjectIntHashMap;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -20,19 +21,19 @@ public class ExpandableMapBasis<T> implements GenericBasis<T> {
   private static final int DEFAULT_CAPACITY = 10;
 
   public ExpandableMapBasis(){
-    map = new TObjectIntHashMap<>(DEFAULT_CAPACITY);
-    index = new ArrayList<>(DEFAULT_CAPACITY);
+    map = new TObjectIntHashMap<T>(DEFAULT_CAPACITY);
+    index = new ArrayList<T>(DEFAULT_CAPACITY);
   }
 
   public ExpandableMapBasis(int capacity) {
-    map = new TObjectIntHashMap<>(capacity);
-    index = new ArrayList<>(capacity);
+    map = new TObjectIntHashMap<T>(capacity);
+    index = new ArrayList<T>(capacity);
   }
 
   public ExpandableMapBasis(T[] basis) {
     int size = basis.length;
-    map = new TObjectIntHashMap<>(size);
-    index = new ArrayList<>(size);
+    map = new TObjectIntHashMap<T>(size);
+    index = new ArrayList<T>(size);
     for(int i = 0; i < size; i++){
       index.add(basis[i]);
       map.put(basis[i], i);
@@ -42,8 +43,8 @@ public class ExpandableMapBasis<T> implements GenericBasis<T> {
   public ExpandableMapBasis(GenericBasis<T> basis){
     int size = basis.size();
     T temp;
-    map = new TObjectIntHashMap<>(size);
-    index = new ArrayList<>(size);
+    map = new TObjectIntHashMap<T>(size);
+    index = new ArrayList<T>(size);
     for(int i = 0; i < size; i++){
       temp = basis.fromIndex(i);
       index.add(temp);
@@ -60,7 +61,7 @@ public class ExpandableMapBasis<T> implements GenericBasis<T> {
   // Get index from basis by key. If kye doesn't contain in this basis,
   // then it's put him into basis.
   @Override
-  public int toIndex(T key) {
+  public int toIndex(@NotNull T key) {
     int size;
     if(map.containsKey(key))
       return map.get(key);
@@ -82,7 +83,7 @@ public class ExpandableMapBasis<T> implements GenericBasis<T> {
     return index;
   }
 
-  public boolean containKey(T key) {
+  public boolean containKey(@NotNull T key) {
     return map.containsKey(key);
   }
 

@@ -13,13 +13,13 @@ public class ExpandableMapBasisTest extends TestCase {
   private ExpandableMapBasis<String> basis;
 
   public void testConstructors() {
-    basis = new ExpandableMapBasis<>();
+    basis = new ExpandableMapBasis<String>();
     assertTrue(basis.size() == 0);
 
-    basis = new ExpandableMapBasis<>(100);
+    basis = new ExpandableMapBasis<String>(100);
     assertTrue(basis.size() == 0);
 
-    basis = new ExpandableMapBasis<>(new String[]{"First", "Second", "Third"});
+    basis = new ExpandableMapBasis<String>(new String[]{"First", "Second", "Third"});
     assertTrue(basis.size() == 3);
     assertTrue(basis.fromIndex(0).equals("First"));
     assertTrue(basis.fromIndex(1).equals("Second"));
@@ -28,7 +28,7 @@ public class ExpandableMapBasisTest extends TestCase {
     assertTrue(basis.toIndex("Second") == 1);
     assertTrue(basis.toIndex("Third") == 2);
 
-    basis = new ExpandableMapBasis<>(basis);
+    basis = new ExpandableMapBasis<String>(basis);
     assertTrue(basis.size() == 3);
     assertTrue(basis.fromIndex(0).equals("First"));
     assertTrue(basis.fromIndex(1).equals("Second"));
@@ -39,7 +39,7 @@ public class ExpandableMapBasisTest extends TestCase {
   }
 
   public void testFromIndex() {
-    basis = new ExpandableMapBasis<>();
+    basis = new ExpandableMapBasis<String>();
     for(int i = 0; i < 10000; i++)
       basis.toIndex("Element" + i);
 
@@ -54,7 +54,7 @@ public class ExpandableMapBasisTest extends TestCase {
   }
 
   public void testToIndex() {
-    basis = new ExpandableMapBasis<>();
+    basis = new ExpandableMapBasis<String>();
     basis.toIndex("");
     assertTrue(basis.size() == 1);
     assertTrue(basis.fromIndex(0).equals(""));
@@ -65,7 +65,7 @@ public class ExpandableMapBasisTest extends TestCase {
     assertTrue(basis.size() == 2);
     assertTrue(basis.fromIndex(0).equals(""));
     assertTrue(basis.fromIndex(1).equals("some"));
-    basis = new ExpandableMapBasis<>();
+    basis = new ExpandableMapBasis<String>();
     basis.toIndex("Some");
     basis.toIndex("");
     assertTrue(basis.fromIndex(0).equals("Some"));
@@ -73,7 +73,7 @@ public class ExpandableMapBasisTest extends TestCase {
   }
 
   public void testGetBasis() {
-    basis = new ExpandableMapBasis<>();
+    basis = new ExpandableMapBasis<String>();
     for(int i = 0; i < 100; i++)
       basis.toIndex("s" + i);
     List<String> temp = basis.getBasis();
@@ -82,7 +82,7 @@ public class ExpandableMapBasisTest extends TestCase {
   }
 
   public void testContainKey() {
-    basis = new ExpandableMapBasis<>();
+    basis = new ExpandableMapBasis<String>();
     basis.toIndex("First");
     assertTrue(basis.containKey("First"));
   }

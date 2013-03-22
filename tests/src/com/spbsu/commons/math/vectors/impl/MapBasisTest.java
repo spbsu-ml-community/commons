@@ -9,7 +9,7 @@ import junit.framework.TestCase;
  */
 
 public class MapBasisTest extends TestCase {
-  private MapBasis<String> basis = new MapBasis<>();
+  private MapBasis<String> basis = new MapBasis<String>();
 
   public void testToIndex(){
     basis.toIndex("First");

@@ -23,8 +23,9 @@ import static java.lang.Math.*;
  * Date: 16.01.2010
  * Time: 16:28:37
  */
+@SuppressWarnings("UnusedDeclaration")
 public class VecTools {
-  private static final double EPSILON = 1e-7;
+  private static final double EPSILON = 1e-5;
 
   public static int hashCode(Vec v) {
     int hashCode = 0;
@@ -540,14 +541,14 @@ public class VecTools {
     return VecTools.inverseLTriangle(l);
   }
 
-  public static void householderLQ(Mx A, Mx L, Mx QTransposed) {
+  public static void householderLQ(Mx A, Mx L, Mx Q) {
     final int cols = A.columns();
     final int rows = A.rows();
     assign(L, A);
-    if (QTransposed != null) {
-      VecTools.scale(QTransposed, 0.);
+    if (Q != null) {
+      VecTools.scale(Q, 0.);
       for (int i = 0; i < cols; i++)
-        QTransposed.set(i, i, 1.);
+        Q.set(i, i, 1.);
     }
     Vec hhplane = new ArrayVec(cols);
     for (int i = 0; i < cols - 1; i++) {
@@ -577,21 +578,16 @@ public class VecTools {
         for (int j = i; j < cols; j++)
           L.adjust(k, j, hhplane.get(j) * product);
       }
-      if (QTransposed != null) {
-//        Mx copyQ = (Mx)copy(QTransposed);
+      if (Q != null) {
         for (int j = 0; j < cols; j++) {
           double product = 0.;
           for (int k = i; k < cols; k++)
-            product += QTransposed.get(j, k) * hhplane.get(k);
+            product += Q.get(j, k) * hhplane.get(k);
           product *= -2.;
 
           for (int k = i; k < cols; k++)
-            QTransposed.adjust(j, k, product * hhplane.get(k));
+            Q.adjust(j, k, product * hhplane.get(k));
         }
-//        if (distance(E(cols), multiply(transpose(QTransposed), QTransposed)) > 0.001) {
-//          System.out.println(QTransposed.toString());
-//          System.out.println(multiply(copyQ, append(E(cols), outer(hhplane, hhplane))));
-//        }
       }
     }
   }
@@ -603,6 +599,43 @@ public class VecTools {
       sum += iterator.value();
     }
     return sum;
+  }
+
+  public static void eigenDecomposition(Mx mx, Mx q, Mx sigma) {
+    Mx similar = mx;
+    Mx joinedInvertedTransform = E(mx.columns());
+    Mx trans = new VecBasedMx(mx.columns(), new ArrayVec(mx.dim()));
+
+    for (int i = 0; i < 100 && nonTriangularWeight(similar) > EPSILON * similar.dim(); i++) {
+      householderLQ(similar, sigma, trans);
+      transposeIt(trans);
+      joinedInvertedTransform = multiply(trans, joinedInvertedTransform);
+      similar = multiply(trans, sigma);
+//      System.out.println(distance(multiply(joinedInvertedTransform, multiply(mx, transpose(joinedInvertedTransform))), similar));
+    }
+
+    assign(sigma, similar);
+    assign(q, joinedInvertedTransform);
+
+    MxIterator mxIterator = sigma.nonZeroes();
+    while (mxIterator.advance()) {
+      if (mxIterator.row() != mxIterator.column())
+        mxIterator.setValue(0);
+    }
+  }
+
+  private static double nonTriangularWeight(Mx mx) {
+    double lower = 0;
+    double upper = 0;
+    MxIterator mxIterator = mx.nonZeroes();
+    while (mxIterator.advance()) {
+      if (mxIterator.row() > mxIterator.column())
+        upper += mxIterator.value() * mxIterator.value();
+      if (mxIterator.row() < mxIterator.column())
+        lower += mxIterator.value() * mxIterator.value();
+    }
+
+    return Math.sqrt(Math.max(lower, upper));
   }
 
   private static class IndexedVecIter {

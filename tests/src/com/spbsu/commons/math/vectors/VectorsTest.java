@@ -304,10 +304,23 @@ public class VectorsTest extends TestCase {
     Mx l = new VecBasedMx(3, 3);
     Mx q = new VecBasedMx(3, 3);
 
-    transposeIt(q);
     householderLQ(a, l, q);
     assertTrue(distance(multiply(transpose(q), q), E(3)) < 0.00001);
-    assertTrue(distance(a, multiply(l, q)) < 0.0001);
+    assertTrue(distance(a, multiply(l, transpose(q))) < 0.0001);
+  }
+
+  public void testEigenDecomposition() {
+    final ArrayVec vec = new ArrayVec(
+            1, 1, 1,
+            1, 2, 2,
+            1, 2, 3
+    );
+    Mx a = new VecBasedMx(3, vec);
+    Mx q = new VecBasedMx(3, 3);
+    Mx sigma = new VecBasedMx(3, 3);
+    eigenDecomposition(a, q, sigma);
+    Mx result = multiply(transpose(q), multiply(sigma, q));
+    assertTrue(distance(a, result) < 0.001);
   }
 
   public void testHHLQInverse() {

@@ -18,7 +18,7 @@ public class VecBasedSquareMx implements Mx {
   private int matrixDimension;
 
   public VecBasedSquareMx() {
-    vector = new SparseVec<>();
+    vector = new SparseVec();
     matrixDimension = 0;
   }
 

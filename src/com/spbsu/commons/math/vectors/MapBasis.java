@@ -3,6 +3,7 @@ package com.spbsu.commons.math.vectors;
 import gnu.trove.TObjectIntHashMap;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: solar
@@ -22,7 +23,7 @@ public class MapBasis<T> implements GenericBasis<T> {
   public synchronized int toIndex(T key) {
     int v = map.get(key);
     if (v == 0) {
-      v = inverted.size();
+      v = inverted.size() + 1;
       inverted.add(key);
       map.put(key, v);
     }
@@ -34,7 +35,7 @@ public class MapBasis<T> implements GenericBasis<T> {
     return inverted.size();
   }
 
-  public ArrayList<T> getInverted() {
+  public List<T> getInverted() {
     return inverted;
   }
 }
