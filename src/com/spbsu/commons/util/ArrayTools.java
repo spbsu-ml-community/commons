@@ -116,6 +116,8 @@ public abstract class ArrayTools {
   public static void parallelSort(double[] a, int[] linked) {
     if(a.length != linked.length)
       throw new IllegalArgumentException("arrays sizes are not equal");
+    for(int i = 0; i < linked.length;i++)
+        linked[i] = i;
 //      shuffle(a, linked); // to guard against worst-case
     parallelSort(a, linked, 0, a.length - 1);
   }
