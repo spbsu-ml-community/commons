@@ -2,6 +2,7 @@ package com.spbsu.commons.text;
 
 import gnu.trove.TObjectHashingStrategy;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -146,5 +147,18 @@ public class CharSequenceTools {
 
   public static String concat(final CharSequence... texts) {
     return concat(Arrays.asList(texts));
+  }
+
+  public static CharSequence[] split(CharSequence sequence, char separator) {
+    final List<CharSequence> result = new ArrayList<CharSequence>(10);
+    int last = 0;
+    for (int i = 0; i < sequence.length(); i++) {
+      if (sequence.charAt(i) == separator) {
+        result.add(sequence.subSequence(last, i));
+        last = i + 1;
+      }
+    }
+    result.add(sequence.subSequence(last, sequence.length()));
+    return result.toArray(new CharSequence[result.size()]);
   }
 }

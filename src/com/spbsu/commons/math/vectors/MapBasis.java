@@ -17,7 +17,7 @@ import java.util.List;
 public class MapBasis<T> implements GenericBasis<T> {
 
   private final TObjectIntHashMap<T> map;
-  private final ArrayList<T> inverted;
+  private final List<T> inverted;
 
   public MapBasis() {
     map = new TObjectIntHashMap<T>();

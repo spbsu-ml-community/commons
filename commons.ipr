@@ -3,8 +3,19 @@
   <component name="AntConfiguration">
     <defaultAnt bundledAnt="true" />
   </component>
-  <component name="BuildJarProjectSettings">
-    <option name="BUILD_JARS_ON_MAKE" value="true" />
+  <component name="ArtifactManager">
+    <artifact name="commons:jar">
+      <output-path>$PROJECT_DIR$/bin</output-path>
+      <root id="root">
+        <element id="archive" name="commons.jar">
+          <element id="module-output" name="commons" />
+        </element>
+        <element id="library" level="project" name="Annotations" />
+        <element id="library" level="project" name="JUnit" />
+        <element id="library" level="project" name="Jetty" />
+        <element id="library" level="project" name="Logging" />
+      </root>
+    </artifact>
   </component>
   <component name="CodeStyleProjectProfileManger">
     <option name="PROJECT_PROFILE" />

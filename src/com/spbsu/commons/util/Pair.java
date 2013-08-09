@@ -6,8 +6,8 @@ package com.spbsu.commons.util;
  * Time: 12:18:26
  */
 public final class Pair<U, V> {
-  private final U first;
-  private final V second;
+  public final U first;
+  public final V second;
 
   private Pair(final U first, final V second) {
     this.first = first;

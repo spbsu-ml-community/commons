@@ -7,13 +7,13 @@ package com.spbsu.commons.filters;
  * Time: 14:35:55
  */
 public interface FilterVisitor {
-  void visit(Filter filter);
+  boolean visit(Filter filter);
 
-  void visit(AndFilter filter);
+  boolean visit(AndFilter filter);
 
-  void visit(OrFilter filter);
+  boolean visit(OrFilter filter);
 
-  void visit(NotFilter filter);
+  boolean visit(NotFilter filter);
 
-  void visit(TrueFilter filter);
+  boolean visit(TrueFilter filter);
 }
