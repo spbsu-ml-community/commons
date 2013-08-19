@@ -6,8 +6,5 @@ package com.spbsu.commons.filters;
  * Time: 13:41:10
  */
 public interface Filter<T> {
-
   boolean accept(T t);
-
-  boolean accept(FilterVisitor visitor);
 }

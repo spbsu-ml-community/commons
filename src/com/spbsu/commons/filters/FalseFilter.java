@@ -10,11 +10,6 @@ public class FalseFilter<T> implements Filter<T> {
     return false;
   }
 
-  public boolean accept(FilterVisitor visitor) {
-    visitor.visit(this);
-    return true;
-  }
-
   public static <T> Filter<T> create() {
     return new FalseFilter<T>();
   }

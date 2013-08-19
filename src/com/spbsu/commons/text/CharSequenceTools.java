@@ -161,4 +161,22 @@ public class CharSequenceTools {
     result.add(sequence.subSequence(last, sequence.length()));
     return result.toArray(new CharSequence[result.size()]);
   }
+
+  public static CharSequence[] split(CharSequence sequence, CharSequence separator) {
+    final List<CharSequence> result = new ArrayList<CharSequence>(10);
+    int last = 0;
+    for (int i = 0; i < sequence.length(); i++) {
+      boolean accept = separator.length() <= sequence.length() - i;
+      for (int j = 0; j < separator.length() && accept; j++) { // need to change to something faster
+        if (sequence.charAt(i + j) != separator.charAt(j))
+          accept = false;
+      }
+      if (accept) {
+        result.add(sequence.subSequence(last, i));
+        last = i + separator.length();
+      }
+    }
+    result.add(sequence.subSequence(last, sequence.length()));
+    return result.toArray(new CharSequence[result.size()]);
+  }
 }

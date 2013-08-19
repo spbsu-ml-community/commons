@@ -10,11 +10,6 @@ public class TrueFilter<T> implements Filter<T> {
     return true;
   }
 
-  public boolean accept(FilterVisitor visitor) {
-    visitor.visit(this);
-    return true;
-  }
-
   public static <T> Filter<T> create() {
     return new TrueFilter<T>();
   }

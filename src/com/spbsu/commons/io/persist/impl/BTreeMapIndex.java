@@ -83,7 +83,7 @@ public class BTreeMapIndex<K> implements MapIndex<K> {
           BufferFactory.write(PageFileAddress.CONVERTER.convertTo(newAddress), buffer);
           return;
         }
-        else PageFileAddress.CONVERTER.convertFrom(buffer); 
+        else PageFileAddress.CONVERTER.convertFrom(buffer);
       }
       buffer.position(bufferStart);
       leaf.insert(hash, file.write(

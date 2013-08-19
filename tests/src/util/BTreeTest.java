@@ -1,7 +1,7 @@
 //package util;
 //
 //import com.spbsu.commons.io.StreamTools;
-//import com.spbsu.commons.io.converters.Integer2ByteBufferConverter;
+//import com.spbsu.commons.func.converters.Integer2ByteBufferConverter;
 //import gnu.trove.TIntLongHashMap;
 //import junit.framework.TestCase;
 //

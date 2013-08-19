@@ -169,7 +169,7 @@ public class PageFileImpl implements PageFile {
       while (addr.getPageNo() > 0) {
         queue.add(new PageFileAddress(addr.getPageNo(), (short)0, PAGE_SIZE));
         addr = PageFileAddress.CONVERTER.convertFrom(
-          read(new PageFileAddress(addr.getPageNo(), (short)0, PageFileAddress.SIZE_OF))
+                read(new PageFileAddress(addr.getPageNo(), (short) 0, PageFileAddress.SIZE_OF))
         );
       }
     }

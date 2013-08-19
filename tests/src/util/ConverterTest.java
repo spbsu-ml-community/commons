@@ -1,10 +1,9 @@
 package util;
 
-import com.spbsu.commons.io.converters.Integer2ByteBufferConverter;
-import com.spbsu.commons.io.converters.List2ByteBufferConverter;
-import com.spbsu.commons.io.converters.NioConverterTools;
-import com.spbsu.commons.io.converters.String2ByteBufferConverter;
-import com.spbsu.commons.util.Pair;
+import com.spbsu.commons.func.converters.Integer2ByteBufferConverter;
+import com.spbsu.commons.func.converters.List2ByteBufferConverter;
+import com.spbsu.commons.func.converters.NioConverterTools;
+import com.spbsu.commons.func.converters.String2ByteBufferConverter;
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;

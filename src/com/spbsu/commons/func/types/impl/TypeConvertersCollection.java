@@ -4,6 +4,8 @@ import com.spbsu.commons.filters.AndFilter;
 import com.spbsu.commons.filters.Filter;
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.func.Factory;
+import com.spbsu.commons.func.types.ConversionDependant;
+import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.ConversionRepository;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.system.RuntimeUtils;
@@ -59,29 +61,34 @@ public class TypeConvertersCollection implements ConversionRepository {
           if (!register((Class)convId))
             throw new IllegalArgumentException("Unable to register class" + ((Class)convId).getName());
         }
+        if (convId instanceof ConversionPack) {
+          register(((ConversionPack) convId).from());
+          register(((ConversionPack) convId).to());
+        }
       } catch (Exception e) {
         LOG.debug("Exception during smart resource loading, skip it", e);
       }
     }
 
-    for (Map.Entry<Pair<Class, Class>, Factory<TypeConverter>> entry : factories.entrySet()) {
-      if (entry.getValue() == null)
-        continue;
-      TypeConverter instance = entry.getValue().create();
-      if (customize == null || customize.accept(instance))
-        instances.put(entry.getKey(), instance);
-    }
+    createInstances(factories, customize);
   }
 
   private TypeConvertersCollection(ConversionRepository base, Map<Pair<Class, Class>, Factory<TypeConverter>> factories, Filter<TypeConverter> filter){
     this.base = base;
     this.factories = factories;
     this.customize = filter;
+
+    createInstances(factories, filter);
+  }
+
+  private void createInstances(Map<Pair<Class, Class>, Factory<TypeConverter>> factories, Filter<TypeConverter> filter) {
     for (Map.Entry<Pair<Class, Class>, Factory<TypeConverter>> entry : factories.entrySet()) {
       if (entry.getValue() == null)
         continue;
       TypeConverter converter = entry.getValue().create();
-      if (filter.accept(converter))
+      if (converter instanceof ConversionDependant)
+        ((ConversionDependant) converter).setConversionRepository(this);
+      if (filter == null || filter.accept(converter))
         instances.put(entry.getKey(), converter);
     }
   }

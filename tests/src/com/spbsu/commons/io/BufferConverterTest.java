@@ -1,11 +1,10 @@
 package com.spbsu.commons.io;
 
-import com.spbsu.commons.io.converters.NioConverterTools;
-import com.spbsu.commons.io.converters.signals.BinarySignal2BufferConverter;
-import com.spbsu.commons.io.converters.signals.IntSignal2BufferCompressingConverter;
-import com.spbsu.commons.io.converters.signals.IntSignal2BufferCompressingConverter2;
-import com.spbsu.commons.io.converters.signals.IntSignal2BufferConverter;
-import com.spbsu.commons.io.converters.util.*;
+import com.spbsu.commons.func.converters.*;
+import com.spbsu.commons.func.converters.signals.BinarySignal2BufferConverter;
+import com.spbsu.commons.func.converters.signals.IntSignal2BufferCompressingConverter;
+import com.spbsu.commons.func.converters.signals.IntSignal2BufferCompressingConverter2;
+import com.spbsu.commons.func.converters.signals.IntSignal2BufferConverter;
 import com.spbsu.commons.math.signals.numeric.BinarySignal;
 import com.spbsu.commons.math.signals.numeric.IntSignal;
 import com.spbsu.commons.text.CharArrayCharSequence;

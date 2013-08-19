@@ -1,4 +1,4 @@
-package com.spbsu.commons.io.converters.util;
+package com.spbsu.commons.func.converters;
 
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.text.CharArrayCharSequence;

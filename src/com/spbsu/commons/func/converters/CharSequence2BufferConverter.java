@@ -1,10 +1,10 @@
-package com.spbsu.commons.io.converters.util;
+package com.spbsu.commons.func.converters;
 
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.io.Buffer;
 import com.spbsu.commons.io.BufferFactory;
-import com.spbsu.commons.io.converters.NioConverterTools;
+import com.spbsu.commons.func.converters.NioConverterTools;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;

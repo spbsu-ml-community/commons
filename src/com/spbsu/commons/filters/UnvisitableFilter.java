@@ -7,7 +7,4 @@ package com.spbsu.commons.filters;
  */
 public abstract class UnvisitableFilter<T> implements Filter<T>{
 
-  public final boolean accept(FilterVisitor visitor) {
-    throw new UnsupportedClassVersionError("this filter not support visiters");
-  }
 }

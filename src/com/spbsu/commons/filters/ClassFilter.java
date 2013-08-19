@@ -17,8 +17,4 @@ public class ClassFilter<T> implements Filter<T> {
     return clazz.isAssignableFrom(t.getClass());
   }
 
-  @Override
-  public boolean accept(FilterVisitor visitor) {
-    return visitor.visit(this);
-  }
 }

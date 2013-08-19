@@ -1,4 +1,4 @@
-package com.spbsu.commons.io.converters;
+package com.spbsu.commons.func.converters;
 
 import com.spbsu.commons.io.Buffer;
 import com.spbsu.commons.io.BufferFactory;

@@ -1,6 +1,6 @@
 package com.spbsu.commons.math.vectors.impl;
 
-import com.spbsu.commons.io.converters.Vec2StringConverter;
+import com.spbsu.commons.func.converters.Vec2StringConverter;
 import com.spbsu.commons.math.vectors.*;
 import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 import com.spbsu.commons.math.vectors.impl.iterators.TransformedArrayVecNZIterator;

@@ -15,16 +15,17 @@ import java.util.List;
  */
 public class List2CharSequenceConverter<T> implements Converter<List<T>, CharSequence> {
   private final Converter<T, CharSequence> converter;
-  private static final char SEPARATOR = ',';
+  private final char separator;
 
-  public List2CharSequenceConverter(final Converter<T, CharSequence> converter) {
+  public List2CharSequenceConverter(final Converter<T, CharSequence> converter, char separator) {
     this.converter = converter;
+    this.separator = separator;
   }
 
   @Override
   public List<T> convertFrom(CharSequence source) {
     final List<T> result = new ArrayList<T>();
-    CharSequence[] parts = CharSequenceTools.split(source, SEPARATOR);
+    CharSequence[] parts = CharSequenceTools.split(source, separator);
     for (CharSequence part : parts) {
       result.add(converter.convertFrom(part));
     }
@@ -36,7 +37,7 @@ public class List2CharSequenceConverter<T> implements Converter<List<T>, CharSeq
     StringBuilder stringBuilder = new StringBuilder();
     for (T element : data) {
       if (stringBuilder.length() > 0)
-        stringBuilder.append(SEPARATOR);
+        stringBuilder.append(separator);
       stringBuilder.append(converter.convertTo(element));
     }
     return stringBuilder;

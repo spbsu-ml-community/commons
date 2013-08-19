@@ -17,5 +17,4 @@ public class TextUtil {
     while(start < s.length());
     return index;
   }
-
 }

@@ -27,8 +27,12 @@ public class SerializationRepository<T> {
     this.destination = base.destination;
   }
 
-  public <F> T convert(F instance) {
+  public <F> T write(F instance) {
     return base.convert(instance, destination);
+  }
+
+  public <F> F read(T from, Class<F> type) {
+    return base.convert(from, type);
   }
 
   public <F> T createFrom(F from) {

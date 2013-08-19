@@ -1,7 +1,7 @@
 package com.spbsu.commons.io;
 
-import com.spbsu.commons.io.converters.util.CharSequence2BufferConverter;
-import com.spbsu.commons.io.converters.util.StringCSFactory;
+import com.spbsu.commons.func.converters.CharSequence2BufferConverter;
+import com.spbsu.commons.func.converters.StringCSFactory;
 import com.spbsu.commons.io.persist.PersistentMap;
 import com.spbsu.commons.util.logging.Interval;
 import junit.framework.TestCase;

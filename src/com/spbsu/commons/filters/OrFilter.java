@@ -18,11 +18,6 @@ public class OrFilter<T> implements Filter<T> {
     return firstFilter.accept(t) || secondFilter.accept(t);
   }
 
-  public boolean accept(FilterVisitor visitor) {
-    visitor.visit(this);
-    return true;
-  }
-
   public Filter<T> getFirstFilter() {
     return firstFilter;
   }

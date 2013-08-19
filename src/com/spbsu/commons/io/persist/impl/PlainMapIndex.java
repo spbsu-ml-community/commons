@@ -3,7 +3,7 @@ package com.spbsu.commons.io.persist.impl;
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.io.Buffer;
 import com.spbsu.commons.io.BufferFactory;
-import com.spbsu.commons.io.converters.NioConverterTools;
+import com.spbsu.commons.func.converters.NioConverterTools;
 import com.spbsu.commons.io.persist.MapIndex;
 import com.spbsu.commons.io.persist.PageFile;
 import com.spbsu.commons.io.persist.PageFileAddress;

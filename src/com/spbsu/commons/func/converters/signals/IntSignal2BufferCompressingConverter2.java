@@ -1,9 +1,9 @@
-package com.spbsu.commons.io.converters.signals;
+package com.spbsu.commons.func.converters.signals;
 
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.io.Buffer;
 import com.spbsu.commons.io.BufferFactory;
-import com.spbsu.commons.io.converters.NioConverterTools;
+import com.spbsu.commons.func.converters.NioConverterTools;
 import com.spbsu.commons.math.signals.numeric.IntSignal;
 import com.spbsu.commons.util.ArrayTools;
 import com.spbsu.commons.util.logging.Logger;
