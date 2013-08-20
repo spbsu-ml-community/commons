@@ -1,0 +1,48 @@
+package com.spbsu.commons.math.vectors;
+
+import com.spbsu.commons.FileTestCase;
+import com.spbsu.commons.math.vectors.impl.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.VecBasedMx;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+/**
+ * User: qdeee
+ * Date: 20.08.13
+ */
+public class EigenDecompositionTest extends FileTestCase {
+    @Override
+    protected String getInputFileExtension() {
+        return ".txt";
+    }
+
+    @Override
+    protected String getResultFileExtension() {
+        return ".txt";
+    }
+
+    @Override
+    protected String getTestDataPath() {
+        return "tests/data/math/";
+    }
+
+    public void testEigenDecomposition() throws IOException {
+        int dim = 4;
+        Mx A = new VecBasedMx(dim, new ArrayVec(10, -10, 0, 0,
+                                                -10, 10, 0, 0,
+                                                0,   0,  5, -5,
+                                                0,   0,  -5, 5));
+//        uncommment it for success :)
+//        for (int i = 0; i < dim; i++) {
+//            for (int j = 0; j < dim; j++)
+//                A.adjust(i, j, -0.025);
+//            A.adjust(i, i, 0.1);
+//        }
+
+        Mx sigma = new VecBasedMx(dim, dim);
+        Mx Q = new VecBasedMx(dim, dim);
+        VecTools.eigenDecomposition(A, Q, sigma);
+        checkResultByFile(sigma.toString());
+    }
+}
