@@ -257,4 +257,17 @@ public abstract class ArrayTools {
       linked[j] = swap;
     }
   }
+
+  public static int max(double[] arr) {
+    int maxIndex = -1;
+    double max = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < arr.length; i++) {
+      if (max < arr[i]) {
+        maxIndex = i;
+        max = arr[i];
+      }
+
+    }
+    return maxIndex;
+  }
 }

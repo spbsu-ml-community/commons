@@ -30,16 +30,16 @@ public abstract class FileTestCase extends TestCase {
   protected abstract String getResultFileExtension();
   protected abstract String getTestDataPath();
 
-  protected void checkResultByFile(String result) throws IOException {
+  protected void checkResultByFile(CharSequence result) throws IOException {
     final String resultsFileName = getTestDataPath() + getTestName() + getResultFileExtension();
     try{
       final byte[] bytes = readStream(new FileInputStream(resultsFileName));
-      assertEquals(new String(bytes, "UTF-8"), result);
+      assertEquals(new String(bytes, "UTF-8"), result.toString());
     }
     catch(FileNotFoundException ioe) {
       System.out.println("Results file not found, created");
       final FileOutputStream fileOutputStream = new FileOutputStream(resultsFileName);
-      fileOutputStream.write(result.getBytes("UTF-8"));
+      fileOutputStream.write(result.toString().getBytes("UTF-8"));
       assertEquals("", result);
     }
   }
