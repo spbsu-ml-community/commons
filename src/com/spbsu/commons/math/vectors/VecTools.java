@@ -364,10 +364,11 @@ public class VecTools {
     return result;
   }
 
-  public static void fill(Vec x, double val) {
+  public static Vec fill(Vec x, double val) {
     for (int i = 0; i < x.dim(); i++) {
       x.set(i, val);
     }
+    return x;
   }
 
   public static Mx choleskyDecomposition(Mx a) {
