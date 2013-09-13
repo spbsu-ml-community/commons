@@ -653,6 +653,13 @@ public class VecTools {
     return Math.sqrt(lower + upper);
   }
 
+  public static Vec fillIndices(Vec vec, int[] indices, double x) {
+    for (int i = 0; i < indices.length; i++) {
+      vec.set(indices[i], x);
+    }
+    return vec;
+  }
+
 
   private static class IndexedVecIter {
     VecIterator iter;
