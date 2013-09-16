@@ -270,4 +270,17 @@ public abstract class ArrayTools {
     }
     return maxIndex;
   }
+
+  public static int min(double[] arr) {
+    int minIndex = -1;
+    double min = Double.POSITIVE_INFINITY;
+    for (int i = 0; i < arr.length; i++) {
+      if (min > arr[i]) {
+        minIndex = i;
+        min = arr[i];
+      }
+
+    }
+    return minIndex;
+  }
 }

@@ -613,6 +613,15 @@ public class VecTools {
     return sum;
   }
 
+  public static double sum2(Vec target) {
+    final VecIterator iterator = target.nonZeroes();
+    double sum2 = 0;
+    while(iterator.advance()) {
+      sum2 += iterator.value() * iterator.value();
+    }
+    return sum2;
+  }
+
   public static void eigenDecomposition(Mx mx, Mx q, Mx sigma) {
     Mx similar = mx;
     Mx joinedInvertedTransform = E(mx.columns());
@@ -670,7 +679,6 @@ public class VecTools {
     }
     return vec;
   }
-
 
   private static class IndexedVecIter {
     VecIterator iter;
