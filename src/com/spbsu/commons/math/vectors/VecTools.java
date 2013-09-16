@@ -321,7 +321,7 @@ public class VecTools {
       final VecIterator itA = a.nonZeroes();
       while (itA.advance()) {
         final int rowStart = itA.index() * a.dim();
-        final VecIterator itB = a.nonZeroes();
+        final VecIterator itB = b.nonZeroes();
         while (itB.advance()) {
           result.set(rowStart + itB.index(), itB.value() * itA.value());
         }
@@ -493,6 +493,18 @@ public class VecTools {
     return (T)copySparse(vec);
   }
 
+  public static <T extends  Vec> T sum(final Vec a, final Vec b) {
+      Vec result = copy(a);
+      return (T)append(result, b);
+  }
+
+  public static <T extends Vec> T subtract(final Vec a, final Vec b) {
+    Vec result = copy(a);
+    for (int i = 0; i < b.dim(); i++)
+        result.adjust(i, -1.0 * b.get(i));
+      return (T)result;
+  }
+
   public static Mx transpose(Mx a) {
     final Mx result = new VecBasedMx(a.columns(), a.rows());
     for (int i = 0; i < a.rows(); i++) {
@@ -512,7 +524,6 @@ public class VecTools {
     }
     return a;
   }
-
 
   public static void assign(Vec a, Vec vec) {
     scale(a, 0);

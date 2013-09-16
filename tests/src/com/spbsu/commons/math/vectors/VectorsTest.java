@@ -172,6 +172,18 @@ public class VectorsTest extends TestCase {
     assertEquals(E(3), multiply(a, inverse));
   }
 
+  public void testOuterProduct() {
+    Vec u = new ArrayVec(1.0, 2.0);
+    Vec v = new ArrayVec(3.0, 4.0);
+
+    Mx expected = new VecBasedMx(2, new ArrayVec(3.0, 4.0,
+                                                 6.0, 8.0));
+    Mx product = outer(u, v);
+    for (int i = 0; i < product.dim(); i++) {
+        assertEquals(expected.get(i), product.get(i), 1e-10);
+    }
+  }
+
   public void testMultiply() {
     Mx a = new VecBasedMx(3, new ArrayVec(
             1, 0, 0,
