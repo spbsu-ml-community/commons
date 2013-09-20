@@ -1,11 +1,14 @@
 package com.spbsu.commons.math;
 
+import static java.lang.Math.*;
+
 /**
  * @author vp
  */
 public abstract class MathTools {
 
   public static final double EPSILON = 1e-6;
+  public static final double SQRT3 = sqrt(3.);
 
   private MathTools() {
   }
@@ -45,21 +48,21 @@ public abstract class MathTools {
   public static double logFactorial(final int v) {
     double logSum = 0;
     for (int i = 0; i < v; i++) {
-      logSum += Math.log(i + 1);
+      logSum += log(i + 1);
     }
     return logSum;
   }
 
   public static double logFactorialRamanujan(final int v) {
-    return (v == 1 || v == 0) ? 0 : v * Math.log(v) - v + Math.log(v * (1 + 4 * v * (1 + 2 * v))) / 6. + Math.log(Math.PI) / 2;
+    return (v == 1 || v == 0) ? 0 : v * log(v) - v + log(v * (1 + 4 * v * (1 + 2 * v))) / 6. + log(Math.PI) / 2;
   }
 
   public static double poissonProbability(final double lambda, final int k) {
-    return Math.exp(-lambda + k * Math.log(lambda) - logFactorial(k));
+    return Math.exp(-lambda + k * log(lambda) - logFactorial(k));
   }
 
   public static double poissonProbabilityFast(final double lambda, final int k) {
-    return Math.exp(-lambda + k * Math.log(lambda) - logFactorialRamanujan(k));
+    return Math.exp(-lambda + k * log(lambda) - logFactorialRamanujan(k));
   }
 
   public static double conditionalNonPoissonExpectation(final double noiseExpectation, final int observationCount) {
@@ -72,30 +75,30 @@ public abstract class MathTools {
   }
 
   public static double conditionalNonPoissonExpectationFast(final double noiseExpectation, final int observationCount) {
-    final double lambdaLog = Math.log(noiseExpectation);
+    final double lambdaLog = log(noiseExpectation);
 
     double expectation = 0;
     double logSum = 0;
     for (int noiseCount = 0; noiseCount < observationCount; noiseCount++) {
       final double trialProbability = Math.exp(-noiseExpectation + noiseCount * lambdaLog - logSum);
       expectation += (observationCount - noiseCount) * trialProbability;
-      logSum += Math.log(noiseCount + 1);
+      logSum += log(noiseCount + 1);
     }
     return expectation;
   }
 
   public static double triroot(double a) {
-    return Math.signum(a) * Math.pow(Math.abs(a), 1./3.);
+    return signum(a) * pow(abs(a), 1. / 3.);
   }
 
   public static int quadratic(double[] x, double a, double b, double c) {
-    if (Math.abs(a) > EPSILON) {
+    if (abs(a) > EPSILON) {
       double D = b * b - 4 * a * c;
       if (D < 0) {
         return 0;
       }
-      x[0] = (-b + Math.sqrt(D)) / 2. / a;
-      x[1] = (-b - Math.sqrt(D)) / 2. / a;
+      x[0] = (-b + sqrt(D)) / 2. / a;
+      x[1] = (-b - sqrt(D)) / 2. / a;
       return 2;
     }
     else {
@@ -109,22 +112,25 @@ public abstract class MathTools {
       return quadratic(x, b, c, d);
     }
     b /= a; c /= a; d /= a;
-    double p = - b * b /3. + c;
-    double q = 2. * b * b * b / 27. - b * c / 3 + d;
+    final double b2 = b * b;
+    final double p = - b2 /3. + c;
+    final double q = b * ((2./ 27.) * b2 - c / 3.) + d;
     x[0] = x[1] = x[2] = -b/3.;
     double Q = p * p * p /27. + q * q /4.;
     if (Q > 0) {
-      double alpha = triroot(-q/2 + Math.sqrt(Q));
-      double beta = triroot(-q/2 - Math.sqrt(Q));
+      final double sqrtQ = sqrt(Q);
+      double alpha = triroot(-q/2 + sqrtQ);
+      double beta = triroot(-q/2 - sqrtQ);
       x[0] += alpha + beta;
       return 1;
     }
     else if (Q < 0) {
-      double ab = 2 * triroot(Math.sqrt(-Q));
-      double ambi = 2 * triroot(Math.sqrt(-Q));
+      final double trirootSqrtMQ = pow(sqrt(-Q), 1./3.);
+      double ab = 2 * trirootSqrtMQ;
+      double ambi = 2 * trirootSqrtMQ;
       x[0] += ab;
-      x[1] += -ab/2. + ambi/2.*Math.sqrt(3.);
-      x[2] += -ab/2. - ambi/2.*Math.sqrt(3.);
+      x[1] += -ab/2. + ambi * SQRT3/2.;
+      x[2] += -ab/2. - ambi * SQRT3/2.;
       return 3;
     }
     else {
