@@ -364,6 +364,21 @@ public class VecTools {
     return result;
   }
 
+  public static Mx myOuter(Vec a, Vec b) {
+      final Mx result = new VecBasedMx(a.dim(), b.dim());
+
+      final VecIterator itA = a.nonZeroes();
+      while (itA.advance()) {
+          final int i = itA.index();
+          final VecIterator itB = b.nonZeroes();
+          while (itB.advance()) {
+              final int j = itB.index();
+              result.adjust(i, j, itB.value() * itA.value());
+          }
+      }
+      return result;
+  }
+
   public static Vec fill(Vec x, double val) {
     for (int i = 0; i < x.dim(); i++) {
       x.set(i, val);

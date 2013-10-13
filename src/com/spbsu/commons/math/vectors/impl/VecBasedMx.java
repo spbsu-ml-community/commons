@@ -108,7 +108,7 @@ public class VecBasedMx implements Mx {
 
   @Override
   public double[] toArray() {
-    return new double[0];  //To change body of implemented methods use File | Settings | File Templates.
+    return vec.toArray();
   }
 
   @Override
