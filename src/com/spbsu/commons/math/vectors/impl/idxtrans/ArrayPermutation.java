@@ -4,6 +4,9 @@ import com.spbsu.commons.math.vectors.IndexTransformation;
 
 import java.util.Arrays;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 /**
  * User: solar
  * Date: 10/9/12
@@ -12,12 +15,18 @@ import java.util.Arrays;
 public class ArrayPermutation implements IndexTransformation {
   private final int[] perm;
   private final int[] backPerm;
+  int maxBack = 0;
+  int minBack = 0;
 
   public ArrayPermutation(int[] perm) {
     this.perm = perm;
-    backPerm = new int[perm.length];
+    for (int i = 0; i < perm.length; i++) {
+      maxBack = max(perm[i], maxBack);
+      minBack = min(perm[i], minBack);
+    }
+    backPerm = new int[maxBack + 1];
     Arrays.fill(backPerm, -1);
-    for (int i = 0; i < backPerm.length; i++)
+    for (int i = 0; i < perm.length; i++)
       backPerm[perm[i]] = i;
   }
 
@@ -33,17 +42,17 @@ public class ArrayPermutation implements IndexTransformation {
 
   @Override
   public int newDim() {
-    return backPerm.length;
+    return perm.length;
   }
 
   @Override
   public int oldIndexStartHint() {
-    return 0;
+    return minBack;
   }
 
   @Override
   public int oldIndexEndHint() {
-    return perm.length;
+    return maxBack;
   }
 
   @Override
