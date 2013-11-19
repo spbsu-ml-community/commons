@@ -2,10 +2,7 @@ package com.spbsu.commons.util;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * User: solar
@@ -14,8 +11,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class ThreadTools {
   public static int COMPUTE_UNITS = Runtime.getRuntime().availableProcessors();
-  public static ThreadPoolExecutor createExecutor(final String name, int queueSize) {
-    return new ThreadPoolExecutor(COMPUTE_UNITS, COMPUTE_UNITS, 5, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(queueSize), new ThreadFactory() {
+  public static ThreadPoolExecutor createBGExecutor(final String name, int queueSize) {
+    final BlockingQueue<Runnable> workQueue;
+    if (queueSize > 0) workQueue = new ArrayBlockingQueue<Runnable>(queueSize);
+    else workQueue = new LinkedBlockingQueue<Runnable>();
+
+    return new ThreadPoolExecutor(COMPUTE_UNITS, COMPUTE_UNITS, 5, TimeUnit.SECONDS, workQueue, new ThreadFactory() {
       @NotNull
       @Override
       public Thread newThread(Runnable r) {

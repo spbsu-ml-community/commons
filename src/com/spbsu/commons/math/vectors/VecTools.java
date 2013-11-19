@@ -821,14 +821,7 @@ public class VecTools {
   }
 
   public static double norm(Vec v) {
-    final VecIterator iter = v.nonZeroes();
-    double result = 0;
-    while (iter.advance()) {
-      final double value = iter.value();
-      result += value * value;
-    }
-
-    return sqrt(result);
+    return sqrt(sum2(v));
   }
 
   @SuppressWarnings({"UnusedDeclaration"})

@@ -141,5 +141,8 @@ public abstract class MathTools {
     }
   }
 
+  public static double sqr(double v) {
+    return v * v;
+  }
 }
 
