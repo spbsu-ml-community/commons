@@ -10,6 +10,7 @@ import com.spbsu.commons.util.RedBlackTree;
 import gnu.trove.TDoubleArrayList;
 import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -302,7 +303,7 @@ public class VecTools {
     double result = 0;
     final VecIterator iterator = vec.nonZeroes();
     while (iterator.advance()) {
-      result += abs(iterator.value());
+      result += Math.abs(iterator.value());
     }
     return result;
   }
@@ -335,7 +336,7 @@ public class VecTools {
     int dim = a.columns();
     for (int i = 0; i < dim; i++)
       for (int j = 0; j < dim; j++)
-        if (abs(a.get(i, j) - a.get(j, i)) > EPSILON)
+        if (Math.abs(a.get(i, j) - a.get(j, i)) > EPSILON)
           return false;
     return true;
   }
@@ -695,6 +696,12 @@ public class VecTools {
     return vec;
   }
 
+  public static Mx inverseCholesky(Mx a) {
+    final Mx l = choleskyDecomposition(a);
+    final Mx inverseL = inverseLTriangle(l);
+    return multiply(transpose(inverseL), inverseL);
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;
@@ -829,7 +836,7 @@ public class VecTools {
     final VecIterator iter = v.nonZeroes();
     double result = 0;
     while (iter.advance()) {
-      result += abs(iter.value());
+      result += Math.abs(iter.value());
     }
 
     return result;
@@ -865,5 +872,68 @@ public class VecTools {
 
   public static <A> double oneNorm(final DVector<A> vector) {
     return MathTools.sum(vector.values());
+  }
+
+  public enum NormalizationType {
+    SPHERE,
+    PCA,
+    SCALE
+  }
+
+  public static class NormalizationProperties {
+    public Vec xMean;
+    public Mx xTrans;
+  }
+
+  public static Mx normalize(Mx ds, NormalizationType type, NormalizationProperties props) {
+    final Vec mean = new ArrayVec(ds.columns());
+    final Mx covar = new VecBasedMx(ds.columns(), ds.columns());
+    double targetMean;
+    double targetVar;
+    Mx trans;
+    Vec temp = new ArrayVec(ds.columns());
+    for (int i = 0; i < ds.rows(); i++) {
+      Vec vec = ds.row(i);
+      VecTools.assign(temp, vec);
+      VecTools.append(temp, mean);
+      VecTools.addOuter(covar, temp, temp);
+    }
+    VecTools.scale(covar, 1./ds.rows());
+    switch (type) {
+      case SPHERE:
+        final Mx l = VecTools.choleskyDecomposition(covar);
+        trans = VecTools.inverseLTriangle(l);
+        break;
+      case PCA:
+        trans = new VecBasedMx(ds.columns(), ds.columns());
+        VecTools.eigenDecomposition(covar, new VecBasedMx(ds.columns(), ds.columns()), trans);
+        break;
+      case SCALE:
+        trans = new VecBasedMx(ds.columns(), ds.columns());
+        for (int i = 0; i < trans.columns(); i++) {
+          trans.set(i, i, 1./Math.sqrt(covar.get(i, i)));
+        }
+        break;
+      default:
+        throw new NotImplementedException();
+    }
+    Mx normalized = VecTools.copy(ds);
+    for (int i = 0; i < ds.rows(); i++) {
+      Vec row = normalized.row(i);
+      VecTools.append(row, mean);
+      VecTools.assign(row, VecTools.multiply(trans, row));
+    }
+    props.xMean = mean;
+    props.xTrans = trans;
+    return normalized;
+  }
+
+  public static Vec abs(Vec v) {
+    Vec result = copy(v);
+    final VecIterator it = result.nonZeroes();
+    while (it.advance()) {
+      it.setValue(Math.abs(it.value()));
+    }
+    return result;
   }
 }

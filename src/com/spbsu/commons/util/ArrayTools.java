@@ -1,5 +1,7 @@
 package com.spbsu.commons.util;
 
+import com.spbsu.commons.func.Evaluator;
+
 /**
  * @author lawless
  */
@@ -282,5 +284,19 @@ public abstract class ArrayTools {
 
     }
     return minIndex;
+  }
+
+  public static <T> int max(T[] arr, Evaluator<T> evaluator) {
+    int maxIndex = -1;
+    double max = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < arr.length; i++) {
+      final double score = evaluator.value(arr[i]);
+      if (max < score) {
+        maxIndex = i;
+        max = score;
+      }
+
+    }
+    return maxIndex;
   }
 }

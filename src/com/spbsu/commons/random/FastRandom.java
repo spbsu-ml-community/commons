@@ -2,6 +2,8 @@ package com.spbsu.commons.random;
 
 import java.util.Random;
 
+import static java.lang.Math.exp;
+
 /**
  * Created by IntelliJ IDEA.
  * User: solar
@@ -57,5 +59,28 @@ public class FastRandom extends Random {
 
   protected int next(int bits) {
     return (int) (nextLong() >>> (64-bits));
+  }
+
+  /** Standard Knuth implementation. Use normal approximation for frequencies > 25 */
+  public int nextPoisson(double meanFreq) {
+    if (meanFreq > 25) {
+      final double val = nextNormal(meanFreq, Math.sqrt(meanFreq));
+      if (val < 0)
+        return nextPoisson(meanFreq);
+      return (int) val + (val - (int)val >= 0.5 ? 1 : 0);
+    }
+    double L = exp(-meanFreq);
+    int k = 0;
+    double p = 1;
+    do {
+      k++;
+      p *= nextDouble();
+    }
+    while(p > L);
+    return k - 1;
+  }
+
+  private double nextNormal(double meanFreq, double stddev) {
+    return nextGaussian() * stddev + meanFreq;
   }
 }
