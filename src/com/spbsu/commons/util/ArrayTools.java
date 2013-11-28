@@ -1,6 +1,9 @@
 package com.spbsu.commons.util;
 
+import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Evaluator;
+
+import java.lang.reflect.Array;
 
 /**
  * @author lawless
@@ -298,5 +301,20 @@ public abstract class ArrayTools {
 
     }
     return maxIndex;
+  }
+
+  public static <F, T> T[] map(F[] models, Class<T> clazz, Computable<F, T> computable) {
+    T[] result = (T[]) Array.newInstance(clazz, models.length);
+    for (int i = 0; i < models.length; i++)
+      result[i] = computable.compute(models[i]);
+    return result;
+  }
+
+  public static <T> double[] score(T[] dirs, Evaluator<T> evaluator) {
+    double[] result = new double[dirs.length];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = evaluator.value(dirs[i]);
+    }
+    return result;
   }
 }
