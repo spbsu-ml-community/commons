@@ -1,9 +1,6 @@
 package com.spbsu.commons.math.vectors.impl;
 
-import com.spbsu.commons.math.vectors.Basis;
-import com.spbsu.commons.math.vectors.Vec;
-import com.spbsu.commons.math.vectors.VecIterator;
-import com.spbsu.commons.math.vectors.VecTools;
+import com.spbsu.commons.math.vectors.*;
 import com.spbsu.commons.math.vectors.impl.iterators.SparseVecNZIterator;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.TDoubleArrayList;
@@ -89,7 +86,6 @@ public class SparseVec<B extends Basis> implements Vec {
     return new SparseVecNZIterator(this);
   }
   
-  @Override
   public B basis() {
     return basis;
   }
@@ -100,7 +96,7 @@ public class SparseVec<B extends Basis> implements Vec {
   }
 
   @Override
-  public double[] toArray() {
+  public synchronized double[] toArray() {
     double[] result = new double[basis.size()];
     VecIterator iter = nonZeroes();
     while (iter.advance())
@@ -109,8 +105,22 @@ public class SparseVec<B extends Basis> implements Vec {
   }
 
   @Override
-  public boolean sparse() {
-    return true;
+  public Vec sub(int start, int len) {
+    int end = start + len;
+    int sindex = 0;
+    int eindex = 0;
+    for (int i = 0; i < indices.size() && indices.get(i) < end; i++) {
+      if (indices.get(i) < start)
+        sindex++;
+      eindex++;
+    }
+    int[] indices = new int[eindex - sindex];
+    double[] values = new double[eindex - sindex];
+    for (int i = 0; i < indices.length; i++) {
+      indices[i] = this.indices.get(i + sindex) - start;
+      values[i] = this.values.get(i + sindex);
+    }
+    return new SparseVec<IntBasis>(new IntBasis(len), indices, values);
   }
 
   @Override
@@ -122,5 +132,4 @@ public class SparseVec<B extends Basis> implements Vec {
   public int hashCode() {
     return VecTools.hashCode(this);
   }
-
 }

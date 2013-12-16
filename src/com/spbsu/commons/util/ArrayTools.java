@@ -4,6 +4,7 @@ import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Evaluator;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * @author lawless
@@ -121,9 +122,6 @@ public abstract class ArrayTools {
   public static void parallelSort(double[] a, int[] linked) {
     if(a.length != linked.length)
       throw new IllegalArgumentException("arrays sizes are not equal");
-    for(int i = 0; i < linked.length;i++)
-        linked[i] = i;
-//      shuffle(a, linked); // to guard against worst-case
     parallelSort(a, linked, 0, a.length - 1);
   }
 
@@ -316,5 +314,127 @@ public abstract class ArrayTools {
       result[i] = evaluator.value(dirs[i]);
     }
     return result;
+  }
+
+  public static void add(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+    final int alignedCount = (count / 4) * 4;
+    for (int i = 0; i < alignedCount; i+=4) {
+      larray[i + loffset] += rarray[i + roffset];
+      larray[i + loffset + 1] += rarray[i + roffset + 1];
+      larray[i + loffset + 2] += rarray[i + roffset + 2];
+      larray[i + loffset + 3] += rarray[i + roffset + 3];
+    }
+
+    for (int i = alignedCount; i < count; i++){
+      larray[i + loffset] += rarray[i + roffset];
+    }
+  }
+
+  public static void fill(double[] array, int offset, int length, double val) {
+    final int alignedCount = (length / 4) * 4 + offset;
+    for (int i = offset; i < alignedCount; i+=4) {
+      array[i] = val;
+      array[i + 1] = val;
+      array[i + 2] = val;
+      array[i + 3] = val;
+    }
+
+    for (int i = alignedCount; i < length + offset; i++){
+      array[i] = val;
+    }
+  }
+
+  public static void mul(double[] array, int offset, int length, double val) {
+    final int alignedCount = (length / 4) * 4 + offset;
+    for (int i = offset; i < alignedCount; i+=4) {
+      array[i] *= val;
+      array[i + 1] *= val;
+      array[i + 2] *= val;
+      array[i + 3] *= val;
+    }
+
+    for (int i = alignedCount; i < length + offset; i++){
+      array[i] *= val;
+    }
+  }
+
+  public static void scale(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+    final int alignedCount = (count / 4) * 4;
+    for (int i = 0; i < alignedCount; i+=4) {
+      larray[i + loffset] *= rarray[i + roffset];
+      larray[i + loffset + 1] *= rarray[i + roffset + 1];
+      larray[i + loffset + 2] *= rarray[i + roffset + 2];
+      larray[i + loffset + 3] *= rarray[i + roffset + 3];
+    }
+
+    for (int i = alignedCount; i < count; i++){
+      larray[i + loffset] *= rarray[i + roffset];
+    }
+  }
+
+  public static double mul(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+    final int alignedEndL = (count / 4) * 4 + loffset;
+    final int endL = count + loffset;
+    double result = 0;
+    for (; loffset < alignedEndL; roffset+=4, loffset+=4) {
+      final double r1 = larray[loffset] * rarray[roffset];
+      final double r2 = larray[loffset + 1] * rarray[roffset + 1];
+      final double r3 = larray[loffset + 2] * rarray[roffset + 2];
+      final double r4 = larray[loffset + 3] * rarray[roffset + 3];
+      result += r1 + r2 + r3 + r4;
+    }
+
+    for (; loffset < endL; roffset++, loffset++){
+      result += larray[loffset] * rarray[roffset];
+    }
+    return result;
+  }
+
+  public static void incscale(double[] larray, int loffset, double[] result, int resultOffset, int count, double scale) {
+    final int alignedEndL = (count / 4) * 4 + loffset;
+    final int endL = count + loffset;
+    for (; loffset < alignedEndL; loffset+=4, resultOffset+=4) {
+      result[resultOffset] += larray[loffset] * scale;
+      result[resultOffset + 1] += larray[loffset + 1] * scale;
+      result[resultOffset + 2] += larray[loffset + 2] * scale;
+      result[resultOffset + 3] += larray[loffset + 3] * scale;
+    }
+
+    for (; loffset < endL; loffset++, resultOffset++){
+      result[resultOffset] += larray[loffset] * scale;
+    }
+  }
+
+  public static double l2(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+    final int alignedEndL = (count / 4) * 4 + loffset;
+    final int endL = count + loffset;
+    double result = 0;
+    for (; loffset < alignedEndL; roffset+=4, loffset+=4) {
+      final double r1 = larray[loffset] - rarray[roffset];
+      final double r2 = larray[loffset + 1] - rarray[roffset + 1];
+      final double r3 = larray[loffset + 2] - rarray[roffset + 2];
+      final double r4 = larray[loffset + 3] - rarray[roffset + 3];
+      result += r1 * r1 + r2 * r2 + r3 * r3 + r4 * r4;
+    }
+
+    for (; loffset < endL; roffset++, loffset++){
+      final double r1 = larray[loffset] - rarray[roffset];
+      result += r1 * r1;
+    }
+    return result;
+  }
+
+  public static void assign(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+    final int alignedCount = (count / 4) * 4;
+    for (int i = 0; i < alignedCount; i+=4) {
+      larray[i + loffset] = rarray[i + roffset];
+      larray[i + loffset + 1] = rarray[i + roffset + 1];
+      larray[i + loffset + 2] = rarray[i + roffset + 2];
+      larray[i + loffset + 3] = rarray[i + roffset + 3];
+    }
+
+    for (int i = alignedCount; i < count; i++){
+      larray[i + loffset] = rarray[i + roffset];
+    }
   }
 }

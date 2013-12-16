@@ -56,7 +56,8 @@ public class VecBasedSquareMx<T> implements Mx {
     return basis.toIndex(i) << 16 | basis.toIndex(j);
   }
 
-  @Override public double get(int i, int j) {
+  @Override
+  public double get(int i, int j) {
     return index.containsKey(map(i, j)) ? vector.get(index.get(map(i, j))) : 0;
   }
 
@@ -64,7 +65,8 @@ public class VecBasedSquareMx<T> implements Mx {
     return index.containsKey(map(i, j)) ? vector.get(index.get(map(i, j))) : 0;
   }
 
-  @Override public Mx set(int i, int j, double value) {
+  @Override
+  public Mx set(int i, int j, double value) {
     int temp;
     if((temp = Math.max(i, j) + 1) > matrixDimension)
       matrixDimension = temp;
@@ -90,7 +92,8 @@ public class VecBasedSquareMx<T> implements Mx {
     return this;
   }
 
-  @Override public Mx adjust(int i, int j, double increment) {
+  @Override
+  public Mx adjust(int i, int j, double increment) {
     int temp;
     if((temp = Math.max(i, j) + 1) > matrixDimension)
       matrixDimension = temp;
@@ -116,41 +119,41 @@ public class VecBasedSquareMx<T> implements Mx {
     return this;
   }
 
-  @Override public Mx sub(int i, int j, int height, int width) {
+  @Override
+  public Mx sub(int i, int j, int height, int width) {
     return new VecBasedMx(width,
-                          new IndexTransVec(vector, new SubMxTransformation(matrixDimension, i, j, width, height),
-                          new IntBasis(height * width)));
+                          new IndexTransVec(vector, new SubMxTransformation(matrixDimension, i, j, width, height)));
   }
 
-  @Override public Vec row(int i) {
+  @Override
+  public Vec row(int i) {
     return new IndexTransVec(vector,
-                             new SubMxTransformation(matrixDimension, i, 0, matrixDimension, 1),
-                             new IntBasis(matrixDimension));
+                             new SubMxTransformation(matrixDimension, i, 0, matrixDimension, 1));
   }
 
   public Vec row(T i) {
     return new IndexTransVec(vector,
-                             new SubMxTransformation(matrixDimension, basis.toIndex(i), 0, matrixDimension, 1),
-                             new IntBasis(matrixDimension));
+                             new SubMxTransformation(matrixDimension, basis.toIndex(i), 0, matrixDimension, 1));
   }
 
-  @Override public Vec col(int j) {
+  @Override
+  public Vec col(int j) {
     return new IndexTransVec(vector,
-                             new SubMxTransformation(matrixDimension, 0, j, 1, matrixDimension),
-                             new IntBasis(matrixDimension));
+                             new SubMxTransformation(matrixDimension, 0, j, 1, matrixDimension));
   }
 
   public Vec col(T j) {
     return new IndexTransVec(vector,
-                             new SubMxTransformation(matrixDimension, 0, basis.toIndex(j), 1, matrixDimension),
-                             new IntBasis(matrixDimension));
+                             new SubMxTransformation(matrixDimension, 0, basis.toIndex(j), 1, matrixDimension));
   }
 
-  @Override public MxIterator nonZeroes() {
+  @Override
+  public MxIterator nonZeroes() {
     return new MxIteratorImpl(vector.nonZeroes(), matrixDimension);
   }
 
-  @Override public MxBasis basis() {
+  @Override
+  public MxBasis basis() {
     return new MxBasisImpl(matrixDimension,  matrixDimension);
   }
 
@@ -158,31 +161,38 @@ public class VecBasedSquareMx<T> implements Mx {
     return new MapBasis<T>(basis);
   }
 
-  @Override public int columns() {
+  @Override
+  public int columns() {
     return matrixDimension;
   }
 
-  @Override public int rows() {
+  @Override
+  public int rows() {
     return matrixDimension;
   }
 
-  @Override public double get(int i) {
+  @Override
+  public double get(int i) {
     return vector.get(i);
   }
 
-  @Override public Vec set(int i, double value) {
+  @Override
+  public Vec set(int i, double value) {
     return vector.set(i, value);
   }
 
-  @Override public Vec adjust(int i, double increment) {
+  @Override
+  public Vec adjust(int i, double increment) {
     return vector.adjust(i, increment);
   }
 
-  @Override public int dim() {
+  @Override
+  public int dim() {
     return matrixDimension;
   }
 
-  @Override public double[] toArray() {
+  @Override
+  public double[] toArray() {
     int size = matrixDimension;
     double[] result = new double[size * size];
     for(int i = 0; i < size; i++)
@@ -191,8 +201,9 @@ public class VecBasedSquareMx<T> implements Mx {
     return result;
   }
 
-  @Override public boolean sparse() {
-    return true;
+  @Override
+  public Vec sub(int start, int len) {
+    return vector.sub(start, len);
   }
 
   @Override public String toString() {

@@ -32,9 +32,9 @@ public class EigenDecompositionTest extends FileTestCase {
   public void testEigenDecomposition() throws IOException {
     int dim = 4;
     Mx A = new VecBasedMx(dim, new ArrayVec(10, -10, 0, 0,
-            -10, 10, 0, 0,
-            0,   0,  5, -5,
-            0,   0,  -5, 5));
+                                            -10, 10, 0, 0,
+                                            0,   0,  5, -5,
+                                            0,   0,  -5, 5));
 //        uncommment it for success :)
 //        for (int i = 0; i < dim; i++) {
 //            for (int j = 0; j < dim; j++)

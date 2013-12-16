@@ -203,6 +203,25 @@ public class VectorsTest extends TestCase {
     assertEquals(c, multiply(a, b));
   }
 
+  public void testSparseMultiply() {
+    Mx a = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
+            1, 0, 0,
+            1, 1, 0,
+            1, 2, 3
+    )));
+    Mx b = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
+            1, 0, 2,
+            1, 2, 0,
+            1, 2, 0
+    )));
+    Mx c = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
+            1, 0, 2,
+            2, 2, 2,
+            6, 10, 2
+    )));
+    assertEquals(c, multiply(a, b));
+  }
+
 
   public void testInverse() {
     Mx a = new VecBasedMx(3, new ArrayVec(
@@ -249,12 +268,12 @@ public class VectorsTest extends TestCase {
     final Mx Sigma = multiply(L, transpose(L));
     GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(3), Sigma, new Random());
     List<Vec> pool = new ArrayList<Vec>(100500);
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 20000; i++) {
       pool.add(randomVec.next());
     }
 
     Mx m = mahalanobis(pool);
-    assertTrue(distance(L, inverseLTriangle(m)) < 0.001);
+    assertTrue(distance(L, inverseLTriangle(m)) < 0.02);
   }
 
   public void testMahalanobis2() {
@@ -265,12 +284,12 @@ public class VectorsTest extends TestCase {
     final Mx Sigma = multiply(L, transpose(L));
     GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma, new Random());
     List<Vec> pool = new ArrayList<Vec>(100500);
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 20000; i++) {
       pool.add(randomVec.next());
     }
 
     Mx m = mahalanobis(pool);
-    assertTrue(distance(L, inverseLTriangle(m)) < 0.001);
+    assertTrue(distance(L, inverseLTriangle(m)) < 0.02);
   }
 
   public void testNearestNeighbour() {

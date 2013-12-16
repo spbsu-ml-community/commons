@@ -1,6 +1,7 @@
 package com.spbsu.commons.math.vectors.impl;
 
 import com.spbsu.commons.math.vectors.*;
+import com.spbsu.commons.util.ArrayPart;
 import junit.framework.TestCase;
 
 /**

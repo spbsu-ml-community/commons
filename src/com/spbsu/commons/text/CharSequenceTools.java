@@ -179,4 +179,30 @@ public class CharSequenceTools {
     result.add(sequence.subSequence(last, sequence.length()));
     return result.toArray(new CharSequence[result.size()]);
   }
+
+  public static CharSequence cut(CharSequence from, int index, char sep) {
+    final int start = index;
+    while (from.length() > index && from.charAt(index) != sep)
+      index++;
+    return from.subSequence(start, index);
+  }
+
+  public static CharSequence cutClose(CharSequence from, int index, char open, char close) {
+    final int start = index;
+    int depth = 0;
+    while (from.length() > index && from.charAt(index) != close && depth == 0) {
+      if (from.charAt(index) == open)
+        depth++;
+      else if (from.charAt(index) == close)
+        depth = depth > 0 ? depth - 1: 0;
+      index++;
+    }
+    return from.subSequence(start, index);
+  }
+
+  public static int skipTo(CharSequence from, int index, char sep) {
+    while (from.length() > index && from.charAt(index) != sep)
+      index++;
+    return index;
+  }
 }

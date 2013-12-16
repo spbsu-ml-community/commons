@@ -47,18 +47,17 @@ public class VecBasedMx implements Mx {
   @Override
   public Mx sub(int i, int j, int height, int width) {
     return new VecBasedMx(width, new IndexTransVec(vec,
-            new SubMxTransformation(columns(), i, j, width, height),
-            new IntBasis(height * width)));
+            new SubMxTransformation(columns(), i, j, width, height)));
   }
 
   @Override
   public Vec row(int i) {
-    return new IndexTransVec(vec, new SubMxTransformation(columns(), i, 0, columns(), 1), new IntBasis(columns()));
+    return vec.sub(i * columns, columns);
   }
 
   @Override
   public Vec col(int j) {
-    return new IndexTransVec(vec, new SubMxTransformation(columns(), 0, j, 1, rows()), new IntBasis(rows()));
+    return new IndexTransVec(vec, new SubMxTransformation(columns(), 0, j, 1, rows()));
   }
 
   @Override
@@ -112,8 +111,8 @@ public class VecBasedMx implements Mx {
   }
 
   @Override
-  public boolean sparse() {
-    return vec.sparse();
+  public Vec sub(int start, int len) {
+    return vec.sub(start, len);
   }
 
   @Override

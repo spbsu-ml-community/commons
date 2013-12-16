@@ -1,5 +1,7 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.util.ArrayPart;
+
 /**
  * User: solar
  * Date: 16.01.2010
@@ -10,12 +12,11 @@ public interface Vec {
   Vec set(int i, double val);
   Vec adjust(int i, double increment);
   VecIterator nonZeroes();
-  Basis basis();
 
   int dim();
 
   double[] toArray();
 
-  boolean sparse();
+  Vec sub(int start, int len);
 }
 

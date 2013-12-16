@@ -8,12 +8,12 @@ import com.spbsu.commons.math.vectors.IndexTransformation;
  * Time: 9:49 PM
  */
 public class SubMxTransformation implements IndexTransformation {
-  final int start;
-  final int columns;
-  final int i;
-  final int j;
-  final int width;
-  final int height;
+  public final int start;
+  public final int columns;
+  public final int i;
+  public final int j;
+  public final int width;
+  public final int height;
 
   public SubMxTransformation(int columns, int i, int j, int width, int height) {
     this.start = i * columns + j;

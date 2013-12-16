@@ -1,5 +1,6 @@
 package com.spbsu.commons.math.vectors.impl.iterators;
 
+import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.ArrayVec;
 import com.spbsu.commons.math.vectors.VecIterator;
 
@@ -8,20 +9,12 @@ import com.spbsu.commons.math.vectors.VecIterator;
 * Date: 10/9/12
 * Time: 9:01 AM
 */
-public class ArrayVecNZIterator implements VecIterator {
+public class SkipVecNZIterator implements VecIterator {
+  protected final Vec vec;
   int index;
-  int dim;
-  double[] values;
 
-  public ArrayVecNZIterator(ArrayVec arrayVec) {
-    this.values = arrayVec.values;
-    this.dim = arrayVec.dim();
-    index = -1;
-  }
-
-  public ArrayVecNZIterator(double[] values) {
-    this.values = values;
-    this.dim = values.length;
+  public SkipVecNZIterator(Vec arrayVec) {
+    this.vec = arrayVec;
     index = -1;
   }
 
@@ -32,12 +25,12 @@ public class ArrayVecNZIterator implements VecIterator {
 
   @Override
   public double value() {
-    return values[index];
+    return vec.get(index);
   }
 
   @Override
   public boolean isValid() {
-    return index < dim && index >= 0;
+    return index < vec.dim() && index >= 0;
   }
 
   @Override
@@ -48,14 +41,13 @@ public class ArrayVecNZIterator implements VecIterator {
 
   @Override
   public boolean advance() {
-    while(++index < dim && values[index] == 0);
+    while(++index < vec.dim() && vec.get(index) == 0);
     return isValid();
   }
 
   @Override
   public double setValue(double v) {
-    values[index] = v;
+    vec.set(index, v);
     return v;
   }
-
 }

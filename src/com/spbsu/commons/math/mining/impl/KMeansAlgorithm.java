@@ -10,6 +10,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import static com.spbsu.commons.math.vectors.VecTools.append;
+import static com.spbsu.commons.math.vectors.VecTools.copy;
+import static com.spbsu.commons.math.vectors.VecTools.scale;
+
 /**
  * User: solar
  * Date: 13.02.2010
@@ -38,25 +42,20 @@ public class KMeansAlgorithm<T> implements ClusterizationAlgorithm<T> {
       int index = fullIndex++ % centroids.length;
       if (centroids[index] == null)
         //noinspection unchecked
-        centroids[index] = new SparseVec(vec.basis());
-      VecTools.append(centroids[index], vec);
+        centroids[index] = copy(vec);
+      else
+        append(centroids[index], vec);
       clusters.get(index).add(point);
+    }
+    for (int i = 0; i < centroids.length; i++) {
+      scale(centroids[i], 1./clusters.size());
     }
 
     int iteration = 0;
     do {
       final Vec[] nextCentroids = new Vec[clustCount];
       for (int i = 0; i < centroids.length; i++) {
-        //noinspection unchecked
-        nextCentroids[i] = new SparseVec(centroids[i].basis());
-        final Set<T> cluster = clusters.get(i);
-        final VecIterator centIter = centroids[i].nonZeroes();
-        final int scale = Math.max(cluster.size(), 1);
-        while (centIter.advance()) {
-          final double v = centIter.value() / scale;
-          centIter.setValue(v < 0.01 ? 0 : v);
-        }
-        cluster.clear();
+        clusters.get(i).clear();
       }
 
       for (T point : dataSet) {
@@ -72,9 +71,12 @@ public class KMeansAlgorithm<T> implements ClusterizationAlgorithm<T> {
           }
         }
         clusters.get(minIndex).add(point);
-        VecTools.append(nextCentroids[minIndex], vec);
+        append(nextCentroids[minIndex], vec);
       }
 
+      for (int i = 0; i < centroids.length; i++) {
+        scale(centroids[i], 1./clusters.size());
+      }
       centroids = nextCentroids;
     }
     while (++iteration < 10);

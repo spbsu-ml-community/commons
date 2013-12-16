@@ -72,13 +72,11 @@ public class ConnectedComponentOptimizer<T> implements ClusterizationAlgorithm<T
     final RedBlackTree<VecIterEntry> iters = new RedBlackTree<VecIterEntry>();
     final TIntObjectHashMap<VecIterEntry> cache = new TIntObjectHashMap<VecIterEntry>();
     final List<IndexedVecIter<T>> entries = new ArrayList<IndexedVecIter<T>>();
-    GenericBasis<CharSequence> termsBasis = null;
     double minToJoin = this.minToJoin;// + 0.5 * (1 - Math.min(1,  Math.log(2000) / Math.log(dataSet.size())));
     {
       int index = 1;
       for (T t : dataSet) {
         final Vec vec = data2DVector.compute(t);
-        termsBasis = (GenericBasis<CharSequence>)vec.basis();
         final VecIterator iter = vec.nonZeroes();
         while (iter.advance() && iter.value() < minToJoin);
         if (iter.isValid()) {

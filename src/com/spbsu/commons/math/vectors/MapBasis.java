@@ -33,8 +33,7 @@ public class MapBasis<T> implements GenericBasis<T> {
     this(basis.length);
     int size = basis.length;
     for (int i = 0; i < size; i++) {
-      inverted.add(basis[i]);
-      map.put(basis[i], i);
+      add(basis[i]);
     }
     if(map.size() != basis.length)
       throw new RuntimeException(new IllegalArgumentException("Basis must contain unique keys."));
@@ -44,11 +43,8 @@ public class MapBasis<T> implements GenericBasis<T> {
     this(basis.size());
     int size = basis.size();
     Iterator<T> iterator = basis.iterator();
-    T item;
     for (int i = 0; i < size; i++) {
-      item = iterator.next();
-      inverted.add(item);
-      map.put(item, i );
+      add(iterator.next());
     }
     if(map.size() != basis.size())
       throw new RuntimeException(new IllegalArgumentException("Basis must contain unique keys."));
@@ -59,17 +55,15 @@ public class MapBasis<T> implements GenericBasis<T> {
     int size = basis.size();
     T item;
     for (int i = 0; i < size; i++) {
-      item = basis.fromIndex(i);
-      inverted.add(item);
-      map.put(item, i);
+      add(basis.fromIndex(i));
     }
   }
 
   @Override public synchronized int add(@NotNull T element) {
     if(map.containsKey(element))
-      return map.get(element);
+      return map.get(element) - 1;
     else {
-      map.put(element, inverted.size());
+      map.put(element, inverted.size() + 1);
       inverted.add(element);
       return inverted.size() - 1;
     }
@@ -89,7 +83,7 @@ public class MapBasis<T> implements GenericBasis<T> {
 
   @Override public synchronized T remove(int index) {
     T item = inverted.remove(index);
-    int from = map.remove(item);
+    int from = map.remove(item) - 1;
     int size = map.size();
     for(int i = from; i < size; i++)
       map.adjustValue(inverted.get(i), -1);
@@ -97,7 +91,7 @@ public class MapBasis<T> implements GenericBasis<T> {
   }
 
   @Override public synchronized int remove(@NotNull T element) {
-    int index = map.remove(element);
+    int index = map.remove(element) - 1;
     inverted.remove(index);
     int size = map.size();
     for(int i = index; i < size; i++)
@@ -111,11 +105,11 @@ public class MapBasis<T> implements GenericBasis<T> {
     return inverted.size();
   }
 
-  @Override public synchronized int toIndex(@NotNull T element) {
-    if(map.containsKey(element))
-      return map.get(element);
-    else
-      return -1;
+  @Override public int toIndex(@NotNull T element) {
+    final int index = map.get(element);
+    if(index > 0)
+      return index - 1;
+    return add(element);
   }
 
   public String toString() {

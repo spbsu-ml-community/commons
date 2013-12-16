@@ -30,7 +30,7 @@ public class Vec2StringConverter implements Converter<Vec, String>{
   @Override
   public String convertTo(Vec v) {
     StringBuilder builder = new StringBuilder();
-    builder.append(v.basis().size());
+    builder.append(v.dim());
     final VecIterator it = v.nonZeroes();
     while(it.advance()) {
       builder.append(" ");

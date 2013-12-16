@@ -2,8 +2,9 @@ package com.spbsu.commons.math.vectors.impl;
 
 import com.spbsu.commons.func.converters.Vec2StringConverter;
 import com.spbsu.commons.math.vectors.*;
+import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
 import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
-import com.spbsu.commons.math.vectors.impl.iterators.TransformedArrayVecNZIterator;
+import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;
 import com.spbsu.commons.math.vectors.impl.iterators.TransformedSparseVecIterator;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.TIntArrayList;
@@ -16,19 +17,16 @@ import gnu.trove.TIntArrayList;
 public class IndexTransVec implements Vec {
   private final Vec base;
   private final IndexTransformation transformation;
-  private final Basis basis;
 
-  public IndexTransVec(Vec base, IndexTransformation transformation, Basis basis) {
+  public IndexTransVec(Vec base, IndexTransformation transformation) {
     if (base instanceof IndexTransVec) {
       final IndexTransVec transVec = (IndexTransVec) base;
       this.base = transVec.base;
       this.transformation = transformation.apply(transVec.transformation);
-      this.basis = basis;
     }
     else {
       this.base = base;
       this.transformation = transformation;
-      this.basis = basis;
     }
   }
 
@@ -75,32 +73,38 @@ public class IndexTransVec implements Vec {
       result = new TransformedSparseVecIterator(indices, sparseVec.values, new TIntArrayList(nzIndicesA), new TIntArrayList(transA));
     }
     else if (base instanceof ArrayVec) {
-      result = new TransformedArrayVecNZIterator(((ArrayVec)base).values, transformation);
+      result = new SkipVecNZIterator(this);
     }
     else throw new IllegalArgumentException("Can not produce NZ itarator for base type " + base.getClass().toString());
     return this.base instanceof VecBasedMx ? new MxIteratorImpl(result, ((VecBasedMx) this.base).columns()) : result;
   }
 
-  public Basis basis() {
-    return basis;
-  }
-
   public int dim() {
-    return basis.size();
+    return transformation.newDim();
   }
 
   @Override
   public double[] toArray() {
-    double[] result = new double[basis.size()];
-    VecIterator iter = nonZeroes();
-    while (iter.advance())
-      result[iter.index()] = iter.value();
+    double[] result = new double[transformation.newDim()];
+    if (base instanceof SparseVec) {
+      VecIterator iter = base.nonZeroes();
+      while (iter.advance()) {
+        final int newIndex = transformation.backward(iter.index());
+        if (newIndex >= 0)
+          result[newIndex] = iter.value();
+      }
+    }
+    else {
+      for (int i = 0; i < result.length; i++) {
+        result[i] = base.get(transformation.forward(i));
+      }
+    }
     return result;
   }
 
   @Override
-  public boolean sparse() {
-    return base.sparse();
+  public Vec sub(int start, int len) {
+    return new IndexTransVec(this, new SubMxTransformation(dim(), start, 0, len, 1));
   }
 
   @Override

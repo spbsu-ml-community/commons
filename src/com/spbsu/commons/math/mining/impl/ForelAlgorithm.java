@@ -11,6 +11,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import static com.spbsu.commons.math.vectors.VecTools.append;
+import static com.spbsu.commons.math.vectors.VecTools.copy;
+import static com.spbsu.commons.math.vectors.VecTools.scale;
+
 /**
  * User: solar
  * Date: 13.02.2010
@@ -35,12 +39,12 @@ public class ForelAlgorithm<T> implements ClusterizationAlgorithm<T> {
       final Vec vec = data2DVector.compute(first);
       @SuppressWarnings({"unchecked"})
       final Set<T> cluster = new HashSet<T>();
-      Vec centroid = VecTools.append(new SparseVec(vec.basis()), vec);
+      Vec centroid = copy(vec);
       int changesCount;
       double maxDist = maxDist0 + (1 - maxDist0) * Math.max(0, (1 - Math.log(1000) / Math.log(dataSet.size())));
       do {
         changesCount = 0;
-        final Vec nextCentroid = VecTools.append(new SparseVec(vec.basis()), centroid);
+        final Vec nextCentroid = copy(centroid);
         cluster.add(first);
         unclassified.remove(first);
         for (T currentTerm : unclassified) {
@@ -49,16 +53,16 @@ public class ForelAlgorithm<T> implements ClusterizationAlgorithm<T> {
           count ++;
           if (distance < maxDist && !cluster.contains(currentTerm)) {
             changesCount++;
-            VecTools.scale(nextCentroid, cluster.size());
-            VecTools.append(nextCentroid, currentVec);
-            VecTools.scale(nextCentroid, 1./(cluster.size() + 1));
+            scale(nextCentroid, cluster.size());
+            append(nextCentroid, currentVec);
+            scale(nextCentroid, 1. / (cluster.size() + 1));
             cluster.add(currentTerm);
           }
           else if (distance >= maxDist && cluster.contains(currentTerm)) {
             changesCount++;
-            VecTools.scale(nextCentroid, -cluster.size());
-            VecTools.append(nextCentroid, currentVec);
-            VecTools.scale(nextCentroid, -1./(cluster.size() - 1));
+            scale(nextCentroid, -cluster.size());
+            append(nextCentroid, currentVec);
+            scale(nextCentroid, -1. / (cluster.size() - 1));
             cluster.remove(currentTerm);
           }
         }
