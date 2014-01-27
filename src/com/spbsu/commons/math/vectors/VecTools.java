@@ -611,8 +611,6 @@ public class VecTools {
 
     for (int i = 0; i < 100 && nonTriangularWeight(similar) > EPSILON * similar.dim(); i++) {
       householderLQ(similar, sigma, trans);
-      if (distance(mx, multiply(sigma, transpose(trans))) > EPSILON * similar.dim())
-        System.out.println();
       transposeIt(trans);
       joinedInvertedTransform = multiply(trans, joinedInvertedTransform);
       similar = multiply(trans, sigma);
