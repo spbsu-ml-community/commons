@@ -668,6 +668,23 @@ public class VecTools {
     return multiply(transpose(inverseL), inverseL);
   }
 
+  public static void normalizeL1(Vec row) {
+    double sum = 0;
+    {
+      final VecIterator it = row.nonZeroes();
+      while(it.advance()) {
+        sum += Math.abs(it.value());
+      }
+    }
+    {
+      final VecIterator it = row.nonZeroes();
+
+      while(it.advance()) {
+        it.setValue(it.value() / sum);
+      }
+    }
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;
