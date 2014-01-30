@@ -1,5 +1,7 @@
 package com.spbsu.commons.random;
 
+import com.spbsu.commons.math.vectors.Vec;
+
 import java.util.Random;
 
 import static java.lang.Math.exp;
@@ -82,5 +84,14 @@ public class FastRandom extends Random {
 
   private double nextNormal(double meanFreq, double stddev) {
     return nextGaussian() * stddev + meanFreq;
+  }
+
+  public int nextSimple(Vec row) {
+    double rnd = nextDouble();
+    int index = 0;
+    while (rnd > 0 && index < row.dim()) {
+      rnd -= row.get(index++);
+    }
+    return index-1;
   }
 }
