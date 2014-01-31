@@ -132,4 +132,12 @@ public class SparseVec<B extends Basis> implements Vec {
   public int hashCode() {
     return VecTools.hashCode(this);
   }
+
+  /**way faster than set, but index must be greater all indices we already have in vector */
+  public void add(int index, double v) {
+    if (v != 0.) {
+      this.indices.add(index);
+      this.values.add(v);
+    }
+  }
 }

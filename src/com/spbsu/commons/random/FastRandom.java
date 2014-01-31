@@ -100,6 +100,6 @@ public class FastRandom extends Random {
     while(rnd > 0 && it.advance()) {
       rnd -= it.value();
     }
-    return it.index();
+    return it.isValid() ? it.index() : -1;
   }
 }

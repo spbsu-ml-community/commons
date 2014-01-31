@@ -14,10 +14,7 @@ import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Math.*;
 
@@ -683,6 +680,19 @@ public class VecTools {
         it.setValue(it.value() / sum);
       }
     }
+  }
+
+  public static String prettyPrint(Mx mx) {
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < mx.rows(); i++) {
+      for (int j = 0; j < mx.columns(); j++) {
+        if (j > 0)
+          builder.append(' ');
+        builder.append(String.format(Locale.ENGLISH, "%.2f", mx.get(i, j)));
+      }
+      builder.append('\n');
+    }
+    return builder.toString();
   }
 
   private static class IndexedVecIter {
