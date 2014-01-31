@@ -1,6 +1,7 @@
 package com.spbsu.commons.random;
 
 import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.VecIterator;
 
 import java.util.Random;
 
@@ -87,11 +88,18 @@ public class FastRandom extends Random {
   }
 
   public int nextSimple(Vec row) {
-    double rnd = nextDouble();
-    int index = 0;
-    while (rnd > 0 && index < row.dim()) {
-      rnd -= row.get(index++);
+    double sum = 0;
+    {
+      final VecIterator it = row.nonZeroes();
+      while(it.advance()) {
+        sum += it.value();
+      }
     }
-    return index-1;
+    double rnd = nextDouble() * sum;
+    final VecIterator it = row.nonZeroes();
+    while(rnd > 0 && it.advance()) {
+      rnd -= it.value();
+    }
+    return it.index();
   }
 }
