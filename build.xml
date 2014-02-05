@@ -4,7 +4,7 @@
 
   <path id="compile.classpath">
     <pathelement location="${build.home}/src"/>
-    <fileset dir="${basedir}/lib" includes="*.jar"/>
+    <fileset dir="${basedir}/libs" includes="*.jar"/>
   </path>
 
   <target name="all" depends="clean,compile"/>
