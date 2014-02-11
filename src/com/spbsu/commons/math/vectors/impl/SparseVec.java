@@ -3,8 +3,8 @@ package com.spbsu.commons.math.vectors.impl;
 import com.spbsu.commons.math.vectors.*;
 import com.spbsu.commons.math.vectors.impl.iterators.SparseVecNZIterator;
 import com.spbsu.commons.util.ArrayTools;
-import gnu.trove.TDoubleArrayList;
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
 /**
  * User: solar

@@ -1,14 +1,15 @@
 package com.spbsu.commons.text.learning;
 
-import gnu.trove.TObjectDoubleHashMap;
-import gnu.trove.TObjectDoubleProcedure;
-import gnu.trove.TObjectProcedure;
-import gnu.trove.TDoubleFunction;
+
 
 import java.util.*;
 
 import com.spbsu.commons.util.Holder;
 import com.spbsu.commons.func.Processor;
+import gnu.trove.function.TDoubleFunction;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.procedure.TObjectDoubleProcedure;
+import gnu.trove.procedure.TObjectProcedure;
 
 /**
  * User: terry

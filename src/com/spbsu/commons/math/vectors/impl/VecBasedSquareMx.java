@@ -3,7 +3,7 @@ package com.spbsu.commons.math.vectors.impl;
 import com.spbsu.commons.math.vectors.*;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
 import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
-import gnu.trove.TIntIntHashMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 
 /* Created with IntelliJ IDEA.
 * ksen | 18:34 26.02.2013 | commons

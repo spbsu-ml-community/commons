@@ -1,7 +1,7 @@
 package com.spbsu.commons.math.signals.numeric;
 
 import com.spbsu.commons.math.signals.SignalProcessor;
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
 /**
  * @author vp

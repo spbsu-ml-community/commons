@@ -7,7 +7,7 @@ import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;
 import com.spbsu.commons.math.vectors.impl.iterators.TransformedSparseVecIterator;
 import com.spbsu.commons.util.ArrayTools;
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
 /**
  * User: solar
@@ -67,8 +67,8 @@ public class IndexTransVec implements Vec {
           transformed.add(i);
         }
       }
-      int[] transA = transformed.toNativeArray();
-      int[] nzIndicesA = nzIndices.toNativeArray();
+      int[] transA = transformed.toArray();
+      int[] nzIndicesA = nzIndices.toArray();
       ArrayTools.parallelSort(nzIndicesA, transA);
       result = new TransformedSparseVecIterator(indices, sparseVec.values, new TIntArrayList(nzIndicesA), new TIntArrayList(transA));
     }

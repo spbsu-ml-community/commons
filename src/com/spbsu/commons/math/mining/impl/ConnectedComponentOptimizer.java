@@ -8,8 +8,10 @@ import com.spbsu.commons.math.vectors.VecIterator;
 import com.spbsu.commons.util.RBTreeNode;
 import com.spbsu.commons.util.RBTreeNodeBase;
 import com.spbsu.commons.util.RedBlackTree;
-import gnu.trove.TIntObjectHashMap;
-import gnu.trove.TObjectProcedure;
+
+
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.procedure.TObjectProcedure;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

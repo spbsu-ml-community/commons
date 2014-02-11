@@ -1,7 +1,8 @@
 package com.spbsu.commons.io.persist.impl;
 
 import com.spbsu.commons.io.persist.PageFileAddress;
-import gnu.trove.TIntObjectIterator;
+
+import gnu.trove.iterator.TIntObjectIterator;
 import junit.framework.TestCase;
 
 /**

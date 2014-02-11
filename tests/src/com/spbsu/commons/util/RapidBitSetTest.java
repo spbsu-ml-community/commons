@@ -1,6 +1,6 @@
 package com.spbsu.commons.util;
 
-import gnu.trove.TIntHashSet;
+import gnu.trove.set.hash.TIntHashSet;
 import junit.framework.TestCase;
 
 import java.util.Random;

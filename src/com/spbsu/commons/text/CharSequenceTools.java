@@ -1,6 +1,7 @@
 package com.spbsu.commons.text;
 
-import gnu.trove.TObjectHashingStrategy;
+
+import gnu.trove.strategy.HashingStrategy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public class CharSequenceTools {
   public static final String EMPTY = "";
-  public static final TObjectHashingStrategy<CharSequence> STRATEGY = new TObjectHashingStrategy<CharSequence>() {
+  public static final HashingStrategy<CharSequence> STRATEGY = new HashingStrategy<CharSequence>() {
     public int computeHashCode(final CharSequence cs) {
       return cs.hashCode();
     }

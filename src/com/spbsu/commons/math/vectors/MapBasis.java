@@ -1,6 +1,7 @@
 package com.spbsu.commons.math.vectors;
 
-import gnu.trove.TObjectIntHashMap;
+
+import gnu.trove.map.hash.TObjectIntHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class MapBasis<T> implements GenericBasis<T> {
   }
 
   @Override public TObjectIntHashMap<T> getMap() {
-    return map.clone();
+    return new TObjectIntHashMap<T>(map);
   }
 
   @Override public synchronized T remove(int index) {

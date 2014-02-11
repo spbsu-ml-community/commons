@@ -2,7 +2,8 @@ package com.spbsu.commons.math.signals;
 
 import com.spbsu.commons.math.signals.generic.GenericSignal;
 import com.spbsu.commons.util.Factories;
-import gnu.trove.TLongArrayList;
+
+import gnu.trove.list.array.TLongArrayList;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -27,7 +28,7 @@ public class GenericSignalTest extends TestCase {
         valuesTest.add(value);
       }
     });
-    assertTrue(Arrays.equals(timestamps, timestampsTest.toNativeArray()));
+    assertTrue(Arrays.equals(timestamps, timestampsTest.toArray()));
     assertTrue(Arrays.equals(values, valuesTest.toArray(new Integer[valuesTest.size()])));
   }
 

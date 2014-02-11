@@ -9,9 +9,11 @@ import com.spbsu.commons.util.ArrayTools;
 import com.spbsu.commons.util.RBTreeNode;
 import com.spbsu.commons.util.RBTreeNodeBase;
 import com.spbsu.commons.util.RedBlackTree;
-import gnu.trove.TDoubleArrayList;
-import gnu.trove.TIntArrayList;
-import gnu.trove.TIntObjectHashMap;
+
+
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -900,6 +902,21 @@ public class VecTools {
     final VecIterator it = result.nonZeroes();
     while (it.advance()) {
       it.setValue(Math.abs(it.value()));
+    }
+    return result;
+  }
+
+  public static Vec join(List<Vec> vectors) {
+    int dim = 0;
+    for (Vec vec : vectors)
+      dim += vec.dim();
+
+    Vec result = new ArrayVec(dim);
+    int offset = 0;
+    for (Vec vec : vectors) {
+      for (int j = 0; j < vec.dim(); j++) {
+        result.set(offset + j, vec.get(j));
+      }
     }
     return result;
   }

@@ -2,10 +2,10 @@ package com.spbsu.commons.util;
 
 import com.spbsu.commons.func.TandemComputable;
 import com.spbsu.commons.math.vectors.DVector;
-import gnu.trove.TObjectDoubleHashMap;
-import gnu.trove.TObjectDoubleProcedure;
-import gnu.trove.TObjectIntHashMap;
-import gnu.trove.TObjectIntProcedure;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.procedure.TObjectDoubleProcedure;
+import gnu.trove.procedure.TObjectIntProcedure;
 
 import java.util.ArrayList;
 import java.util.Collections;

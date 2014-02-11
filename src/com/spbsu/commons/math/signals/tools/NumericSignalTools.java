@@ -8,8 +8,9 @@ import com.spbsu.commons.math.stat.NumericDistribution;
 import com.spbsu.commons.math.stat.impl.FrameHistogram;
 import com.spbsu.commons.math.stat.impl.NumericSampleDistribution;
 import com.spbsu.commons.util.time.TimeFrame;
-import gnu.trove.TIntArrayList;
-import gnu.trove.TLongArrayList;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.list.array.TLongArrayList;
+
 
 import java.util.ArrayList;
 
@@ -113,7 +114,7 @@ public class NumericSignalTools {
       timestamps.add(prev);
       values.add(tmp);
     }
-    return new IntSignal(timestamps.toNativeArray(), values.toNativeArray());
+    return new IntSignal(timestamps.toArray(), values.toArray());
   }
 
   public static BinarySignal toResolution(final BinarySignal signal, final long resolution) {
@@ -131,7 +132,7 @@ public class NumericSignalTools {
       prev = timestamp;
     }
     if (prev != -1) result.add(prev);
-    return new BinarySignal(result.toNativeArray());
+    return new BinarySignal(result.toArray());
   }
 
   public static FrameHistogram toHistogramByResolution(final IntSignal signal, final long resolution) {

@@ -1,8 +1,8 @@
 package com.spbsu.commons.math.vectors.impl.iterators;
 
 import com.spbsu.commons.math.vectors.VecIterator;
-import gnu.trove.TDoubleArrayList;
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
 /**
 * User: solar

@@ -1,8 +1,9 @@
 package com.spbsu.commons.math.vectors;
 
 import com.spbsu.commons.math.vectors.impl.CommonBasisVec;
-import gnu.trove.TObjectDoubleHashMap;
-import gnu.trove.TObjectDoubleProcedure;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.procedure.TObjectDoubleProcedure;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class DVector<A> extends CommonBasisVec<A> {
   }
 
   public double[] values() {
-    return values.toNativeArray();
+    return values.toArray();
   }
 
   public void forEach(final TObjectDoubleProcedure<A> procedure) {

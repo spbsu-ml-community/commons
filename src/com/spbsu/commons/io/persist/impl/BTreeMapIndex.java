@@ -10,7 +10,8 @@ import com.spbsu.commons.io.persist.PageFileAddress;
 import com.spbsu.commons.util.cache.Cache;
 import com.spbsu.commons.util.cache.CacheStrategy;
 import com.spbsu.commons.util.cache.impl.FixedSizeCache;
-import gnu.trove.TIntObjectIterator;
+
+import gnu.trove.iterator.TIntObjectIterator;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;

@@ -1,7 +1,8 @@
 package com.spbsu.commons.math.signals.numeric;
 
 import com.spbsu.commons.math.signals.tools.NumericSignalTools;
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TIntArrayList;
+
 
 /**
  * User: terry
@@ -37,7 +38,7 @@ public class IntSignal extends BaseNumericSignal<Integer> {
   }
 
   public int[] getNativeValues() {
-    return values.toNativeArray();
+    return values.toArray();
   }
 
   @Override

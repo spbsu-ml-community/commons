@@ -7,8 +7,9 @@ import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.random.GaussianRandomVec;
 import com.spbsu.commons.util.ArrayTools;
 import com.spbsu.commons.util.Factories;
-import gnu.trove.TIntHashSet;
-import gnu.trove.TObjectDoubleProcedure;
+
+import gnu.trove.procedure.TObjectDoubleProcedure;
+import gnu.trove.set.hash.TIntHashSet;
 import junit.framework.TestCase;
 import util.Interval;
 

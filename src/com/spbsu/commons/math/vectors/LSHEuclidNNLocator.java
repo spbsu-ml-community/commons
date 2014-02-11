@@ -3,7 +3,8 @@ package com.spbsu.commons.math.vectors;
 import com.spbsu.commons.math.vectors.impl.ArrayVec;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.util.ArrayTools;
-import gnu.trove.TIntHashSet;
+import gnu.trove.set.hash.TIntHashSet;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;

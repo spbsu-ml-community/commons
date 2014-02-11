@@ -1,7 +1,7 @@
 package com.spbsu.commons.math.stat.impl;
 
 import com.spbsu.commons.math.stat.Distribution;
-import gnu.trove.TObjectIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 
 /**
  * @author vp

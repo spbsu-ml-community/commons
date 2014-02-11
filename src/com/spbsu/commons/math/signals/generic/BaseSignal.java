@@ -2,7 +2,7 @@ package com.spbsu.commons.math.signals.generic;
 
 import com.spbsu.commons.math.signals.Signal;
 import com.spbsu.commons.util.time.TimeFrame;
-import gnu.trove.TLongArrayList;
+import gnu.trove.list.array.TLongArrayList;
 
 /**
  * @author vp
@@ -35,7 +35,7 @@ public abstract class BaseSignal<T> implements Signal<T> {
 
   @Override
   public long[] getTimestamps() {
-    return timestamps.toNativeArray();
+    return timestamps.toArray();
   }
 
   @Override

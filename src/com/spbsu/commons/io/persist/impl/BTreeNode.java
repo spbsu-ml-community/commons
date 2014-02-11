@@ -4,8 +4,8 @@ import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.io.Buffer;
 import com.spbsu.commons.io.BufferFactory;
 import com.spbsu.commons.io.persist.PageFileAddress;
-import gnu.trove.TIntObjectHashMap;
-import gnu.trove.TIntObjectIterator;
+import gnu.trove.iterator.TIntObjectIterator;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -112,7 +112,7 @@ class BTreeNonLeafNode extends Counter implements BTreeNode {
   static TIntObjectHashMap<PageFileAddress> empty = new TIntObjectHashMap<PageFileAddress>();
   public TIntObjectIterator<PageFileAddress> iterator() {
     final Iterator<Map.Entry<Integer, PageFileAddress>> iter = contents.entrySet().iterator();
-    return new TIntObjectIterator<PageFileAddress>(empty) {
+    return new TIntObjectIterator<PageFileAddress>() {
       public Map.Entry<Integer, PageFileAddress> value;
       @Override
       public boolean hasNext() {

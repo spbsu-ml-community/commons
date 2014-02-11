@@ -3,8 +3,9 @@ package com.spbsu.commons.fitting.impl;
 import com.spbsu.commons.fitting.Candidate;
 import com.spbsu.commons.fitting.Factor;
 import com.spbsu.commons.util.Pair;
-import gnu.trove.TObjectDoubleHashMap;
-import gnu.trove.TObjectDoubleProcedure;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.procedure.TObjectDoubleProcedure;
+
 
 /**
  * @author vp

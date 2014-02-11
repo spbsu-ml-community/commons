@@ -3,7 +3,7 @@ package com.spbsu.commons.io;
 
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.util.logging.Logger;
-import gnu.trove.TByteArrayList;
+import gnu.trove.list.array.TByteArrayList;
 
 import java.io.*;
 import java.net.URL;

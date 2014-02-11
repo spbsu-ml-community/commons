@@ -83,11 +83,11 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/trove-2.0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/trove-3.0.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/libs/trove-src-2.0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/trove-3.0.3-src.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
