@@ -3,7 +3,6 @@ package com.spbsu.commons.math.vectors.impl;
 import com.spbsu.commons.math.vectors.*;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubVecTransformation;
-import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 
 /**
  * User: solar
@@ -50,7 +49,7 @@ public class VecArrayMx implements Mx {
 
   @Override
   public Vec col(int j) {
-    return new IndexTransVec(this, new SubMxTransformation(columns, 0, j, 1, rows()));
+    return new IndexTransVec(this, new SubMxTransformation(columns, 0, j, rows(), 1));
   }
 
   @Override

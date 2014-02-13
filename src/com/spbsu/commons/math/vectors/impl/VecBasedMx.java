@@ -47,7 +47,7 @@ public class VecBasedMx implements Mx {
   @Override
   public Mx sub(int i, int j, int height, int width) {
     return new VecBasedMx(width, new IndexTransVec(vec,
-            new SubMxTransformation(columns(), i, j, width, height)));
+            new SubMxTransformation(columns(), i, j, height, width)));
   }
 
   @Override
@@ -57,7 +57,7 @@ public class VecBasedMx implements Mx {
 
   @Override
   public Vec col(int j) {
-    return new IndexTransVec(vec, new SubMxTransformation(columns(), 0, j, 1, rows()));
+    return new IndexTransVec(vec, new SubMxTransformation(columns(), 0, j, rows(), 1));
   }
 
   @Override

@@ -3,6 +3,7 @@ package com.spbsu.commons.math.vectors.impl;
 import com.spbsu.commons.func.converters.Vec2StringConverter;
 import com.spbsu.commons.math.vectors.*;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
+import com.spbsu.commons.math.vectors.impl.idxtrans.SubVecTransformation;
 import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;
 import com.spbsu.commons.math.vectors.impl.iterators.TransformedSparseVecIterator;
@@ -104,7 +105,7 @@ public class IndexTransVec implements Vec {
 
   @Override
   public Vec sub(int start, int len) {
-    return new IndexTransVec(this, new SubMxTransformation(dim(), start, 0, len, 1));
+    return new IndexTransVec(this, new SubVecTransformation(start, len));
   }
 
   @Override

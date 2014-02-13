@@ -122,29 +122,29 @@ public class VecBasedSquareMx<T> implements Mx {
   @Override
   public Mx sub(int i, int j, int height, int width) {
     return new VecBasedMx(width,
-                          new IndexTransVec(vector, new SubMxTransformation(matrixDimension, i, j, width, height)));
+                          new IndexTransVec(vector, new SubMxTransformation(matrixDimension, i, j, height, width)));
   }
 
   @Override
   public Vec row(int i) {
     return new IndexTransVec(vector,
-                             new SubMxTransformation(matrixDimension, i, 0, matrixDimension, 1));
+                             new SubMxTransformation(matrixDimension, i, 0, 1, matrixDimension));
   }
 
   public Vec row(T i) {
     return new IndexTransVec(vector,
-                             new SubMxTransformation(matrixDimension, basis.toIndex(i), 0, matrixDimension, 1));
+                             new SubMxTransformation(matrixDimension, basis.toIndex(i), 0, 1, matrixDimension));
   }
 
   @Override
   public Vec col(int j) {
     return new IndexTransVec(vector,
-                             new SubMxTransformation(matrixDimension, 0, j, 1, matrixDimension));
+                             new SubMxTransformation(matrixDimension, 0, j, matrixDimension, 1));
   }
 
   public Vec col(T j) {
     return new IndexTransVec(vector,
-                             new SubMxTransformation(matrixDimension, 0, basis.toIndex(j), 1, matrixDimension));
+                             new SubMxTransformation(matrixDimension, 0, basis.toIndex(j), matrixDimension, 1));
   }
 
   @Override

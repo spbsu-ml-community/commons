@@ -15,7 +15,7 @@ public class SubMxTransformation implements IndexTransformation {
   public final int width;
   public final int height;
 
-  public SubMxTransformation(int columns, int i, int j, int width, int height) {
+  public SubMxTransformation(int columns, int i, int j, int height, int width) {
     this.start = i * columns + j;
     this.columns = columns;
     this.i = i;

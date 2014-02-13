@@ -479,23 +479,25 @@ public class VectorsTest extends TestCase {
   }
 
   public void testSubSubMx() {
-    Mx full = new VecBasedMx(4, 4);
-    for (int i = 0; i < full.rows(); i++)
-      for (int j = 0; j < full.columns(); j++)
-        full.set(i, j, i + j / 10.0);
+    Mx full = new VecBasedMx(4, new ArrayVec(new double[]{
+            0, 1, 2, 3,
+            1, 2, 3, 4,
+            2, 3, 4, 5,
+            3, 4, 5, 6
+    }));
 
     Mx sub3x3 = full.sub(0, 0, 3, 3);
 
     Vec rowSub = sub3x3.row(1);
-    assertTrue(Arrays.equals(rowSub.toArray(), new double[]{1.1, 1.2, 1.3}));
+    assertTrue(Arrays.equals(rowSub.toArray(), new double[]{1, 2, 3}));
 
-    Vec colSub = sub3x3.col(1);
-    assertTrue(Arrays.equals(colSub.toArray(), new double[]{1.1, 2.1, 2.2}));
+    Vec colSub = sub3x3.col(2);
+    assertTrue(Arrays.equals(colSub.toArray(), new double[]{2, 3, 4}));
 
-    Mx subSub = sub3x3.sub(0, 0, 3, 2);
-    assertTrue(Arrays.equals(subSub.toArray(), new double[]{0.0, 0.1,
-        1.0, 1.1,
-        2.0, 2.1})
+    Mx subSub = sub3x3.sub(1, 1, 3, 2);
+    assertTrue(Arrays.equals(subSub.toArray(), new double[]{2, 3,
+        3, 4,
+        4, 5})
     );
   }
 

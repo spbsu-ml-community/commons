@@ -30,17 +30,17 @@ class CompositeTransformation implements IndexTransformation {
 
   @Override
   public int newDim() {
-    return sequence[sequence.length - 1].newDim();
+    return sequence[0].newDim();
   }
 
   @Override
   public int oldIndexStartHint() {
-    return sequence[0].oldIndexStartHint();
+    return sequence[sequence.length - 1].oldIndexStartHint();
   }
 
   @Override
   public int oldIndexEndHint() {
-    return sequence[0].oldIndexEndHint();
+    return sequence[sequence.length - 1].oldIndexEndHint();
   }
 
   @Override
