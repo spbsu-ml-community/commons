@@ -28,7 +28,7 @@ $RECYCLE.BIN/
 ### IntelliJ ###
 *.iws
 *.ipr
-.idea/
+#.idea/
 
 ### Eclipse ###
 *.pydevproject
