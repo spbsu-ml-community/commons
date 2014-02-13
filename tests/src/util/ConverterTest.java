@@ -1,9 +1,7 @@
 package util;
 
-import com.spbsu.commons.func.converters.Integer2ByteBufferConverter;
-import com.spbsu.commons.func.converters.List2ByteBufferConverter;
-import com.spbsu.commons.func.converters.NioConverterTools;
-import com.spbsu.commons.func.converters.String2ByteBufferConverter;
+import com.spbsu.commons.func.converters.*;
+import com.spbsu.commons.io.Buffer;
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
@@ -40,7 +38,7 @@ public class ConverterTest extends TestCase {
   public void testStringConverter() {
     final String s = "string";
     final String2ByteBufferConverter conv = new String2ByteBufferConverter();
-    final ByteBuffer buffer = conv.convertTo(s);
+    final Buffer buffer = conv.convertTo(s);
     final String s1 = conv.convertFrom(buffer);
     assertEquals(s, s1);
     assertEquals(buffer.limit(), buffer.position());
@@ -51,8 +49,8 @@ public class ConverterTest extends TestCase {
     list.add(1);
     list.add(2);
 
-    final List2ByteBufferConverter<Integer> conv = new List2ByteBufferConverter<Integer>(new Integer2ByteBufferConverter());
-    final ByteBuffer buffer = conv.convertTo(list);
+    final List2BufferConverter<Integer> conv = new ArrayList2BufferConverter<Integer>(new Integer2BufferConverter());
+    final Buffer buffer = conv.convertTo(list);
 
     final List<Integer> result = conv.convertFrom(buffer);
     assertEquals(list.size(), result.size());
@@ -68,8 +66,8 @@ public class ConverterTest extends TestCase {
     list.add("1");
     list.add("2");
 
-    final List2ByteBufferConverter<String> conv = new List2ByteBufferConverter<String>(new String2ByteBufferConverter());
-    final ByteBuffer buffer = conv.convertTo(list);
+    final List2BufferConverter<String> conv = new ArrayList2BufferConverter<String>(new String2ByteBufferConverter());
+    final Buffer buffer = conv.convertTo(list);
 
     final List<String> result = conv.convertFrom(buffer);
     assertEquals(list.size(), result.size());

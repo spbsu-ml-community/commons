@@ -274,7 +274,7 @@ public class VectorsTest extends TestCase {
     }
 
     Mx m = mahalanobis(pool);
-    assertTrue(distance(L, inverseLTriangle(m)) < 0.02);
+    assertTrue(distance(L, inverseLTriangle(m)) < 0.03);
   }
 
   public void testMahalanobis2() {

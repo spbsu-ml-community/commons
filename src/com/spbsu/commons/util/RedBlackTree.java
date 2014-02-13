@@ -187,6 +187,8 @@ public class RedBlackTree<T extends RBTreeNode> implements SortedSet<T> {
           parent = x.parent();
           rightBrother = parent.right();
         }
+        if (rightBrother == null)
+          return;
         final RBTreeNode rbLeft = rightBrother.left();
         RBTreeNode rbRight = rightBrother.right();
         if ((rbLeft == null || !rbLeft.isRed()) && (rbRight == null || !rbRight.isRed())) {

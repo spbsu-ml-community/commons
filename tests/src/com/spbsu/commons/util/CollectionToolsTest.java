@@ -107,11 +107,6 @@ public class CollectionToolsTest extends TestCase {
     int current = Integer.MIN_VALUE;
     for (int i = 0; i < 1000000; i++) {
       final IntegerEntry integerEntry = rbTree.first();
-      int count = 0;
-      for (IntegerEntry entry : rbTree) {
-        count++;
-      }
-      assertEquals(count, rbTree.size());
       if(current > integerEntry.v)
         assertTrue(current <= integerEntry.v);
       rbTree.remove(integerEntry);

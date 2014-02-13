@@ -18,12 +18,12 @@ import java.nio.charset.CharsetEncoder;
  * User: Igor Kuralenok
  * Date: 02.09.2006
  */
-public class CharSequence2BufferConverter<T extends CharSequence> implements Converter<CharSequence, Buffer> {
+public class CharSequence2BufferConverter<T extends CharSequence> implements Converter<T, Buffer> {
   static CharsetDecoder DECODER;
   static CharsetEncoder ENCODER;
-  private Computable<char[], T> factory;
+  private Computable<char[], ? extends T> factory;
 
-  public CharSequence2BufferConverter(Computable<char[], T> factory) {
+  public CharSequence2BufferConverter(Computable<char[], ? extends T> factory) {
     this.factory = factory;
   }
 
@@ -41,7 +41,7 @@ public class CharSequence2BufferConverter<T extends CharSequence> implements Con
     return ENCODER.encode(charBuffer);
   }
 
-  public CharSequence convertFrom(Buffer source) {
+  public T convertFrom(Buffer source) {
     if (source.remaining() < 1)
       throw new BufferUnderflowException();
     final int length = NioConverterTools.restoreSize(source);
@@ -60,7 +60,7 @@ public class CharSequence2BufferConverter<T extends CharSequence> implements Con
     }
   }
 
-  public Buffer convertTo(CharSequence cs) {
+  public Buffer convertTo(T cs) {
     try {
       final ByteBuffer contents = encode(CharBuffer.wrap(cs));
       return BufferFactory.join(NioConverterTools.storeSize(contents.remaining()), BufferFactory.wrap(contents));

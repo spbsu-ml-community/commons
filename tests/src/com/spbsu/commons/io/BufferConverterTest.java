@@ -38,7 +38,7 @@ public class BufferConverterTest extends TestCase {
   }
 
   public void testCharsequenceCoverter2() {
-    final CharSequence2BufferConverter<CharArrayCharSequence> converter = new CharSequence2BufferConverter<CharArrayCharSequence>(new CharArrayCSFactory());
+    final CharSequence2BufferConverter<String> converter = new CharSequence2BufferConverter<String>(new StringCSFactory());
     Buffer buffer = converter.convertTo("путенг");
     assertTrue(CharSequenceTools.equals("путенг", converter.convertFrom(buffer)));
   }

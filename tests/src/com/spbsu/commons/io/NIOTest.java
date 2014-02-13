@@ -60,7 +60,7 @@ public class NIOTest extends TestCase {
   public void testComposite5() {
     final Buffer b = BufferFactory.wrap(ByteBuffer.wrap(new byte[1]), ByteBuffer.wrap(new byte[1]));
     b.position(0);
-    assertEquals(0, b.remaining());
+    assertEquals(2, b.remaining());
   }
 
   public void testComposite6() {

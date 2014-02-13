@@ -65,7 +65,8 @@ public class CacheTest extends TestCase {
     assertNull(cache.get(KEY1));
     assertNotNull(cache.get(KEY2));
     assertNotNull(cache.get(KEY3));
-    assertNotNull(cache.get(KEY4));
+    for (int i = 0; i < 100000; i++) // let cache to process reference queue
+      assertNotNull(cache.get(KEY4));
     assertTrue(cache.checkEqualSizes());
   }
 

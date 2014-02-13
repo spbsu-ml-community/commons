@@ -12,7 +12,6 @@ public class Stemmer {
   public final EnglishStemmer english = new EnglishStemmer();
   public final RussianStemmer russian = new RussianStemmer();
   private static final Stemmer STEMMER = new Stemmer();
-  private StemmerElimination stemmerElimination;
 
   private Stemmer() {
   }
@@ -24,9 +23,6 @@ public class Stemmer {
 
   public synchronized CharSequence stem(CharSequence forStem){
     final CharSequence word = CharSequenceTools.toLowerCase(forStem);
-    if (stemmerElimination.isStemmerElimination(word))  {
-      return stemmerElimination.stem(word);
-    }
     final CharSequence result;
     char firstLetter = word.length() > 0 ? word.charAt(0) : 'a';
     if (firstLetter >= (int) 'a' && firstLetter <= (int) 'z' ||
@@ -41,9 +37,5 @@ public class Stemmer {
       result = russian.getCurrent();
     }
     return result;
-  }
-
-  public void setStemmerElimination(StemmerElimination stemmerElimination) {
-    this.stemmerElimination = stemmerElimination;
   }
 }

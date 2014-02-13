@@ -1,5 +1,6 @@
 package com.spbsu.commons.io;
 
+import com.spbsu.commons.func.converters.CharArrayCSFactory;
 import com.spbsu.commons.func.converters.CharSequence2BufferConverter;
 import com.spbsu.commons.func.converters.StringCSFactory;
 import com.spbsu.commons.io.persist.PersistentMap;
@@ -27,18 +28,18 @@ public class PersistentMapTest extends TestCase {
     file = File.createTempFile("persist", "");
   }
 
-  public PersistentMap<CharSequence, CharSequence> createMap() throws IOException {
+  public PersistentMap<String, String> createMap() throws IOException {
     return createMap(file);
   }
 
-  public PersistentMap<CharSequence, CharSequence> createMap(File file) throws IOException {
-    return new PersistentMap<CharSequence, CharSequence>(file,
+  public PersistentMap<String, String> createMap(File file) throws IOException {
+    return new PersistentMap<String, String>(file,
         new CharSequence2BufferConverter<String>(new StringCSFactory()),
         new CharSequence2BufferConverter<String>(new StringCSFactory()), 100);
   }
 
   public void testSimplePutAndGet() throws IOException {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     map.put("xxxxxxxx", "yyyyyyyy");
     assertEquals("yyyyyyyy", map.get("xxxxxxxx"));
     map.flush();
@@ -53,7 +54,7 @@ public class PersistentMapTest extends TestCase {
   }
 
   public void testPutAndGet1000() throws IOException {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     String key = "xxxxxxxx";
     String value = "yyyyyyyy";
     for (int i = 0; i < 1000; i++) {
@@ -82,7 +83,7 @@ public class PersistentMapTest extends TestCase {
   }
 
   public void testPutAndGet10000() throws IOException {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     String key = "xxxxxxxx";
     String value = "yyyyyyyy";
     for (int i = 0; i < 10000; i++) {
@@ -111,7 +112,7 @@ public class PersistentMapTest extends TestCase {
   }
 
   public void testPutAndGet100000() throws IOException {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     String key = "xxxxxxxx";
     String value = "yyyyyyyy";
     for (int i = 0; i < 100000; i++) {
@@ -134,14 +135,14 @@ public class PersistentMapTest extends TestCase {
   }
 
   public void testContains() throws IOException {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     assertTrue(map.isEmpty());
     map.put("x", "y");
     assertTrue(map.containsKey("x"));
   }
 
   public void testContains2() throws Exception {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     assertFalse(map.containsKey("x"));
     map.put("x", "y");
     map.flush();
@@ -152,78 +153,78 @@ public class PersistentMapTest extends TestCase {
   }
 
   public void testSize() throws Exception {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     map.put("x", "y");
     assertEquals(1, map.size());
   }
 
   public void testKeys() throws Exception {
-    final PersistentMap<CharSequence, CharSequence> map = createMap();
+    final PersistentMap<String, String> map = createMap();
     final HashSet<CharSequence> keys = new HashSet<CharSequence>();
     for (int i = 0; i < 10000; i++) {
-      final CharSequence cs = generateRandomString(10).toString();
+      final String cs = generateRandomString(10).toString();
       keys.add(cs);
       map.put(cs, cs);
     }
     map.flush();
     for (int i = 0; i < 10000; i++) {
-      final CharSequence cs = generateRandomString(10).toString();
+      final String cs = generateRandomString(10).toString();
       keys.add(cs);
       map.put(cs, cs);
     }
-    final Set<CharSequence> set = map.keySet();
+    final Set<String> set = map.keySet();
     assertEquals(keys.size(), set.size());
     keys.removeAll(set);
     assertTrue(keys.isEmpty());
   }
 
   public void testKeys2() throws Exception {
-    final PersistentMap<CharSequence, CharSequence> map = createMap();
+    final PersistentMap<String, String> map = createMap();
     final HashSet<CharSequence> keys = new HashSet<CharSequence>();
     for (int i = 0; i < 23475; i++) {
-      final CharSequence cs = generateRandomString(10).toString();
+      final String cs = generateRandomString(10).toString();
       keys.add(cs);
       map.put(cs, cs);
     }
     map.flush();
     map.close();
-    PersistentMap<CharSequence, CharSequence> reopen = createMap();
+    PersistentMap<String, String> reopen = createMap();
 
-    final Set<CharSequence> set = reopen.keySet();
+    final Set<String> set = reopen.keySet();
     assertEquals(keys.size(), set.size());
     keys.removeAll(set);
     assertTrue(keys.isEmpty());
   }
 
   public void testKeysNoFlush() throws Exception {
-    final PersistentMap<CharSequence, CharSequence> map = createMap();
+    final PersistentMap<String, String> map = createMap();
     final HashSet<CharSequence> keys = new HashSet<CharSequence>();
     for (int i = 0; i < 1000; i++) {
-      final CharSequence cs = generateRandomString(10).toString();
+      final String cs = generateRandomString(10).toString();
       keys.add(cs);
       map.put(cs, cs);
     }
 
-    final Set<CharSequence> set = map.keySet();
+    final Set<String> set = map.keySet();
     assertEquals(keys.size(), set.size());
     keys.removeAll(set);
     assertTrue(keys.isEmpty());
   }
 
   public void testGetNull() throws IOException {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     assertTrue(map.isEmpty());
     assertEquals(null, map.get("xxxxxxxx"));
   }
 
   public void testCloseAndDeleteFile() throws IOException {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     map.close();
     assertTrue(file.delete());
   }
 
   public void testAfterClose() throws Exception {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     map.close();
     boolean fail = true;
     try {
@@ -235,7 +236,7 @@ public class PersistentMapTest extends TestCase {
   }
 
   public void testFlushes() throws Exception {
-    PersistentMap<CharSequence, CharSequence> map = createMap();
+    PersistentMap<String, String> map = createMap();
     for (int i = 0; i < 100; i++) {
       for (int j = 0; j < 10; j++) {
         map.put("x" + i + j, "x" + i + j);
@@ -283,7 +284,7 @@ public class PersistentMapTest extends TestCase {
   }
 
   public void testPizdecPersistentMap() throws Exception {
-    final PersistentMap<CharSequence, CharSequence> map = createMap();
+    final PersistentMap<String, String> map = createMap();
     final List<String> words = new ArrayList<String>(100000);
     Interval.start();
     for (int i = 0; i < 1000000; i++) {
@@ -308,7 +309,7 @@ public class PersistentMapTest extends TestCase {
     Interval.stopAndPrint();
   }
 
-  private boolean updateValue(PersistentMap<CharSequence, CharSequence> map, List<String> words, int wordIndex) {
+  private boolean updateValue(PersistentMap<String, String> map, List<String> words, int wordIndex) {
     String key = words.get(wordIndex);
     CharSequence value = map.get(key);
     if (value != null && value.length() > 1000000)
