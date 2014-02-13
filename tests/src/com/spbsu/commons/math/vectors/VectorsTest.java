@@ -478,6 +478,27 @@ public class VectorsTest extends TestCase {
     assertTrue(distance(refResult, temp) < EPSILON);
   }
 
+  public void testSubSubMx() {
+    Mx full = new VecBasedMx(4, 4);
+    for (int i = 0; i < full.rows(); i++)
+      for (int j = 0; j < full.columns(); j++)
+        full.set(i, j, i + j / 10.0);
+
+    Mx sub3x3 = full.sub(0, 0, 3, 3);
+
+    Vec rowSub = sub3x3.row(1);
+    assertTrue(Arrays.equals(rowSub.toArray(), new double[]{1.1, 1.2, 1.3}));
+
+    Vec colSub = sub3x3.col(1);
+    assertTrue(Arrays.equals(colSub.toArray(), new double[]{1.1, 2.1, 2.2}));
+
+    Mx subSub = sub3x3.sub(0, 0, 3, 2);
+    assertTrue(Arrays.equals(subSub.toArray(), new double[]{0.0, 0.1,
+        1.0, 1.1,
+        2.0, 2.1})
+    );
+  }
+
   public void testStressMultiply() {
     Random rnd = new FastRandom();
     Mx temp = E(1000);

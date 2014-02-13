@@ -917,6 +917,7 @@ public class VecTools {
       for (int j = 0; j < vec.dim(); j++) {
         result.set(offset + j, vec.get(j));
       }
+      offset += vec.dim();
     }
     return result;
   }
