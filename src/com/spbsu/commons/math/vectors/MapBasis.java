@@ -13,7 +13,6 @@ import java.util.List;
  * ksen | 18:34 26.02.2013 | commons
  */
 
-//TODO(ksen): equals and hashCode, bulk add/remove
 // Cann't contain NULL. Each element in basis is unique.
 public class MapBasis<T> implements GenericBasis<T> {
 
@@ -54,7 +53,6 @@ public class MapBasis<T> implements GenericBasis<T> {
   public MapBasis(GenericBasis<T> basis) {
     this(basis.size());
     int size = basis.size();
-    T item;
     for (int i = 0; i < size; i++) {
       add(basis.fromIndex(i));
     }
