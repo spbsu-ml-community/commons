@@ -47,7 +47,7 @@ public class RowsPermutation implements IndexTransformation {
 
   @Override
   public int newDim() {
-    return perm.length;
+    return perm.length * columns;
   }
 
   @Override
