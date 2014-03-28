@@ -1,7 +1,14 @@
 package com.spbsu.commons.math;
 
+import com.spbsu.commons.math.vectors.Mx;
+import com.spbsu.commons.math.vectors.VecTools;
+import com.spbsu.commons.math.vectors.impl.VecBasedMx;
 import com.spbsu.commons.util.logging.Interval;
 import junit.framework.TestCase;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 /**
  * @author vp
@@ -123,4 +130,36 @@ public class MathToolsTest extends TestCase {
       assertTrue(ratio < EPS);
     }
   }
+
+  public void testLQDecompositionFail() throws FileNotFoundException {
+    Scanner scanner = new Scanner(new File("commons/tests/data/math/badMx.txt"));
+    int n = scanner.nextInt();
+    Mx mx = new VecBasedMx(n, n);
+    Mx l = new VecBasedMx(n, n);
+    Mx q = new VecBasedMx(n, n);
+    double eps = 1e-3;
+    for (int i = 0; i < n; i++)
+      for (int j = 0; j < n; j++)
+        mx.set(i, j, Double.parseDouble(scanner.next()));
+    VecTools.householderLQ(mx, l, q);
+    for (int i = 0; i < n; i++)
+      for (int j = i + 1; j < n; j++)
+        if (Math.abs(l.get(i, j)) > eps)
+          System.out.println("Bad L = " + l.get(i, j));
+    Mx qq = VecTools.multiply(q, VecTools.transpose(q));
+    Mx lq = VecTools.multiply(l, VecTools.transpose(q));
+    for (int i = 0; i < n; i++)
+      for (int j = 0; j < n; j++) {
+        if (i != j && Math.abs(qq.get(i, j)) > eps)
+          System.out.println("Bad Q = " + q.get(i, j));
+        if (i == j && Math.abs(qq.get(i, j) - 1) > eps)
+          System.out.println("Bad Q = " + q.get(i, j));
+      }
+    for (int i = 0; i < n; i++)
+      for (int j = 0; j < n; j++)
+        if (Math.abs(lq.get(i, j) - mx.get(i, j)) > eps)
+          System.out.println("Bad LQ, diff = " + (lq.get(i, j) - mx.get(i, j)));
+
+  }
+
 }
