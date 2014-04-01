@@ -140,4 +140,13 @@ public class SparseVec<B extends Basis> implements Vec {
       this.values.add(v);
     }
   }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    for(VecIterator iter = nonZeroes(); iter.advance(); ) {
+      builder.append(iter.index()).append(":").append(iter.value()).append(" ");
+    }
+    return builder.toString();
+  }
 }
