@@ -36,7 +36,7 @@ public class SparseVec<B extends Basis> implements Vec {
 
   @Override
   public double get(int i) {
-    final int realIndex = indices.binarySearch(i);
+    final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       return values.getQuick(realIndex);
     }
@@ -45,7 +45,7 @@ public class SparseVec<B extends Basis> implements Vec {
 
   @Override
   public Vec set(int i, double val) {
-    final int realIndex = indices.binarySearch(i);
+    final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       if (val == 0) {
         values.remove(realIndex);
@@ -62,9 +62,23 @@ public class SparseVec<B extends Basis> implements Vec {
     return this;
   }
 
+  private int index(int n) {
+    final TIntArrayList indicesLocal = indices;
+    if (n < 16) {
+      final int size = indicesLocal.size();
+      for (int i = 0; i < size; i++) { // jit just suck to insert SSE here
+        final int idx = indicesLocal.getQuick(i);
+        if (n <= idx)
+          return n == idx ? i : -i-1;
+      }
+      return -size-1;
+    }
+    return indicesLocal.binarySearch(n);
+  }
+
   @Override
   public Vec adjust(int i, double increment) {
-    final int realIndex = indices.binarySearch(i);
+    final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       final double newValue = values.getQuick(realIndex) + increment;
       if (newValue == 0) {

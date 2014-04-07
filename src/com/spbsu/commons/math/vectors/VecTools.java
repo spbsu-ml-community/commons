@@ -812,8 +812,8 @@ public class VecTools {
     if (Math.abs(factor) < EPSILON) {
       if (vector instanceof SparseVec) {
         final SparseVec sparseVec = (SparseVec) vector;
-        sparseVec.values.clear();
-        sparseVec.indices.clear();
+        sparseVec.values.resetQuick();
+        sparseVec.indices.resetQuick();
         return vector;
       }
       else if (vector instanceof ArrayVec) {
