@@ -1,12 +1,15 @@
 package com.spbsu.commons.math;
 
+import com.spbsu.commons.func.types.ConversionRepository;
+import com.spbsu.commons.func.types.impl.TypeConvertersCollection;
+
 import static java.lang.Math.*;
 
 /**
  * @author vp
  */
 public abstract class MathTools {
-
+  public static final ConversionRepository CONVERSION = new TypeConvertersCollection("com.spbu.commons.math.io");
   public static final double EPSILON = 1e-6;
   public static final double SQRT3 = sqrt(3.);
 

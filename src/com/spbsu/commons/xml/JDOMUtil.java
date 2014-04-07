@@ -99,4 +99,13 @@ public class JDOMUtil {
     return content != null ? Collections.unmodifiableList(content) : Collections.<Element>emptyList();
   }
 
+  public static String toString(Element el) {
+    final StringWriter out = new StringWriter(1000);
+    try {
+      OUTPUTTER.output(el, out);
+    } catch (IOException e) {
+      // skip
+    }
+    return out.getBuffer().toString();
+  }
 }
