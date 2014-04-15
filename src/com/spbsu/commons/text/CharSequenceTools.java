@@ -188,17 +188,27 @@ public class CharSequenceTools {
     return from.subSequence(start, index);
   }
 
-  public static CharSequence cutClose(CharSequence from, int index, char open, char close) {
-    final int start = index;
+  public static CharSequence cutBetween(CharSequence sequence, int startIndex, char fromSymbol, char toSymbol) {
+    final int startPos = skipTo(sequence, startIndex, fromSymbol) + 1;
+    if (startPos >= sequence.length()) {
+      return EMPTY;
+    }
+    int index = startPos;
     int depth = 0;
-    while (from.length() > index && from.charAt(index) != close && depth == 0) {
-      if (from.charAt(index) == open)
+    while (index < sequence.length()) {
+      char currentSymbol = sequence.charAt(index);
+      if (currentSymbol == fromSymbol) {
         depth++;
-      else if (from.charAt(index) == close)
-        depth = depth > 0 ? depth - 1: 0;
+      } else if (currentSymbol == toSymbol) {
+        if (depth == 0) {
+          break;
+        } else {
+          depth--;
+        }
+      }
       index++;
     }
-    return from.subSequence(start, index);
+    return sequence.subSequence(startPos, index);
   }
 
   public static int skipTo(CharSequence from, int index, char sep) {
