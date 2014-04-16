@@ -2,7 +2,13 @@ package com.spbsu.commons.math;
 
 import com.spbsu.commons.func.types.ConversionRepository;
 import com.spbsu.commons.func.types.impl.TypeConvertersCollection;
+import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.VecIterator;
+import com.spbsu.commons.math.vectors.VecTools;
 
+import static com.spbsu.commons.math.vectors.VecTools.copy;
+import static com.spbsu.commons.math.vectors.VecTools.norm;
+import static com.spbsu.commons.math.vectors.VecTools.scale;
 import static java.lang.Math.*;
 
 /**
@@ -146,6 +152,40 @@ public abstract class MathTools {
 
   public static double sqr(double v) {
     return v * v;
+  }
+
+  public static double meanNaive(Vec group) {
+    return VecTools.sum(group)/group.dim();
+  }
+
+  public static double meanJS1(Vec group, double sigma) {
+    Vec js = copy(group);
+    scale(js, (1-(js.dim() - 2)*sigma*sigma/sqr(norm(group)))/1);
+
+    return VecTools.sum(js)/js.dim();
+  }
+
+  public static double meanDropFluctuations(Vec group) {
+    int stop = 100;
+    double prevEstimate;
+    double nextEstimate = meanNaive(group);
+    do {
+      prevEstimate = nextEstimate;
+      double sum = 0;
+      double totalWeight = 0;
+      double nzCount = 0;
+      VecIterator it = group.nonZeroes();
+      while (it.advance()) {
+        final double p = exp(-abs(prevEstimate - it.value()));
+        totalWeight += p;
+        sum += it.value() * p;
+        nzCount++;
+      }
+      totalWeight += (group.dim() - nzCount) * exp(-abs(prevEstimate - 0.));
+      nextEstimate = sum / totalWeight;
+//      System.out.println(nextEstimate);
+    } while(--stop > 0 && abs(nextEstimate - prevEstimate) > EPSILON);
+    return nextEstimate;
   }
 }
 
