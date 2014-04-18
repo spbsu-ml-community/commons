@@ -2,10 +2,10 @@ package com.spbsu.commons.func.converters;
 
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.math.vectors.IntBasis;
-import com.spbsu.commons.math.vectors.impl.ArrayVec;
-import com.spbsu.commons.math.vectors.impl.SparseVec;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
+import com.spbsu.commons.math.vectors.impl.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.SparseVec;
 
 import java.util.StringTokenizer;
 
@@ -55,5 +55,23 @@ public class Vec2StringConverter implements Converter<Vec, String>{
       }
     }
     return builder.toString();
+  }
+
+  /**
+   * don't write length of vec!!
+   */
+  public CharSequence convertToSparse(final Vec vec) {
+    final StringBuilder sb = new StringBuilder();
+    final VecIterator it = vec.nonZeroes();
+    while (it.advance()) {
+      sb.append(it.index())
+          .append(":")
+          .append(it.value())
+          .append(" ");
+    }
+    if (sb.length() > 0) {
+      sb.setLength(sb.length() - 1);
+    }
+    return sb;
   }
 }
