@@ -62,6 +62,10 @@ public abstract class MathTools {
     return logSum;
   }
 
+  public static double sigmoid(final double x) {
+    return 1 / (1 + Math.exp(x));
+  }
+
   public static double logFactorialRamanujan(final int v) {
     return (v == 1 || v == 0) ? 0 : v * log(v) - v + log(v * (1 + 4 * v * (1 + 2 * v))) / 6. + log(Math.PI) / 2;
   }
