@@ -5,6 +5,7 @@ import com.spbsu.commons.func.Evaluator;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author lawless
@@ -436,5 +437,10 @@ public abstract class ArrayTools {
     for (int i = alignedCount; i < count; i++){
       larray[i + loffset] = rarray[i + roffset];
     }
+  }
+
+  public static <F> F[] toArray(List<F> weakModels) {
+    //noinspection unchecked
+    return weakModels.toArray((F[])(weakModels.size() > 0 ? Array.newInstance(weakModels.get(0).getClass(), weakModels.size()) : new Object[0]));
   }
 }

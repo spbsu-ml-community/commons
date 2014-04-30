@@ -187,5 +187,14 @@ public abstract class MathTools {
     } while(--stop > 0 && abs(nextEstimate - prevEstimate) > EPSILON);
     return nextEstimate;
   }
+
+  public static int bits(int x) {
+    int result = 0;
+    while (x != 0) {
+      result += (x & 1);
+      x >>= 1;
+    }
+    return result;
+  }
 }
 
