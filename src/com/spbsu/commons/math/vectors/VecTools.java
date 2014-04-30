@@ -2,23 +2,24 @@ package com.spbsu.commons.math.vectors;
 
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.impl.ArrayVec;
-import com.spbsu.commons.math.vectors.impl.IndexTransVec;
 import com.spbsu.commons.math.vectors.impl.SparseVec;
 import com.spbsu.commons.math.vectors.impl.VecBasedMx;
 import com.spbsu.commons.util.ArrayTools;
 import com.spbsu.commons.util.RBTreeNode;
 import com.spbsu.commons.util.RBTreeNodeBase;
 import com.spbsu.commons.util.RedBlackTree;
-
-
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
-import static java.lang.Math.*;
+import static java.lang.Math.log;
+import static java.lang.Math.sqrt;
 
 /**
  * User: solar
@@ -143,9 +144,13 @@ public class VecTools {
         liter.advance();
         riter.advance();
       }
-      while (lindex > riter.index() && riter.advance());
-      rindex = riter.index();
-      while (rindex > liter.index() && liter.advance());
+      if (riter.isValid()) {
+        while (lindex > riter.index() && riter.advance());
+        if (riter.isValid() && liter.isValid()) {
+          rindex = riter.index();
+          while (rindex > liter.index() && liter.advance());
+        }
+      }
     }
     return result;
   }
