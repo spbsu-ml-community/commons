@@ -812,6 +812,13 @@ public class VecTools {
     return result;
   }
 
+  public static double infNorm(Vec v) {
+    double result = 0.;
+    for (VecIterator iter = v.nonZeroes(); iter.advance(); ) {
+      result = Math.max(result, Math.abs(iter.value()));
+    }
+    return result;
+  }
 
   private static int countNonZeroesUpperBound(Vec v) {
     if (v instanceof SparseVec) {
