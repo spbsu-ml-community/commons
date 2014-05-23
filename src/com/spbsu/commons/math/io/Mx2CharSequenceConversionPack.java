@@ -22,7 +22,7 @@ public class Mx2CharSequenceConversionPack implements ConversionPack<Mx,CharSequ
         for (int j = 0; j < from.columns(); j++) {
           if (j > 0)
             builder.append(" ");
-          builder.append(from.get(i));
+          builder.append(from.get(i, j));
         }
       }
       return builder;
