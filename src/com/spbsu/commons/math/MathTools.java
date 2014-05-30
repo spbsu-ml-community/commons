@@ -59,6 +59,14 @@ public abstract class MathTools {
     return cache.value(v);
   }
 
+  public static double sigmoid(final double x) {
+    return sigmoid(x, 1);
+  }
+
+  public static double sigmoid(final double x, final double alpha) {
+    return 1 / (1 + Math.exp(-alpha * x));
+  }
+
   public static double logFactorialRamanujan(final int v) {
     return (v == 1 || v == 0) ? 0 : v * log(v) - v + log(v * (1 + 4 * v * (1 + 2 * v))) / 6. + log(Math.PI) / 2;
   }

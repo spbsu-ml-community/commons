@@ -712,6 +712,17 @@ public class VecTools {
     return -entropy;
   }
 
+  public static Vec extendVec(Vec sourceVec, double[] addedValues) {
+    Vec result = new ArrayVec(sourceVec.dim() + addedValues.length);
+    for (VecIterator iter = sourceVec.nonZeroes(); iter.advance(); ) {
+      result.set(iter.index(), iter.value());
+    }
+    for (int i = 0; i < addedValues.length; i++) {
+      result.set(i + sourceVec.dim(), addedValues[i]);
+    }
+    return result;
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;
