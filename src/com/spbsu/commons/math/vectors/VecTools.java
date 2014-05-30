@@ -702,6 +702,16 @@ public class VecTools {
     return builder.toString();
   }
 
+  public static double entropy(Vec prob) {
+    normalizeL1(prob);
+    double entropy = 0;
+    for (int i = 0; i < prob.dim(); i++) {
+      final double p = prob.get(i);
+      entropy += p * log(p);
+    }
+    return -entropy;
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;

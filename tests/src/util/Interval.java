@@ -17,6 +17,10 @@ public final class Interval {
     System.out.println("Time (ms): " + (System.currentTimeMillis() - Interval.ourStartTime + beforeStart));
   }
 
+  public static void stopAndPrint(String msg) {
+    System.out.println(msg + "\nTime (ms): " + (System.currentTimeMillis() - Interval.ourStartTime + beforeStart));
+  }
+
   public static void suspend() {
     beforeStart += (System.currentTimeMillis() - Interval.ourStartTime);
   }

@@ -5,6 +5,7 @@ import gnu.trove.strategy.HashingStrategy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -215,5 +216,32 @@ public class CharSequenceTools {
     while (from.length() > index && from.charAt(index) != sep)
       index++;
     return index;
+  }
+
+  public static boolean startsWith(CharSequence seq, CharSequence prefix) {
+    if (seq.length() < prefix.length())
+      return false;
+    int index = 0;
+    while(index < prefix.length()) {
+      if(prefix.charAt(index) != seq.charAt(index))
+        return false;
+      index++;
+    }
+
+    return true;
+  }
+
+  public static class LexicographicalComparator implements Comparator<CharSequence> {
+    public int compare(CharSequence a, CharSequence b) {
+      int index = 0;
+      while (a.length() > index && b.length() > index) {
+        char aCh = a.charAt(index);
+        char bCh = b.charAt(index);
+        if (aCh != bCh)
+          return aCh - bCh;
+        index++;
+      }
+      return Integer.compare(a.length(), b.length());
+    }
   }
 }

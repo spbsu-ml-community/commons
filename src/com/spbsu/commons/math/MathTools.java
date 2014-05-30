@@ -54,12 +54,9 @@ public abstract class MathTools {
     return result;
   }
 
+  public static final LogFactorial cache = new LogFactorial(1000000);
   public static double logFactorial(final int v) {
-    double logSum = 0;
-    for (int i = 0; i < v; i++) {
-      logSum += log(i + 1);
-    }
-    return logSum;
+    return cache.value(v);
   }
 
   public static double logFactorialRamanujan(final int v) {
@@ -68,6 +65,10 @@ public abstract class MathTools {
 
   public static double poissonProbability(final double lambda, final int k) {
     return Math.exp(-lambda + k * log(lambda) - logFactorial(k));
+  }
+
+  public static double logPoissonProbability(final double lambda, final int k) {
+    return -lambda + k * log(lambda) - logFactorial(k);
   }
 
   public static double poissonProbabilityFast(final double lambda, final int k) {
@@ -195,6 +196,23 @@ public abstract class MathTools {
       x >>= 1;
     }
     return result;
+  }
+
+  public static class LogFactorial {
+    double cache[];
+    public LogFactorial(int size) {
+      double value = 0;
+      cache = new double[size];
+      cache[0] = 0;
+      for (int i = 1; i < size; i++) {
+        value += log((double)i);
+        cache[i] = value;
+      }
+    }
+
+    public double value(int i) {
+      return i < cache.length ? cache[i] : Double.POSITIVE_INFINITY;
+    }
   }
 }
 
