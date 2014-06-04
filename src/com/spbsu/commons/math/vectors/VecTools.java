@@ -822,6 +822,14 @@ public class VecTools {
     return scalarMultiplication != 0.0 ? scalarMultiplication / (norm(left) * norm(right)) : 0.0;
   }
 
+  public static double infNorm(Vec v) {
+    double result = 0.;
+    for (VecIterator iter = v.nonZeroes(); iter.advance(); ) {
+      result = Math.max(result, Math.abs(iter.value()));
+    }
+    return result;
+  }
+
   public static double norm(Vec v) {
     return sqrt(sum2(v));
   }
@@ -961,5 +969,13 @@ public class VecTools {
       offset += vec.dim();
     }
     return result;
+  }
+
+  public static Vec[] splitMxColumns(Mx mx) {
+    final Vec[] columns = new Vec[mx.columns()];
+    for (int i = 0; i < mx.columns(); i++) {
+      columns[i] = new ArrayVec(mx.col(i).toArray());
+    }
+    return columns;
   }
 }
