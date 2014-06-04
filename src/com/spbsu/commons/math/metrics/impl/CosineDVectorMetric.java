@@ -11,6 +11,6 @@ import com.spbsu.commons.math.vectors.VecTools;
 public class CosineDVectorMetric implements Metric<Vec> {
   @Override
   public double distance(Vec v, Vec w) {
-    return 1 - VecTools.cosine(v, w);
+    return 0.5 * (1 - VecTools.cosine(v, w));
   }
 }

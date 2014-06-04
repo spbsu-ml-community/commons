@@ -581,4 +581,12 @@ public class VectorsTest extends TestCase {
     }
   }
 
+  public void testCheckOrthogonality() {
+    final Mx mx = new VecBasedMx(2, new ArrayVec(
+        0.96, -0.28,
+        0.28, 0.96
+    ));
+    assertTrue(VecTools.checkOrthogonality(mx));
+  }
+
 }

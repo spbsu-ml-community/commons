@@ -300,6 +300,13 @@ public class VecTools {
     }
   }
 
+  public static boolean checkOrthogonality(Mx a) {
+    if (a.rows() != a.columns())
+      return false;
+    final Mx square = VecTools.multiply(a, transpose(a));
+    return equals(square, E(a.columns()));
+  }
+
   public static boolean checkSymmetry(Mx a) {
     if (a.columns() != a.rows())
       return false;
@@ -475,6 +482,14 @@ public class VecTools {
     for (int i = 0; i < b.dim(); i++)
         result.adjust(i, -1.0 * b.get(i));
       return (T)result;
+  }
+
+  public static double trace(Mx a) {
+    double result = 0.0;
+    for (int i = 0; i < a.rows(); i++) {
+      result += a.get(i, i);
+    }
+    return result;
   }
 
   public static Mx transpose(Mx a) {
