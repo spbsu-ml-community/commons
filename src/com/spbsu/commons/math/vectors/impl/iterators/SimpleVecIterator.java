@@ -1,4 +1,4 @@
-package com.spbsu.commons.math.vectors.impl;
+package com.spbsu.commons.math.vectors.impl.iterators;
 
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;

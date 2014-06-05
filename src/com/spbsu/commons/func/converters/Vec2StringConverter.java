@@ -1,11 +1,11 @@
 package com.spbsu.commons.func.converters;
 
 import com.spbsu.commons.func.Converter;
-import com.spbsu.commons.math.vectors.IntBasis;
+import com.spbsu.commons.math.vectors.impl.basis.IntBasis;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
-import com.spbsu.commons.math.vectors.impl.ArrayVec;
-import com.spbsu.commons.math.vectors.impl.SparseVec;
+import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 
 import java.util.StringTokenizer;
 

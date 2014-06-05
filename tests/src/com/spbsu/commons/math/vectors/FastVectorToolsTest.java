@@ -1,5 +1,6 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.math.vectors.impl.vectors.DVector;
 import com.spbsu.commons.util.logging.Interval;
 import junit.framework.TestCase;
 

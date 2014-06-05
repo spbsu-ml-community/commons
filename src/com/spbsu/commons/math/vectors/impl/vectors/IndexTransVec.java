@@ -1,8 +1,8 @@
-package com.spbsu.commons.math.vectors.impl;
+package com.spbsu.commons.math.vectors.impl.vectors;
 
 import com.spbsu.commons.func.converters.Vec2StringConverter;
 import com.spbsu.commons.math.vectors.*;
-import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
+import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubVecTransformation;
 import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;

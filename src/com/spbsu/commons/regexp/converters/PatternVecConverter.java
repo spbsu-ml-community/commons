@@ -3,7 +3,7 @@ package com.spbsu.commons.regexp.converters;
 
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.math.vectors.Vec;
-import com.spbsu.commons.math.vectors.impl.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.seq.Alphabet;
 import com.spbsu.commons.regexp.Pattern;
 

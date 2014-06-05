@@ -1,8 +1,8 @@
 package com.spbsu.commons.math;
 
 import com.spbsu.commons.math.vectors.Mx;
-import com.spbsu.commons.math.vectors.VecTools;
-import com.spbsu.commons.math.vectors.impl.VecBasedMx;
+import com.spbsu.commons.math.vectors.MxTools;
+import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.util.logging.Interval;
 import junit.framework.TestCase;
 
@@ -141,13 +141,13 @@ public class MathToolsTest extends TestCase {
     for (int i = 0; i < n; i++)
       for (int j = 0; j < n; j++)
         mx.set(i, j, Double.parseDouble(scanner.next()));
-    VecTools.householderLQ(mx, l, q);
+    MxTools.householderLQ(mx, l, q);
     for (int i = 0; i < n; i++)
       for (int j = i + 1; j < n; j++)
         if (Math.abs(l.get(i, j)) > eps)
           System.out.println("Bad L = " + l.get(i, j));
-    Mx qq = VecTools.multiply(q, VecTools.transpose(q));
-    Mx lq = VecTools.multiply(l, VecTools.transpose(q));
+    Mx qq = MxTools.multiply(q, MxTools.transpose(q));
+    Mx lq = MxTools.multiply(l, MxTools.transpose(q));
     for (int i = 0; i < n; i++)
       for (int j = 0; j < n; j++) {
         if (i != j && Math.abs(qq.get(i, j)) > eps)

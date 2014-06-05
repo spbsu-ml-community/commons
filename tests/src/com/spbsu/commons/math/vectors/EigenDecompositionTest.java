@@ -2,8 +2,8 @@ package com.spbsu.commons.math.vectors;
 
 import com.spbsu.commons.FileTestCase;
 import com.spbsu.commons.math.MathTools;
-import com.spbsu.commons.math.vectors.impl.ArrayVec;
-import com.spbsu.commons.math.vectors.impl.VecBasedMx;
+import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 
 import java.io.IOException;
 
@@ -44,11 +44,11 @@ public class EigenDecompositionTest extends FileTestCase {
 
     Mx sigma = new VecBasedMx(dim, dim);
     Mx Q = new VecBasedMx(dim, dim);
-    VecTools.eigenDecomposition(A, Q, sigma);
-    if (distance(A, multiply(transpose(Q), multiply(sigma, Q))) > A.dim() * MathTools.EPSILON) {
-      System.out.println(multiply(transpose(Q), multiply(sigma, Q)).toString());
+    MxTools.eigenDecomposition(A, Q, sigma);
+    if (distance(A, MxTools.multiply(MxTools.transpose(Q), MxTools.multiply(sigma, Q))) > A.dim() * MathTools.EPSILON) {
+      System.out.println(MxTools.multiply(MxTools.transpose(Q), MxTools.multiply(sigma, Q)).toString());
       System.out.println(A);
-      assertTrue(distance(A, multiply(transpose(Q), multiply(sigma, Q))) < A.dim() * MathTools.EPSILON);
+      assertTrue(distance(A, MxTools.multiply(MxTools.transpose(Q), MxTools.multiply(sigma, Q))) < A.dim() * MathTools.EPSILON);
     }
   }
 }

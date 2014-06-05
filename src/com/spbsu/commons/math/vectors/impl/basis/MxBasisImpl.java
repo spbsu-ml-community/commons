@@ -1,4 +1,6 @@
-package com.spbsu.commons.math.vectors;
+package com.spbsu.commons.math.vectors.impl.basis;
+
+import com.spbsu.commons.math.vectors.MxBasis;
 
 /**
 * User: solar

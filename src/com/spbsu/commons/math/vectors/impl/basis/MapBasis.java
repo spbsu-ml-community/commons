@@ -1,6 +1,7 @@
-package com.spbsu.commons.math.vectors;
+package com.spbsu.commons.math.vectors.impl.basis;
 
 
+import com.spbsu.commons.math.vectors.GenericBasis;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import org.jetbrains.annotations.NotNull;
 

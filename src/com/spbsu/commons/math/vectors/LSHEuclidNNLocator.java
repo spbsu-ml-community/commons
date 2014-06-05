@@ -1,6 +1,6 @@
 package com.spbsu.commons.math.vectors;
 
-import com.spbsu.commons.math.vectors.impl.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.set.hash.TIntHashSet;

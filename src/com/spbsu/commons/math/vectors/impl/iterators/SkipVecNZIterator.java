@@ -1,7 +1,6 @@
 package com.spbsu.commons.math.vectors.impl.iterators;
 
 import com.spbsu.commons.math.vectors.Vec;
-import com.spbsu.commons.math.vectors.impl.ArrayVec;
 import com.spbsu.commons.math.vectors.VecIterator;
 
 /**

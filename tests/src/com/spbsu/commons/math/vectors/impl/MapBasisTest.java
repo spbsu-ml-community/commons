@@ -1,7 +1,7 @@
 package com.spbsu.commons.math.vectors.impl;
 
 import com.spbsu.commons.math.vectors.GenericBasis;
-import com.spbsu.commons.math.vectors.MapBasis;
+import com.spbsu.commons.math.vectors.impl.basis.MapBasis;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import junit.framework.TestCase;
 

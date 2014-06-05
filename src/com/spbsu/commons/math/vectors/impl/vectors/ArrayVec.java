@@ -1,4 +1,4 @@
-package com.spbsu.commons.math.vectors.impl;
+package com.spbsu.commons.math.vectors.impl.vectors;
 
 import com.spbsu.commons.math.vectors.*;
 import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;
