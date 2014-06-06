@@ -1,5 +1,8 @@
 package com.spbsu.commons.util;
 
+import com.spbsu.commons.math.MathTools;
+
+import java.math.BigInteger;
 import java.util.Arrays;
 
 /**
@@ -10,6 +13,8 @@ public class Combinatorics {
   public static interface Enumeration {
     boolean hasNext();
     int[] next();
+    void skipN(long n);
+    long totalCount();
   }
 
   public static class PartialPermutations implements Enumeration {
@@ -33,7 +38,23 @@ public class Combinatorics {
     @Override
     public int[] next() {
       int[] copy = Arrays.copyOf(bitVec, bitVec.length);
+      gotoNext();
+      return copy;
+    }
 
+    @Override
+    public void skipN(final long n) {
+      for (int i = 0; i < n; i++) {
+        gotoNext();
+      }
+    }
+
+    @Override
+    public long totalCount() {
+      return (long)Math.pow(base, positions);
+    }
+
+    private void gotoNext() {
       int end = positions - 1;
       while (++bitVec[end] == base) {
         end--;
@@ -45,7 +66,13 @@ public class Combinatorics {
           bitVec[j] = 0;
         }
       }
-      return copy;
+    }
+  }
+
+  public static void main(String[] args) {
+    final Permutations permutations = new Permutations(3);
+    while (permutations.hasNext()) {
+      System.out.println(Arrays.toString(permutations.next()));
     }
   }
 
@@ -71,7 +98,11 @@ public class Combinatorics {
     @Override
     public int[] next() {
       int[] copy = Arrays.copyOf(bitVec, bitVec.length);
+      gotoNext();
+      return copy;
+    }
 
+    private void gotoNext() {
       int end = positions - 1;
       while (isNumInArray(bitVec, ++bitVec[end], 0, end) || bitVec[end] == positions) {
         if (bitVec[end] == positions) {
@@ -79,18 +110,31 @@ public class Combinatorics {
         }
         if (end == -1) {
           isExhausted = true;
-          return copy;
+          break;
         }
       }
-      for (int i = end + 1; i < positions; i++) {
-        for (int j = 0; j < positions; j++) {
-          if (!isNumInArray(bitVec, j, 0, i)) {
-            bitVec[i] = j;
-            break;
+      if (!isExhausted) {
+        for (int i = end + 1; i < positions; i++) {
+          for (int j = 0; j < positions; j++) {
+            if (!isNumInArray(bitVec, j, 0, i)) {
+              bitVec[i] = j;
+              break;
+            }
           }
         }
       }
-      return copy;
+    }
+
+    @Override
+    public void skipN(final long n) {
+      for (int i = 0; i < n; i++) {
+        gotoNext();
+      }
+    }
+
+    @Override
+    public long totalCount() {
+      return MathTools.factorial(positions);
     }
 
     private boolean isNumInArray(int[] arr, int num, int start, int end) {
