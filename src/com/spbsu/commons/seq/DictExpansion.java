@@ -19,16 +19,18 @@ import static java.lang.Math.*;
  */
 public class DictExpansion {
   public static final double POISSON_SIGNIFICANCE = 0.01;
-  public static final double EXTENSION_FACTOR = 1.3;
-  public static final double MAX_POWER = 10000000;
+  public static final double EXTENSION_FACTOR = 1.33;
+  public static final double MAX_POWER = 100000000;
+  public static final double MAX_MIN_PROBABILITY = 0.01;
   private final int size;
+  private final boolean trace;
   private ListDictionary suggest;
   private ListDictionary current;
   private ListDictionary result;
 
   private int powerSuggest = 0;
   private int powerCurrent = 0;
-  private double minProbResult = 1;
+  private double minProbCurrent = 1;
   private double minProbSuggest = 1;
 
   private int pairsCount = 0;
@@ -36,13 +38,24 @@ public class DictExpansion {
   private int[] symbolFreqsCurrent = null;
   private int[] symbolFreqsSuggest = null;
   private int[] resultFreqs = null;
+  private int alphabetSize;
 
   public DictExpansion(Collection<Character> alphabet, int size) {
-    this(new ListDictionary(alphabet.toArray(new Character[alphabet.size()])), size);
+    this(new ListDictionary(alphabet.toArray(new Character[alphabet.size()])), size, false);
+  }
+
+  public DictExpansion(Collection<Character> alphabet, int size, boolean trace) {
+    this(new ListDictionary(alphabet.toArray(new Character[alphabet.size()])), size, trace);
   }
 
   public DictExpansion(ListDictionary alphabet, int size) {
+    this(alphabet, size, false);
+  }
+
+  public DictExpansion(ListDictionary alphabet, int size, boolean trace) {
     this.size = size;
+    this.trace = trace;
+    this.alphabetSize = alphabet.size();
     current = suggest = alphabet;
     symbolFreqsCurrent = new int[current.size()];
     symbolFreqsSuggest = new int[suggest.size()];
@@ -51,7 +64,8 @@ public class DictExpansion {
     powerCurrent = 0;
     pairsCount = 0;
     pairFreqs = new TLongIntHashMap((int) (size * EXTENSION_FACTOR * 2));
-    minProbResult = 1./alphabet.size();
+    minProbCurrent = MAX_MIN_PROBABILITY;
+    minProbSuggest = MAX_MIN_PROBABILITY;
   }
 
   public ListDictionary result() {
@@ -112,25 +126,27 @@ public class DictExpansion {
       }
     }
 
-    if ((powerSuggest > -log(0.01) / minProbSuggest && powerCurrent > -log(0.01) / minProbResult) || powerSuggest > MAX_POWER) {
-      {
-        double sum = 0;
-        double textLength = 0;
-        for (int i = 0; i < current.size(); i++) {
-          final int freq = symbolFreqsCurrent[i];
-          textLength += current.get(i).length() * freq;
-          if (freq > 0)
-            sum -= freq * log(freq) / log(2);
-        }
-        double codeLength = (sum + powerCurrent * log(powerCurrent) / log(2)) / 8.;
-        System.out.println("Size: " + current.size() + " rate: " + codeLength / textLength + " minimal probability: " + minProbSuggest);
+    if ((powerSuggest > -log(0.1) / minProbSuggest && powerCurrent > -log(0.1) / minProbCurrent) || powerSuggest > MAX_POWER) {
+      double sum = 0;
+      double textLength = 0;
+      for (int i = 0; i < current.size(); i++) {
+        final int freq = symbolFreqsCurrent[i];
+        textLength += current.get(i).length() * freq;
+        if (freq > 0)
+          sum -= freq * log(freq) / log(2);
       }
+      double codeLength = (sum + powerCurrent * log(powerCurrent) / log(2)) / 8.;
+      final double compressionRate = codeLength / textLength;
+
+      result = current;
+      resultFreqs = symbolFreqsCurrent;
+
+      if (trace)
+        System.out.println("Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + minProbSuggest);
 
       final ListDictionary reduce = reduce();
       final ListDictionary expand = expand();
 
-      result = current;
-      resultFreqs = symbolFreqsCurrent;
       current = reduce;
       suggest = expand;
 
@@ -150,7 +166,7 @@ public class DictExpansion {
       public boolean execute(long code, int count) {
         final int first = (int) (code >>> 32);
         final int second = (int) (code & 0xFFFFFFFFl);
-        final double pairProbIndependentDirichlet = symbolFreqsCurrent[first] * symbolFreqsCurrent[second] / (double) powerSuggest / (double) powerSuggest;
+        final double pairProbIndependentDirichlet = symbolFreqsCurrent[first] * symbolFreqsCurrent[second] / (double) powerCurrent / (double) powerCurrent;
         final double lambda = pairsCount * pairProbIndependentDirichlet;
         final double logProb = MathTools.logPoissonProbability(lambda, count);
         items.add(new StatItem(code, first, second, count > lambda ? logProb : 0, count));
@@ -165,8 +181,8 @@ public class DictExpansion {
       }
     });
     final List<CharSequence> newDict = new ArrayList<CharSequence>(current.alphabet());
-    int slots = (int)(current.size() * (EXTENSION_FACTOR - 1)) + 1;
-    minProbSuggest = minProbResult;
+    int slots = (int)(current.size() * (EXTENSION_FACTOR - 1)) + alphabetSize;
+    minProbSuggest = minProbCurrent;
     for (StatItem item : items) {
       if (item.score >= Math.log(POISSON_SIGNIFICANCE) || --slots < 0)
         break;
@@ -189,18 +205,13 @@ public class DictExpansion {
       codeLength = sum + powerSuggest * log(powerSuggest);
     }
     final List<CharSequence> newDict = new ArrayList<CharSequence>(suggest.size());
-    final TIntArrayList resultFreqs = new TIntArrayList(suggest.size());
-    final TDoubleArrayList resultScores = new TDoubleArrayList(suggest.size());
 
     for (int s = 0; s < symbolFreqsSuggest.length; s++) {
       final int parent = suggest.parent(s);
       final int count = symbolFreqsSuggest[s];
       CharSequence seq = suggest.get(s);
-      if (parent < 0) {
+      if (parent < 0)
         newDict.add(seq);
-        resultFreqs.add(count + 1);
-        resultScores.add(Double.POSITIVE_INFINITY);
-      }
       else if (count > 0) {
         double codeLengthWOSymbol = codeLength + count * log(count);
         int newStatPower = powerSuggest - count;
@@ -224,8 +235,8 @@ public class DictExpansion {
       }
     });
 
-    int slots = size;
-    minProbResult = min(1. / current.size(), 0.01);
+    int slots = size - alphabetSize;
+    minProbCurrent = min(1. / current.size(), MAX_MIN_PROBABILITY);
     for (StatItem item : items) {
       if (item.score < 0. || --slots < 0)
         break;
@@ -233,8 +244,6 @@ public class DictExpansion {
       if (slots > size / 10.)
         minProbSuggest = min(p, minProbSuggest);
       final CharSequence symbol = suggest.get(item.second);
-      resultFreqs.add(item.count + 1);
-      resultScores.add(item.score);
       newDict.add(symbol);
     }
     return new ListDictionary(newDict.toArray(new CharSequence[newDict.size()]));

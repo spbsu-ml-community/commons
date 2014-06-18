@@ -35,23 +35,23 @@ public class CompositeTextCodingTest extends TestCase {
         while((line = lnr.readLine()) != null) {
           StringTokenizer tok = new StringTokenizer(line, "\t");
           tok.nextToken(); // skip index
-          queries.add(tok.nextToken());
+          queries.add(tok.nextToken() + "\n");
         }
         CompositeTextCodingTest.queries = queries.toArray(new CharSequence[queries.size()]);
       }
 
-//      if (urls == null) {
-//        List<CharSequence> urls = new ArrayList<CharSequence>();
-//        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/tests/data/text/urls.txt.gz"))));
-//        String line;
-//        while((line = lnr.readLine()) != null) {
-//          StringTokenizer tok = new StringTokenizer(line, "\t");
-////          tok.nextToken(); // skip query
-////          tok.nextToken(); // skip relev
-//          urls.add(tok.nextToken() + "\n");
-//        }
-//        CompositeTextCodingTest.urls = urls.toArray(new CharSequence[urls.size()]);
-//      }
+      if (urls == null) {
+        List<CharSequence> urls = new ArrayList<CharSequence>();
+        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/tests/data/text/urls.txt.gz"))));
+        String line;
+        while((line = lnr.readLine()) != null) {
+          StringTokenizer tok = new StringTokenizer(line, "\t");
+//          tok.nextToken(); // skip query
+//          tok.nextToken(); // skip relev
+          urls.add(tok.nextToken() + "\n");
+        }
+        CompositeTextCodingTest.urls = urls.toArray(new CharSequence[urls.size()]);
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -73,16 +73,16 @@ public class CompositeTextCodingTest extends TestCase {
         alpha.add(query.charAt(t));
     }
 
-    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 50000);
+    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
 
-    for (int i = 0; i < 200000; i++) {
+    for (int i = 0; i < 500000; i++) {
       CharSequence query = queries[rng.nextInt(queries.length)];
       coding.accept(query);
     }
 
     final ByteBuffer buffer = ByteBuffer.allocate(bytes);
-    final ListDictionary result = coding.expansion().result();
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
+    final ListDictionary result = coding.expansion().result();
     for (CharSequence sequence : result.alphabet()) {
       System.out.println(sequence);
     }
@@ -93,59 +93,70 @@ public class CompositeTextCodingTest extends TestCase {
     System.out.println(result.alphabet().size() + " " + buffer.position());
   }
 
-//  public void testSimpleCodingURL() {
-//    FastRandom rng = new FastRandom(0);
-//    int bytes = 0;
-//    final HashSet<Character> alpha = new HashSet<Character>();
-//    for (int i = 0; i < urls.length; i++) {
-//      CharSequence query = urls[i];
-//      bytes += 2 * query.length();
-//      for (int t = 0; t < query.length(); t++)
-//        alpha.add(query.charAt(t));
+  public void testSimpleCodingURL() {
+    FastRandom rng = new FastRandom(0);
+    int bytes = 0;
+    final HashSet<Character> alpha = new HashSet<Character>();
+    for (int i = 0; i < urls.length; i++) {
+      CharSequence query = urls[i];
+      bytes += 2 * query.length();
+      for (int t = 0; t < query.length(); t++)
+        alpha.add(query.charAt(t));
+    }
+
+    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 100000);
+
+    for (int i = 0; i < 10000000; i++) {
+      final CharSequence query = urls[rng.nextInt(urls.length)];
+      coding.accept(query);
+    }
+
+    final ByteBuffer buffer = ByteBuffer.allocate(bytes);
+    final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
+    final ListDictionary dict = coding.expansion().result();
+
+    int[] symbolFreqs = new int[dict.size()];
+    for (int i = 0; i < urls.length; i++) {
+      CharSequence suffix = urls[i];
+      while(suffix.length() > 0) {
+        final int symbol = dict.search(suffix);
+        suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
+        symbolFreqs[symbol]++;
+      }
+    }
+
+    int total = 0;
+    int total1 = 0;
+    int textLength = 0;
+    double sum = 0;
+    double sum1 = 0;
+    for (int i = 0; i < dict.size(); i++) {
+      final int freq = symbolFreqs[i];
+      textLength += freq * dict.get(i).length();
+      total += freq;
+      final int freq1 = coding.expansion().resultFreqs()[i];
+      total1 += freq1;
+      if (freq > 0) {
+        sum -= freq * Math.log(freq)/Math.log(2);
+      }
+      if (freq1 > 0) {
+        sum1 -= freq * Math.log(freq1)/Math.log(2);
+      }
+    }
+    final double codeLength = (sum + total * Math.log(total) / Math.log(2)) / 8;
+    final double codeLength1 = (sum1 + total * Math.log(total1) / Math.log(2)) / 8;
+    System.out.println("Expected code length: " + codeLength / 1024. + "kb. Expected rate: " + codeLength / textLength);
+    System.out.println("Expected code length true: " + codeLength1 / 1024. + "kb. Expected rate true: " + codeLength1 / textLength);
+
+    final ListDictionary result = coding.expansion().result();
+//    for (CharSequence sequence : result.alphabet()) {
+//      System.out.println(sequence);
 //    }
-//
-//    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 100000);
-//
-//    for (int i = 0; i < 50000000; i++) {
-//      final CharSequence query = urls[rng.nextInt(urls.length)];
-//      coding.accept(query);
-//    }
-//
-//    final ByteBuffer buffer = ByteBuffer.allocate(bytes);
-//    final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
-////    for (int i = 0; i < 100 && i < coding.expansion().expansion().length; i++) {
-////      System.out.println(coding.expansion().expansion()[i]);
-////    }
-//    double sum = 0;
-//    final ListDictionary dict = coding.expansion().result();
-//
-//    int[] symbolFreqs = new int[dict.size()];
-//    for (int i = 0; i < urls.length; i++) {
-//      CharSequence suffix = urls[i];
-//      while(suffix.length() > 0) {
-//        final int symbol = dict.search(suffix);
-//        suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
-//        symbolFreqs[symbol]++;
-//      }
-//    }
-//
-//    int total = 0;
-//    int textLength = 0;
-//    for (int i = 0; i < dict.size(); i++) {
-//      final int freq = symbolFreqs[i];
-//      textLength += freq * dict.get(i).length();
-//      total += freq;
-//      if (freq > 0) {
-//        sum -= freq * Math.log(symbolFreqs[i])/Math.log(2);
-//      }
-//    }
-//    final double codeLength = (sum + total * Math.log(total) / Math.log(2)) / 8;
-//    System.out.println("Expected code length: " + codeLength / 1024. + "kb. Expected rate: " + codeLength / textLength);
-//
-//    for (int i = 0; i < urls.length; i++) {
-//      CharSequence query = urls[i];
-//      encode.write(query);
-//    }
-//    System.out.println(dict.size() + " " + buffer.position());
-//  }
+    encode.output = new ArithmeticCoding.Encoder(buffer, symbolFreqs);
+    for (int i = 0; i < urls.length; i++) {
+      CharSequence query = urls[i];
+      encode.write(query);
+    }
+    System.out.println(dict.size() + " " + buffer.position());
+  }
 }

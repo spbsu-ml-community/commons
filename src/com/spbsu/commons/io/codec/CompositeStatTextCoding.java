@@ -4,9 +4,7 @@ import com.spbsu.commons.seq.DictExpansion;
 import com.spbsu.commons.seq.ListDictionary;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * User: solar
@@ -16,10 +14,6 @@ import java.util.List;
 public class CompositeStatTextCoding {
   private final DictExpansion expansion;
   private boolean stop = false;
-
-  public CompositeStatTextCoding(Collection<Character> alpha) {
-    this(alpha, 50000);
-  }
 
   public CompositeStatTextCoding(Collection<Character> alphabet, int dictSize) {
     this.expansion = new DictExpansion(alphabet, dictSize);
@@ -51,7 +45,7 @@ public class CompositeStatTextCoding {
         suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
         output.write(symbol);
       }
-//      output.write(0);
+      output.write(0);
     }
 
     public void flush() {
