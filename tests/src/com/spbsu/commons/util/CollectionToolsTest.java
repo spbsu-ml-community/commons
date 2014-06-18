@@ -1,5 +1,6 @@
 package com.spbsu.commons.util;
 
+import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.util.logging.Interval;
 import junit.framework.TestCase;
 
@@ -113,6 +114,18 @@ public class CollectionToolsTest extends TestCase {
       current = integerEntry.v;
       integerEntry.v += (int)(Math.random() * 10000);
       rbTree.add(integerEntry);
+    }
+  }
+
+  public void testParallelSort() {
+    FastRandom rng = new FastRandom(0);
+    double[] array = new double[100000];
+    for (int i = 0; i < array.length; i++) {
+      array[i] = rng.nextDouble();
+    }
+    ArrayTools.parallelSort(array, ArrayTools.sequence(0, array.length));
+    for (int i = 1; i < array.length; i++) {
+      assertTrue(array[i] > array[i - 1]);
     }
   }
 }

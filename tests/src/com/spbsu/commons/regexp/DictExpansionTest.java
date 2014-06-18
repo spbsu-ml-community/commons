@@ -23,7 +23,7 @@ public class DictExpansionTest extends TestCase {
     for (char a = 'a'; a <= 'z'; a++)
       alpha.add(a);
     Random rnd = new FastRandom();
-    DictExpansion de = new DictExpansion(alpha, 200, 1e-3);
+    DictExpansion de = new DictExpansion(alpha, 10);
     for (int i = 0; i < 10000; i++) {
       int len = rnd.nextInt(300);
       StringBuilder builder = new StringBuilder(len);
@@ -40,7 +40,7 @@ public class DictExpansionTest extends TestCase {
     for (char a = 'a'; a <= 'c'; a++)
       alpha.add(a);
     FastRandom rnd = new FastRandom();
-    DictExpansion de = new DictExpansion(alpha, reference.size(), 1e-5);
+    DictExpansion de = new DictExpansion(alpha, 10);
     Vec probabs = new ArrayVec(reference.size());
     VecTools.fill(probabs, 1.);
     VecTools.normalizeL1(probabs);
@@ -57,12 +57,12 @@ public class DictExpansionTest extends TestCase {
   public void testRestoreLong() throws Exception {
     ListDictionary reference = new ListDictionary("a", "b", "c", "r", "d", "cc", "aa", "bb", "abracadabra");
     ListDictionary start = new ListDictionary("a", "b", "c", "r", "d");
-    DictExpansion de = new DictExpansion(start, reference.size(), 1e-3);
+    DictExpansion de = new DictExpansion(start, 20);
     FastRandom rng = new FastRandom();
     Vec probabs = new ArrayVec(reference.size());
     VecTools.fill(probabs, 1.);
     VecTools.normalizeL1(probabs);
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 1000; i++) {
       int len = rng.nextInt(100);
       StringBuilder builder = new StringBuilder(len);
       for (int c = 0; c < len; c++)

@@ -2,6 +2,7 @@ package com.spbsu.commons.util;
 
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Evaluator;
+import com.spbsu.commons.random.FastRandom;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -123,29 +124,39 @@ public abstract class ArrayTools {
   public static void parallelSort(double[] a, int[] linked) {
     if(a.length != linked.length)
       throw new IllegalArgumentException("arrays sizes are not equal");
-    parallelSort(a, linked, 0, a.length - 1);
+    parallelSort(a, linked, 0, a.length);
   }
 
   public static void parallelSort(double[] a, int[] linked, int left, int right) {
     if (right <= left) return;
     int i = partition(a, linked, left, right);
-    parallelSort(a, linked, left, i-1);
+    parallelSort(a, linked, left, i);
     parallelSort(a, linked, i+1, right);
   }
 
   // partition a[left] to a[right], assumes left < right
+  private static FastRandom rng = new FastRandom();
+  @SuppressWarnings("StatementWithEmptyBody")
   private static int partition(double[] a, int[] linked, int left, int right) {
     int i = left - 1;
     int j = right;
+    final int partition = left + rng.nextInt(right - left);
+    final double sentinel = a[partition];
     while (true) {
-      while ((a[++i] < a[right]))      // find item on left to swap
-        ;                               // a[right] acts as sentinel
-      while ((a[right] < a[--j]))      // find item on right to swap
-        if (j == left) break;           // don't go out-of-bounds
-      if (i >= j) break;                  // check if pointers cross
-      swap(a, linked, i, j);                      // swap two elements into place
+      while (++i < right && a[i] < sentinel);      // find item on left to swap
+      while (--j >= left && sentinel < a[j]);      // find item on right to swap
+      if (i >= j)
+        break;              // check if pointers cross
+      else if (i == partition)
+        j++;
+      else if (j == partition)
+        i--;
+      else swap(a, linked, i, j);     // swap two elements into place
     }
-    swap(a, linked, i, right);                      // swap with partition element
+    if (partition > i)
+      swap(a, linked, i, partition);    // swap with partition element
+    else if (partition < i)
+      swap(a, linked, --i, partition);    // swap with partition element
     return i;
   }
 

@@ -451,6 +451,10 @@ public class VecTools {
     return result;
   }
 
+  public static Vec[] splitMxColumns(Mx features) {
+    return null;
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;

@@ -21,6 +21,10 @@ public interface Alphabet<T> {
 
   T getT(Matcher.Condition condition);
 
+  int index(T t);
+
+  int index(Sequence<T> sequence, int index);
+
   public static final Alphabet<Character> CHARACTER_ALPHABET = new Alphabet<Character>() {
     private static final int ALPHABET_SIZE = 'z' - 'a' + 1;
 
@@ -96,8 +100,4 @@ public interface Alphabet<T> {
       return ((Sequence.CharSequence)characters).getFast(index) - 'a';
     }
   };
-
-  int index(T t);
-
-  int index(Sequence<T> sequence, int index);
 }
