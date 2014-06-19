@@ -23,7 +23,7 @@ public class DictExpansionTest extends TestCase {
     for (char a = 'a'; a <= 'z'; a++)
       alpha.add(a);
     Random rnd = new FastRandom();
-    DictExpansion de = new DictExpansion(alpha, alpha.size());
+    DictExpansion de = new DictExpansion(alpha, alpha.size() + 100);
     for (int i = 0; i < 10000; i++) {
       int len = rnd.nextInt(300);
       StringBuilder builder = new StringBuilder(len);
@@ -45,7 +45,7 @@ public class DictExpansionTest extends TestCase {
     Vec probabs = new ArrayVec(reference.size());
     VecTools.fill(probabs, 1.);
     VecTools.normalizeL1(probabs);
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 10000; i++) {
       int len = rnd.nextInt(30);
       StringBuilder builder = new StringBuilder(len);
       for (int c = 0; c < len; c++)

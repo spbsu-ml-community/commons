@@ -2,14 +2,13 @@ package com.spbsu.commons.seq;
 
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.text.CharSequenceTools;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TLongIntHashMap;
 import gnu.trove.procedure.TLongIntProcedure;
 
 import java.util.*;
 
-import static java.lang.Math.*;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,6 +38,9 @@ public class DictExpansion {
   private int[] symbolFreqsSuggest = null;
   private int[] resultFreqs = null;
   private int alphabetSize;
+  private double probFound = 0.1;
+  private double bestCompressionRate = 1;
+  private int noRateIncreaseTurns = 0;
 
   public DictExpansion(Collection<Character> alphabet, int size) {
     this(new ListDictionary(alphabet.toArray(new Character[alphabet.size()])), size, false);
@@ -126,7 +128,7 @@ public class DictExpansion {
       }
     }
 
-    if ((powerSuggest > -log(0.1) / minProbSuggest && powerCurrent > -log(0.1) / minProbCurrent) || powerSuggest > MAX_POWER) {
+    if ((powerSuggest > -log(probFound) / minProbSuggest && powerCurrent > -log(probFound) / minProbCurrent) || powerSuggest > MAX_POWER) {
       double sum = 0;
       double textLength = 0;
       for (int i = 0; i < current.size(); i++) {
@@ -137,6 +139,13 @@ public class DictExpansion {
       }
       double codeLength = (sum + powerCurrent * log(powerCurrent) / log(2)) / 8.;
       final double compressionRate = codeLength / textLength;
+      if (compressionRate < bestCompressionRate) {
+        bestCompressionRate = compressionRate;
+        noRateIncreaseTurns = 0;
+      }
+      else if (++noRateIncreaseTurns > 3) {
+        probFound *= 0.8;
+      }
 
       result = current;
       resultFreqs = symbolFreqsCurrent;

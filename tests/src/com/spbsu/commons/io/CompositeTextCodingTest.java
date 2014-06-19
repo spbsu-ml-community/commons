@@ -14,7 +14,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -30,12 +29,10 @@ public class CompositeTextCodingTest extends TestCase {
     try {
       if (queries == null) {
         List<CharSequence> queries = new ArrayList<CharSequence>();
-        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/tests/data/text/queries_all.tsv.gz"))));
+        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/tests/data/text/queries.txt.gz"))));
         String line;
         while((line = lnr.readLine()) != null) {
-          StringTokenizer tok = new StringTokenizer(line, "\t");
-          tok.nextToken(); // skip index
-          queries.add(tok.nextToken() + "\n");
+          queries.add(line + "\n");
         }
         CompositeTextCodingTest.queries = queries.toArray(new CharSequence[queries.size()]);
       }
@@ -45,10 +42,7 @@ public class CompositeTextCodingTest extends TestCase {
         LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/tests/data/text/urls.txt.gz"))));
         String line;
         while((line = lnr.readLine()) != null) {
-          StringTokenizer tok = new StringTokenizer(line, "\t");
-//          tok.nextToken(); // skip query
-//          tok.nextToken(); // skip relev
-          urls.add(tok.nextToken() + "\n");
+          urls.add(line + "\n");
         }
         CompositeTextCodingTest.urls = urls.toArray(new CharSequence[urls.size()]);
       }
@@ -75,7 +69,7 @@ public class CompositeTextCodingTest extends TestCase {
 
     CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
 
-    for (int i = 0; i < 500000; i++) {
+    for (int i = 0; i < 100000; i++) {
       CharSequence query = queries[rng.nextInt(queries.length)];
       coding.accept(query);
     }
@@ -83,14 +77,15 @@ public class CompositeTextCodingTest extends TestCase {
     final ByteBuffer buffer = ByteBuffer.allocate(bytes);
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
     final ListDictionary result = coding.expansion().result();
-    for (CharSequence sequence : result.alphabet()) {
-      System.out.println(sequence);
-    }
+//    for (CharSequence sequence : result.alphabet()) {
+//      System.out.println(sequence);
+//    }
     for (int i = 0; i < queries.length; i++) {
       CharSequence query = queries[i];
       encode.write(query);
     }
     System.out.println(result.alphabet().size() + " " + buffer.position());
+    assertTrue(buffer.position() < 140000);
   }
 
   public void testSimpleCodingURL() {
@@ -104,9 +99,9 @@ public class CompositeTextCodingTest extends TestCase {
         alpha.add(query.charAt(t));
     }
 
-    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 100000);
+    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
 
-    for (int i = 0; i < 10000000; i++) {
+    for (int i = 0; i < 100000; i++) {
       final CharSequence query = urls[rng.nextInt(urls.length)];
       coding.accept(query);
     }
@@ -146,9 +141,10 @@ public class CompositeTextCodingTest extends TestCase {
     final double codeLength = (sum + total * Math.log(total) / Math.log(2)) / 8;
     final double codeLength1 = (sum1 + total * Math.log(total1) / Math.log(2)) / 8;
     System.out.println("Expected code length: " + codeLength / 1024. + "kb. Expected rate: " + codeLength / textLength);
-    System.out.println("Expected code length true: " + codeLength1 / 1024. + "kb. Expected rate true: " + codeLength1 / textLength);
+    final double rate = codeLength1 / textLength;
+    System.out.println("Expected code length true: " + codeLength1 / 1024. + "kb. Expected rate true: " + rate);
 
-    final ListDictionary result = coding.expansion().result();
+//    final ListDictionary result = coding.expansion().result();
 //    for (CharSequence sequence : result.alphabet()) {
 //      System.out.println(sequence);
 //    }
@@ -158,5 +154,6 @@ public class CompositeTextCodingTest extends TestCase {
       encode.write(query);
     }
     System.out.println(dict.size() + " " + buffer.position());
+    assertTrue(rate < 0.44);
   }
 }
