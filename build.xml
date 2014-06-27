@@ -1,6 +1,6 @@
 <project name="commons" default="all" basedir=".">
   <property name="build.home"    value="${basedir}/build"/>
-  <property name="src.home"      value="${basedir}/src"/>
+  <property name="src.home"      value="/main/java"/>
 
   <path id="compile.classpath">
     <pathelement location="${build.home}/src"/>
