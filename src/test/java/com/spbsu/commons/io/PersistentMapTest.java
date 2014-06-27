@@ -110,7 +110,7 @@ public class PersistentMapTest extends TestCase {
     }
   }
 
-  public void testPutAndGet100000() throws IOException {
+  public void notestPutAndGet100000() throws IOException {
     PersistentMap<String, String> map = createMap();
     String key = "xxxxxxxx";
     String value = "yyyyyyyy";
@@ -286,7 +286,7 @@ public class PersistentMapTest extends TestCase {
     final PersistentMap<String, String> map = createMap();
     final List<String> words = new ArrayList<String>(100000);
     Interval.start();
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < 10000; i++) {
       final int wordIndex = Math.min((int)(Math.pow(normRandom(), 2) * words.size() / 2.), words.size());
       if (wordIndex == words.size()) {
         final int newWordLength = Math.abs((int)(normRandom() * 2 + 6)) + 2; // poisson distribution is close to normal for big k values
@@ -297,7 +297,7 @@ public class PersistentMapTest extends TestCase {
       if (updateValue(map, words, wordIndex))
         continue;
 
-      if (i % 100000 == 0) {
+      if (i % 1000 == 0) {
         Interval.stopAndPrint();
         Interval.start();
       }

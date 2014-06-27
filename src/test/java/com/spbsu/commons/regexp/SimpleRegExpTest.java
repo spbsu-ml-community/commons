@@ -299,15 +299,15 @@ public class SimpleRegExpTest extends TestCase {
     pattern = parseRegExp("z?a*c*bm?");
 
     long time = 0;
-    final int count = 20;
+    final int count = 200;
     for (int i = 0; i < count; i++) {
-      String str = randomString(300000);
+      String str = randomString(3000);
       string = str;
       Interval.start();
       match();
       if (i > 10)
         time += Interval.time();
-      Interval.stopAndPrint(" - string(300000) ");
+      Interval.stopAndPrint(" - string(" + str.length() + ") ");
     }
     System.out.println("-- Average time = " + (time / (count - 10)) + " ms");
 

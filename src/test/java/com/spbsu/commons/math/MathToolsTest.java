@@ -132,7 +132,7 @@ public class MathToolsTest extends TestCase {
   }
 
   public void testLQDecompositionFail() throws FileNotFoundException {
-    Scanner scanner = new Scanner(new File("commons/tests/data/math/badMx.txt"));
+    Scanner scanner = new Scanner(new File("commons/src/test/data/math/badMx.txt"));
     int n = scanner.nextInt();
     Mx mx = new VecBasedMx(n, n);
     Mx l = new VecBasedMx(n, n);

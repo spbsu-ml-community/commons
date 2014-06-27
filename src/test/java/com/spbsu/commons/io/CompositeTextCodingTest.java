@@ -29,7 +29,7 @@ public class CompositeTextCodingTest extends TestCase {
     try {
       if (queries == null) {
         List<CharSequence> queries = new ArrayList<CharSequence>();
-        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/tests/data/text/queries.txt.gz"))));
+        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/queries.txt.gz"))));
         String line;
         while((line = lnr.readLine()) != null) {
           queries.add(line + "\n");
@@ -39,7 +39,7 @@ public class CompositeTextCodingTest extends TestCase {
 
       if (urls == null) {
         List<CharSequence> urls = new ArrayList<CharSequence>();
-        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/tests/data/text/urls.txt.gz"))));
+        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/urls.txt.gz"))));
         String line;
         while((line = lnr.readLine()) != null) {
           urls.add(line + "\n");

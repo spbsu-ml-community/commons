@@ -537,7 +537,7 @@ public class VectorsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
-  public void testStressMultiplyDSparse() {
+  public void notestStressMultiplyDSparse() {
     Random rnd = new FastRandom();
     Interval.start();
     Interval.suspend();

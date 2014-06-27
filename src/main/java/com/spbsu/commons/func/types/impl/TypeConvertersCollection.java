@@ -136,6 +136,8 @@ public class TypeConvertersCollection implements ConversionRepository {
     catch(NoSuchMethodException e) {
       return false;
     }
+    if (converterClass.isInterface() || Modifier.isAbstract(converterClass.getModifiers())) // Interface or abstract class
+      return false;
     if (((converterClass.getConstructor().getModifiers() & Modifier.PUBLIC) == 0)
        || ((converterClass.getModifiers() & Modifier.PUBLIC) == 0)) // has no default public constructor or not public
       return false;

@@ -176,7 +176,7 @@ public class CacheTest extends TestCase {
   }
 
   public void testStressPut() throws Exception {
-    final FixedSizeCache<Integer, Object> cache = new FixedSizeCache<Integer, Object>(10000, CacheStrategy.Type.LRU);
+    final FixedSizeCache<Integer, Object> cache = new FixedSizeCache<Integer, Object>(1000, CacheStrategy.Type.LRU);
     final int count = 1 * 1000 * 1000;
     Interval.start();
     for (int i = 0; i < count; i++) {
