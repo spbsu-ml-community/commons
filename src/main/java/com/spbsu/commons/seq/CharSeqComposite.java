@@ -15,7 +15,7 @@ public class CharSeqComposite extends CharSeq {
     this.fragmentsCount = fragmentsCount;
     CharSeq[] adapters = new CharSeq[fragmentsCount];
     for (int i = 0; i < adapters.length; i++) {
-      adapters[i] = new CharSeqAdapter(fragments[i]);
+      adapters[i] = fragments[i] instanceof CharSeq ? (CharSeq)fragments[i] : new CharSeqAdapter(fragments[i]);
     }
     this.fragments = compact(adapters);
   }
