@@ -1,7 +1,7 @@
 package com.spbsu.commons.math.stat.impl;
 
 import com.spbsu.commons.math.stat.Histogram;
-import com.spbsu.commons.util.time.TimeFrame;
+import com.spbsu.commons.util.frame.time.TimeFrame;
 
 /**
  * @author vp

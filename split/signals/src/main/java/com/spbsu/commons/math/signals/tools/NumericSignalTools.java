@@ -7,7 +7,7 @@ import com.spbsu.commons.math.signals.numeric.IntSignal;
 import com.spbsu.commons.math.stat.NumericDistribution;
 import com.spbsu.commons.math.stat.impl.FrameHistogram;
 import com.spbsu.commons.math.stat.impl.NumericSampleDistribution;
-import com.spbsu.commons.util.time.TimeFrame;
+import com.spbsu.commons.util.frame.time.TimeFrame;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.array.TLongArrayList;
 

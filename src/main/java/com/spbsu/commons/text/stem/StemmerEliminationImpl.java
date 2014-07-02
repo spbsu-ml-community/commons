@@ -28,7 +28,7 @@ package com.spbsu.commons.text.stem;
 //
 //  @Override
 //  public CharSequence stem(CharSequence word) {
-//    return stems2Main.get(word);
+//    return stems2Main.at(word);
 //  }
 //
 //  public void init() {

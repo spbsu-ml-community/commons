@@ -1,7 +1,8 @@
 package com.spbsu.commons.text.stem;
 
+import com.spbsu.commons.seq.CharSeqComposite;
 import com.spbsu.commons.util.ArrayTools;
-import com.spbsu.commons.text.CompositeCharSequence;
+
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -198,7 +199,7 @@ public abstract class AbstractStemmer {
         if (i > 0) break; // v->s has been inspected
         if (j == i) break; // only one item in v
 
-        // - but now we need to go round once more to get
+        // - but now we need to go round once more to at
         // v->s inspected. This looks messy, but is actually
         // the optimal approach.
 
@@ -297,7 +298,7 @@ public abstract class AbstractStemmer {
   */
   protected int replace_s(final int c_bra, final int c_ket, final String s) {
     final int adjustment = s.length() - (c_ket - c_bra);
-    current = new CompositeCharSequence(new CharSequence[]{
+    current = new CharSeqComposite(new CharSequence[]{
       current.subSequence(0, c_bra), s,
       current.subSequence(c_ket, current.length())
     });

@@ -1,7 +1,7 @@
 package com.spbsu.commons.math.signals.numeric;
 
 import com.spbsu.commons.math.signals.SignalProcessor;
-import com.spbsu.commons.util.time.TimeFrame;
+import com.spbsu.commons.util.frame.time.TimeFrame;
 
 /**
  * @author vp

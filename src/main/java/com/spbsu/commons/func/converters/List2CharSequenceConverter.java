@@ -1,7 +1,8 @@
 package com.spbsu.commons.func.converters;
 
 import com.spbsu.commons.func.Converter;
-import com.spbsu.commons.text.CharSequenceTools;
+import com.spbsu.commons.seq.CharSeqTools;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class List2CharSequenceConverter<T> implements Converter<List<T>, CharSeq
   @Override
   public List<T> convertFrom(CharSequence source) {
     final List<T> result = new ArrayList<T>();
-    CharSequence[] parts = CharSequenceTools.split(source, separator);
+    CharSequence[] parts = CharSeqTools.split(source, separator);
     for (CharSequence part : parts) {
       result.add(converter.convertFrom(part));
     }

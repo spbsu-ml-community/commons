@@ -1,7 +1,7 @@
 package com.spbsu.commons.math.signals.generic;
 
 import com.spbsu.commons.math.signals.Signal;
-import com.spbsu.commons.util.time.TimeFrame;
+import com.spbsu.commons.util.frame.time.TimeFrame;
 import gnu.trove.list.array.TLongArrayList;
 
 /**

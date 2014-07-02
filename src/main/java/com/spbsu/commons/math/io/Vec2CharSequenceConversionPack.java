@@ -4,7 +4,7 @@ import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
-import com.spbsu.commons.text.CharSequenceTools;
+import com.spbsu.commons.seq.CharSeqTools;
 
 /**
  * User: solar
@@ -27,7 +27,7 @@ public class Vec2CharSequenceConversionPack implements ConversionPack<Vec,CharSe
   public static class CharSequence2VecConverter implements TypeConverter<CharSequence, Vec> {
     @Override
     public Vec convert(CharSequence from) {
-      final CharSequence[] parts = CharSequenceTools.split(from.toString().trim(), ' ');
+      final CharSequence[] parts = CharSeqTools.split(from.toString().trim(), ' ');
       final Vec result = new ArrayVec(Integer.parseInt(parts[0].toString()));
       for (int i = 1; i < parts.length; i++) {
         result.set(i - 1, Double.parseDouble(parts[i].toString()));

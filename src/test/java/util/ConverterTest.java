@@ -93,7 +93,7 @@ public class ConverterTest extends TestCase {
 //
 //    assertEquals(list.size(), result.size());
 //    for (int i = 0; i < list.size(); i++) {
-//      assertEquals(list.get(i), result.get(i));
+//      assertEquals(list.at(i), result.at(i));
 //    }
 //    assertEquals(buffer.limit(), buffer.position());
 //  }
@@ -113,7 +113,7 @@ public class ConverterTest extends TestCase {
 //
 //    assertEquals(list.size(), result.size());
 //    for (int i = 0; i < list.size(); i++) {
-//      assertEquals(list.get(i), result.get(i));
+//      assertEquals(list.at(i), result.at(i));
 //    }
 //    assertEquals(buffer.limit(), buffer.position());
 //  }

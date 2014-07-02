@@ -6,7 +6,7 @@ import com.spbsu.commons.math.signals.tools.NumericSignalTools;
 import com.spbsu.commons.math.stat.NumericDistribution;
 import com.spbsu.commons.math.stat.impl.FrameHistogram;
 import com.spbsu.commons.util.logging.Interval;
-import com.spbsu.commons.util.time.TimeFrame;
+import com.spbsu.commons.util.frame.time.TimeFrame;
 import junit.framework.TestCase;
 
 import java.util.Arrays;

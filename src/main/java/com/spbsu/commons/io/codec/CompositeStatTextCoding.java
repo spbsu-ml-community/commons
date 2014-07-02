@@ -1,7 +1,7 @@
 package com.spbsu.commons.io.codec;
 
-import com.spbsu.commons.seq.DictExpansion;
-import com.spbsu.commons.seq.ListDictionary;
+import com.spbsu.commons.io.codec.seq.DictExpansion;
+import com.spbsu.commons.io.codec.seq.ListDictionary;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;

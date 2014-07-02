@@ -39,6 +39,7 @@ public class TypeConvertersCollection implements ConversionRepository {
    * Accepts following variants of converters setup:
    * java.lang.String -- name of package
    */
+
   public TypeConvertersCollection(ConversionRepository base, final Object... converters) {
     this.base = base;
     this.customize = base instanceof TypeConvertersCollection ? ((TypeConvertersCollection)base).customize : null;
@@ -117,7 +118,7 @@ public class TypeConvertersCollection implements ConversionRepository {
       else if (base != null)
         converter = base.converter(from, to);
       if (converter == null)
-        throw new RuntimeException("Unable to find proper converter to get from " + from + " to " + to);
+        throw new RuntimeException("Unable to find proper converter to at from " + from + " to " + to);
     }
     cache.put(key, converter);
     return converter;

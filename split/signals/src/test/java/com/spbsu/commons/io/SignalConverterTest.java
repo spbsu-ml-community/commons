@@ -5,20 +5,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 
-import com.spbsu.commons.func.converters.*;
 import com.spbsu.commons.func.converters.signals.BinarySignal2BufferConverter;
 import com.spbsu.commons.func.converters.signals.IntSignal2BufferCompressingConverter;
 import com.spbsu.commons.func.converters.signals.IntSignal2BufferCompressingConverter2;
 import com.spbsu.commons.func.converters.signals.IntSignal2BufferConverter;
 import com.spbsu.commons.math.signals.numeric.BinarySignal;
 import com.spbsu.commons.math.signals.numeric.IntSignal;
-import com.spbsu.commons.text.CharSequenceTools;
-import com.spbsu.commons.util.Factories;
 import com.spbsu.commons.util.logging.Interval;
 import junit.framework.TestCase;
 

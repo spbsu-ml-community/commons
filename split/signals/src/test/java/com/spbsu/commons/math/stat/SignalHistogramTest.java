@@ -1,13 +1,9 @@
 package com.spbsu.commons.math.stat;
 
-import java.util.Random;
 
-
-import com.spbsu.commons.math.stat.impl.ArrayHistogram;
 import com.spbsu.commons.math.stat.impl.FrameHistogram;
 import com.spbsu.commons.math.stat.impl.SparseHistogram;
-import com.spbsu.commons.math.stat.tools.HistogramTools;
-import com.spbsu.commons.util.time.TimeFrame;
+import com.spbsu.commons.util.frame.time.TimeFrame;
 import junit.framework.TestCase;
 
 /**

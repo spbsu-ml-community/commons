@@ -1,6 +1,6 @@
 package com.spbsu.commons.text.lexical;
 
-import com.spbsu.commons.text.CharSequenceTools;
+import com.spbsu.commons.seq.CharSeqTools;
 
 /**
  * User: terry
@@ -21,7 +21,7 @@ public class LowerCaseTokenizer implements Tokenizer {
   @Override
   public CharSequence next() {
     final CharSequence token = tokenizer.next();
-    return token != null ? CharSequenceTools.toLowerCase(token) : null;
+    return token != null ? CharSeqTools.toLowerCase(token) : null;
   }
 
   @Override

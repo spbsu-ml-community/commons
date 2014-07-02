@@ -1,5 +1,7 @@
 package com.spbsu.commons.text;
 
+import com.spbsu.commons.seq.CharSeq;
+import com.spbsu.commons.seq.CharSeqArray;
 import com.spbsu.commons.text.lexical.AllocatingTokenizer;
 import com.spbsu.commons.text.lexical.NoStopWordsTokenizer;
 import com.spbsu.commons.text.lexical.Tokenizer;
@@ -14,7 +16,7 @@ import java.util.HashSet;
  */
 public class TokenizerTest extends TestCase {
   public void testNonAllocatingTokenizer() throws Exception {
-    CharArrayCharSequence sequence = (CharArrayCharSequence) CharSequenceBase.createArrayBasedSequence("test text tezt teqt");
+    CharSeqArray sequence = (CharSeqArray) CharSeq.createArrayBasedSequence("test text tezt teqt");
     char[] array = sequence.toCharArray();
     final WeakReference<char[]> weakRef = new WeakReference<char[]>(array);
     final HashSet<CharSequence> set = new HashSet<CharSequence>();
@@ -31,7 +33,7 @@ public class TokenizerTest extends TestCase {
   }
 
   public void testAllocatingTokenizer() throws Exception {
-    CharArrayCharSequence sequence = (CharArrayCharSequence) CharSequenceBase.createArrayBasedSequence("test text tezt teqt");
+    CharSeqArray sequence = (CharSeqArray) CharSeq.createArrayBasedSequence("test text tezt teqt");
     char[] array = sequence.toCharArray();
     final WeakReference<char[]> weakRef = new WeakReference<char[]>(array);
     final HashSet<CharSequence> set = new HashSet<CharSequence>();

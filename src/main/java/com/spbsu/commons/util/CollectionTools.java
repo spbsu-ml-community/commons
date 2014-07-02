@@ -1,10 +1,10 @@
 package com.spbsu.commons.util;
 
+import java.util.*;
+
+
 import com.spbsu.commons.filters.Filter;
 import com.spbsu.commons.func.Computable;
-import com.spbsu.commons.func.TandemComputable;
-
-import java.util.*;
 
 /**
  * User: alms
@@ -56,20 +56,6 @@ public class CollectionTools {
       result.put(entry.getKey(), converter.compute(entry.getValue()));
     }
     return result;
-  }
-
-  public static <T, U, S extends Collection<U>, P> S map(final TandemComputable<T, P, U> converter, final Collection<T> inital, final S accum, final P param) {
-    for (final T el : inital) {
-      final U value = converter.compute(el, param);
-      accum.add(value);
-    }
-    return accum;
-  }
-
-  public static <T, U, P> List<U> map(final TandemComputable<T, P, U> converter, final Collection<T> inital, final P param) {
-    final List<U> accum = new ArrayList<U>(inital.size());
-
-    return map(converter, inital, accum, param);
   }
 
   public static <T, U> List<Pair<T, U>> merge(final List<T> first, final List<U> second) {

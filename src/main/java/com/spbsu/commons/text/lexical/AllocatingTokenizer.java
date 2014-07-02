@@ -1,6 +1,6 @@
 package com.spbsu.commons.text.lexical;
 
-import com.spbsu.commons.text.CharSequenceBase;
+import com.spbsu.commons.seq.CharSeq;
 
 /**
  * This is a wrapper for tokenizer that always allocates returned tokens
@@ -33,6 +33,6 @@ public class AllocatingTokenizer implements Tokenizer {
   }
 
   protected CharSequence allocate(final CharSequence source) {
-    return CharSequenceBase.allocateArrayBasedSequence(source);
+    return CharSeq.allocateArrayBasedSequence(source);
   }
 }

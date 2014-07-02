@@ -1,8 +1,9 @@
 package com.spbsu.commons.util.cache;
 
 import com.spbsu.commons.func.Computable;
-import com.spbsu.commons.util.Flushable;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.Flushable;
 
 /**
  * User: alms

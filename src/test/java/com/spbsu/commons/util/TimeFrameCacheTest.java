@@ -4,8 +4,8 @@ import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.util.cache.CacheStrategy;
 import com.spbsu.commons.util.cache.impl.FixedSizeCache;
 import com.spbsu.commons.util.frame.Frame;
-import com.spbsu.commons.util.time.TimeFrameCache;
-import com.spbsu.commons.util.time.TimeTools;
+import com.spbsu.commons.util.frame.time.TimeFrameCache;
+import com.spbsu.commons.util.frame.time.TimeTools;
 import junit.framework.TestCase;
 
 import java.util.Collections;

@@ -1,6 +1,6 @@
 package com.spbsu.commons.text.stem;
 
-import com.spbsu.commons.text.CharSequenceTools;
+import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.text.stem.ext.EnglishStemmer;
 import com.spbsu.commons.text.stem.ext.RussianStemmer;
 
@@ -22,7 +22,7 @@ public class Stemmer {
   }
 
   public synchronized CharSequence stem(CharSequence forStem){
-    final CharSequence word = CharSequenceTools.toLowerCase(forStem);
+    final CharSequence word = CharSeqTools.toLowerCase(forStem);
     final CharSequence result;
     char firstLetter = word.length() > 0 ? word.charAt(0) : 'a';
     if (firstLetter >= (int) 'a' && firstLetter <= (int) 'z' ||

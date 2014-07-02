@@ -227,7 +227,7 @@
 //    final Holder<DownloadManager.URLStatus> status = new Holder<DownloadManager.URLStatus>();
 //    final TaskBase<Pair<DownloadManager.URLStatus, CharSequence>> task = new TaskBase<Pair<DownloadManager.URLStatus, CharSequence>>() {
 //      public void start(Pair<DownloadManager.URLStatus, CharSequence> param) {
-//        assertTrue("too few finished tasks", finishedTaskCount.get() > 0);
+//        assertTrue("too few finished tasks", finishedTaskCount.at() > 0);
 //        result.setValue(param.getSecond().toString());
 //        status.setValue(param.getFirst());
 //      }
@@ -258,7 +258,7 @@
 //      };
 //      startHangingTask(manager, task, 3000);
 //    }
-//    while (finishedTaskCount.get() < 3) {
+//    while (finishedTaskCount.at() < 3) {
 //      Thread.sleep(100);
 //    }
 //    final Holder<String> result = new Holder<String>();

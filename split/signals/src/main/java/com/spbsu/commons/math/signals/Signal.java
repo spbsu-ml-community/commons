@@ -1,6 +1,6 @@
 package com.spbsu.commons.math.signals;
 
-import com.spbsu.commons.util.time.TimeFrame;
+import com.spbsu.commons.util.frame.time.TimeFrame;
 
 /**
  * User: terry

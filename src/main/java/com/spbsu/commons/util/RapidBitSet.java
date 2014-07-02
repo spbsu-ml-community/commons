@@ -825,7 +825,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * not <code>null</code> and is a <code>Bitset</code> object that has
    * exactly the same set of bits set to <code>true</code> as this bit
    * set. That is, for every nonnegative <code>int</code> index <code>k</code>,
-   * <pre>((BitSet)obj).get(k) == this.get(k)</pre>
+   * <pre>((BitSet)obj).at(k) == this.at(k)</pre>
    * must be true. The current sizes of the two bit sets are not compared.
    * <p>Overrides the <code>equals</code> method of <code>Object</code>.
    *

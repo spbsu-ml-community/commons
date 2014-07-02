@@ -3,7 +3,7 @@ package com.spbsu.commons.io;
 import com.spbsu.commons.io.codec.ArithmeticCoding;
 import com.spbsu.commons.io.codec.CompositeStatTextCoding;
 import com.spbsu.commons.random.FastRandom;
-import com.spbsu.commons.seq.ListDictionary;
+import com.spbsu.commons.io.codec.seq.ListDictionary;
 import junit.framework.TestCase;
 
 import java.io.FileInputStream;

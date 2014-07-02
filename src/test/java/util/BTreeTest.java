@@ -84,7 +84,7 @@
 //    treeMap.put(1, 0);
 //    assertEquals(1, treeMap.size());
 //    assertTrue(treeMap.containsKey(1));
-//    assertEquals(0, (int)treeMap.get(1));
+//    assertEquals(0, (int)treeMap.at(1));
 //  }
 //
 //  public void testPut2KbData() throws Exception{
@@ -93,10 +93,10 @@
 //    treeMap.put(1, SAMPLE_32K_ARRAY);
 //    assertEquals(1, treeMap.size());
 //    assertTrue(treeMap.containsKey(1));
-//    assertTrue(Arrays.equals(SAMPLE_32K_ARRAY, treeMap.get(1)));
+//    assertTrue(Arrays.equals(SAMPLE_32K_ARRAY, treeMap.at(1)));
 //    treeMap.close();
 //    treeMap = new BTreeMap<Integer, int[]>(storage, new Integer2ByteBufferConverter(), new IntegerArray2ByteBufferConverter(), 100);
-//    assertTrue(Arrays.equals(SAMPLE_32K_ARRAY, treeMap.get(1)));
+//    assertTrue(Arrays.equals(SAMPLE_32K_ARRAY, treeMap.at(1)));
 //  }
 //
 //  public void testPut8PagesOfData() throws Exception{
@@ -108,12 +108,12 @@
 //    assertEquals(16384, treeMap.size());
 //    assertTrue(treeMap.containsKey(1));
 //    for(int i = 0; i < 16384; i++){
-//      assertEquals(i, (int)treeMap.get(i));
+//      assertEquals(i, (int)treeMap.at(i));
 //    }
 //    treeMap.close();
 //    treeMap = new BTreeMap<Integer, Integer>(storage, new Integer2ByteBufferConverter(), new Integer2ByteBufferConverter(), 100);
 //    for(int i = 0; i < 16384; i++){
-//      assertEquals(i, (int)treeMap.get(i));
+//      assertEquals(i, (int)treeMap.at(i));
 //    }
 //  }
 //
@@ -128,14 +128,14 @@
 //    assertTrue(treeMap.containsKey(1));
 //    System.out.println(Interval.time());
 //    for(int i = 0; i < 51200; i++){
-//      assertEquals(i, (int)treeMap.get(i));
+//      assertEquals(i, (int)treeMap.at(i));
 //    }
 //    treeMap.close();
 //    Interval.stopAndPrint();
 //    Interval.start();
 //    treeMap = new BTreeMap<Integer, Integer>(storage, new Integer2ByteBufferConverter(), new Integer2ByteBufferConverter(), 100);
 //    for(int i = 0; i < 51200; i++){
-//      assertEquals(i, (int)treeMap.get(i));
+//      assertEquals(i, (int)treeMap.at(i));
 //    }
 //    Interval.stopAndPrint();
 //  }
@@ -152,14 +152,14 @@
 //    System.out.println(Interval.time());
 //    assertTrue(treeMap.containsKey(1));
 //    for(int i = 0; i < 5120; i++){
-//      assertTrue(Arrays.equals(SAMPLE_32K_ARRAY, treeMap.get(i)));
+//      assertTrue(Arrays.equals(SAMPLE_32K_ARRAY, treeMap.at(i)));
 //    }
 //    treeMap.close();
 //    Interval.stopAndPrint();
 //    Interval.start();
 //    treeMap = new BTreeMap<Integer, int[]>(storage, new Integer2ByteBufferConverter(), new IntegerArray2ByteBufferConverter(), 100);
 //    for(int i = 0; i < 5120; i++){
-//      assertTrue(Arrays.equals(SAMPLE_32K_ARRAY, treeMap.get(i)));
+//      assertTrue(Arrays.equals(SAMPLE_32K_ARRAY, treeMap.at(i)));
 //    }
 //    Interval.stopAndPrint();
 //  }
@@ -236,16 +236,16 @@
 //        array[j] = j;
 //      }
 //      treeMap.put(i, array);
-//      if(!Arrays.equals(treeMap.get(i), array))
-//        assertTrue(Arrays.equals(treeMap.get(i), array));
+//      if(!Arrays.equals(treeMap.at(i), array))
+//        assertTrue(Arrays.equals(treeMap.at(i), array));
 //    }
 //    Interval.stopAndPrint();
 //    Interval.start();
 //    double mean = 0;
 //    for(int i = 0; i < 1000000; i++){
-//      int[] array = treeMap.get(i);
+//      int[] array = treeMap.at(i);
 //      if(array == null){
-//        treeMap.get(i);
+//        treeMap.at(i);
 //        assertTrue("NULL array!", false);
 //      }
 //      for (int j = 0; j < array.length; j++) {
@@ -283,7 +283,7 @@
 //    }
 //
 //    for(int i = 0; i < 100000; i++){
-//      final String str = invertedMap.get(i);
+//      final String str = invertedMap.at(i);
 //      int index = 0;
 //      int summ = 0;
 //      while(index < str.length()) summ += str.charAt(index++);
@@ -318,7 +318,7 @@
 //      int index = 0;
 //      int summ = 0;
 //      while(index < str.length()) summ += str.charAt(index++);
-//      assertEquals(summ, treeMap.get(str).intValue());
+//      assertEquals(summ, treeMap.at(str).intValue());
 //    }
 //  }
 //

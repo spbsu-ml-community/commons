@@ -22,7 +22,7 @@ public class CacheHolderImpl implements CacheHolder {
         //noinspection unchecked
         cache.put((Class<? extends Computable<? extends CacheHolderImpl, ?>>) type, result);
       } catch (Exception e) {
-        e.printStackTrace(); // I'd be extremely surprised if this happen :)
+        throw new RuntimeException(e);
       }
     }
     //noinspection unchecked

@@ -4,7 +4,7 @@ import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.vectors.Mx;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
-import com.spbsu.commons.text.CharSequenceTools;
+import com.spbsu.commons.seq.CharSeqTools;
 
 /**
  * User: solar
@@ -32,11 +32,11 @@ public class Mx2CharSequenceConversionPack implements ConversionPack<Mx,CharSequ
   public static class CharSequence2MxConverter implements TypeConverter<CharSequence, Mx> {
     @Override
     public Mx convert(CharSequence from) {
-      final CharSequence[] rows = CharSequenceTools.split(from, '\n');
-      final CharSequence[] sizes = CharSequenceTools.split(rows[0].toString().trim(), ' ');
+      final CharSequence[] rows = CharSeqTools.split(from, '\n');
+      final CharSequence[] sizes = CharSeqTools.split(rows[0].toString().trim(), ' ');
       final Mx result = new VecBasedMx(Integer.parseInt(sizes[0].toString()), Integer.parseInt(sizes[1].toString()));
       for (int i = 1; i < result.rows() + 1; i++) {
-        final CharSequence[] cols = CharSequenceTools.split(rows[i].toString().trim(), ' ');
+        final CharSequence[] cols = CharSeqTools.split(rows[i].toString().trim(), ' ');
         for (int j = 0; j < result.columns(); j++) {
           result.set(i - 1, j, Double.parseDouble(cols[j].toString()));
         }

@@ -1,7 +1,7 @@
 package com.spbsu.commons.func.converters;
 
 import com.spbsu.commons.func.Converter;
-import com.spbsu.commons.text.CharSequenceReader;
+import com.spbsu.commons.seq.CharSeqReader;
 import com.spbsu.commons.util.logging.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -34,7 +34,7 @@ public class JDom2CharSequenceConverter implements Converter<Element, CharSequen
   public Element convertFrom(final CharSequence source) {
     Document document;
     try {
-      document = builderThreadLocal.get().build(new CharSequenceReader(source));
+      document = builderThreadLocal.get().build(new CharSeqReader(source));
     } catch (JDOMException e) {
       throw new RuntimeException(e);
     } catch (IOException e) {

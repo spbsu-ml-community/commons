@@ -10,7 +10,7 @@ import java.util.Set;
 
 
 import com.spbsu.commons.func.converters.*;
-import com.spbsu.commons.text.CharSequenceTools;
+import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.util.Factories;
 import junit.framework.TestCase;
 
@@ -26,13 +26,13 @@ public class BufferConverterTest extends TestCase {
   public void testCharsequenceCoverter() {
     final CharSequence2BufferConverter<String> converter = new CharSequence2BufferConverter<String>(new StringCSFactory());
     Buffer buffer = converter.convertTo("fuck");
-    assertTrue(CharSequenceTools.equals("fuck", converter.convertFrom(buffer)));
+    assertTrue(CharSeqTools.equals("fuck", converter.convertFrom(buffer)));
   }
 
   public void testCharsequenceCoverter2() {
     final CharSequence2BufferConverter<String> converter = new CharSequence2BufferConverter<String>(new StringCSFactory());
     Buffer buffer = converter.convertTo("путенг");
-    assertTrue(CharSequenceTools.equals("путенг", converter.convertFrom(buffer)));
+    assertTrue(CharSeqTools.equals("путенг", converter.convertFrom(buffer)));
   }
 
   public void testStoreSize() throws Exception {
