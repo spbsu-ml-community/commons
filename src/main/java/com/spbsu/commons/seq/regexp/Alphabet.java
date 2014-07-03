@@ -1,7 +1,7 @@
 package com.spbsu.commons.seq.regexp;
 
 import com.spbsu.commons.seq.CharSeq;
-import com.spbsu.commons.seq.Sequence;
+import com.spbsu.commons.seq.Seq;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,7 +23,7 @@ public interface Alphabet<T> {
 
   int index(T t);
 
-  int index(Sequence<T> sequence, int index);
+  int index(Seq<T> seq, int index);
 
   public static final Alphabet<Character> CHARACTER_ALPHABET = new Alphabet<Character>() {
     private static final int ALPHABET_SIZE = 'z' - 'a' + 1;
@@ -96,7 +96,7 @@ public interface Alphabet<T> {
     }
 
     @Override
-    public int index(Sequence<Character> characters, int index) {
+    public int index(Seq<Character> characters, int index) {
       return ((CharSeq)characters).charAt(index) - 'a';
     }
   };

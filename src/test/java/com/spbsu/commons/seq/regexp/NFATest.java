@@ -1,8 +1,9 @@
 package com.spbsu.commons.seq.regexp;
 
 
+import com.spbsu.commons.seq.CharSeq;
+import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.seq.regexp.converters.PatternStringConverter;
-import com.spbsu.commons.seq.Sequence;
 import com.spbsu.commons.util.Holder;
 import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.procedure.TLongProcedure;
@@ -53,7 +54,7 @@ public class NFATest extends TestCase {
   private void match() {
     Matcher<Character> matcher = new PatternCompiler().compile(pattern);
     mv = new TestMatchVisitor();
-    matcher.match(Sequence.charSequence(string), mv);
+    matcher.match(CharSeq.create(string), mv);
   }
 
   private String randomString(int size) {
@@ -344,7 +345,7 @@ public class NFATest extends TestCase {
     long time1 = 0;
     for (int i = 0; i < 110; i++) {
       final String s = randomString(300000);
-      final Sequence<Character> sequence = Sequence.charSequence(s);
+      final Seq<Character> seq = CharSeq.create(s);
 
       final Holder<Integer> counter = new Holder<Integer>(0);
       final Matcher.MatchVisitor visitor = new Matcher.MatchVisitor() {
@@ -372,7 +373,7 @@ public class NFATest extends TestCase {
       Interval.stopAndPrint(" - std string(300000) found " + cnt);
       Interval.start();
       for (int t = 0; t < 1; t++) {
-        nfa.match(sequence, visitor);
+        nfa.match(seq, visitor);
       }
       if (i > 10)
         time += Interval.time();

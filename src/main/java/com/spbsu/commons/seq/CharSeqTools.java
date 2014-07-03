@@ -230,7 +230,6 @@ public class CharSeqTools {
 
     return true;
   }
-
   public static class LexicographicalComparator implements Comparator<CharSequence> {
     public int compare(CharSequence a, CharSequence b) {
       int index = 0;

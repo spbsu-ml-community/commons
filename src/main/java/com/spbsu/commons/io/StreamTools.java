@@ -2,8 +2,11 @@ package com.spbsu.commons.io;
 
 
 import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.seq.CharSeqArray;
 import com.spbsu.commons.util.logging.Logger;
 import gnu.trove.list.array.TByteArrayList;
+import gnu.trove.list.array.TCharArrayList;
+
 
 import java.io.*;
 import java.net.URL;
@@ -26,12 +29,12 @@ public class StreamTools {
 
   public static CharSequence readReader(final Reader reader) throws IOException {
     final char[] buffer = new char[BUFFER_LENGTH];
-    final StringBuilder stringBuilder = new StringBuilder();
+    final TCharArrayList stringBuilder = new TCharArrayList();
     int read;
     while ((read = reader.read(buffer)) != -1) {
-      stringBuilder.append(buffer, 0, read);
+      stringBuilder.add(buffer, 0, read);
     }
-    return stringBuilder;
+    return new CharSeqArray(stringBuilder.toArray());
   }
 
   public static CharSequence readReaderNoIO(final Reader reader) {

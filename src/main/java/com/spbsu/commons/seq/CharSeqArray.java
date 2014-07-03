@@ -13,6 +13,10 @@ public class CharSeqArray extends CharSeq {
     this.end = end;
   }
 
+  public CharSeqArray(final char[] chars) {
+    this(chars, 0, chars.length);
+  }
+
   public int length() {
     return end - start;
   }
@@ -72,6 +76,7 @@ public class CharSeqArray extends CharSeq {
     return super.equals(object);
   }
 
+  protected int hashCode;
   public int hashCode() {
     if(hashCode != 0) {
       return hashCode;
@@ -81,9 +86,5 @@ public class CharSeqArray extends CharSeq {
       h = 31*h + array[i];
     }
     return hashCode = h;
-  }
-
-  public int getStartOffset() {
-    return start;
   }
 }

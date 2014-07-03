@@ -1,6 +1,6 @@
 package com.spbsu.commons.seq.regexp;
 
-import com.spbsu.commons.seq.Sequence;
+import com.spbsu.commons.seq.Seq;
 
 import java.util.Arrays;
 
@@ -40,11 +40,11 @@ public class SimpleRegExp<T> implements Matcher<T> {
   long[] limits = new long[50];
   final int[][] statesStore;
 
-  public void match(final Sequence<T> sequence,
+  public void match(final Seq<T> seq,
                     final MatchVisitor visitor) {
     final Pattern<T> expression = processedExpression;
     int index = 0;
-    int seqSize = sequence.length();
+    int seqSize = seq.length();
     final int[][] statesStoreLocal = statesStore;
     Arrays.fill(statesStoreLocal[0], seqSize);
     Arrays.fill(statesStoreLocal[1], seqSize);
@@ -56,7 +56,7 @@ public class SimpleRegExp<T> implements Matcher<T> {
     try {
     for (int i = 0; i < seqSize + 1; i++) {
       int lcount = relIndex;
-      final T current = i < seqSize ? sequence.at(i) : sequence.at(i - 1);
+      final T current = i < seqSize ? seq.at(i) : seq.at(i - 1);
       int[] states = statesStoreLocal[index % 2];
       int[] next = statesStoreLocal[(index + 1) % 2];
 //      Arrays.fill(next, seqSize);
@@ -124,7 +124,7 @@ public class SimpleRegExp<T> implements Matcher<T> {
     }
   } catch (ArrayIndexOutOfBoundsException aioobe) {
     this.limits = new long[this.limits.length + 50];
-    match(sequence, visitor);
+    match(seq, visitor);
   }
   }
 

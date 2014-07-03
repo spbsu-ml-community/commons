@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
  * Date: 10.05.2006
  * Time: 17:55:23
  */
-public abstract class CharSeq extends Sequence<Character> implements CharSequence {
+public abstract class CharSeq implements Seq<Character>, CharSequence {
   public static final CharSeq EMPTY = new CharSeqArray(new char[]{}, 0, 0);
 
   public abstract char charAt(int offset);
@@ -54,19 +54,13 @@ public abstract class CharSeq extends Sequence<Character> implements CharSequenc
     return new String(toCharArray());
   }
 
-  protected int hashCode;
-
   public int hashCode() {
-    if (hashCode != 0) {
-      return hashCode;
-    }
-
     int len = length();
     int h = 0;
     for (int i = 0; i < len; i++) {
       h = 31 * h + charAt(i);
     }
-    return hashCode = h;
+    return h == 0 ? 1 : h;
   }
 
   public char[] toCharArray() {
@@ -117,5 +111,36 @@ public abstract class CharSeq extends Sequence<Character> implements CharSequenc
 
   public static CharSeq create(char[] text) {
     return new CharSeqArray(text, 0, text.length);
+  }
+
+  public static CharSeq copy(char[] text) {
+    return copy(text, 0, text.length);
+  }
+
+  public static CharSeq copy(CharSequence text) {
+    return copy(text, 0, text.length());
+  }
+
+  public static CharSeq copy(CharSequence text, int start, int end) {
+    char[] copy = new char[end - start];
+    if (text instanceof CharSeq) {
+      ((CharSeq) text).copyToArray(start, copy, 0, end - start);
+    }
+    else {
+      for (int i = 0; i < copy.length; i++) {
+        copy[i] = text.charAt(i);
+      }
+    }
+    return new CharSeqArray(copy);
+  }
+
+  public static CharSeq copy(char[] text, int start, int end) {
+    char[] copy = new char[end - start];
+    System.arraycopy(text, start, copy, 0, end - start);
+    return new CharSeqArray(copy);
+  }
+
+  public static CharSeq create(final CharSequence string) {
+    return new CharSeqAdapter(string);
   }
 }

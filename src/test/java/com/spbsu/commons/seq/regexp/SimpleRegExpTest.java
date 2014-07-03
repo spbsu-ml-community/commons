@@ -1,7 +1,8 @@
 package com.spbsu.commons.seq.regexp;
 
+import com.spbsu.commons.seq.CharSeq;
 import com.spbsu.commons.seq.regexp.converters.PatternStringConverter;
-import com.spbsu.commons.seq.Sequence;
+import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.logging.Interval;
 import junit.framework.TestCase;
 
@@ -41,7 +42,7 @@ public class SimpleRegExpTest extends TestCase {
   private void match() {
     SimpleRegExp<Character> matcher = new SimpleRegExp<Character>(pattern);
     mv = new TestMatchVisitor();
-    matcher.match(Sequence.charSequence(string), mv);
+    matcher.match(CharSeq.create(string), mv);
   }
 
   private String randomString(int size) {

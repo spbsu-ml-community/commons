@@ -1,6 +1,6 @@
 package com.spbsu.commons.seq.regexp;
 
-import com.spbsu.commons.seq.Sequence;
+import com.spbsu.commons.seq.Seq;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,6 +27,6 @@ public interface Matcher<T> {
     boolean found(int start, int end);
   }
 
-  void match(final Sequence<T> sequence, final MatchVisitor visitor);
+  void match(final Seq<T> seq, final MatchVisitor visitor);
   Pattern<T> pattern();
 }

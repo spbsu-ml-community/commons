@@ -2,7 +2,7 @@ package com.spbsu.commons.seq.regexp;
 
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.random.FastRandom;
-import com.spbsu.commons.seq.Sequence;
+import com.spbsu.commons.seq.Seq;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -46,7 +46,7 @@ public class PNFA<T> implements Matcher<T> {
 //    pro_bab[coffset + statesCount * from - from * (from + 1) / 2 + to] = prob;
 //  }
 //
-  public void match(Sequence<T> ts, final MatchVisitor visitor) {
+  public void match(Seq<T> ts, final MatchVisitor visitor) {
     final int seqSize = ts.length();
     final int[] statesLocal = states;
     final int statesCount = statesLocal.length / 2;

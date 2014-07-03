@@ -1,6 +1,6 @@
 package com.spbsu.commons.seq.regexp;
 
-import com.spbsu.commons.seq.Sequence;
+import com.spbsu.commons.seq.Seq;
 import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.procedure.TIntProcedure;
 import gnu.trove.procedure.TLongProcedure;
@@ -87,7 +87,7 @@ public class NFA<T> implements Matcher<T>{
     this.transitionsIndex = transitionsIndex.toArray();
   }
 
-  public void match(Sequence<T> ts, MatchVisitor visitor) {
+  public void match(Seq<T> ts, MatchVisitor visitor) {
     final int seqSize = ts.length();
     final int[] statesLocal = states;
     final long[] transitionsIndexLocal = transitionsIndex;
