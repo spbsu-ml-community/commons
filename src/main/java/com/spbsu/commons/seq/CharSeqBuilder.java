@@ -13,7 +13,7 @@ public class CharSeqBuilder extends CharSeqComposite {
   }
 
   public CharSeqBuilder(List<CharSequence> fragments) {
-    this.fragments = compact(fragments);
+    this.fragments = CharSeqTools.discloseComposites(fragments);
   }
 
   public CharSeqBuilder(final int parts) {

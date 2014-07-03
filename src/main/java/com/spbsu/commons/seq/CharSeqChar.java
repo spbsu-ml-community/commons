@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class CharSeqChar extends CharSeq {
   public final char ch;
 
-  protected CharSeqChar(final char ch) {
+  public CharSeqChar(final char ch) {
     this.ch = ch;
   }
 

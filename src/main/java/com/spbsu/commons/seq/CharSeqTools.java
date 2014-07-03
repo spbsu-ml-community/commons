@@ -200,12 +200,37 @@ public class CharSeqTools {
     return true;
   }
 
-  static boolean isImmutable(final CharSequence next) {
+  public static boolean isImmutable(final CharSequence next) {
     if(next instanceof String)
       return true;
     if (next instanceof CharSeq)
       return ((CharSeq)next).isImmutable();
     return false;
+  }
+
+  public static List<CharSequence> discloseComposites(List<CharSequence> fragments) {
+    int fragmentsCount = fragments.size();
+    for (final CharSequence fragment : fragments) {
+      if (fragment instanceof CharSeqComposite) {
+        final CharSeqComposite charSeqComposite = (CharSeqComposite) fragment;
+        fragmentsCount += charSeqComposite.fragmentsCount() - 1;
+      }
+    }
+    if (fragmentsCount == fragments.size()) {
+      return fragments;
+    }
+
+    final List<CharSequence> compacted = new ArrayList<CharSequence>(fragmentsCount);
+    for (final CharSequence fragment : fragments) {
+      if (fragment instanceof CharSeqComposite) {
+        final CharSeqComposite charSeqComposite = (CharSeqComposite) fragment;
+        for (int j = 0; j < charSeqComposite.fragmentsCount(); j++) {
+          compacted.add(charSeqComposite.fragment(j));
+        }
+      }
+      else compacted.add(fragment);
+    }
+    return compacted;
   }
 
   public static class LexicographicalComparator implements Comparator<CharSequence> {

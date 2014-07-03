@@ -12,41 +12,18 @@ public class CharSeqComposite extends CharSeq {
   private int activeFragmentRangeStart = -1;
 
   public CharSeqComposite(CharSequence... fragments) {
-    this.fragments = compact(Arrays.asList(fragments)).toArray(new CharSequence[fragments.length]);
+    this.fragments = CharSeqTools.discloseComposites(Arrays.asList(fragments)).toArray(new CharSequence[fragments.length]);
   }
 
-  protected List<CharSequence> compact(List<CharSequence> fragments) {
-    int fragmentsCount = fragments.size();
-    for (final CharSequence fragment : fragments) {
-      if (fragment instanceof CharSeqComposite) {
-        final CharSeqComposite charSeqComposite = (CharSeqComposite) fragment;
-        fragmentsCount += charSeqComposite.fragmentsCount() - 1;
-      }
-    }
-    if (fragmentsCount == fragments.size()) {
-      return fragments;
-    }
-
-    final List<CharSequence> compacted = new ArrayList<CharSequence>(fragmentsCount);
-    for (int i = 0; i < fragments.size(); i++) {
-      final CharSequence fragment = fragment(i);
-      if (fragment instanceof CharSeqComposite) {
-        final CharSeqComposite charSeqComposite = (CharSeqComposite) fragment;
-        for (int j = 0; j < charSeqComposite.fragmentsCount(); j++) {
-          compacted.add(charSeqComposite.fragment(j));
-        }
-      }
-      else compacted.add(fragment);
-    }
-    return compacted;
-  }
-
+  int length = -1;
   public int length() {
+    if (isImmutable() && length >= 0)
+      return length;
     int length = 0;
     for (int i = 0; i < fragmentsCount(); i++) {
       length += fragment(i).length();
     }
-    return length;
+    return this.length = length;
   }
 
   public char charAt(int offset) {
@@ -102,7 +79,7 @@ public class CharSeqComposite extends CharSeq {
     fragmentStartOffset = (fragmentEndOffset - fragment(i - 1).length());
     subSequenceFragments.add(fragment(i - 1).subSequence(0, end - fragmentStartOffset));
 
-    return new CharSeqBuilder(subSequenceFragments);
+    return new CharSeqComposite(subSequenceFragments.toArray(new CharSequence[subSequenceFragments.size()]));
   }
 
   public char[] toCharArray() {
@@ -170,7 +147,7 @@ public class CharSeqComposite extends CharSeq {
   int hashCode;
   @Override
   public int hashCode() {
-    if (hashCode == 0)
+    if (!isImmutable() || hashCode == 0)
       hashCode = super.hashCode();
     return hashCode;
   }

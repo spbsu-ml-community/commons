@@ -195,7 +195,7 @@ public class DictExpansion {
     for (StatItem item : items) {
       if (item.score >= Math.log(POISSON_SIGNIFICANCE) || --slots < 0)
         break;
-      newDict.add(CharSeqTools.concat(current.get(item.first), current.get(item.second)));
+      newDict.add(CharSeqTools.concat(current.get(item.first), current.get(item.second)).toString());
       minProbSuggest = min(minProbSuggest, item.count / (double)pairsCount);
     }
     return new ListDictionary(newDict.toArray(new CharSequence[newDict.size()]));

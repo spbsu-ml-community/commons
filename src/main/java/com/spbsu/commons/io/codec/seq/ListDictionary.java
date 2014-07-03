@@ -3,6 +3,7 @@ package com.spbsu.commons.io.codec.seq;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.CharSeqArray;
+import com.spbsu.commons.seq.CharSeqChar;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.util.Pair;
 import gnu.trove.list.array.TIntArrayList;
@@ -46,8 +47,7 @@ public class ListDictionary {
   private static CharSequence[] convertToSeqs(Character[] chars) {
     final List<CharSequence> initalDict = new ArrayList<CharSequence>(chars.length);
     for (Character character : chars) {
-      char[] s = new char[]{character};
-      initalDict.add(new CharSeqArray(s, 0, 1));
+      initalDict.add(new CharSeqChar(character));
     }
     return initalDict.toArray(new CharSequence[initalDict.size()]);
   }
