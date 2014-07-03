@@ -1,5 +1,6 @@
 package com.spbsu.commons.seq;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,11 +16,20 @@ public class CharSeqBuilder extends CharSeqComposite {
     this.fragments = compact(fragments);
   }
 
+  public CharSeqBuilder(final int parts) {
+    this.fragments = new ArrayList<CharSequence>(parts);
+  }
+
   public CharSeqBuilder append(CharSequence next) {
     if (CharSeqTools.isImmutable(next))
       add(next);
-    else
-      add(copy(next));
+    else if (next instanceof CharSeqComposite) {
+      final CharSeqComposite composite = (CharSeqComposite) next;
+      for (int i = 0; i < composite.fragmentsCount(); i++) {
+        append(composite.fragment(i));
+      }
+    }
+    else add(copy(next));
     return this;
   }
 

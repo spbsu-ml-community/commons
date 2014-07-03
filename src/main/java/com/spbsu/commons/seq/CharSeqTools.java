@@ -101,54 +101,23 @@ public class CharSeqTools {
     return ((st > 0) || (len < initialLength)) ? word.subSequence(st, len) : word;
   }
 
-  public static String concatWithDelimeter(final CharSequence delimeter, final CharSequence... texts) {
+  public static CharSequence concatWithDelimeter(final CharSequence delimeter, final CharSequence... texts) {
     return concatWithDelimeter(delimeter, Arrays.asList(texts));
   }
 
-  public static String concatWithDelimeter(final CharSequence delimeter, final List<? extends CharSequence> texts) {
-    final StringBuilder result = new StringBuilder();
-    for (int i = 0; i < texts.size() - 1; i++) {
+  public static CharSequence concatWithDelimeter(final CharSequence delimeter, final List<? extends CharSequence> texts) {
+    CharSeqBuilder result = new CharSeqBuilder(texts.size() * 2);
+    for (int i = 0; i < texts.size(); i++) {
+      if (i > 0)
+        result.append(delimeter);
       result.append(texts.get(i));
-      result.append(delimeter);
-    }
-
-    if (texts.size() > 0) {
-      result.append(texts.get(texts.size() - 1));
     }
 
     return result.toString();
   }
 
-  public static String repeatWithDelimeter(final CharSequence delimeter, final CharSequence text, final int count) {
-    final StringBuilder result = new StringBuilder();
-    for (int i = 0; i < count - 1; i++) {
-      result.append(text);
-      result.append(delimeter);
-    }
-
-    if (count > 0) {
-      result.append(text);
-    }
-
-    return result.toString();
-  }
-
-  public static String concat(final List<? extends CharSequence> seq) {
-    int size = 0;
-    for (final CharSequence cs : seq) {
-      size += cs.length();
-    }
-
-    final StringBuilder result = new StringBuilder(size + 1);
-    for (final CharSequence cs : seq) {
-      result.append(cs);
-    }
-
-    return result.toString();
-  }
-
-  public static String concat(final CharSequence... texts) {
-    return concat(Arrays.asList(texts));
+  public static CharSequence concat(final CharSequence... texts) {
+    return new CharSeqComposite(texts);
   }
 
   public static CharSequence[] split(CharSequence sequence, char separator) {
