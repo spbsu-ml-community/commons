@@ -4,12 +4,11 @@ import com.spbsu.commons.io.codec.ArithmeticCoding;
 import com.spbsu.commons.io.codec.CompositeStatTextCoding;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.io.codec.seq.ListDictionary;
+import com.spbsu.commons.seq.CharSeqTools;
 import junit.framework.TestCase;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,6 +23,7 @@ import java.util.zip.GZIPInputStream;
 public class CompositeTextCodingTest extends TestCase {
   public static CharSequence[] queries;
   public static CharSequence[] urls;
+  public static CharSequence[] packages;
 
   static private synchronized void loadDataSet() {
     try {
@@ -45,6 +45,17 @@ public class CompositeTextCodingTest extends TestCase {
           urls.add(line + "\n");
         }
         CompositeTextCodingTest.urls = urls.toArray(new CharSequence[urls.size()]);
+      }
+
+      if (packages == null && false) {
+        List<CharSequence> packs = new ArrayList<CharSequence>();
+        File dir = new File("/Users/solar/Downloads/results");
+        for (String packName : dir.list()) {
+          final File packFile = new File(dir, packName);
+          if (!packFile.isHidden() && !packFile.isDirectory())
+            packs.add(StreamTools.readFile(packFile));
+        }
+        CompositeTextCodingTest.packages = packs.toArray(new CharSequence[packs.size()]);
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -156,4 +167,39 @@ public class CompositeTextCodingTest extends TestCase {
     System.out.println(dict.size() + " " + buffer.position());
     assertTrue(rate < 0.44);
   }
+
+  public void untestPackageCoding() throws IOException {
+    FastRandom rng = new FastRandom(0);
+    long bytes = 0;
+    final HashSet<Character> alpha = new HashSet<Character>();
+    for (int i = 0; i < packages.length; i++) {
+      CharSequence query = packages[i];
+      bytes += 2 * query.length();
+      for (int t = 0; t < query.length(); t++)
+        alpha.add(query.charAt(t));
+    }
+
+    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 10000);
+
+    for (int i = 0; i < 100000; i++) {
+      CharSequence query = packages[rng.nextInt(packages.length)];
+      coding.accept(query);
+    }
+
+    final ByteBuffer buffer = ByteBuffer.allocate((int)Math.min(1000000000l, bytes/10));
+    final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
+    final ListDictionary result = coding.expansion().result();
+    FileWriter output = new FileWriter("./out.dict");
+    for (CharSequence sequence : result.alphabet()) {
+      output.append(sequence).append("\n");
+    }
+    output.close();
+    for (int i = 0; i < packages.length; i++) {
+      CharSequence query = packages[i];
+      encode.write(query);
+    }
+    System.out.println(result.alphabet().size() + " " + buffer.position());
+    assertTrue(buffer.position() < 140000);
+  }
+
 }
