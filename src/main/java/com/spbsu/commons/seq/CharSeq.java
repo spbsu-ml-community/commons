@@ -13,6 +13,11 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
   public abstract char charAt(int offset);
   public abstract CharSeq sub(final int start, final int end);
 
+  @Override
+  public boolean isImmutable() {
+    return true;
+  }
+
   public final CharSeq subSequence(int start, int end) {
     return sub(start, end);
   }

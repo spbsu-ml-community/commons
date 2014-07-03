@@ -3,6 +3,7 @@ package com.spbsu.commons.seq;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("EqualsAndHashcode")
 public class CharSeqBuilder extends CharSeqComposite {
   private final List<CharSequence> fragments;
 
@@ -15,37 +16,65 @@ public class CharSeqBuilder extends CharSeqComposite {
   }
 
   public CharSeqBuilder append(CharSequence next) {
-    fragments.add(copy(next));
+    if (CharSeqTools.isImmutable(next))
+      add(next);
+    else
+      add(copy(next));
     return this;
   }
 
   public CharSeqBuilder append(char ch) {
-    fragments.add(new CharSeqChar(ch));
+    add(new CharSeqChar(ch));
     return this;
   }
 
   public CharSeqBuilder append(int n) {
-    fragments.add(Integer.toString(n));
+    add(Integer.toString(n));
     return this;
   }
 
   public CharSeqBuilder append(float n) {
-    fragments.add(Float.toString(n));
+    add(Float.toString(n));
+    return this;
+  }
+
+  public CharSeqBuilder append(double n) {
+    add(Double.toString(n));
+    return this;
+  }
+
+  public CharSeqBuilder append(boolean b) {
+    add(Boolean.toString(b));
+    return this;
+  }
+
+  public CharSeqBuilder append(Object o) {
+    add(String.valueOf(o));
     return this;
   }
 
   public CharSeqBuilder append(char[] text) {
-    fragments.add(copy(text));
+    add(copy(text));
     return this;
   }
 
   public CharSeqBuilder append(char[] text, int start, int end) {
-    fragments.add(copy(text, start, end));
+    add(copy(text, start, end));
     return this;
+  }
+
+  protected void add(final CharSequence copy) {
+    fragments.add(copy);
+    hashCode = 0;
   }
 
   public final int fragmentsCount() {
     return fragments.size();
+  }
+
+  @Override
+  public boolean isImmutable() {
+    return false;
   }
 
   @Override

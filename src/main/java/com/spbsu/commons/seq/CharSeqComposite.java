@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("EqualsAndHashcode")
 public class CharSeqComposite extends CharSeq {
   private CharSequence[] fragments;
   private CharSequence activeFragment = null;

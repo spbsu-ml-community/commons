@@ -230,6 +230,15 @@ public class CharSeqTools {
 
     return true;
   }
+
+  static boolean isImmutable(final CharSequence next) {
+    if(next instanceof String)
+      return true;
+    if (next instanceof CharSeq)
+      return ((CharSeq)next).isImmutable();
+    return false;
+  }
+
   public static class LexicographicalComparator implements Comparator<CharSequence> {
     public int compare(CharSequence a, CharSequence b) {
       int index = 0;

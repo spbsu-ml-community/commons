@@ -9,4 +9,5 @@ public interface Seq<T> {
   T at(int i);
   Seq<T> sub(int start, int end);
   int length();
+  boolean isImmutable();
 }
