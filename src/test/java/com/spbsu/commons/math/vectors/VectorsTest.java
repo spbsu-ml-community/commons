@@ -8,10 +8,10 @@ import com.spbsu.commons.random.GaussianRandomVec;
 import com.spbsu.commons.util.ArrayTools;
 import com.spbsu.commons.util.Factories;
 
+import com.spbsu.commons.util.logging.Interval;
 import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.hash.TIntHashSet;
 import junit.framework.TestCase;
-import util.Interval;
 
 import java.util.*;
 

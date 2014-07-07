@@ -168,7 +168,9 @@ public class CompositeTextCodingTest extends TestCase {
     assertTrue(rate < 0.44);
   }
 
-  public void untestPackageCoding() throws IOException {
+  public void testPackageCoding() throws IOException {
+    if (packages == null)
+      return;
     FastRandom rng = new FastRandom(0);
     long bytes = 0;
     final HashSet<Character> alpha = new HashSet<Character>();

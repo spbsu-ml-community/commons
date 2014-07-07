@@ -1,5 +1,8 @@
 package com.spbsu.commons.math.vectors;
 
+import org.jetbrains.annotations.NotNull;
+
+
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.impl.basis.IntBasis;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
@@ -7,9 +10,6 @@ import com.spbsu.commons.math.vectors.impl.vectors.DVector;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.util.ArrayTools;
-import com.spbsu.commons.util.RBTreeNode;
-import com.spbsu.commons.util.RBTreeNodeBase;
-import com.spbsu.commons.util.RedBlackTree;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -18,6 +18,8 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
+
 
 import static java.lang.Math.log;
 import static java.lang.Math.sqrt;
@@ -134,6 +136,7 @@ public class VecTools {
     return multiply(liter, riter);
   }
 
+  @SuppressWarnings("StatementWithEmptyBody")
   private static double multiply(VecIterator liter, VecIterator riter) {
     double result = 0;
     if (!liter.advance() || !riter.advance())
@@ -260,6 +263,7 @@ public class VecTools {
     return sqrt(result);
   }
 
+  @SuppressWarnings("unchecked")
   public static SparseVec copySparse(Vec vec) {
     SparseVec copy;
     if (vec instanceof SparseVec)
@@ -349,6 +353,7 @@ public class VecTools {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends Vec> T copy(T vec) {
     if (vec instanceof VecBasedMx) {
       final VecBasedMx mx = (VecBasedMx) vec;
@@ -361,11 +366,13 @@ public class VecTools {
     return (T)copySparse(vec);
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends  Vec> T sum(final Vec a, final Vec b) {
       Vec result = copy(a);
       return (T)append(result, b);
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends Vec> T subtract(final Vec a, final Vec b) {
     Vec result = copy(a);
     for (int i = 0; i < b.dim(); i++)
@@ -407,8 +414,8 @@ public class VecTools {
   }
 
   public static Vec fillIndices(Vec vec, int[] indices, double x) {
-    for (int i = 0; i < indices.length; i++) {
-      vec.set(indices[i], x);
+    for (final int index : indices) {
+      vec.set(index, x);
     }
     return vec;
   }
@@ -464,7 +471,7 @@ public class VecTools {
       this.index = index;
     }
   }
-  private static class VecIterEntry extends RBTreeNodeBase {
+  private static class VecIterEntry implements Comparable<VecIterEntry> {
     List<IndexedVecIter> iters = new LinkedList<IndexedVecIter>();
     int index;
 
@@ -473,16 +480,15 @@ public class VecTools {
     }
 
     @Override
-    public int compareTo(RBTreeNode node) {
-      final VecIterEntry entry = (VecIterEntry) node;
-      return index - entry.index;
+    public int compareTo(@NotNull VecIterEntry node) {
+      return index - node.index;
     }
   }
 
   public static <T extends Vec> double[] multiplyAll(List<T> left, Vec right) {
     double[] result = new double[left.size()];
 
-    final RedBlackTree<VecIterEntry> iters = new RedBlackTree<VecIterEntry>();
+    final TreeSet<VecIterEntry> iters = new TreeSet<VecIterEntry>();
     final TIntObjectHashMap<VecIterEntry> cache = new TIntObjectHashMap<VecIterEntry>();
     {
       int index = 0;

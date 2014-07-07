@@ -54,69 +54,6 @@ public class CollectionToolsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
-  static class IntegerEntry extends RBTreeNodeBase {
-    int v;
-
-    IntegerEntry(int v) {
-      this.v = v;
-    }
-
-    @Override
-    public int compareTo(RBTreeNode rbTreeNode) {
-      return v - ((IntegerEntry)rbTreeNode).v;
-    }
-  }
-
-  public void testRBTree1() throws Exception {
-    RedBlackTree<IntegerEntry> rbTree = new RedBlackTree<IntegerEntry>();
-    TreeSet<Integer> treeSet = new TreeSet<Integer>();
-    for (int i = 0; i < 100000; i++) {
-      int val = (int)(Math.random() * 10000000);
-      treeSet.add(val);
-      rbTree.add(new IntegerEntry(val));
-    }
-
-    for (Integer v : treeSet) {
-      final IntegerEntry entry = rbTree.first();
-      assertEquals(v.intValue(), entry.v);
-      assertTrue(rbTree.remove(entry));
-    }
-  }
-
-  public void testRBTree2() throws Exception {
-    RedBlackTree<IntegerEntry> rbTree = new RedBlackTree<IntegerEntry>();
-    TreeSet<Integer> treeSet = new TreeSet<Integer>();
-    for (int i = 0; i < 100000; i++) {
-      treeSet.add(i);
-      rbTree.add(new IntegerEntry(i));
-    }
-
-    for (Integer v : treeSet) {
-      final IntegerEntry entry = rbTree.first();
-      assertEquals(v.intValue(), entry.v);
-      rbTree.remove(entry);
-    }
-  }
-
-  public void testRBTree3() throws Exception {
-    RedBlackTree<IntegerEntry> rbTree = new RedBlackTree<IntegerEntry>();
-    for (int i = 0; i < 100000; i++) {
-      int val = (int)(Math.random() * 10000000);
-      rbTree.add(new IntegerEntry(val));
-    }
-
-    int current = Integer.MIN_VALUE;
-    for (int i = 0; i < 1000000; i++) {
-      final IntegerEntry integerEntry = rbTree.first();
-      if(current > integerEntry.v)
-        assertTrue(current <= integerEntry.v);
-      rbTree.remove(integerEntry);
-      current = integerEntry.v;
-      integerEntry.v += (int)(Math.random() * 10000);
-      rbTree.add(integerEntry);
-    }
-  }
-
   public void testParallelSort() {
     FastRandom rng = new FastRandom(0);
     double[] array = new double[100000];

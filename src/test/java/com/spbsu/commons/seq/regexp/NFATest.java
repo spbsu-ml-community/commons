@@ -5,10 +5,10 @@ import com.spbsu.commons.seq.CharSeq;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.seq.regexp.converters.PatternStringConverter;
 import com.spbsu.commons.util.Holder;
+import com.spbsu.commons.util.logging.Interval;
 import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.procedure.TLongProcedure;
 import junit.framework.TestCase;
-import util.Interval;
 
 import java.util.ArrayList;
 import java.util.List;

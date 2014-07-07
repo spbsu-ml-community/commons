@@ -9,7 +9,7 @@ public class CharSeqBuilder extends CharSeqComposite {
   private final List<CharSequence> fragments;
 
   public CharSeqBuilder(CharSequence... fragments) {
-    this(Arrays.asList(fragments));
+    this(new ArrayList<CharSequence>(Arrays.asList(fragments)));
   }
 
   public CharSeqBuilder(List<CharSequence> fragments) {
