@@ -14,6 +14,10 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 
+import com.spbsu.commons.filters.Filter;
+import com.spbsu.commons.func.CacheHolder;
+import com.spbsu.commons.func.Computable;
+import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.util.logging.Logger;
 import sun.net.www.protocol.file.FileURLConnection;
 
@@ -161,6 +165,19 @@ public class RuntimeUtils {
       }
     }
     populateFromURLs(path, additionalUrls.toArray(new URL[additionalUrls.size()]), result);
+  }
 
+  public static void processSupers(Class<?> clazz, Filter<Class<?>> proc) {
+    Stack<Class<?>> toBeProcessed = new Stack<>();
+    toBeProcessed.push(clazz);
+    while (!toBeProcessed.isEmpty()) {
+      final Class<?> pop = toBeProcessed.pop();
+      if (proc.accept(pop.getSuperclass()))
+        return;
+      for (Class<?> aClass : pop.getInterfaces()) {
+        if (proc.accept(aClass))
+          return;
+      }
+    }
   }
 }

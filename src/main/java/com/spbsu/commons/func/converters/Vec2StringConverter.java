@@ -22,7 +22,7 @@ public class Vec2StringConverter implements Converter<Vec, String>{
     StringTokenizer tok = new StringTokenizer(source, "\t");
     Vec vec;
     if (source.contains(":")) {
-      vec = new SparseVec(new IntBasis(Integer.parseInt(tok.nextToken())));
+      vec = new SparseVec(new IntBasis(Integer.parseInt(tok.nextToken())).size());
       while(tok.hasMoreElements()) {
         StringTokenizer p = new StringTokenizer(tok.nextToken(), ":");
         vec.set(Integer.parseInt(p.nextToken()), Double.parseDouble(p.nextToken()));

@@ -10,53 +10,54 @@ import com.spbsu.commons.util.ArrayTools;
  * Date: 16.01.2010
  * Time: 16:25:41
  */
-public class ArrayVec extends ArrayPart<double[]> implements Vec {
+public class ArrayVec extends Vec.Stub {
+  public final ArrayPart<double[]> data;
   public ArrayVec(double... values) {
-    super(values);
+    data = new ArrayPart<double[]>(values);
   }
 
   public ArrayVec(int dim) {
-    super(new double[dim]);
+    data = new ArrayPart<double[]>(new double[dim]);
   }
 
   public ArrayVec(double[] values, int offset, int length) {
-    super(values, offset, length);
+    data = new ArrayPart<double[]>(values, offset, length);
   }
 
   @Override
   public int dim() {
-    return length;
+    return data.length;
   }
 
-  public void add(ArrayPart<double[]> right) {
-    ArrayTools.add(array, start, right.array, right.start, length);
+  public void add(ArrayVec right) {
+    ArrayTools.add(data.array, data.start, right.data.array, right.data.start, data.length);
   }
 
   public void fill(double v) {
-    ArrayTools.fill(array, start, length, v);
+    ArrayTools.fill(data.array, data.start, data.length, v);
   }
 
   public void scale(double s) {
-    ArrayTools.mul(array, start, length, s);
+    ArrayTools.mul(data.array, data.start, data.length, s);
   }
 
   public void scale(ArrayVec other) {
-    ArrayTools.scale(array, start, other.array, other.start, length);
+    ArrayTools.scale(data.array, data.start, other.data.array, other.data.start, data.length);
   }
 
   public double mul(ArrayVec other) {
-    return ArrayTools.mul(array, start, other.array, other.start, length);
+    return ArrayTools.mul(data.array, data.start, other.data.array, other.data.start, data.length);
   }
 
   public double l2(ArrayVec other) {
-    return ArrayTools.l2(array, start, other.array, other.start, length);
+    return ArrayTools.l2(data.array, data.start, other.data.array, other.data.start, data.length);
   }
 
   public int max() {
     int maxIndex = -1;
     double max = Double.NEGATIVE_INFINITY;
-    for (int i = 0; i < length; i++) {
-      final double v = array[start + i];
+    for (int i = 0; i < data.length; i++) {
+      final double v = data.array[data.start + i];
       if (max < v) {
         maxIndex = i;
         max = v;
@@ -68,8 +69,8 @@ public class ArrayVec extends ArrayPart<double[]> implements Vec {
   public int min() {
     int maxIndex = -1;
     double min = Double.POSITIVE_INFINITY;
-    for (int i = 0; i < length; i++) {
-      final double v = array[start + i];
+    for (int i = 0; i < data.length; i++) {
+      final double v = data.array[data.start + i];
       if (min > v) {
         maxIndex = i;
         min = v;
@@ -81,24 +82,24 @@ public class ArrayVec extends ArrayPart<double[]> implements Vec {
   @Override
   public double[] toArray() {
     final double[] copy = new double[dim()];
-    System.arraycopy(this.array, start, copy, 0, length);
+    System.arraycopy(this.data.array, data.start, copy, 0, data.length);
     return copy;
   }
 
   @Override
   public double get(int i) {
-    return array[i + start];
+    return data.array[i + data.start];
   }
 
   @Override
   public Vec set(int i, double val) {
-    array[start + i] = val;
+    data.array[data.start + i] = val;
     return this;
   }
 
   @Override
   public Vec adjust(int i, double increment) {
-    array[start + i] += increment;
+    data.array[data.start + i] += increment;
     return this;
   }
 
@@ -108,29 +109,11 @@ public class ArrayVec extends ArrayPart<double[]> implements Vec {
   }
 
   @Override
-  public boolean equals(Object o) {
-    return o instanceof Vec && VecTools.equals(this, (Vec) o);
-  }
-
-  @Override
-  public int hashCode() {
-    return VecTools.hashCode(this);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < dim(); i++)
-      builder.append(i > 0 ? " " : "").append(get(i));
-    return builder.toString();
-  }
-
-  @Override
   public ArrayVec sub(int start, int length) {
-    return new ArrayVec(array, this.start + start, length);
+    return new ArrayVec(data.array, this.data.start + start, length);
   }
 
   public void assign(ArrayVec vec) {
-    ArrayTools.assign(array, start, vec.array, vec.start, length);
+    ArrayTools.assign(data.array, data.start, vec.data.array, vec.data.start, data.length);
   }
 }

@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
+import com.spbsu.commons.math.vectors.Vec;
+
 @SuppressWarnings("EqualsAndHashcode")
-public class CharSeqBuilder extends CharSeqComposite {
+public class CharSeqBuilder extends CharSeqComposite implements GrowingSeq<Character> {
   private final List<CharSequence> fragments;
 
   public CharSeqBuilder(CharSequence... fragments) {
@@ -90,5 +93,17 @@ public class CharSeqBuilder extends CharSeqComposite {
   @Override
   public final CharSequence fragment(final int j) {
     return fragments.get(j);
+  }
+
+  public void clear() {
+    fragments.clear();
+    hashCode = 0;
+    activeFragment = null;
+    activeFragmentRangeStart = -1;
+  }
+
+  @Override
+  public GrowingSeq<Character> add(final Character val) {
+    return append((char)val);
   }
 }

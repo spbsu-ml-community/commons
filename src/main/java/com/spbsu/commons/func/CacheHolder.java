@@ -6,5 +6,5 @@ package com.spbsu.commons.func;
  * Time: 8:24 PM
  */
 public interface CacheHolder {
-  public <CH extends CacheHolder, R> R cache(Class<? extends Computable<CH, R>> type);
+  ScopedCache cache();
 }

@@ -15,11 +15,14 @@ import gnu.trove.list.array.TIntArrayList;
  * Date: 9/14/12
  * Time: 1:17 PM
  */
-public class IndexTransVec implements Vec {
+public class IndexTransVec extends Vec.Stub {
   private final Vec base;
   private final IndexTransformation transformation;
 
   public IndexTransVec(Vec base, IndexTransformation transformation) {
+    if (base instanceof VecBasedMx) {
+      base = ((VecBasedMx) base).vec;
+    }
     if (base instanceof IndexTransVec) {
       final IndexTransVec transVec = (IndexTransVec) base;
       this.base = transVec.base;
@@ -109,17 +112,7 @@ public class IndexTransVec implements Vec {
   }
 
   @Override
-  public String toString() {
-    return new Vec2StringConverter().convertTo(this);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return obj instanceof Vec && VecTools.equals(this, (Vec)obj);
-  }
-
-  @Override
-  public int hashCode() {
-    return VecTools.hashCode(this);
+  public boolean isImmutable() {
+    return false;
   }
 }

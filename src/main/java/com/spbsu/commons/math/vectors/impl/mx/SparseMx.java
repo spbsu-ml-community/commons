@@ -13,30 +13,30 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  * Use it, if you have most of rows and only few columns
  * For matrix with a great number of empty rows it is better to implement CCS
  */
-public class SparseMx<B extends MxBasis> implements Mx {
+public class SparseMx<B extends MxBasis> extends Mx.Stub {
   private B mxBasis;
   private final Vec emptyRow;
   private IntBasis vecBasis;
-  private SparseVec<IntBasis> rows[];
+  private SparseVec rows[];
 
   public SparseMx(final B mxBasis) {
     this.mxBasis = mxBasis;
     this.vecBasis = new IntBasis(mxBasis.columns());
     this.rows = new SparseVec[mxBasis.rows()];
-    this.emptyRow = new SparseVec<IntBasis>(this.vecBasis);
+    this.emptyRow = new SparseVec(this.vecBasis.size());
   }
 
-  public SparseMx(final B mxBasis, final SparseVec<IntBasis>[] rows) {
+  public SparseMx(final B mxBasis, final SparseVec[] rows) {
     this.mxBasis = mxBasis;
     this.rows = rows;
     this.vecBasis = new IntBasis(mxBasis.columns());
-    this.emptyRow = new SparseVec<IntBasis>(vecBasis);
+    this.emptyRow = new SparseVec(vecBasis.size());
   }
 
   @Override
   public double get(final int i, final int j) {
     rangeCheck(i, j);
-    final SparseVec<IntBasis> row = rows[i];
+    final SparseVec row = rows[i];
     if (row != null) {
       return row.get(j);
     }
@@ -46,11 +46,11 @@ public class SparseMx<B extends MxBasis> implements Mx {
   @Override
   public Mx set(final int i, final int j, final double val) {
     rangeCheck(i, j);
-    SparseVec<IntBasis> row = rows[i];
+    SparseVec row = rows[i];
     if (row != null) {
       row.set(j, val);
     } else {
-      row = new SparseVec<IntBasis>(vecBasis);
+      row = new SparseVec(vecBasis.size());
       row.set(j, val);
       rows[i] = row;
     }
@@ -61,7 +61,7 @@ public class SparseMx<B extends MxBasis> implements Mx {
   /**
    * nothing is checked, use on your own responsibility
    */
-  public Mx setRow(final int i, final SparseVec<IntBasis> row) {
+  public Mx setRow(final int i, final SparseVec row) {
     rows[i] = row;
     return this;
   }
@@ -72,7 +72,7 @@ public class SparseMx<B extends MxBasis> implements Mx {
 
     if (increment != 0) {
       if (rows[i] == null) {
-        rows[i] = new SparseVec<IntBasis>(vecBasis);
+        rows[i] = new SparseVec(vecBasis.size());
       }
       rows[i].adjust(j, increment);
     }
@@ -81,10 +81,10 @@ public class SparseMx<B extends MxBasis> implements Mx {
 
   @Override
   public Mx sub(final int i, final int j, final int height, final int width) {
-    final SparseVec<IntBasis>[] copyRows = new SparseVec[height];
+    final SparseVec[] copyRows = new SparseVec[height];
     for (int k = 0; k < height; ++k) {
       if (rows[k + i] != null)
-        copyRows[k] = (SparseVec<IntBasis>) rows[k + i].sub(j, width);
+        copyRows[k] = (SparseVec) rows[k + i].sub(j, width);
     }
     return new SparseMx<MxBasisImpl>(new MxBasisImpl(height, width), copyRows);
   }
@@ -96,26 +96,6 @@ public class SparseMx<B extends MxBasis> implements Mx {
   public Vec row(final int i) {
     final Vec row = rows[i];
     return row != null ? row : emptyRow;
-  }
-
-  /**
-   * O(m), if you need this operation, it is better, to implements CCS
-   *
-   * @param j
-   * @return
-   */
-  @Override
-  public Vec col(final int j) {
-    final SparseVec<IntBasis> result = new SparseVec<IntBasis>(new IntBasis(mxBasis.columns()));
-    for (int i = 0; i < rows.length; ++i) {
-      if (rows[i] != null) {
-        final double val = rows[i].get(j);
-        if (val != 0) {
-          result.add(i, val);
-        }
-      }
-    }
-    return result;
   }
 
   @Override
@@ -139,18 +119,13 @@ public class SparseMx<B extends MxBasis> implements Mx {
   }
 
   @Override
-  public int dim() {
-    return mxBasis.columns() * mxBasis.rows();
-  }
-
-  @Override
   public double[] toArray() {
     return new double[0];
   }
 
   @Override
-  public Vec sub(final int start, final int len) {
-    throw new NotImplementedException();
+  public boolean isImmutable() {
+    return false;
   }
 
   @Override

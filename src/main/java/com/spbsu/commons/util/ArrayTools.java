@@ -3,8 +3,12 @@ package com.spbsu.commons.util;
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Evaluator;
 import com.spbsu.commons.random.FastRandom;
+import com.spbsu.commons.seq.ArraySeq;
+import com.spbsu.commons.seq.Seq;
+
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -452,5 +456,52 @@ public abstract class ArrayTools {
   public static <F> F[] toArray(List<F> weakModels) {
     //noinspection unchecked
     return weakModels.toArray((F[])(weakModels.size() > 0 ? Array.newInstance(weakModels.get(0).getClass(), weakModels.size()) : new Object[0]));
+  }
+
+  public static <T extends Comparable> T max(final Seq<T> target) {
+    if (target.length() == 0)
+      throw new IllegalArgumentException("Empty sequence");
+    T result = target.at(0);
+    for (int i = 1; i < target.length(); i++)
+      if(result.compareTo(target.at(i)) < 0)
+        result = target.at(i);
+    return result;
+  }
+
+  public static <T> int entriesCount(final Seq<T> labels, final T x) {
+    int counter = 0;
+    for (int i = 0; i < labels.length(); i++) {
+      if (labels.at(i).equals(x))
+        counter++;
+    }
+    return counter;
+  }
+
+  public static <I> I[] cut(final I[] data, final int[] indices) {
+    if (indices.length == 0 || data.length == 0)
+      throw new IllegalArgumentException();
+    I[] result = (I[])Array.newInstance(data[0].getClass());
+    for (int i = 0; i < indices.length; i++) {
+      result[i] = data[indices[i]];
+    }
+    return result;
+  }
+
+  public static <I> List<I> cut(final List<I> data, final int[] indices) {
+    List<I> result = new ArrayList<>(indices.length);
+    for (int i = 0; i < indices.length; i++) {
+      result.add(data.get(indices[i]));
+    }
+    return result;
+  }
+
+  public static <I> Seq<I> cut(final Seq<I> data, final int[] indices) {
+    if (indices.length == 0 || data.length() == 0)
+      throw new IllegalArgumentException();
+    I[] result = (I[])Array.newInstance(data.at(0).getClass());
+    for (int i = 0; i < indices.length; i++) {
+      result[i] = data.at(indices[i]);
+    }
+    return new ArraySeq<I>(result);
   }
 }

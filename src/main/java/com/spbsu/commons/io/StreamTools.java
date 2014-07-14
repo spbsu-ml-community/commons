@@ -62,15 +62,8 @@ public class StreamTools {
   }
 
   public static CharSequence readStream(final InputStream stream, final Charset charset) throws IOException {
-    Reader reader = null;
-    try {
-      reader = new InputStreamReader(new BufferedInputStream(stream), charset);
+    try(final Reader reader = new InputStreamReader(new BufferedInputStream(stream), charset)) {
       return StreamTools.readReader(reader);
-    }
-    finally {
-      if (reader != null) {
-        reader.close();
-      }
     }
   }
 

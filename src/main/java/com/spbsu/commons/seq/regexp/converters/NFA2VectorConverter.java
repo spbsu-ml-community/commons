@@ -28,7 +28,7 @@ public class NFA2VectorConverter implements Converter<NFA<Character>,Vec>{
   @Override
   public Vec convertTo(NFA<Character> source) {
     final int statesCount = source.states();
-    final Vec result = new SparseVec(new IntBasis(alpha.size() * (statesCount * (statesCount + 1) / 2)));
+    final Vec result = new SparseVec(new IntBasis(alpha.size() * (statesCount * (statesCount + 1) / 2)).size());
     int index = 0;
     for (int stateA = 0; stateA < statesCount - 1; stateA++) {
       for (int stateB = stateA; stateB < statesCount; stateB++) {

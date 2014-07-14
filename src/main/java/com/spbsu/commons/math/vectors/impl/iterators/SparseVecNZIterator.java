@@ -1,6 +1,6 @@
 package com.spbsu.commons.math.vectors.impl.iterators;
 
-import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
+import com.spbsu.commons.math.vectors.impl.vectors.CustomBasisVec;
 import com.spbsu.commons.math.vectors.VecIterator;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
@@ -18,15 +18,9 @@ public class SparseVecNZIterator implements VecIterator {
   private TIntArrayList indices;
   private TDoubleArrayList values;
 
-  public SparseVecNZIterator(SparseVec sparseVec) {
+  public SparseVecNZIterator(CustomBasisVec sparseVec) {
     this.indices = sparseVec.indices;
     this.values = sparseVec.values;
-    size = indices.size();
-  }
-
-  public SparseVecNZIterator(TIntArrayList indices, TDoubleArrayList values) {
-    this.indices = indices;
-    this.values = values;
     size = indices.size();
   }
 

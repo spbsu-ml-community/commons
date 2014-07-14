@@ -1,7 +1,9 @@
 package com.spbsu.commons.math.vectors.impl.mx;
 
-import com.spbsu.commons.math.vectors.*;
-import com.spbsu.commons.math.vectors.impl.basis.MxBasisImpl;
+import com.spbsu.commons.math.vectors.Mx;
+import com.spbsu.commons.math.vectors.MxIterator;
+import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.VecTools;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
 import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
@@ -12,7 +14,7 @@ import com.spbsu.commons.math.vectors.impl.vectors.IndexTransVec;
  * Date: 16.01.2010
  * Time: 16:25:41
  */
-public class VecBasedMx implements Mx {
+public class VecBasedMx extends Mx.Stub {
   public final Vec vec;
   public final int columns;
 
@@ -59,24 +61,6 @@ public class VecBasedMx implements Mx {
   }
 
   @Override
-  public Vec col(int j) {
-    return new IndexTransVec(vec, new SubMxTransformation(columns(), 0, j, rows(), 1));
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        builder.append(j > 0 ? "\t" : "");
-        builder.append(get(i, j));
-      }
-      builder.append('\n');
-    }
-    return builder.toString();
-  }
-
-  @Override
   public double get(int i) {
     return vec.get(i);
   }
@@ -99,23 +83,13 @@ public class VecBasedMx implements Mx {
   }
  
   @Override
-  public MxBasis basis() {
-    return new MxBasisImpl(columns, rows());
-  }
-
-  @Override
-  public int dim() {
-    return vec.dim();
-  }
-
-  @Override
   public double[] toArray() {
     return vec.toArray();
   }
 
   @Override
-  public Vec sub(int start, int len) {
-    return vec.sub(start, len);
+  public boolean isImmutable() {
+    return false;
   }
 
   @Override
@@ -125,16 +99,6 @@ public class VecBasedMx implements Mx {
 
   @Override
   public int rows() {
-    return dim()/columns;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    return o instanceof VecBasedMx && (((VecBasedMx)o).columns == columns) && ((VecBasedMx)o).vec.equals(vec);
-  }
-
-  @Override
-  public int hashCode() {
-    return (vec.hashCode() << 1) + columns;
+    return vec.dim()/columns;
   }
 }

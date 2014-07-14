@@ -165,9 +165,9 @@ public class NFA<T> implements Matcher<T>{
   public int hashCode() {
     int result = transitions != null ? Arrays.hashCode(transitions) : 0;
     result = 31 * result + (transitionsIndex != null ? Arrays.hashCode(transitionsIndex) : 0);
-    result = 31 * result + (finalStates != null ? Arrays.hashCode(finalStates) : 0);
-    result = 31 * result + (states != null ? states.length : 0);
-    result = 31 * result + (alphabet != null ? alphabet.hashCode() : 0);
+    result = 31 * result + Arrays.hashCode(finalStates);
+    result = 31 * result + states.length;
+    result = 31 * result + alphabet.hashCode();
     return result;
   }
 

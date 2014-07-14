@@ -16,16 +16,13 @@ import java.util.List;
  * Date: 16.01.2010
  * Time: 18:29:22
  */
-public class CommonBasisVec<T> extends SparseVec<GenericBasis<T>> {
+public class CommonBasisVec<T> extends CustomBasisVec<GenericBasis<T>> {
   public CommonBasisVec(GenericBasis<T> basis, T[] indeces, double[] values) {
     super(basis, transform(basis, indeces), values);
   }
 
   public CommonBasisVec(GenericBasis<T> basis) {
     super(basis);
-  }
-
-  protected CommonBasisVec() {
   }
 
   private static <T> int[] transform(GenericBasis<T> basis, T[] indeces) {
@@ -56,25 +53,25 @@ public class CommonBasisVec<T> extends SparseVec<GenericBasis<T>> {
     return basis;
   }
 
-  @Override
-  public String toString() {
-    final StringBuilder buffer = new StringBuilder();
-    List<Pair<T, Double>> terms = new ArrayList<Pair<T, Double>>();
-    final BasisVecIterator<T> iter = iterator();
-    while (iter.advance()) {
-      final T term = iter.key();
-      terms.add(Pair.create(term, iter.value()));
-    }
-    Collections.sort(terms, new Comparator<Pair<T, Double>>() {
-      @Override
-      public int compare(Pair<T, Double> pair1, Pair<T, Double> pair2) {
-        return Double.compare(pair2.getSecond(), pair1.getSecond());
-      }
-    });
-    for (Pair<T, Double> pair : terms) {
-      buffer.append(pair).append("\n");
-    }
-    return buffer.toString();
-  }
+//  @Override
+//  public String toString() {
+//    final StringBuilder buffer = new StringBuilder();
+//    List<Pair<T, Double>> terms = new ArrayList<Pair<T, Double>>();
+//    final BasisVecIterator<T> iter = iterator();
+//    while (iter.advance()) {
+//      final T term = iter.key();
+//      terms.add(Pair.create(term, iter.value()));
+//    }
+//    Collections.sort(terms, new Comparator<Pair<T, Double>>() {
+//      @Override
+//      public int compare(Pair<T, Double> pair1, Pair<T, Double> pair2) {
+//        return Double.compare(pair2.getSecond(), pair1.getSecond());
+//      }
+//    });
+//    for (Pair<T, Double> pair : terms) {
+//      buffer.append(pair).append("\n");
+//    }
+//    return buffer.toString();
+//  }
 
 }

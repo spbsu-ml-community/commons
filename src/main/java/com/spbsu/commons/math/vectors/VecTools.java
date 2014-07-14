@@ -2,24 +2,22 @@ package com.spbsu.commons.math.vectors;
 
 import org.jetbrains.annotations.NotNull;
 
-
-import com.spbsu.commons.math.MathTools;
-import com.spbsu.commons.math.vectors.impl.basis.IntBasis;
-import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
-import com.spbsu.commons.math.vectors.impl.vectors.DVector;
-import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
-import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
-import com.spbsu.commons.util.ArrayTools;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+
+import com.spbsu.commons.math.MathTools;
+import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
+import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.vectors.CustomBasisVec;
+import com.spbsu.commons.math.vectors.impl.vectors.DVector;
+import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
+import com.spbsu.commons.util.ArrayTools;
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 import static java.lang.Math.log;
 import static java.lang.Math.sqrt;
@@ -47,15 +45,18 @@ public class VecTools {
   public static boolean equals(final Vec left, final Vec right) {
     if (left.dim() != right.dim())
       return false;
+    if (left instanceof Mx && right instanceof Mx)
+      if (((Mx)left).columns() != ((Mx) right).columns())
+        return false;
     if (left.getClass() == right.getClass()) {
-      if (left instanceof SparseVec) {
-        return ((SparseVec) left).indices.equals(((SparseVec) right).indices)
-                && ((SparseVec) left).values.equals(((SparseVec) right).values);
+      if (left instanceof CustomBasisVec) {
+        return ((CustomBasisVec) left).indices.equals(((CustomBasisVec) right).indices)
+                && ((CustomBasisVec) left).values.equals(((CustomBasisVec) right).values);
       } else if (left instanceof ArrayVec) {
         final ArrayVec larray = (ArrayVec) left;
         final ArrayVec rarray = (ArrayVec) right;
 
-        if (larray.array == rarray.array && larray.start == rarray.start && larray.length == rarray.length)
+        if (larray.data.array == rarray.data.array && larray.data.start == rarray.data.start && larray.data.length == rarray.data.length)
           return true;
       }
     }
@@ -78,7 +79,7 @@ public class VecTools {
         throw new IllegalArgumentException("vectors dimensions differ");
       if (vec instanceof VecBasedMx)
         vec = ((VecBasedMx)vec).vec;
-      if (left instanceof SparseVec) {
+      if (left instanceof CustomBasisVec) {
         final VecIterator iterRight = vec.nonZeroes();
         final int maxSize = countNonZeroesUpperBound(left) + countNonZeroesUpperBound(vec);
         TIntArrayList newIndeces = new TIntArrayList(maxSize);
@@ -108,11 +109,11 @@ public class VecTools {
             iterRight.advance();
           }
         }
-        ((SparseVec) left).indices = newIndeces;
-        ((SparseVec) left).values = newValues;
+        ((CustomBasisVec) left).indices = newIndeces;
+        ((CustomBasisVec) left).values = newValues;
       }
       else if (left instanceof ArrayVec && left.getClass().equals(vec.getClass())) {
-        ((ArrayVec) left).add((ArrayVec) vec);
+        ((ArrayVec)left).add((ArrayVec)vec);
       }
       else {
         final VecIterator viter = vec.nonZeroes();
@@ -267,9 +268,9 @@ public class VecTools {
   public static SparseVec copySparse(Vec vec) {
     SparseVec copy;
     if (vec instanceof SparseVec)
-      copy = new SparseVec(((SparseVec)vec).basis());
+      copy = new SparseVec(((SparseVec)vec).basis().size());
     else
-      copy = new SparseVec(new IntBasis(vec.dim()));
+      copy = new SparseVec(vec.dim());
     append(copy, vec);
     return copy;
   }
@@ -343,7 +344,7 @@ public class VecTools {
     if (left instanceof ArrayVec && left.getClass().equals(result.getClass())) {
       final ArrayVec larr = (ArrayVec) left;
       final ArrayVec resarr = (ArrayVec) result;
-      ArrayTools.incscale(larr.array, larr.start, resarr.array, resarr.start, larr.length, scale);
+      ArrayTools.incscale(larr.data.array, larr.data.start, resarr.data.array, resarr.data.start, larr.data.length, scale);
     }
     else {
       final VecIterator liter = left.nonZeroes();
@@ -361,7 +362,7 @@ public class VecTools {
     }
     if (vec instanceof ArrayVec) {
       final ArrayVec arrayVec = (ArrayVec) vec;
-      return (T)new ArrayVec(arrayVec.array.clone(), arrayVec.start, arrayVec.length);
+      return (T)new ArrayVec(arrayVec.data.array.clone(), arrayVec.data.start, arrayVec.data.length);
     }
     return (T)copySparse(vec);
   }
@@ -462,6 +463,30 @@ public class VecTools {
     return null;
   }
 
+  public static Vec concat(final Vec a, final Vec b) {
+    Vec result;
+    if (a instanceof SingleValueVec && b instanceof SingleValueVec && a.get(0) == b.get(0)) {
+      result = new SingleValueVec(a.get(0), a.dim() + b.dim());
+    }
+    else if (a instanceof SparseVec || b instanceof SparseVec) {
+      result = new ArrayVec(a.dim() + b.dim());
+      copyTo(a, result, 0);
+      copyTo(b, result, a.dim());
+    }
+    else {
+      result = new SparseVec(a.dim() + b.dim());
+      copyTo(a, result, 0);
+      copyTo(b, result, a.dim());
+    }
+    return result;
+  }
+
+  public static void copyTo(final Vec a, final Vec to, int offset) {
+    final VecIterator nzI = a.nonZeroes();
+    while(nzI.advance())
+      to.set(offset + nzI.index(), nzI.value());
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;
@@ -472,7 +497,7 @@ public class VecTools {
     }
   }
   private static class VecIterEntry implements Comparable<VecIterEntry> {
-    List<IndexedVecIter> iters = new LinkedList<IndexedVecIter>();
+    List<IndexedVecIter> iters = new LinkedList<>();
     int index;
 
     public VecIterEntry(int index) {
@@ -488,8 +513,8 @@ public class VecTools {
   public static <T extends Vec> double[] multiplyAll(List<T> left, Vec right) {
     double[] result = new double[left.size()];
 
-    final TreeSet<VecIterEntry> iters = new TreeSet<VecIterEntry>();
-    final TIntObjectHashMap<VecIterEntry> cache = new TIntObjectHashMap<VecIterEntry>();
+    final TreeSet<VecIterEntry> iters = new TreeSet<>();
+    final TIntObjectHashMap<VecIterEntry> cache = new TIntObjectHashMap<>();
     {
       int index = 0;
       for (Vec vec : left) {
@@ -570,8 +595,8 @@ public class VecTools {
 
 
   private static int countNonZeroesUpperBound(Vec v) {
-    if (v instanceof SparseVec) {
-      return ((SparseVec) v).indices.size();
+    if (v instanceof CustomBasisVec) {
+      return ((CustomBasisVec) v).indices.size();
     }
     return v.dim();
   }
@@ -582,8 +607,8 @@ public class VecTools {
       return vector;
     }
     if (Math.abs(factor) < EPSILON) {
-      if (vector instanceof SparseVec) {
-        final SparseVec sparseVec = (SparseVec) vector;
+      if (vector instanceof CustomBasisVec) {
+        final CustomBasisVec sparseVec = (CustomBasisVec) vector;
         sparseVec.values.resetQuick();
         sparseVec.indices.resetQuick();
         return vector;

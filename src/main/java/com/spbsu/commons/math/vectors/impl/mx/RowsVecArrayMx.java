@@ -1,52 +1,60 @@
 package com.spbsu.commons.math.vectors.impl.mx;
 
-import com.spbsu.commons.math.vectors.*;
-import com.spbsu.commons.math.vectors.impl.basis.MxBasisImpl;
+import com.spbsu.commons.math.vectors.Mx;
+import com.spbsu.commons.math.vectors.MxIterator;
+import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.VecIterator;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
-import com.spbsu.commons.math.vectors.impl.idxtrans.SubVecTransformation;
 import com.spbsu.commons.math.vectors.impl.vectors.IndexTransVec;
+import com.spbsu.commons.seq.ArraySeq;
+import com.spbsu.commons.seq.Seq;
 
 /**
  * User: solar
  * Date: 16.01.2010
  * Time: 16:25:41
  */
-public class VecArrayMx implements Mx {
-  public final Vec[] vec;
+public class RowsVecArrayMx extends Mx.Stub {
+  public final Seq<Vec> vec;
   private int columns;
 
-  public VecArrayMx(Vec[] vec) {
-    this.vec = vec;
+  public RowsVecArrayMx(Vec[] vec) {
+    this.vec = new ArraySeq<>(vec);
     columns = vec[0].dim();
   }
 
+  public RowsVecArrayMx(Seq<Vec> vec) {
+    this.vec = vec;
+    columns = vec.at(0).dim();
+  }
+
   public double get(int i, int j) {
-    return vec[i].get(j);
+    return vec.at(i).get(j);
   }
   @Override
   public Mx set(int i, int j, double val) {
-    vec[i].set(j, val);
+    vec.at(i).set(j, val);
     return this;
   }
 
   @Override
   public Mx adjust(int i, int j, double increment) {
-    vec[i].adjust(j, increment);
+    vec.at(i).adjust(j, increment);
     return this;
   }
 
   @Override
   public Mx sub(int i, int j, int height, int width) {
-    Vec[] rows = new Vec[height];
+    final Vec[] rows = new Vec[height];
     for (int r = 0; r < rows.length; r++) {
-      rows[r] = vec[i].sub(j, width);
+      rows[r] = vec.at(i + r).sub(j, width);
     }
-    return new VecArrayMx(rows);
+    return new RowsVecArrayMx(rows);
   }
 
   @Override
   public Vec row(int i) {
-    return vec[i];
+    return vec.at(i);
   }
 
   @Override
@@ -55,32 +63,19 @@ public class VecArrayMx implements Mx {
   }
 
   @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        builder.append(j > 0 ? "\t" : "");
-        builder.append(get(i, j));
-      }
-      builder.append('\n');
-    }
-    return builder.toString();
-  }
-
-  @Override
   public double get(int i) {
-    return vec[i / columns].get(i % columns);
+    return vec.at(i / columns).get(i % columns);
   }
 
   @Override
   public Vec set(int i, double val) {
-    vec[i / columns].set(i % columns, val);
+    vec.at(i / columns).set(i % columns, val);
     return this;
   }
 
   @Override
   public Vec adjust(int i, double increment) {
-    vec[i / columns].adjust(i % columns, increment);
+    vec.at(i / columns).adjust(i % columns, increment);
     return this;
   }
 
@@ -88,7 +83,7 @@ public class VecArrayMx implements Mx {
   public MxIterator nonZeroes() {
     return new MxIterator() {
       int row = 0;
-      VecIterator rowIter = vec[0].nonZeroes();
+      VecIterator rowIter = vec.at(0).nonZeroes();
       @Override
       public int column() {
         return rowIter.index();
@@ -116,16 +111,16 @@ public class VecArrayMx implements Mx {
 
       @Override
       public boolean advance() {
-        while (row < vec.length && !rowIter.advance()) {
+        while (row < vec.length() && !rowIter.advance()) {
           row++;
-          rowIter = vec[row].nonZeroes();
+          rowIter = vec.at(row).nonZeroes();
         }
-        return row < vec.length;
+        return row < vec.length();
       }
 
       @Override
       public boolean seek(int pos) {
-        rowIter = vec[pos / columns] .nonZeroes();
+        rowIter = vec.at(pos / columns).nonZeroes();
         return rowIter.seek(pos % columns);
       }
 
@@ -135,22 +130,12 @@ public class VecArrayMx implements Mx {
       }
     };
   }
- 
-  @Override
-  public MxBasis basis() {
-    return new MxBasisImpl(columns, rows());
-  }
-
-  @Override
-  public int dim() {
-    return vec.length * columns;
-  }
 
   @Override
   public double[] toArray() {
     final double[] result = new double[dim()];
-    for (int r = 0; r < vec.length; r++) {
-      final VecIterator viter = vec[r].nonZeroes();
+    for (int r = 0; r < vec.length(); r++) {
+      final VecIterator viter = vec.at(r).nonZeroes();
       while (viter.advance()) {
         result[viter.index() + r * columns] = viter.value();
       }
@@ -159,8 +144,8 @@ public class VecArrayMx implements Mx {
   }
 
   @Override
-  public Vec sub(int start, int len) {
-    return new IndexTransVec(this, new SubVecTransformation(start, len));
+  public boolean isImmutable() {
+    return false;
   }
 
   @Override
@@ -171,15 +156,5 @@ public class VecArrayMx implements Mx {
   @Override
   public int rows() {
     return dim()/columns;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    return o instanceof VecArrayMx && (((VecArrayMx)o).columns == columns) && ((VecArrayMx)o).vec.equals(vec);
-  }
-
-  @Override
-  public int hashCode() {
-    return (vec.hashCode() << 1) + columns;
   }
 }

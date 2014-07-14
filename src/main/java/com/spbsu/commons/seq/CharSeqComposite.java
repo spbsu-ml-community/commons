@@ -7,15 +7,20 @@ import java.util.List;
 @SuppressWarnings("EqualsAndHashcode")
 public class CharSeqComposite extends CharSeq {
   private CharSequence[] fragments;
-  private CharSequence activeFragment = null;
+  protected CharSequence activeFragment = null;
 
-  private int activeFragmentRangeStart = -1;
+  protected int activeFragmentRangeStart = -1;
 
   public CharSeqComposite(CharSequence... fragments) {
     this.fragments = CharSeqTools.discloseComposites(Arrays.asList(fragments)).toArray(new CharSequence[fragments.length]);
   }
 
   int length = -1;
+
+  public CharSeqComposite(final CharSequence[] parts, final int start, final int end) {
+    fragments = CharSeqTools.discloseComposites(Arrays.asList(parts).subList(start, end)).toArray(new CharSequence[fragments.length]);
+  }
+
   public int length() {
     if (isImmutable() && length >= 0)
       return length;

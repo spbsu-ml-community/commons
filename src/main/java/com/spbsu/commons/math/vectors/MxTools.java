@@ -1,6 +1,5 @@
 package com.spbsu.commons.math.vectors;
 
-import com.spbsu.commons.math.vectors.impl.basis.IntBasis;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
@@ -86,7 +85,7 @@ public class MxTools {
   }
 
   public static Mx sparseE(int dim) {
-    final Mx result = new VecBasedMx(dim, new SparseVec<IntBasis>(new IntBasis(dim * dim)));
+    final Mx result = new VecBasedMx(dim, new SparseVec(dim * dim));
     for (int i = 0; i < dim; i++)
       result.set(i, i, 1);
     return result;

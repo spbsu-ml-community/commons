@@ -1,8 +1,15 @@
 package com.spbsu.commons.seq;
 
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.seq.trash.FloatingDecimal;
 import gnu.trove.strategy.HashingStrategy;
 
+
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -231,6 +238,61 @@ public class CharSeqTools {
       else compacted.add(fragment);
     }
     return compacted;
+  }
+
+  public static void processLines(Reader input, Processor<CharSequence> seqProcessor) throws IOException {
+    final char[] buffer = new char[4096*4];
+    CharSeqBuilder line = new CharSeqBuilder();
+    int read = 0;
+    int offset = 0;
+    boolean skipCaretReturn = false;
+    int index = offset;
+    while (index < read || (read = input.read(buffer)) >= 0) {
+      if (skipCaretReturn && buffer[offset] == '\r') { // skip '\r'
+        offset++;
+        skipCaretReturn = false;
+      }
+
+      while (index < read && buffer[index] != '\n')
+        index++;
+
+      if (index < read) {
+        line.append(buffer, offset, index);
+        seqProcessor.process(line);
+        line.clear();
+        offset++; // skip '\n'
+        skipCaretReturn = true;
+      }
+    }
+  }
+
+  public static JsonParser parseJSON(final CharSequence part) throws IOException {
+    return new JsonFactory().createParser(new CharSeqReader(part));
+  }
+
+  public static float parseFloat(CharSequence in) {
+    return FloatingDecimal.readJavaFormatString(in).floatValue();
+  }
+
+  public static double parseDouble(CharSequence in) {
+    return FloatingDecimal.readJavaFormatString(in).doubleValue();
+  }
+
+  public static int parseInt(final CharSequence part) {
+    int result = 0;
+    boolean negative = false;
+    int offset = 0;
+    if (part.charAt(0) == '-') {
+      offset++;
+      negative = true;
+    }
+    while (offset < part.length()) {
+      int nextCh = part.charAt(offset++) - '0';
+      if (nextCh < 0 || nextCh > 9)
+      result *= 10;
+      result += nextCh;
+    }
+    return result * (negative ? -1 : 1);
   }
 
   public static class LexicographicalComparator implements Comparator<CharSequence> {
