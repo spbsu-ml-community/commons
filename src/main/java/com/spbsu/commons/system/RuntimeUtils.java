@@ -172,11 +172,14 @@ public class RuntimeUtils {
     toBeProcessed.push(clazz);
     while (!toBeProcessed.isEmpty()) {
       final Class<?> pop = toBeProcessed.pop();
-      if (proc.accept(pop.getSuperclass()))
+      if (pop == null)
+        continue;
+      if (proc.accept(pop))
         return;
+
+      toBeProcessed.push(pop.getSuperclass());
       for (Class<?> aClass : pop.getInterfaces()) {
-        if (proc.accept(aClass))
-          return;
+        toBeProcessed.push(aClass);
       }
     }
   }

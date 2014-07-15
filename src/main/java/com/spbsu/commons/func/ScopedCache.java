@@ -15,9 +15,11 @@ import com.spbsu.commons.util.Holder;
  * Time: 8:24 PM
  */
 public class ScopedCache {
+  private final CacheHolder owner;
   Map<Class<? extends CacheHolder>, Map<Class<? extends Computable<? extends CacheHolder, ?>>, Object>> cache = new HashMap<>();
 
-  public ScopedCache(Class<? extends CacheHolder> clazz) {
+  public ScopedCache(Class<? extends CacheHolder> clazz, CacheHolder owner) {
+    this.owner = owner;
     RuntimeUtils.processSupers(clazz, new Filter<Class<?>>() {
       @Override
       public boolean accept(final Class<?> arg) {
@@ -32,6 +34,8 @@ public class ScopedCache {
     final Holder<R> rHolder = new Holder<>();
     RuntimeUtils.processSupers(scope, new Filter<Class<?>>() {
       public boolean accept(final Class<?> arg) {
+        if (!CacheHolder.class.isAssignableFrom(arg))
+          return false;
         final R o = (R)cache.get(arg).get(type);
         rHolder.setValue(o);
         return o != null;
@@ -43,7 +47,7 @@ public class ScopedCache {
       try {
         final Computable<? super CH, R> calculator = type.newInstance();
         //noinspection unchecked
-        result = calculator.compute((CH)this);
+        result = calculator.compute((CH)owner);
         //noinspection unchecked
         cache.get(scope).put((Class<? extends Computable<? extends CacheHolder, ?>>) type, result);
       } catch (Exception e) {

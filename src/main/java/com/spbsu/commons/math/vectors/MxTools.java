@@ -129,7 +129,6 @@ public class MxTools {
 
   public static Mx transposeIt(Mx a) {
     final int rows = a.rows();
-    final int columns = a.columns();
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < i; j++) {
         double save = a.get(i, j);
@@ -141,6 +140,8 @@ public class MxTools {
   }
 
   public static Vec multiply(Mx mx, Vec vec) {
+    if (vec instanceof Mx)
+      return multiply(mx, (Mx)vec);
     return multiply(mx, new VecBasedMx(1, vec));
   }
 

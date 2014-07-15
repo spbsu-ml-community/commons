@@ -205,6 +205,15 @@ public class TypeConvertersCollection implements ConversionRepository {
                }
              });
     }
+    if (ConversionPack.class.isAssignableFrom(converterClass)) {
+      try {
+        final ConversionPack instance =(ConversionPack) converterClass.newInstance();
+        register(instance.to());
+        register(instance.from());
+      } catch (InstantiationException | IllegalAccessException e) {
+        LOG.warn("Unable to init conversion pack", e);
+      }
+    }
 
     return false;
   }

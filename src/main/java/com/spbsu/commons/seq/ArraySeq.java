@@ -15,6 +15,8 @@ public class ArraySeq<T> extends Seq.Stub<T> {
   }
 
   public ArraySeq(final T[] arr, int start, int end) {
+    if (end > arr.length || start < 0)
+      throw new ArrayIndexOutOfBoundsException();
     this.arr = arr;
     this.start = start;
     this.end = end;
@@ -22,7 +24,7 @@ public class ArraySeq<T> extends Seq.Stub<T> {
 
   @Override
   public T at(final int i) {
-    return arr[end + i];
+    return arr[start + i];
   }
 
   @Override

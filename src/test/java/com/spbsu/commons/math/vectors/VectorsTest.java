@@ -596,4 +596,9 @@ public class VectorsTest extends TestCase {
     System.out.println(sum);
   }
 
+
+  public void testToString() {
+    final String str = new ArrayVec(0, 1, 2, 3).toString();
+    assertEquals("4 0.0 1.0 2.0 3.0", str);
+  }
 }

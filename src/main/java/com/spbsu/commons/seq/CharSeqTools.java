@@ -243,27 +243,34 @@ public class CharSeqTools {
   public static void processLines(Reader input, Processor<CharSequence> seqProcessor) throws IOException {
     final char[] buffer = new char[4096*4];
     CharSeqBuilder line = new CharSeqBuilder();
-    int read = 0;
-    int offset = 0;
+    int read;
     boolean skipCaretReturn = false;
-    int index = offset;
-    while (index < read || (read = input.read(buffer)) >= 0) {
-      if (skipCaretReturn && buffer[offset] == '\r') { // skip '\r'
-        offset++;
-        skipCaretReturn = false;
-      }
+    while ((read = input.read(buffer)) >= 0) {
+      int offset = 0;
+      int index = 0;
 
-      while (index < read && buffer[index] != '\n')
-        index++;
+      while (index < read){
+        if (skipCaretReturn && buffer[offset] == '\r') { // skip '\r'
+          offset = ++index;
+          skipCaretReturn = false;
+        }
 
-      if (index < read) {
-        line.append(buffer, offset, index);
-        seqProcessor.process(line);
-        line.clear();
-        offset++; // skip '\n'
-        skipCaretReturn = true;
+        while (index < read && buffer[index] != '\n')
+          index++;
+
+        if (index < read) {
+          line.append(buffer, offset, index);
+          seqProcessor.process(line);
+          line.clear();
+          offset = ++index; // skip '\n'
+          skipCaretReturn = true;
+        }
       }
+      if (offset < read)
+        line.append(buffer, offset, read);
     }
+    if (line.length() > 0)
+      seqProcessor.process(line);
   }
 
   public static JsonParser parseJSON(final CharSequence part) throws IOException {
