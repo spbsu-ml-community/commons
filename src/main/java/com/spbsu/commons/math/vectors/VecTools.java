@@ -487,6 +487,16 @@ public class VecTools {
       to.set(offset + nzI.index(), nzI.value());
   }
 
+  public static boolean isSparse(final Vec vec, final double th) {
+    final VecIterator itNz = vec.nonZeroes();
+    int nzCount = 0;
+    while (itNz.advance()) {
+      nzCount++;
+    }
+
+    return nzCount/(double)vec.dim() < th;
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;

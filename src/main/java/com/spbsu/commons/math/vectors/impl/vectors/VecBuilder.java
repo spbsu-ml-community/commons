@@ -3,7 +3,8 @@ package com.spbsu.commons.math.vectors.impl.vectors;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
 import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;
-import com.spbsu.commons.seq.GrowingSeq;
+import com.spbsu.commons.seq.Seq;
+import com.spbsu.commons.seq.SeqBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -11,7 +12,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  * Date: 07.07.14
  * Time: 20:24
  */
-public class VecBuilder extends Vec.Stub implements GrowingSeq<Double> {
+public class VecBuilder implements SeqBuilder<Double> {
   private final TDoubleArrayList data;
 
   public VecBuilder() {
@@ -23,54 +24,17 @@ public class VecBuilder extends Vec.Stub implements GrowingSeq<Double> {
   }
 
   @Override
-  public double get(final int i) {
-    return data.getQuick(i);
-  }
-
-  @Override
-  public Vec set(final int i, final double val) {
-    data.setQuick(i, val);
+  public VecBuilder add(final Double aDouble) {
+    append((double)aDouble);
     return this;
   }
 
-  @Override
-  public Vec adjust(final int i, final double increment) {
-    data.set(i, data.get(i) + increment);
-    return this;
+  public void append(double d) {
+    data.add(d);
   }
 
   @Override
-  public VecIterator nonZeroes() {
-    return new SkipVecNZIterator(this);
-  }
-
-  @Override
-  public int dim() {
-    return data.size();
-  }
-
-  @Override
-  public double[] toArray() {
-    return data.toArray();
-  }
-
-  @Override
-  public Vec sub(final int start, final int end) {
+  public Vec build() {
     return new ArrayVec(data.toArray());
-  }
-
-  @Override
-  public boolean isImmutable() {
-    return false;
-  }
-
-  @Override
-  public GrowingSeq<Double> add(final Double val) {
-    return append(val);
-  }
-
-  public GrowingSeq<Double> append(final double val) {
-    data.add(val);
-    return this;
   }
 }

@@ -140,6 +140,18 @@ public class CharSeqTools {
     return result.toArray(new CharSequence[result.size()]);
   }
 
+  public static int split(CharSequence sequence, char separator, CharSequence[] result) {
+    int last = 0;
+    int index = 0;
+    for (int i = 0; i < sequence.length(); i++) {
+      if (sequence.charAt(i) == separator) {
+        result[index++] = sequence.subSequence(last, i);
+        last = i + 1;
+      }
+    }
+    return index;
+  }
+
   public static CharSequence[] split(CharSequence sequence, CharSequence separator) {
     final List<CharSequence> result = new ArrayList<CharSequence>(10);
     int last = 0;

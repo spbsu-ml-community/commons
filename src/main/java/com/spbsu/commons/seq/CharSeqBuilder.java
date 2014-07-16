@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
-import com.spbsu.commons.math.vectors.Vec;
-
 @SuppressWarnings("EqualsAndHashcode")
-public class CharSeqBuilder extends CharSeqComposite implements GrowingSeq<Character> {
+public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Character> {
   private final List<CharSequence> fragments;
 
   public CharSeqBuilder(CharSequence... fragments) {
-    this(new ArrayList<CharSequence>(Arrays.asList(fragments)));
+    this(new ArrayList<>(Arrays.asList(fragments)));
   }
 
   public CharSeqBuilder(List<CharSequence> fragments) {
@@ -20,7 +17,7 @@ public class CharSeqBuilder extends CharSeqComposite implements GrowingSeq<Chara
   }
 
   public CharSeqBuilder(final int parts) {
-    this.fragments = new ArrayList<CharSequence>(parts);
+    this.fragments = new ArrayList<>(parts);
   }
 
   public CharSeqBuilder append(CharSequence next) {
@@ -58,6 +55,12 @@ public class CharSeqBuilder extends CharSeqComposite implements GrowingSeq<Chara
 
   public CharSeqBuilder append(boolean b) {
     add(Boolean.toString(b));
+    return this;
+  }
+
+  @Override
+  public CharSeqBuilder add(final Character character) {
+    append(character.charValue());
     return this;
   }
 
@@ -103,7 +106,7 @@ public class CharSeqBuilder extends CharSeqComposite implements GrowingSeq<Chara
   }
 
   @Override
-  public GrowingSeq<Character> add(final Character val) {
-    return append((char)val);
+  public Seq<Character> build() {
+    return new CharSeqComposite(fragments.toArray(new CharSequence[fragments.size()]));
   }
 }
