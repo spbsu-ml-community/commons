@@ -3,6 +3,8 @@ package com.spbsu.commons;
 import junit.framework.TestCase;
 
 import java.io.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * User: Igor Kuralenok
@@ -33,13 +35,24 @@ public abstract class FileTestCase extends TestCase {
   protected void checkResultByFile(CharSequence result) throws IOException {
     final String resultsFileName = getTestDataPath() + getTestName() + getResultFileExtension();
     try{
-      final byte[] bytes = readStream(new FileInputStream(resultsFileName));
+      final byte[] bytes;
+      if (!new File(resultsFileName).exists() && new File(resultsFileName + ".gz").exists()) {
+        bytes = readStream(new GZIPInputStream(new FileInputStream(resultsFileName + ".gz")));
+      }
+      else {
+        bytes = readStream(new FileInputStream(resultsFileName));
+      }
       assertEquals(new String(bytes, "UTF-8"), result.toString());
     }
     catch(FileNotFoundException ioe) {
       System.out.println("Results file not found, created");
-      final FileOutputStream fileOutputStream = new FileOutputStream(resultsFileName);
-      fileOutputStream.write(result.toString().getBytes("UTF-8"));
+
+      final OutputStream os;
+      if (result.length() > 1000000)
+        os = new GZIPOutputStream(new FileOutputStream(resultsFileName + ".gz"));
+      else
+        os = new FileOutputStream(resultsFileName);
+      os.write(result.toString().getBytes("UTF-8"));
       assertEquals("", result);
     }
   }

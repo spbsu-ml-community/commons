@@ -3,6 +3,7 @@ package com.spbsu.commons.seq;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.trash.FloatingDecimal;
 import gnu.trove.strategy.HashingStrategy;
@@ -130,13 +131,14 @@ public class CharSeqTools {
   public static CharSequence[] split(CharSequence sequence, char separator) {
     final List<CharSequence> result = new ArrayList<CharSequence>(10);
     int last = 0;
-    for (int i = 0; i < sequence.length(); i++) {
+    final int length = sequence.length();
+    for (int i = 0; i < length; i++) {
       if (sequence.charAt(i) == separator) {
         result.add(sequence.subSequence(last, i));
         last = i + 1;
       }
     }
-    result.add(sequence.subSequence(last, sequence.length()));
+    result.add(sequence.subSequence(last, length));
     return result.toArray(new CharSequence[result.size()]);
   }
 
@@ -149,6 +151,7 @@ public class CharSeqTools {
         last = i + 1;
       }
     }
+    result[index++] = sequence.subSequence(last, sequence.length());
     return index;
   }
 
@@ -286,7 +289,10 @@ public class CharSeqTools {
   }
 
   public static JsonParser parseJSON(final CharSequence part) throws IOException {
-    return new JsonFactory().createParser(new CharSeqReader(part));
+    final JsonParser parser = new JsonFactory().createParser(new CharSeqReader(part));
+    parser.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+    parser.setCodec(new ObjectMapper());
+    return parser;
   }
 
   public static float parseFloat(CharSequence in) {
@@ -308,6 +314,7 @@ public class CharSeqTools {
     while (offset < part.length()) {
       int nextCh = part.charAt(offset++) - '0';
       if (nextCh < 0 || nextCh > 9)
+        throw new IllegalArgumentException("Can not parse integer: " + part);
       result *= 10;
       result += nextCh;
     }

@@ -4,6 +4,7 @@ import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
+import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.seq.CharSeqTools;
 
 /**
@@ -15,7 +16,7 @@ public class Vec2CharSequenceConversionPack implements ConversionPack<Vec,CharSe
   public static class Vec2CharSequenceConverter implements TypeConverter<Vec, CharSequence> {
     @Override
     public CharSequence convert(Vec from) {
-      final StringBuilder builder = new StringBuilder();
+      final CharSeqBuilder builder = new CharSeqBuilder();
       builder.append(from.dim());
       for (int i = 0; i < from.dim(); i++) {
         builder.append(" ").append(from.get(i));

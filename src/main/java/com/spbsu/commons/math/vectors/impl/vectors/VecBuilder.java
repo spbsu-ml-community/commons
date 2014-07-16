@@ -1,9 +1,6 @@
 package com.spbsu.commons.math.vectors.impl.vectors;
 
 import com.spbsu.commons.math.vectors.Vec;
-import com.spbsu.commons.math.vectors.VecIterator;
-import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;
-import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.seq.SeqBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -25,7 +22,7 @@ public class VecBuilder implements SeqBuilder<Double> {
 
   @Override
   public VecBuilder add(final Double aDouble) {
-    append((double)aDouble);
+    append(aDouble);
     return this;
   }
 
