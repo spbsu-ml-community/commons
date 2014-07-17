@@ -53,6 +53,7 @@ public abstract class FileTestCase extends TestCase {
       else
         os = new FileOutputStream(resultsFileName);
       os.write(result.toString().getBytes("UTF-8"));
+      os.close();
       assertEquals("", result);
     }
   }
