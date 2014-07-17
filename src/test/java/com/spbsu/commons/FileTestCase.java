@@ -34,6 +34,7 @@ public abstract class FileTestCase extends TestCase {
 
   protected void checkResultByFile(CharSequence result) throws IOException {
     final String resultsFileName = getTestDataPath() + getTestName() + getResultFileExtension();
+    final String resultString = result.toString();
     try{
       final byte[] bytes;
       if (!new File(resultsFileName).exists() && new File(resultsFileName + ".gz").exists()) {
@@ -42,7 +43,8 @@ public abstract class FileTestCase extends TestCase {
       else {
         bytes = readStream(new FileInputStream(resultsFileName));
       }
-      assertEquals(new String(bytes, "UTF-8"), result.toString());
+      final String expected = new String(bytes, "UTF-8");
+      assertEquals("Expected size: " + expected.length() + ", actual size: " + resultString.length(), expected, resultString);
     }
     catch(FileNotFoundException ioe) {
       System.out.println("Results file not found, created");
@@ -52,7 +54,7 @@ public abstract class FileTestCase extends TestCase {
         os = new GZIPOutputStream(new FileOutputStream(resultsFileName + ".gz"));
       else
         os = new FileOutputStream(resultsFileName);
-      os.write(result.toString().getBytes("UTF-8"));
+      os.write(resultString.getBytes("UTF-8"));
       os.close();
       assertEquals("", result);
     }
