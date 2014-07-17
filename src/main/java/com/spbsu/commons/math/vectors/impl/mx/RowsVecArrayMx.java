@@ -155,6 +155,6 @@ public class RowsVecArrayMx extends Mx.Stub {
 
   @Override
   public int rows() {
-    return dim()/columns;
+    return vec.length();
   }
 }
