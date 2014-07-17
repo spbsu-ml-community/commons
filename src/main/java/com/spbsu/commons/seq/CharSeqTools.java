@@ -1,13 +1,11 @@
 package com.spbsu.commons.seq;
 
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.trash.FloatingDecimal;
 import gnu.trove.strategy.HashingStrategy;
-
 
 import java.io.IOException;
 import java.io.Reader;
@@ -289,10 +287,9 @@ public class CharSeqTools {
   }
 
   public static JsonParser parseJSON(final CharSequence part) throws IOException {
-    final JsonParser parser = new JsonFactory().createParser(new CharSeqReader(part));
-    parser.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-    parser.setCodec(new ObjectMapper());
-    return parser;
+    final ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.getFactory().enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+    return objectMapper.getFactory().createParser(new CharSeqReader(part));
   }
 
   public static float parseFloat(CharSequence in) {
