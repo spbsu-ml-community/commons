@@ -1,5 +1,7 @@
 package com.spbsu.commons.seq;
 
+import java.util.Arrays;
+
 /**
  * User: solar
  * Date: 08.07.14
@@ -40,5 +42,33 @@ public class IntSeq extends Seq.Stub<Integer> {
   @Override
   public boolean isImmutable() {
     return true;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof IntSeq)) {
+      return false;
+    }
+
+    final IntSeq intSeq = (IntSeq) o;
+
+    if (end != intSeq.end) {
+      return false;
+    }
+    if (start != intSeq.start) {
+      return false;
+    }
+    return Arrays.equals(arr, intSeq.arr);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Arrays.hashCode(arr);
+    result = 31 * result + start;
+    result = 31 * result + end;
+    return result;
   }
 }

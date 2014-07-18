@@ -23,14 +23,8 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
   private final CacheStrategy strategy;
 
   public FixedSizeCache(final int size, final CacheStrategy.Type strategyType) {
-    accessMap = new HashMap<K, CacheSlot<K, V>>();
-    switch (strategyType) {
-      case LRU:
-        strategy = new LRUStrategy(size);
-        break;
-      default:
-        strategy = null;
-    }
+    accessMap = new HashMap<>();
+    strategy = strategyType.newInstance(size);
     //noinspection unchecked
     cache = (Pair<K, V>[]) new Pair[size];
   }

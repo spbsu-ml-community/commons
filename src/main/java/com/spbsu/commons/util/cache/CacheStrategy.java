@@ -1,5 +1,11 @@
 package com.spbsu.commons.util.cache;
 
+import java.lang.reflect.InvocationTargetException;
+
+
+import com.spbsu.commons.util.cache.impl.LFUStrategy;
+import com.spbsu.commons.util.cache.impl.LRUStrategy;
+
 /**
  * User: Igor Kuralenok
  * Date: 31.08.2006
@@ -19,7 +25,19 @@ public interface CacheStrategy {
   void removePosition(int position);
 
   public enum Type {
-    LRU,
-    LFU
+    LRU(LRUStrategy.class),
+    LFU(LFUStrategy.class);
+    private final Class<? extends CacheStrategy> clazz;
+    private Type(Class<? extends CacheStrategy> clazz) {
+      this.clazz = clazz;
+    }
+
+    public CacheStrategy newInstance(int size) {
+      try {
+        return clazz.getConstructor(int.class).newInstance(size);
+      } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        throw new RuntimeException("Exception during CacheStrategy create", e);
+      }
+    }
   }
 }

@@ -1,5 +1,9 @@
 package com.spbsu.commons.util.cache.impl;
 
+import java.util.Arrays;
+
+
+import com.spbsu.commons.util.ArrayTools;
 import com.spbsu.commons.util.cache.CacheStrategy;
 
 /**
@@ -20,15 +24,18 @@ public class LFUStrategy implements CacheStrategy {
   }
 
   public int getStorePosition() {
-    return -1;
+    final int min = ArrayTools.min(usages);
+    usages[min] = 1;
+    return min;
   }
 
   public void registerAccess(int position) {
-    usages[position] = 0.99 * usages[position] + 1;
+    usages[position] = usages[position] + 1;
     access++;
   }
 
   public void removePosition(int position) {
+    usages[position] = 0;
   }
 
   public void registerCacheMiss() {
@@ -44,7 +51,7 @@ public class LFUStrategy implements CacheStrategy {
   }
 
   public void clear() {
-    init(usages.length);
+    Arrays.fill(usages, 0.);
     misses = 0;
     access = 0;
   }

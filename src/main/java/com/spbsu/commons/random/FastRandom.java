@@ -95,7 +95,11 @@ public class FastRandom extends Random {
         sum += it.value();
       }
     }
-    double rnd = nextDouble() * sum;
+    return nextSimple(row, sum);
+  }
+
+  public int nextSimple(Vec row, double len) {
+    double rnd = nextDouble() * len;
     final VecIterator it = row.nonZeroes();
     while(rnd > 0 && it.advance()) {
       rnd -= it.value();
