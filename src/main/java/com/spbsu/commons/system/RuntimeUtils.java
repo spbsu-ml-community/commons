@@ -192,7 +192,7 @@ constructor_next:
       final Class<?>[] parameters = constructor.getParameterTypes();
       if (parameters.length == args.length) {
         for (int i = 0; i < parameters.length; i++) {
-          if(!parameters[i].isAssignableFrom(args.getClass()))
+          if(!parameters[i].isAssignableFrom(args[i].getClass()))
             continue constructor_next;
         }
         try {
