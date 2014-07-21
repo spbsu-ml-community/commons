@@ -1,5 +1,6 @@
 package com.spbsu.commons;
 
+import com.spbsu.commons.io.StreamTools;
 import junit.framework.TestCase;
 
 import java.io.*;
@@ -36,15 +37,14 @@ public abstract class FileTestCase extends TestCase {
     final String resultsFileName = getTestDataPath() + getTestName() + getResultFileExtension();
     final String resultString = result.toString();
     try{
-      final byte[] bytes;
+      final String expectedString;
       if (!new File(resultsFileName).exists() && new File(resultsFileName + ".gz").exists()) {
-        bytes = readStream(new GZIPInputStream(new FileInputStream(resultsFileName + ".gz")));
+        expectedString = StreamTools.readStream(new GZIPInputStream(new FileInputStream(resultsFileName + ".gz"))).toString();
       }
       else {
-        bytes = readStream(new FileInputStream(resultsFileName));
+        expectedString = StreamTools.readStream(new FileInputStream(resultsFileName)).toString();
       }
-      final String expected = new String(bytes, "UTF-8");
-      assertEquals("Expected size: " + expected.length() + ", actual size: " + resultString.length(), expected, resultString);
+      assertEquals(expectedString, resultString);
     }
     catch(FileNotFoundException ioe) {
       System.out.println("Results file not found, created");
