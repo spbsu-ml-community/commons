@@ -28,7 +28,13 @@ $RECYCLE.BIN/
 ### IntelliJ ###
 *.iws
 *.ipr
-#.idea/
+*.iml
+.idea/
+!.idea/runConfigurations
+!.idea/inspectionProfiles
+!.idea/codeStyleSettings.xml
+!.idea/projectCodeStyle.xml
+!.idea/vcs.xml
 
 ### Eclipse ###
 *.pydevproject
