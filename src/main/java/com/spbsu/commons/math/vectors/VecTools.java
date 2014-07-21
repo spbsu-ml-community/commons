@@ -382,11 +382,16 @@ public class VecTools {
   }
 
   public static void assign(Vec a, Vec vec) {
-    if (a instanceof VecBasedMx)
+    if (a.length() != vec.length()) {
+      throw new IllegalArgumentException("Vector dimensions differ");
+    }
+    if (a instanceof VecBasedMx) {
       assign(((VecBasedMx) a).vec, vec);
-    if (vec instanceof VecBasedMx)
+    }
+    else if (vec instanceof VecBasedMx) {
       assign(a, ((VecBasedMx) vec).vec);
-    if (vec instanceof ArrayVec && a instanceof ArrayVec)
+    }
+    else if (vec instanceof ArrayVec && a instanceof ArrayVec)
       ((ArrayVec)a).assign((ArrayVec)vec);
     else {
       final VecIterator aiter = a.nonZeroes();
@@ -625,6 +630,7 @@ public class VecTools {
       }
       else if (vector instanceof ArrayVec) {
         ((ArrayVec)vector).scale(factor);
+        return vector;
       }
     }
     final VecIterator iter = vector.nonZeroes();
