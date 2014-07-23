@@ -497,6 +497,16 @@ public class VecTools {
     return nzCount/(double)vec.dim() < th;
   }
 
+  public static int l0(final Vec vec) {
+    final VecIterator it = vec.nonZeroes();
+    int count = 0;
+    while (it.advance()) {
+      count++;
+    }
+
+    return count;
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;
