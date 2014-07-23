@@ -41,7 +41,7 @@ public class FastRandom extends Random {
     localV ^= localV >>> 17;
     localV ^= localV << 31;
     localV ^= localV >>> 8;
-    localW = 4294957665L * (localW & 0xffffffffl) + (localW >>> 32);
+    localW = 4294957665L * (localW & 0xffffffff) + (localW >>> 32);
     long x = localU ^ (localU << 21);
     x ^= x >>> 35;
     x ^= x << 4;
