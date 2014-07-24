@@ -5,6 +5,7 @@ import com.spbsu.commons.math.vectors.MxIterator;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
+import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;
 import com.spbsu.commons.math.vectors.impl.vectors.IndexTransVec;
 import com.spbsu.commons.seq.ArraySeq;
 import com.spbsu.commons.seq.Seq;
@@ -36,30 +37,40 @@ public class ColsVecSeqMx extends Mx.Stub {
         }
       }
       indices[j] = totalColumns;
-      totalColumns += vecSeq.length();
+      totalColumns += vecSeq.length() == 1 ? 1 : vecSeq.at(0).length();
     }
     columns = totalColumns;
 
     this.vec = new ArraySeq<VecSeq>(vecSeqs);
 
-    this.rows = this.vec.at(0).at(0).length();
+    this.rows = this.vec.at(0).length();
   }
 
   public double get(int i, int j) {
     final int idx = getIdx(j);
-    return vec.at(idx).at(j - indices[idx]).get(i);
+    if (vec.at(idx).length() == 1)
+      return vec.at(idx).at(0).get(i);
+    else
+      return vec.at(idx).at(i).get(j - indices[idx]);
   }
+
   @Override
   public Mx set(int i, int j, double val) {
     final int idx = getIdx(j);
-    vec.at(idx).at(i).set(j - indices[idx], val);
+    if (vec.at(idx).length() == 1)
+      vec.at(idx).at(0).set(i, val);
+    else
+      vec.at(idx).at(i).set(j - indices[idx], val);
     return this;
   }
 
   @Override
   public Mx adjust(int i, int j, double increment) {
     final int idx = getIdx(j);
-    vec.at(idx).at(i).adjust(j - indices[idx], increment);
+    if (vec.at(idx).length() == 1)
+      vec.at(idx).at(0).adjust(i, increment);
+    else
+      vec.at(idx).at(i).adjust(j - indices[idx], increment);
     return this;
   }
 
@@ -73,9 +84,11 @@ public class ColsVecSeqMx extends Mx.Stub {
   public Vec row(final int i) {
     return new IndexTransVec(this, new SubMxTransformation(columns(), i, 0, 1, columns())) {
       private int col = -1;
+      private int idx = -1;
       @Override
       public VecIterator nonZeroes() {
         return new VecIterator() {
+          private VecIterator iter = null;
           @Override
           public int index() {
             return col;
@@ -83,8 +96,9 @@ public class ColsVecSeqMx extends Mx.Stub {
 
           @Override
           public double value() {
-            final int idx = getIdx(col);
-            return vec.at(idx).at(col - indices[idx]).get(i);
+            if (vec.at(idx).length() == 1)
+              return vec.at(idx).at(0).get(i);
+            return vec.at(idx).at(i).get(col - indices[idx]);
           }
 
           @Override
@@ -94,22 +108,63 @@ public class ColsVecSeqMx extends Mx.Stub {
 
           @Override
           public boolean advance() {
-            ++col;
-            while (isValid() && value() == 0)
-              ++col;
+            if (iter != null) {
+              int prev = iter.index();
+              if (iter.advance()) {
+                col += iter.index() - prev;
+                return true;
+              } else {
+                iter = null;
+                nextCol();
+                --col;
+                --idx;
+              }
+            }
+
+            increaseCol();
+            while (isValid() && value() == 0) {
+              if (vec.at(idx).length() == 1)
+                increaseCol();
+              else {
+                iter = vec.at(idx).at(i).nonZeroes();
+                while (iter.advance() && col >= indices[idx] + iter.index());
+                if (iter.isValid()) {
+                  col = indices[idx] + iter.index();
+                  return true;
+                } else {
+                  iter = null;
+                  nextCol();
+                }
+
+              }
+            }
+
             return isValid();
           }
 
           @Override
           public boolean seek(int pos) {
-            col = pos;
-            return isValid();
+            throw new NotImplementedException();
           }
 
           @Override
           public double setValue(double v) {
+            if (iter != null)
+              return iter.setValue(v);
             final int idx = getIdx(col);
             return vec.at(idx).at(col - indices[idx]).set(i, v).get(i);
+          }
+
+          private void increaseCol() {
+            ++col;
+            if (idx < indices.length - 1 && col >= indices[idx + 1]) {
+              ++idx;
+            }
+          }
+
+          private void nextCol() {
+            ++idx;
+            col = idx < indices.length ? indices[idx] : length() + 2;
           }
         };
       }
@@ -138,12 +193,64 @@ public class ColsVecSeqMx extends Mx.Stub {
 //  }
 
   @Override
-  public Vec col(int j) {
+  public Vec col(final int j) {
     final int idx = getIdx(j);
-    final VecSeq columnSeq = vec.at(idx);
-    final int shift = j - indices[idx];
-    return columnSeq.at(shift);
+    if (vec.at(idx).length() == 1)
+      return vec.at(idx).at(0);
+
+    return new Vec() {
+      @Override
+      public double get(int i) {
+        return vec.at(idx).at(i).get(j - indices[idx]);
+      }
+
+      @Override
+      public Vec set(int i, double val) {
+        return vec.at(idx).at(i).set(j - indices[idx], val);
+      }
+
+      @Override
+      public Vec adjust(int i, double increment) {
+        return vec.at(idx).at(i).adjust(j - indices[idx], increment);
+      }
+
+      @Override
+      public VecIterator nonZeroes() {
+        return new SkipVecNZIterator(this);
+      }
+
+      @Override
+      public int dim() {
+        return rows();
+      }
+
+      @Override
+      public double[] toArray() {
+        throw new NotImplementedException();
+      }
+
+      @Override
+      public Vec sub(int start, int len) {
+        throw new NotImplementedException();
+      }
+
+      @Override
+      public Double at(int i) {
+        return vec.at(idx).at(i).get(j - indices[idx]);
+      }
+
+      @Override
+      public int length() {
+        return rows();
+      }
+
+      @Override
+      public boolean isImmutable() {
+        return false;
+      }
+    };
   }
+
 
   @Override
   public MxIterator nonZeroes() {
