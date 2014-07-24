@@ -1,7 +1,11 @@
 package com.spbsu.commons.math.vectors.impl.mx;
 
-import com.spbsu.commons.math.vectors.*;
-import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
+import com.spbsu.commons.math.vectors.Mx;
+import com.spbsu.commons.math.vectors.MxIterator;
+import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.VecIterator;
+import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
+import com.spbsu.commons.math.vectors.impl.vectors.IndexTransVec;
 import com.spbsu.commons.seq.ArraySeq;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.seq.VecSeq;
@@ -64,26 +68,81 @@ public class ColsVecSeqMx extends Mx.Stub {
     throw new NotImplementedException();
   }
 
+
+  @Override
+  public Vec row(final int i) {
+    return new IndexTransVec(this, new SubMxTransformation(columns(), i, 0, 1, columns())) {
+      private int col = -1;
+      @Override
+      public VecIterator nonZeroes() {
+        return new VecIterator() {
+          @Override
+          public int index() {
+            return col;
+          }
+
+          @Override
+          public double value() {
+            final int idx = getIdx(col);
+            return vec.at(idx).at(col - indices[idx]).get(i);
+          }
+
+          @Override
+          public boolean isValid() {
+            return col >= 0 && col < columns();
+          }
+
+          @Override
+          public boolean advance() {
+            ++col;
+            while (isValid() && value() == 0)
+              ++col;
+            return isValid();
+          }
+
+          @Override
+          public boolean seek(int pos) {
+            col = pos;
+            return isValid();
+          }
+
+          @Override
+          public double setValue(double v) {
+            final int idx = getIdx(col);
+            return vec.at(idx).at(col - indices[idx]).set(i, v).get(i);
+          }
+        };
+      }
+    };
+  }
+
+//  @Override
+//  public Vec row(int i) {
+//    double vals[] = new double[columns()];
+//    int idx = 0;
+//    int zero = 0;
+//    for (int j = 0; j < vec.length(); ++j) {
+//      final VecSeq vs = vec.at(j);
+//      for (int k = 0; k < vs.length(); ++k) {
+//        vals[idx] = vs.at(k).get(i);
+//        if (vals[idx++] == 0) {
+//          zero++;
+//        }
+//      }
+//    }
+//
+//    if (zero * 1. / columns() > .9)
+//      return VecTools.copySparse(new ArrayVec(vals));
+//    else
+//      return new ArrayVec(vals);
+//  }
+
   @Override
   public Vec col(int j) {
     final int idx = getIdx(j);
     final VecSeq columnSeq = vec.at(idx);
-
     final int shift = j - indices[idx];
-    if (shift == 0) {
-      return columnSeq.concat();
-    }
-
-    double arr[] = new double[columnSeq.length()];
-    int notNull = 0;
-
-    for (int i = 0; i < columnSeq.length(); ++i) {
-      arr[i] = columnSeq.at(i).get(shift);
-      if (arr[i] != 0)
-        ++notNull;
-    }
-
-    return notNull * 1. / columnSeq.length() < .1 ? VecTools.copySparse(new ArrayVec(arr)) : new ArrayVec(arr);
+    return columnSeq.at(shift);
   }
 
   @Override

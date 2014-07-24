@@ -7,7 +7,6 @@ import com.spbsu.commons.math.vectors.impl.idxtrans.SubVecTransformation;
 import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;
 import com.spbsu.commons.math.vectors.impl.iterators.TransformedSparseVecIterator;
-import com.spbsu.commons.math.vectors.impl.mx.ColsVecSeqMx;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.list.array.TIntArrayList;
@@ -80,8 +79,6 @@ public class IndexTransVec extends Vec.Stub {
     }
     else if (base instanceof ArrayVec) {
       result = new SkipVecNZIterator(this);
-    } else if (base instanceof ColsVecSeqMx) {
-      result = base.nonZeroes();
     }
     else throw new IllegalArgumentException("Can not produce NZ itarator for base type " + base.getClass().toString());
     return this.base instanceof VecBasedMx ? new MxIteratorImpl(result, ((VecBasedMx) this.base).columns()) : result;
