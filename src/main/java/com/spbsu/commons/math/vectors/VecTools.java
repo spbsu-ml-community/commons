@@ -75,8 +75,7 @@ public class VecTools {
       left = ((VecBasedMx)left).vec;
 
     for (Vec vec : rest) {
-      if (left.dim() != vec.dim())
-        throw new IllegalArgumentException("vectors dimensions differ");
+      checkBasisesEquals(leftOrig, vec);
       if (vec instanceof VecBasedMx)
         vec = ((VecBasedMx)vec).vec;
       if (left instanceof CustomBasisVec) {
@@ -127,8 +126,7 @@ public class VecTools {
   }
 
   public static double multiply(Vec left, Vec right) {
-    if (left.dim() != right.dim())
-      throw new IllegalArgumentException("Vector basises are not of the same size left:" + left.dim() + ", right: " + right.dim());
+    checkBasisesEquals(left, right);
     if (left instanceof ArrayVec && right instanceof ArrayVec) {
       return ((ArrayVec) left).mul((ArrayVec) right);
     }
@@ -161,8 +159,7 @@ public class VecTools {
   }
 
   public static double distanceAV(Vec left, Vec right) {
-    if (left.dim() != right.dim())
-      throw new IllegalArgumentException("Vector basises are not the same");
+    checkBasisesEquals(left, right);
     final int size = left.dim();
     double result = 0;
     for (int i = 0; i < size; i++) {
@@ -174,8 +171,7 @@ public class VecTools {
   }
 
   public static double distanceAVJS12(Vec left, Vec right) {
-    if (left.dim() != right.dim())
-      throw new IllegalArgumentException("Vector basises are not the same");
+    checkBasisesEquals(left, right);
     final int size = left.dim();
     double result = 0;
     for (int i = 0; i < size; i++) {
@@ -188,14 +184,23 @@ public class VecTools {
     return sqrt(result);
   }
 
+  private static void checkBasisesEquals(final Vec left, final Vec right) {
+    if (left.dim() != right.dim()) {
+      if (left instanceof CustomBasisVec<?> && right instanceof CustomBasisVec) {
+        if (!((CustomBasisVec) left).basis().equals(((CustomBasisVec) right).basis()))
+          throw new IllegalArgumentException("Vector basises are not the same");
+      }
+      else throw new IllegalArgumentException("Vector dimensions differs");
+    }
+  }
+
   public static double distance(Vec left, Vec right) {
     if (left instanceof VecBasedMx)
       left = ((VecBasedMx)left).vec;
     if (right instanceof VecBasedMx)
       right = ((VecBasedMx)right).vec;
 
-    if (left.dim() != right.dim())
-      throw new IllegalArgumentException("Vector basises are not the same");
+    checkBasisesEquals(left, right);
     if (left instanceof ArrayVec && right instanceof ArrayVec) {
       final ArrayVec larray = (ArrayVec) left;
       final ArrayVec rarray = (ArrayVec) right;
@@ -232,8 +237,7 @@ public class VecTools {
   }
 
   public static double distanceJS12(Vec left, Vec right) {
-    if (left.dim() != right.dim())
-      throw new IllegalArgumentException("Vector basises are not the same");
+    checkBasisesEquals(left, right);
     final VecIterator liter = left.nonZeroes();
     final VecIterator riter = right.nonZeroes();
     double result = 0;
