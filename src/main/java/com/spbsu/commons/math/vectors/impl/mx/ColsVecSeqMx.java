@@ -171,27 +171,6 @@ public class ColsVecSeqMx extends Mx.Stub {
     };
   }
 
-//  @Override
-//  public Vec row(int i) {
-//    double vals[] = new double[columns()];
-//    int idx = 0;
-//    int zero = 0;
-//    for (int j = 0; j < vec.length(); ++j) {
-//      final VecSeq vs = vec.at(j);
-//      for (int k = 0; k < vs.length(); ++k) {
-//        vals[idx] = vs.at(k).get(i);
-//        if (vals[idx++] == 0) {
-//          zero++;
-//        }
-//      }
-//    }
-//
-//    if (zero * 1. / columns() > .9)
-//      return VecTools.copySparse(new ArrayVec(vals));
-//    else
-//      return new ArrayVec(vals);
-//  }
-
   @Override
   public Vec col(final int j) {
     final int idx = getIdx(j);
@@ -324,17 +303,17 @@ public class ColsVecSeqMx extends Mx.Stub {
 
     @Override
     public int column() {
-      return indices[columnBlock] + row;
+      return indices[columnBlock] + (vec.at(columnBlock).length() == 1 ? 0 : cIter.index());
     }
 
     @Override
     public int row() {
-      return cIter.index();
+      return vec.at(columnBlock).length() == 1 ? cIter.index() : row;
     }
 
     @Override
     public int index() {
-      return cIter.index() * columns() + indices[columnBlock] + row;
+      return row() * columns() + column();
     }
 
     @Override
