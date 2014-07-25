@@ -43,7 +43,9 @@ public class ColsVecSeqMx extends Mx.Stub {
 
     this.vec = new ArraySeq<VecSeq>(vecSeqs);
 
-    this.rows = this.vec.at(0).length();
+    this.rows = this.vec.at(0).length() == 1 ?
+        this.vec.at(0).at(0).length() :
+        this.vec.at(0).length();
   }
 
   public double get(int i, int j) {
