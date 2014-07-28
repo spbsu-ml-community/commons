@@ -1,14 +1,13 @@
 package com.spbsu.commons.geo;
 
 import junit.framework.Assert;
-
-import static junit.framework.Assert.*;
+import junit.framework.TestCase;
 
 /**
  * User: lyadzhin
  * Date: 4/23/13 12:19 PM
  */
-public class GeoPointTest {
+public class GeoPointTest extends TestCase {
   public static final GeoPoint GEO_SPB_BENUA = GeoPoint.valueOf("59.958695,30.403104");
   public static final GeoPoint GEO_MSK_MOROZOV = GeoPoint.valueOf("55.733675,37.587808");
 
