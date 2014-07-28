@@ -1,12 +1,13 @@
 package com.spbsu.commons.math.vectors.impl.vectors;
 
-import com.spbsu.commons.func.converters.Vec2StringConverter;
-import com.spbsu.commons.math.vectors.*;
-import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
+import com.spbsu.commons.math.vectors.IndexTransformation;
+import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.VecIterator;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubVecTransformation;
 import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 import com.spbsu.commons.math.vectors.impl.iterators.SkipVecNZIterator;
 import com.spbsu.commons.math.vectors.impl.iterators.TransformedSparseVecIterator;
+import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.list.array.TIntArrayList;
 

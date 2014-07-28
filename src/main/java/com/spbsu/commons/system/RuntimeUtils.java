@@ -1,12 +1,12 @@
 package com.spbsu.commons.system;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -182,5 +182,26 @@ public class RuntimeUtils {
         toBeProcessed.push(aClass);
       }
     }
+  }
+
+  @Nullable
+  public static <T> T newInstanceByAssignable(final Class<T> targetClass, Object... args) {
+    final Constructor<T>[] constructors = (Constructor<T>[])targetClass.getConstructors();
+constructor_next:
+    for (Constructor<T> constructor : constructors) {
+      final Class<?>[] parameters = constructor.getParameterTypes();
+      if (parameters.length == args.length) {
+        for (int i = 0; i < parameters.length; i++) {
+          if(!parameters[i].isAssignableFrom(args[i].getClass()))
+            continue constructor_next;
+        }
+        try {
+          return constructor.newInstance(args);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+    return null;
   }
 }

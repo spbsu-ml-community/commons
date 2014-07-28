@@ -64,6 +64,12 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
     return this;
   }
 
+  @Override
+  public SeqBuilder<Character> addAll(final Seq<Character> values) {
+    append(values);
+    return this;
+  }
+
   public CharSeqBuilder append(Object o) {
     add(String.valueOf(o));
     return this;
