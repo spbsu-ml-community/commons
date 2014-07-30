@@ -112,6 +112,11 @@ public class MapBasis<T> implements GenericBasis<T> {
     return add(element);
   }
 
+  @Override public synchronized void clear() {
+    map.clear();
+    inverted.clear();
+  }
+
   public String toString() {
     StringBuilder stringBuilder = new StringBuilder();
     int size = map.size();
