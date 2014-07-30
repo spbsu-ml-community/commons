@@ -27,4 +27,5 @@ public interface GenericBasis<T> extends Basis {
 
   int toIndex(T element);
 
+  void clear();
 }

@@ -52,26 +52,4 @@ public class CommonBasisVec<T> extends CustomBasisVec<GenericBasis<T>> {
   public GenericBasis<T> basis() {
     return basis;
   }
-
-//  @Override
-//  public String toString() {
-//    final StringBuilder buffer = new StringBuilder();
-//    List<Pair<T, Double>> terms = new ArrayList<Pair<T, Double>>();
-//    final BasisVecIterator<T> iter = iterator();
-//    while (iter.advance()) {
-//      final T term = iter.key();
-//      terms.add(Pair.create(term, iter.value()));
-//    }
-//    Collections.sort(terms, new Comparator<Pair<T, Double>>() {
-//      @Override
-//      public int compare(Pair<T, Double> pair1, Pair<T, Double> pair2) {
-//        return Double.compare(pair2.getSecond(), pair1.getSecond());
-//      }
-//    });
-//    for (Pair<T, Double> pair : terms) {
-//      buffer.append(pair).append("\n");
-//    }
-//    return buffer.toString();
-//  }
-
 }
