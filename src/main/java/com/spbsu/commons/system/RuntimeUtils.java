@@ -15,9 +15,6 @@ import java.util.jar.Manifest;
 
 
 import com.spbsu.commons.filters.Filter;
-import com.spbsu.commons.func.CacheHolder;
-import com.spbsu.commons.func.Computable;
-import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.util.logging.Logger;
 import sun.net.www.protocol.file.FileURLConnection;
 
@@ -204,4 +201,14 @@ constructor_next:
     }
     return null;
   }
+
+  public static String getJavaExec() {
+    return System.getProperty("java.home") + "/bin/java";
+  }
+
+  public static String getJavaClassPath() {
+    return System.getProperty("java.class.path");
+  }
+
+  private RuntimeUtils() {}
 }
