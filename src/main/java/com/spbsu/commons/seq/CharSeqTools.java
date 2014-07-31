@@ -1,18 +1,19 @@
 package com.spbsu.commons.seq;
 
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spbsu.commons.func.Processor;
-import com.spbsu.commons.seq.trash.FloatingDecimal;
-import gnu.trove.strategy.HashingStrategy;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.seq.trash.FloatingDecimal;
+import gnu.trove.strategy.HashingStrategy;
 
 /**
  * User: terry
@@ -33,6 +34,16 @@ public class CharSeqTools {
   
   public static boolean isWhitespace(char ch) {
     return ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r';
+  }
+
+  public static byte hexCharToByte(final char c) {
+    if (c >= 0x30 && c <= 0x39) // 0..9
+      return (byte) (c - 0x30);
+    if (c >= 0x61 && c <= 0x7A) // a..z
+      return (byte) ((c - 0x61) + 10);
+    if (c >= 0x41 && c <= 0x5A) // A..Z
+      return (byte) ((c - 0x41) + 10);
+    throw new IllegalArgumentException("Not a hex char: " + c);
   }
 
   public static boolean equals(CharSequence text, CharSequence other) {
@@ -317,6 +328,7 @@ public class CharSeqTools {
     }
     return result * (negative ? -1 : 1);
   }
+
 
   public static class LexicographicalComparator implements Comparator<CharSequence> {
     public int compare(CharSequence a, CharSequence b) {

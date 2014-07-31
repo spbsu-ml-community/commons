@@ -18,4 +18,13 @@ public class CharSeqToolsTest extends TestCase {
     assertEquals("", CharSeqTools.cutBetween("abc", 0, '{', '}'));
     assertEquals("", CharSeqTools.cutBetween("abc{abc}ab", 5, '{', '}'));
   }
+
+  public void testHexToCharByte() {
+    assertEquals(0, CharSeqTools.hexCharToByte('0'));
+    assertEquals(9, CharSeqTools.hexCharToByte('9'));
+    assertEquals(10, CharSeqTools.hexCharToByte('a'));
+    assertEquals(10, CharSeqTools.hexCharToByte('A'));
+    assertEquals(15, CharSeqTools.hexCharToByte('f'));
+    assertEquals(15, CharSeqTools.hexCharToByte('F'));
+  }
 }
