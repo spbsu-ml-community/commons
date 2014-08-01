@@ -504,4 +504,12 @@ public abstract class ArrayTools {
     }
     return new ArraySeq<I>(result);
   }
+
+  public static int sum(int[] arr, int from, int end) {
+    int result = 0;
+    for (int i = from; i < end; i++) {
+      result += arr[i];
+    }
+    return result;
+  }
 }
