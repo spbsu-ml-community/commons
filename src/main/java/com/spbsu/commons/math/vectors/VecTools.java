@@ -186,7 +186,7 @@ public class VecTools {
 
   private static void checkBasisesEquals(final Vec left, final Vec right) {
     if (left.dim() != right.dim()) {
-      if (left instanceof CustomBasisVec<?> && right instanceof CustomBasisVec) {
+      if (left instanceof CustomBasisVec && right instanceof CustomBasisVec) {
         if (!((CustomBasisVec) left).basis().equals(((CustomBasisVec) right).basis()))
           throw new IllegalArgumentException("Vector basises are not the same");
       }
