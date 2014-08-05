@@ -478,12 +478,12 @@ public class VecTools {
       result = new SingleValueVec(a.get(0), a.dim() + b.dim());
     }
     else if (a instanceof SparseVec || b instanceof SparseVec) {
-      result = new ArrayVec(a.dim() + b.dim());
+      result = new SparseVec(a.dim() + b.dim());
       copyTo(a, result, 0);
       copyTo(b, result, a.dim());
     }
     else {
-      result = new SparseVec(a.dim() + b.dim());
+      result = new ArrayVec(a.dim() + b.dim());
       copyTo(a, result, 0);
       copyTo(b, result, a.dim());
     }
