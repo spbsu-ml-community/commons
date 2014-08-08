@@ -2,6 +2,8 @@ package com.spbsu.commons.util;
 
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Evaluator;
+import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.ArraySeq;
 import com.spbsu.commons.seq.Seq;
@@ -498,11 +500,21 @@ public abstract class ArrayTools {
   public static <I> Seq<I> cut(final Seq<I> data, final int[] indices) {
     if (indices.length == 0 || data.length() == 0)
       throw new IllegalArgumentException();
-    final I[] result = (I[])Array.newInstance(data.at(0).getClass(), indices.length);
-    for (int i = 0; i < indices.length; i++) {
-      result[i] = data.at(indices[i]);
+    if (data instanceof Vec) {
+      final Vec dataVec = (Vec) data;
+      final Vec result = new ArrayVec(indices.length);
+      for (int i = 0; i < indices.length; i++) {
+        result.set(i, dataVec.get(indices[i]));
+      }
+      return (Seq<I>) result;
     }
-    return new ArraySeq<I>(result);
+    else {
+      final I[] result = (I[])Array.newInstance(data.at(0).getClass(), indices.length);
+      for (int i = 0; i < indices.length; i++) {
+        result[i] = data.at(indices[i]);
+      }
+      return new ArraySeq<I>(result);
+    }
   }
 
   public static int sum(int[] arr, int from, int end) {
