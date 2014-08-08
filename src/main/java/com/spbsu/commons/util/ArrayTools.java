@@ -480,7 +480,7 @@ public abstract class ArrayTools {
   public static <I> I[] cut(final I[] data, final int[] indices) {
     if (indices.length == 0 || data.length == 0)
       throw new IllegalArgumentException();
-    I[] result = (I[])Array.newInstance(data[0].getClass());
+    final I[] result = (I[])Array.newInstance(data[0].getClass(), indices.length);
     for (int i = 0; i < indices.length; i++) {
       result[i] = data[indices[i]];
     }
@@ -498,7 +498,7 @@ public abstract class ArrayTools {
   public static <I> Seq<I> cut(final Seq<I> data, final int[] indices) {
     if (indices.length == 0 || data.length() == 0)
       throw new IllegalArgumentException();
-    I[] result = (I[])Array.newInstance(data.at(0).getClass());
+    final I[] result = (I[])Array.newInstance(data.at(0).getClass(), indices.length);
     for (int i = 0; i < indices.length; i++) {
       result[i] = data.at(indices[i]);
     }
