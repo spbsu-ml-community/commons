@@ -290,7 +290,7 @@ public class VectorsTest extends TestCase {
     }
 
     Mx m = MxTools.mahalanobis(pool);
-    assertTrue(distance(L, MxTools.inverseLTriangle(m)) < 0.02);
+    assertTrue("Distance is: " + Double.toString(distance(L, MxTools.inverseLTriangle(m))), distance(L, MxTools.inverseLTriangle(m)) < 0.02);
   }
 
   public void testNearestNeighbour() {
