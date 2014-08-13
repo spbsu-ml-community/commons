@@ -1,8 +1,10 @@
 package com.spbsu.commons.util.tree;
 
+import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.list.linked.TIntLinkedList;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -10,10 +12,10 @@ import org.jetbrains.annotations.Nullable;
  * Date: 01.08.14
  */
 
-public class IntArrayTree implements SimpleTree {
+public class IntArrayTree implements IntTree {
   /**
    * Indexes of children.
-   * Nodes[i] has next children labels interval: [children[i-1], children[i]). For definitely, children[-1] = 1.
+   * Node #i has next children labels interval: [children[i-1], children[i]). For definitely, children[-1] = 1.
    */
   private final TIntList children = new TIntArrayList();
 
@@ -38,9 +40,7 @@ public class IntArrayTree implements SimpleTree {
 
   @Override
   public boolean hasChildren(int node) {
-    final int startChildren = node > 0 ? children.get(node - 1) : 1;
-    final int endChildren = children.get(node);
-    return endChildren - startChildren > 0;
+    return childrenCount(node) > 0;
   }
 
   @Override
@@ -52,12 +52,19 @@ public class IntArrayTree implements SimpleTree {
       if (startChildren <= node && node < endChildren)
         return i;
     }
-    return node > 0 ? 0 : -1;
+    return node != ROOT ? ROOT : -1;
   }
 
   @Override
   public int addToRoot() {
-    return addTo(0);
+    return addTo(ROOT);
+  }
+
+  @Override
+  public int childrenCount(final int node) {
+    final int startChildren = node != ROOT ? children.get(node - 1) : 1;
+    final int endChildren = children.get(node);
+    return endChildren - startChildren;
   }
 
   private void checkIndex(int i) {
@@ -90,7 +97,7 @@ public class IntArrayTree implements SimpleTree {
   @Nullable
   public TIntIterator getChildren(final int node) {
     checkIndex(node);
-    final int startChildren = node > 0 ? children.get(node - 1) : 1;
+    final int startChildren = node != ROOT ? children.get(node - 1) : 1;
     final int endChildren = children.get(node);
     if (endChildren - startChildren > 0) {
       return new TIntIterator() {
@@ -118,10 +125,119 @@ public class IntArrayTree implements SimpleTree {
   }
 
   @Override
+  public void accept(final IntTreeVisitor visitor, final int node) {
+    visitor.visit(node);
+  }
+
+  @Override
+  public int[] traversal(final TRAVERSE_STRATEGY strategy) {
+    switch (strategy) {
+      case BREADTH_FIRST:
+        return ArrayTools.sequence(0, children.size());
+      case DEPTH_FIRST:
+        return depthFirstTraversal(ROOT);
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  private int[] depthFirstTraversal(int from) {
+    final TIntList result = new TIntLinkedList();
+    accept(new IntTreeVisitor() {
+      @Override
+      public void visit(final int node) {
+        result.add(node);
+        final TIntIterator nodeChildren = getChildren(node);
+        if (nodeChildren != null) {
+          while (nodeChildren.hasNext()) {
+            accept(this, nodeChildren.next());
+          }
+        }
+      }
+    }, from);
+    return result.toArray();
+  }
+
+  public int[] leaves(final TRAVERSE_STRATEGY strategy) {
+    switch (strategy) {
+      case BREADTH_FIRST: return breadthFirstLeaves();
+      case DEPTH_FIRST:   return depthFirstLeaves();
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  private int[] depthFirstLeaves() {
+    final TIntList result = new TIntLinkedList();
+    accept(new IntTreeVisitor() {
+      @Override
+      public void visit(final int node) {
+        final TIntIterator nodeChildren = getChildren(node);
+        if (nodeChildren != null) {
+          while (nodeChildren.hasNext()) {
+            accept(this, nodeChildren.next());
+          }
+        } else {
+          result.add(node);
+        }
+      }
+    }, ROOT);
+    return result.toArray();
+  }
+
+  private int[] breadthFirstLeaves() {
+    final TIntList result = new TIntLinkedList();
+    for (int i = 0; i < nodesCount(); i++) {
+      if (!hasChildren(i)) {
+        result.add(i);
+      }
+    }
+    return result.toArray();
+  }
+
+  @Override
+  public int[] internals(final TRAVERSE_STRATEGY strategy) {
+    switch (strategy) {
+      case BREADTH_FIRST: return breadthFirstInternals();
+      case DEPTH_FIRST: return deepFirstInternals();
+      default:
+        throw new IllegalArgumentException();
+
+    }
+  }
+
+  private int[] breadthFirstInternals() {
+    final TIntList result = new TIntLinkedList();
+    for (int i = 0; i < nodesCount(); i++) {
+      if (hasChildren(i)) {
+        result.add(i);
+      }
+    }
+    return result.toArray();
+  }
+
+  private int[] deepFirstInternals() {
+    final TIntList result = new TIntLinkedList();
+    accept(new IntTreeVisitor() {
+      @Override
+      public void visit(final int node) {
+        final TIntIterator nodeChildren = getChildren(node);
+        if (nodeChildren != null) {
+          result.add(node);
+          while (nodeChildren.hasNext()) {
+            accept(this, nodeChildren.next());
+          }
+        }
+      }
+    }, ROOT);
+    return result.toArray();
+  }
+
+  @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();
     for (int i = 0; i < children.size(); i++) {
-      final int start = i > 0 ? children.get(i - 1) : 1;
+      final int start = i != ROOT ? children.get(i - 1) : 1;
       final int end = children.get(i);
       if (end - start > 0) {
         builder.append("Node #").append(i).append(" has children with labels: [");
@@ -138,5 +254,22 @@ public class IntArrayTree implements SimpleTree {
       }
     }
     return builder.toString();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) return true;
+    if (!(o instanceof IntArrayTree)) return false;
+
+    final IntArrayTree that = (IntArrayTree) o;
+
+    if (!children.equals(that.children)) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return children.hashCode();
   }
 }

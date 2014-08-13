@@ -6,6 +6,7 @@ import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.ArraySeq;
+import com.spbsu.commons.seq.IntSeq;
 import com.spbsu.commons.seq.Seq;
 
 
@@ -227,9 +228,8 @@ public abstract class ArrayTools {
 
   public static int[] sequence(int start, int end) {
     int[] result = new int[end - start];
-    while (start < end) {
-      result[start] = start;
-      start++;
+    for (int i = 0; i < result.length; i++) {
+      result[i] = i + start;
     }
     return result;
   }
@@ -508,6 +508,14 @@ public abstract class ArrayTools {
       }
       return (Seq<I>) result;
     }
+    else if (data instanceof IntSeq) {
+      final IntSeq dataIntSeq = (IntSeq) data;
+      final int[] ints = new int[indices.length];
+      for (int i = 0; i < indices.length; i++) {
+        ints[i] = dataIntSeq.arr[indices[i]];
+      }
+      return (Seq<I>) new IntSeq(ints);
+    }
     else {
       final I[] result = (I[])Array.newInstance(data.at(0).getClass(), indices.length);
       for (int i = 0; i < indices.length; i++) {
@@ -523,5 +531,20 @@ public abstract class ArrayTools {
       result += arr[i];
     }
     return result;
+  }
+
+  public static int[] fill(final int[] arr, final int val) {
+    final int alignedCount = (arr.length / 4) * 4;
+    for (int i = 0; i < alignedCount; i+=4) {
+      arr[i] = val;
+      arr[i + 1] = val;
+      arr[i + 2] = val;
+      arr[i + 3] = val;
+    }
+
+    for (int i = alignedCount; i < arr.length; i++){
+      arr[i] = val;
+    }
+    return arr;
   }
 }

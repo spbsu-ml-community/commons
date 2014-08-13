@@ -601,4 +601,9 @@ public class VectorsTest extends TestCase {
     final String str = new ArrayVec(0, 1, 2, 3).toString();
     assertEquals("4 0.0 1.0 2.0 3.0", str);
   }
+
+  public void testArgmax() throws Exception {
+    final Vec vec = new ArrayVec(1, 4, 2, 5, 9);
+    assertEquals(4, VecTools.argmax(vec));
+  }
 }

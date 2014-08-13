@@ -337,7 +337,7 @@ public class VecTools {
     return result;
   }
 
-  public static Vec fill(Vec x, double val) {
+  public static <T extends Vec> T fill(T x, double val) {
     for (int i = 0; i < x.dim(); i++) {
       x.set(i, val);
     }
@@ -695,4 +695,16 @@ public class VecTools {
     return result;
   }
 
+  public static int argmax(Vec v) {
+    int argmax = 0;
+    double maxValue = Double.NEGATIVE_INFINITY;
+    final VecIterator iter = v.nonZeroes();
+    while (iter.advance()) {
+      if (iter.value() > maxValue) {
+        maxValue = iter.value();
+        argmax = iter.index();
+      }
+    }
+    return argmax;
+  }
 }
