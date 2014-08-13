@@ -1,19 +1,19 @@
 package com.spbsu.commons.seq;
 
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.seq.trash.FloatingDecimal;
+import gnu.trove.strategy.HashingStrategy;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spbsu.commons.func.Processor;
-import com.spbsu.commons.seq.trash.FloatingDecimal;
-import gnu.trove.strategy.HashingStrategy;
 
 /**
  * User: terry
@@ -45,7 +45,6 @@ public class CharSeqTools {
       return (byte) ((c - 0x41) + 10);
     throw new IllegalArgumentException("Not a hex char: " + c);
   }
-
   public static boolean equals(CharSequence text, CharSequence other) {
     if (text == other) {
       return true;
@@ -264,10 +263,12 @@ public class CharSeqTools {
     return compacted;
   }
 
-  public static void processLines(Reader input, Processor<CharSequence> seqProcessor) throws IOException {
+  public static void processAndSplitLines(@NotNull final Reader input, @NotNull final Processor<CharSequence[]> seqProcessor, @Nullable final String delimeters, final boolean trim) throws IOException {
     final char[] buffer = new char[4096*4];
+    final List<CharSequence> parts = new ArrayList<>();
     CharSeqBuilder line = new CharSeqBuilder();
     int read;
+
     boolean skipCaretReturn = false;
     while ((read = input.read(buffer)) >= 0) {
       int offset = 0;
@@ -279,13 +280,22 @@ public class CharSeqTools {
           skipCaretReturn = false;
         }
 
-        while (index < read && buffer[index] != '\n')
+        while (index < read && buffer[index] != '\n') {
+          if (delimeters != null && delimeters.indexOf(buffer[index]) >= 0) {
+            line.append(buffer, offset, index++);
+            offset = index;
+            parts.add((trim ? trim(line) : line).toString());
+            line = new CharSeqBuilder();
+          }
           index++;
+        }
 
         if (index < read) {
           line.append(buffer, offset, index);
-          seqProcessor.process(line);
+          parts.add((trim ? trim(line) : line).toString());
+          seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
           line.clear();
+          parts.clear();
           offset = ++index; // skip '\n'
           skipCaretReturn = true;
         }
@@ -293,9 +303,21 @@ public class CharSeqTools {
       if (offset < read)
         line.append(buffer, offset, read);
     }
-    if (line.length() > 0)
-      seqProcessor.process(line);
+    if (line.length() > 0) {
+      parts.add((trim ? trim(line) : line).toString());
+      seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
+    }
   }
+
+  public static void processLines(final Reader input, final Processor<CharSequence> seqProcessor) throws IOException {
+    processAndSplitLines(input, new Processor<CharSequence[]>() {
+      @Override
+      public void process(CharSequence[] arg) {
+        seqProcessor.process(arg[0]);
+      }
+    }, null, false);
+  }
+
 
   public static JsonParser parseJSON(final CharSequence part) throws IOException {
     final ObjectMapper objectMapper = new ObjectMapper();
@@ -328,7 +350,6 @@ public class CharSeqTools {
     }
     return result * (negative ? -1 : 1);
   }
-
 
   public static class LexicographicalComparator implements Comparator<CharSequence> {
     public int compare(CharSequence a, CharSequence b) {
