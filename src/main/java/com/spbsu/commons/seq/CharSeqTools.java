@@ -46,6 +46,7 @@ public class CharSeqTools {
       return (byte) ((c - 0x41) + 10);
     throw new IllegalArgumentException("Not a hex char: " + c);
   }
+
   public static boolean equals(CharSequence text, CharSequence other) {
     if (text == other) {
       return true;
