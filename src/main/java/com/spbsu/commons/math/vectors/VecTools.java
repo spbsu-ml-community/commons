@@ -1,5 +1,6 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.seq.IntSeq;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
@@ -706,5 +707,14 @@ public class VecTools {
       }
     }
     return argmax;
+  }
+
+  public static IntSeq toIntSeq(Vec v) {
+    final int[] ints = new int[v.length()];
+    final VecIterator iter = v.nonZeroes();
+    while (iter.advance()) {
+      ints[iter.index()] = (int) iter.value();
+    }
+    return new IntSeq(ints);
   }
 }
