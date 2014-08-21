@@ -28,9 +28,12 @@ public class LSHEuclidNNLocator {
   }
 
   public LSHEuclidNNLocator(List<Vec> pool, int size, int parts) {
+    this(pool, size, parts, new FastRandom());
+  }
+
+  public LSHEuclidNNLocator(List<Vec> pool, int size, int parts, final Random random) {
     this.pool = pool;
     final int dim = pool.get(0).dim();
-    final Random random = new FastRandom();
     final int poolSize = pool.size();
     for (int i = 0; i < size; i++) {
       Axis axis = new Axis();
