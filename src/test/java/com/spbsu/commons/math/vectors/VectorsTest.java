@@ -299,7 +299,7 @@ public class VectorsTest extends TestCase {
             0.5, 1,
     }));
     final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
-    final Random random = new FastRandom();
+    final Random random = new FastRandom(100500);
     GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma);
     List<Vec> pool = new ArrayList<Vec>();
     for (int i = 0; i < 10000; i++) {
