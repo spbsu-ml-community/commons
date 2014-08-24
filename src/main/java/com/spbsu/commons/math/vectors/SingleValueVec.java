@@ -15,7 +15,7 @@ public class SingleValueVec extends Vec.Stub {
   private final int dim;
 
   public SingleValueVec(final double value) {
-    this(value, 0);
+    this(value, 1);
   }
 
   public SingleValueVec(final double value, final int dim) {
