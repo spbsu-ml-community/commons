@@ -52,8 +52,8 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
     final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       if (val == 0) {
-        values.remove(realIndex);
-        indices.remove(realIndex);
+        values.removeAt(realIndex);
+        indices.removeAt(realIndex);
       }
       else
         values.setQuick(realIndex, val);
@@ -86,8 +86,8 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       final double newValue = values.getQuick(realIndex) + increment;
       if (newValue == 0) {
-        values.remove(realIndex);
-        indices.remove(realIndex);
+        values.removeAt(realIndex);
+        indices.removeAt(realIndex);
       }
       else values.setQuick(realIndex, newValue);
     }
