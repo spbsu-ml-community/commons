@@ -3,12 +3,13 @@ package com.spbsu.commons.util;
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Evaluator;
 import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.VecTools;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.ArraySeq;
 import com.spbsu.commons.seq.IntSeq;
 import com.spbsu.commons.seq.Seq;
-
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -506,6 +507,9 @@ public abstract class ArrayTools {
       for (int i = 0; i < indices.length; i++) {
         result.set(i, dataVec.get(indices[i]));
       }
+      // TODO: support sparse vectors cutting
+      if (data instanceof SparseVec)
+        return (Seq<I>) VecTools.copySparse(result);
       return (Seq<I>) result;
     }
     else if (data instanceof IntSeq) {
