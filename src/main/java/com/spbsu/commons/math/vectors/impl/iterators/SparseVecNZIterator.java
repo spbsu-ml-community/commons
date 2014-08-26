@@ -38,8 +38,8 @@ public class SparseVecNZIterator implements VecIterator {
   public final boolean advance() {
     if (needRemove) {
       needRemove = false;
-      indices.remove(index);
-      values.remove(index);
+      indices.removeAt(index);
+      values.removeAt(index);
       size--;
     }
     else index++;

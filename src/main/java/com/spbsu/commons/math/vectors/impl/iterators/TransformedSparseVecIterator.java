@@ -42,10 +42,10 @@ public class TransformedSparseVecIterator implements VecIterator {
     if (needRemove) {
       needRemove = false;
       int oldIndex = nzTransformed.getQuick(index);
-      origIndices.remove(oldIndex);
-      origValues.remove(oldIndex);
-      nzTransformed.remove(index);
-      nzIndices.remove(index);
+      origIndices.removeAt(oldIndex);
+      origValues.removeAt(oldIndex);
+      nzTransformed.removeAt(index);
+      nzIndices.removeAt(index);
       size--;
       for (int i = 0; i < size; i++) {
         int old = nzTransformed.getQuick(i);
