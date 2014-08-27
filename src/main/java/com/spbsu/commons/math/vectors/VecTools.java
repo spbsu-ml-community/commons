@@ -1,5 +1,6 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.math.vectors.impl.vectors.*;
 import com.spbsu.commons.seq.IntSeq;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,10 +12,6 @@ import java.util.TreeSet;
 
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
-import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
-import com.spbsu.commons.math.vectors.impl.vectors.CustomBasisVec;
-import com.spbsu.commons.math.vectors.impl.vectors.DVector;
-import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
@@ -368,6 +365,13 @@ public class VecTools {
     if (vec instanceof ArrayVec) {
       final ArrayVec arrayVec = (ArrayVec) vec;
       return (T)new ArrayVec(arrayVec.data.array.clone(), arrayVec.data.start, arrayVec.data.length);
+    }
+    if (vec instanceof IndexTransVec) {
+      final IndexTransVec indexTransVec = (IndexTransVec) vec;
+      if (VecTools.isSparse(indexTransVec, 0.1))
+        return (T) copySparse(indexTransVec);
+      else
+        return (T) new ArrayVec(indexTransVec.toArray());
     }
     return (T)copySparse(vec);
   }

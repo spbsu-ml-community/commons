@@ -3,6 +3,7 @@ package com.spbsu.commons.math.vectors;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.math.vectors.impl.vectors.DVector;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
+import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.random.GaussianRandomVec;
 import com.spbsu.commons.util.ArrayTools;
@@ -592,12 +593,58 @@ public class VectorsTest extends TestCase {
   }
 
   public void testSubtract() {
-    final VecBasedMx a = new VecBasedMx(1, 1);
-    final VecBasedMx b = new VecBasedMx(1, 1);
-    final VecBasedMx sum = VecTools.sum(a, b);
-    System.out.println(sum);
+    final Vec a = new ArrayVec(1, 2, 3);
+    final Vec b = new ArrayVec(2, 2, 3);
+    final Vec subtract = VecTools.subtract(a, b);
+    assertEquals(new ArrayVec(-1, 0, 0), subtract);
   }
 
+  public void testSubtract2() {
+    final Mx a = new VecBasedMx(2, new ArrayVec(0, 1, 0, 1));
+    final Mx b = new VecBasedMx(2, new ArrayVec(0, 0, 0, 1));
+    final Vec subtract = VecTools.subtract(a, b);
+    assertEquals(new VecBasedMx(2, new ArrayVec(0, 1, 0, 0)), subtract);
+  }
+
+  public void testSubtract3() throws Exception {
+    final Mx a = new VecBasedMx(2, new ArrayVec(1, 0, 0, 1));
+    final Mx b = new VecBasedMx(2, new ArrayVec(1, 1, 0, 1));
+    final Mx subA = a.sub(0, 0, 1, 2);
+    final Mx subB = b.sub(0, 0, 1, 2);
+    final Vec subtract = VecTools.subtract(subA, subB);
+    assertEquals(new VecBasedMx(2, new ArrayVec(0, -1)), subtract);
+  }
+
+  public void testSparseVec() throws Exception {
+    final SparseVec sparseVec = new SparseVec(4, new int[]{0, 1, 2}, new double[]{1.0, 2.0, 3.0});  //{1, 2, 3, 0}
+    sparseVec.adjust(3, 1.0);
+    assertTrue(Arrays.equals(new double[]{1, 2, 3, 1}, sparseVec.toArray()));
+
+    sparseVec.adjust(1, -2.0);
+    assertTrue(Arrays.equals(new double[]{1, 0, 3, 1}, sparseVec.toArray()));
+
+    sparseVec.set(2, 0);
+    assertTrue(Arrays.equals(new double[]{1, 0, 0, 1}, sparseVec.toArray()));
+  }
+
+  public void testSparseVecNZIterator() throws Exception {
+    final SparseVec sparseVec = new SparseVec(4, new int[]{0, 1, 2}, new double[]{1.0, 2.0, 3.0});  //{1, 2, 3, 0}
+    final VecIterator vecIterator = sparseVec.nonZeroes();
+
+    vecIterator.advance();
+    assertEquals(1.0, vecIterator.value());
+
+    vecIterator.advance();
+    vecIterator.setValue(0.0);
+    assertEquals(0.0, vecIterator.value());
+
+    vecIterator.advance();
+    vecIterator.setValue(999.0);
+    assertEquals(999.0, vecIterator.value());
+
+    assertFalse(vecIterator.advance());
+    assertTrue(Arrays.equals(new double[] {1.0, 0.0, 999.0, 0.0}, sparseVec.toArray()));
+  }
 
   public void testToString() {
     final String str = new ArrayVec(0, 1, 2, 3).toString();
