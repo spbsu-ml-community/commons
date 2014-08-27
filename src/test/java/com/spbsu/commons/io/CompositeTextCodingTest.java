@@ -1,19 +1,20 @@
 package com.spbsu.commons.io;
 
-import com.spbsu.commons.io.codec.ArithmeticCoding;
-import com.spbsu.commons.io.codec.CompositeStatTextCoding;
-import com.spbsu.commons.random.FastRandom;
-import com.spbsu.commons.io.codec.seq.ListDictionary;
-import com.spbsu.commons.seq.CharSeqTools;
-import junit.framework.TestCase;
-
-
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
+
+
+import com.spbsu.commons.io.codec.ArithmeticCoding;
+import com.spbsu.commons.io.codec.CompositeStatTextCoding;
+import com.spbsu.commons.io.codec.seq.ListDictionary;
+import com.spbsu.commons.random.FastRandom;
+import com.spbsu.commons.seq.CharSeqAdapter;
+import com.spbsu.commons.seq.Seq;
+import junit.framework.TestCase;
 
 /**
  * User: solar
@@ -24,31 +25,34 @@ public class CompositeTextCodingTest extends TestCase {
   public static CharSequence[] queries;
   public static CharSequence[] urls;
   public static CharSequence[] packages;
+  public static CharSequence[] user_sessions;
 
-  static private synchronized void loadDataSet() {
+  private static synchronized void loadDataSet() {
     try {
       if (queries == null) {
         List<CharSequence> queries = new ArrayList<CharSequence>();
-        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/queries.txt.gz"))));
-        String line;
-        while((line = lnr.readLine()) != null) {
-          queries.add(line + "\n");
+        try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/queries.txt.gz"))))) {
+          String line;
+          while ((line = lnr.readLine()) != null) {
+            queries.add(line + "\n");
+          }
+          CompositeTextCodingTest.queries = queries.toArray(new CharSequence[queries.size()]);
         }
-        CompositeTextCodingTest.queries = queries.toArray(new CharSequence[queries.size()]);
       }
 
       if (urls == null) {
         List<CharSequence> urls = new ArrayList<CharSequence>();
-        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/urls.txt.gz"))));
-        String line;
-        while((line = lnr.readLine()) != null) {
-          urls.add(line + "\n");
+        try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/urls.txt.gz"))))) {
+          String line;
+          while ((line = lnr.readLine()) != null) {
+            urls.add(line + "\n");
+          }
+          CompositeTextCodingTest.urls = urls.toArray(new CharSequence[urls.size()]);
         }
-        CompositeTextCodingTest.urls = urls.toArray(new CharSequence[urls.size()]);
       }
 
       if (packages == null && false) {
-        List<CharSequence> packs = new ArrayList<CharSequence>();
+        List<CharSequence> packs = new ArrayList<>();
         File dir = new File("/Users/solar/Downloads/results");
         for (String packName : dir.list()) {
           final File packFile = new File(dir, packName);
@@ -56,6 +60,18 @@ public class CompositeTextCodingTest extends TestCase {
             packs.add(StreamTools.readFile(packFile));
         }
         CompositeTextCodingTest.packages = packs.toArray(new CharSequence[packs.size()]);
+      }
+      if (user_sessions == null) {
+        List<CharSequence> user_sessions = new ArrayList<>();
+        try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("/Users/solar/Downloads/session-sample.txt.gz"))))){
+          String line;
+          while ((line = lnr.readLine()) != null) {
+            user_sessions.add(line + "\n");
+            if (user_sessions.size() > 10000)
+              break;
+          }
+          CompositeTextCodingTest.user_sessions = user_sessions.toArray(new CharSequence[user_sessions.size()]);
+        }
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -125,7 +141,7 @@ public class CompositeTextCodingTest extends TestCase {
     for (int i = 0; i < urls.length; i++) {
       CharSequence suffix = urls[i];
       while(suffix.length() > 0) {
-        final int symbol = dict.search(suffix);
+        final int symbol = dict.search(new CharSeqAdapter(suffix));
         suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
         symbolFreqs[symbol]++;
       }
@@ -190,10 +206,10 @@ public class CompositeTextCodingTest extends TestCase {
 
     final ByteBuffer buffer = ByteBuffer.allocate((int)Math.min(1000000000l, bytes/10));
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
-    final ListDictionary result = coding.expansion().result();
+    final ListDictionary<Character> result = coding.expansion().result();
     FileWriter output = new FileWriter("./out.dict");
-    for (CharSequence sequence : result.alphabet()) {
-      output.append(sequence).append("\n");
+    for (Seq<Character> sequence : result.alphabet()) {
+      output.append(sequence.toString()).append("\n");
     }
     output.close();
     for (int i = 0; i < packages.length; i++) {
@@ -202,6 +218,41 @@ public class CompositeTextCodingTest extends TestCase {
     }
     System.out.println(result.alphabet().size() + " " + buffer.position());
     assertTrue(buffer.position() < 140000);
+  }
+
+  public void testUserSessionsCoding() throws IOException {
+    if (user_sessions == null)
+      return;
+    FastRandom rng = new FastRandom(0);
+    long bytes = 0;
+    final HashSet<Character> alpha = new HashSet<>();
+    for (int i = 0; i < user_sessions.length; i++) {
+      CharSequence query = user_sessions[i];
+      bytes += 2 * query.length();
+      for (int t = 0; t < query.length(); t++)
+        alpha.add(query.charAt(t));
+    }
+
+    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 100000);
+
+    for (int i = 0; i < 1000000; i++) {
+      CharSequence query = user_sessions[rng.nextInt(user_sessions.length)];
+      coding.accept(query);
+    }
+
+    final ByteBuffer buffer = ByteBuffer.allocate((int)Math.min(1000000000l, bytes/10));
+    final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
+    final ListDictionary<Character> result = coding.expansion().result();
+    FileWriter output = new FileWriter("./out.dict");
+    for (Seq<Character> sequence : result.alphabet()) {
+      output.append(sequence.toString()).append("\n");
+    }
+    output.close();
+    for (int i = 0; i < user_sessions.length; i++) {
+      CharSequence query = user_sessions[i];
+      encode.write(query);
+    }
+    System.out.println(result.alphabet().size() + " " + buffer.position());
   }
 
 }

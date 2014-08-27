@@ -2,6 +2,8 @@ package com.spbsu.commons.io.codec;
 
 import com.spbsu.commons.io.codec.seq.DictExpansion;
 import com.spbsu.commons.io.codec.seq.ListDictionary;
+import com.spbsu.commons.seq.CharSeqAdapter;
+
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -12,26 +14,26 @@ import java.util.Collection;
  * Time: 10:33
  */
 public class CompositeStatTextCoding {
-  private final DictExpansion expansion;
+  private final DictExpansion<Character> expansion;
   private boolean stop = false;
 
   public CompositeStatTextCoding(Collection<Character> alphabet, int dictSize) {
-    this.expansion = new DictExpansion(alphabet, dictSize, true);
+    this.expansion = new DictExpansion<>(alphabet, dictSize, true);
   }
 
   public void accept(CharSequence seq) {
     if (!stop)
-      expansion.accept(seq);
+      expansion.accept(new CharSeqAdapter(seq));
     else throw new RuntimeException("Expansion is not supported after encode/decode routine called");
   }
 
-  public DictExpansion expansion() {
+  public DictExpansion<Character> expansion() {
     return expansion;
   }
 
   public class Encode {
     public ArithmeticCoding.Encoder output;
-    private final ListDictionary dict;
+    private final ListDictionary<Character> dict;
 
     public Encode(ByteBuffer output) {
       this.output = new ArithmeticCoding.Encoder(output, expansion.resultFreqs());
@@ -41,7 +43,7 @@ public class CompositeStatTextCoding {
 
     public void write(CharSequence suffix) {
       while(suffix.length() > 0) {
-        final int symbol = dict.search(suffix);
+        final int symbol = dict.search(new CharSeqAdapter(suffix));
         suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
         output.write(symbol);
       }

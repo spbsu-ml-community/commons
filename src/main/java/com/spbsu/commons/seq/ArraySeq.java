@@ -1,5 +1,7 @@
 package com.spbsu.commons.seq;
 
+import java.lang.reflect.Array;
+
 /**
  * User: solar
  * Date: 07.07.14
@@ -42,5 +44,11 @@ public class ArraySeq<T> extends Seq.Stub<T> {
   @Override
   public boolean isImmutable() {
     return true;
+  }
+
+  @Override
+  public Class<T> elementType() {
+    //noinspection unchecked
+    return (Class<T>)arr.getClass().getComponentType();
   }
 }

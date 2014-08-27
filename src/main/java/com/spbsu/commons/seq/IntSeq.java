@@ -71,4 +71,9 @@ public class IntSeq extends Seq.Stub<Integer> {
     result = 31 * result + end;
     return result;
   }
+
+  @Override
+  public Class<Integer> elementType() {
+    return int.class;
+  }
 }

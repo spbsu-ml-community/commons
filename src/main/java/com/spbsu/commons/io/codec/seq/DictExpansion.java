@@ -2,6 +2,8 @@ package com.spbsu.commons.io.codec.seq;
 
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.seq.CharSeqTools;
+import com.spbsu.commons.seq.Seq;
+import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.map.hash.TLongIntHashMap;
 import gnu.trove.procedure.TLongIntProcedure;
 
@@ -16,16 +18,16 @@ import static java.lang.Math.min;
  * Date: 04.06.12
  * Time: 18:23
  */
-public class DictExpansion {
+public class DictExpansion<T extends Comparable<T>> {
   public static final double POISSON_SIGNIFICANCE = 0.01;
   public static final double EXTENSION_FACTOR = 1.33;
   public static final double MAX_POWER = 100000000;
   public static final double MAX_MIN_PROBABILITY = 0.01;
   private final int size;
   private final boolean trace;
-  private ListDictionary suggest;
-  private ListDictionary current;
-  private ListDictionary result;
+  private ListDictionary<T> suggest;
+  private ListDictionary<T> current;
+  private ListDictionary<T> result;
 
   private int powerSuggest = 0;
   private int powerCurrent = 0;
@@ -42,19 +44,19 @@ public class DictExpansion {
   private double bestCompressionRate = 1;
   private int noRateIncreaseTurns = 0;
 
-  public DictExpansion(Collection<Character> alphabet, int size) {
-    this(new ListDictionary(alphabet.toArray(new Character[alphabet.size()])), size, false);
-  }
-
-  public DictExpansion(Collection<Character> alphabet, int size, boolean trace) {
-    this(new ListDictionary(alphabet.toArray(new Character[alphabet.size()])), size, trace);
-  }
-
-  public DictExpansion(ListDictionary alphabet, int size) {
+  public DictExpansion(Collection<T> alphabet, int size) {
     this(alphabet, size, false);
   }
 
-  public DictExpansion(ListDictionary alphabet, int size, boolean trace) {
+  public DictExpansion(Collection<T> alphabet, int size, boolean trace) {
+    this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, trace);
+  }
+
+  public DictExpansion(ListDictionary<T> alphabet, int size) {
+    this(alphabet, size, false);
+  }
+
+  public DictExpansion(ListDictionary<T> alphabet, int size, boolean trace) {
     this.size = size;
     this.trace = trace;
     this.alphabetSize = alphabet.size();
@@ -70,7 +72,7 @@ public class DictExpansion {
     minProbSuggest = MAX_MIN_PROBABILITY;
   }
 
-  public ListDictionary result() {
+  public ListDictionary<T> result() {
     return result;
   }
 
@@ -102,10 +104,10 @@ public class DictExpansion {
       return result.toString();
     }
   }
-  public void accept(CharSequence seq) {
+  public void accept(Seq<T> seq) {
     int prev = -1;
     {
-      CharSequence suffix = seq;
+      Seq<T> suffix = seq;
       while(suffix.length() > 0) {
         final int symbol = current.search(suffix);
         symbolFreqsCurrent[symbol]++;
@@ -114,16 +116,16 @@ public class DictExpansion {
           pairsCount++;
         }
         prev = symbol;
-        suffix = suffix.subSequence(current.get(symbol).length(), suffix.length());
+        suffix = suffix.sub(current.get(symbol).length(), suffix.length());
         powerCurrent++;
       }
     }
     {
-      CharSequence suffix = seq;
+      Seq<T> suffix = seq;
       while(suffix.length() > 0) {
         final int symbol = suggest.search(suffix);
         symbolFreqsSuggest[symbol]++;
-        suffix = suffix.subSequence(suggest.get(symbol).length(), suffix.length());
+        suffix = suffix.sub(suggest.get(symbol).length(), suffix.length());
         powerSuggest++;
       }
     }
@@ -153,8 +155,8 @@ public class DictExpansion {
       if (trace)
         System.out.println("Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + minProbSuggest);
 
-      final ListDictionary reduce = reduce();
-      final ListDictionary expand = expand();
+      final ListDictionary<T> reduce = reduce();
+      final ListDictionary<T> expand = expand();
 
       current = reduce;
       suggest = expand;
@@ -168,8 +170,8 @@ public class DictExpansion {
     }
   }
 
-  private ListDictionary expand() {
-    final List<StatItem> items = new ArrayList<StatItem>();
+  private ListDictionary<T> expand() {
+    final List<StatItem> items = new ArrayList<>();
     pairFreqs.forEachEntry(new TLongIntProcedure() {
       @Override
       public boolean execute(long code, int count) {
@@ -189,20 +191,21 @@ public class DictExpansion {
         return Double.compare(o1.score, o2.score);
       }
     });
-    final List<CharSequence> newDict = new ArrayList<CharSequence>(current.alphabet());
+    final List<Seq<T>> newDict = new ArrayList<>(current.alphabet());
     int slots = (int)(current.size() * (EXTENSION_FACTOR - 1)) + alphabetSize;
     minProbSuggest = minProbCurrent;
     for (StatItem item : items) {
       if (item.score >= Math.log(POISSON_SIGNIFICANCE) || --slots < 0)
         break;
-      newDict.add(CharSeqTools.concat(current.get(item.first), current.get(item.second)).toString());
+      newDict.add(CharSeqTools.concat(current.get(item.first), current.get(item.second)));
       minProbSuggest = min(minProbSuggest, item.count / (double)pairsCount);
     }
-    return new ListDictionary(newDict.toArray(new CharSequence[newDict.size()]));
+    //noinspection unchecked
+    return new ListDictionary<T>(newDict.toArray(new Seq[newDict.size()]));
   }
 
-  private ListDictionary reduce() {
-    final List<StatItem> items = new ArrayList<StatItem>();
+  private ListDictionary<T> reduce() {
+    final List<StatItem> items = new ArrayList<>();
     final double codeLength;
     {
       double sum = 0;
@@ -213,12 +216,12 @@ public class DictExpansion {
       }
       codeLength = sum + powerSuggest * log(powerSuggest);
     }
-    final List<CharSequence> newDict = new ArrayList<CharSequence>(suggest.size());
+    final List<Seq<T>> newDict = new ArrayList<>(suggest.size());
 
     for (int s = 0; s < symbolFreqsSuggest.length; s++) {
       final int parent = suggest.parent(s);
       final int count = symbolFreqsSuggest[s];
-      CharSequence seq = suggest.get(s);
+      Seq<T> seq = suggest.get(s);
       if (parent < 0)
         newDict.add(seq);
       else if (count > 0) {
@@ -226,7 +229,7 @@ public class DictExpansion {
         int newStatPower = powerSuggest - count;
         int next = parent;
         do {
-          seq = seq.subSequence(suggest.get(next).length(), seq.length());
+          seq = seq.sub(suggest.get(next).length(), seq.length());
           final int oldFreq = symbolFreqsSuggest[next];
           final int newFreq = oldFreq + count;
           newStatPower += count;
@@ -252,10 +255,11 @@ public class DictExpansion {
       final double p = (item.count + 1) / ((double) powerSuggest + suggest.size());
       if (slots > size / 10.)
         minProbSuggest = min(p, minProbSuggest);
-      final CharSequence symbol = suggest.get(item.second);
+      final Seq<T> symbol = suggest.get(item.second);
       newDict.add(symbol);
     }
-    return new ListDictionary(newDict.toArray(new CharSequence[newDict.size()]));
+    //noinspection unchecked
+    return new ListDictionary<T>(newDict.toArray(new Seq[newDict.size()]));
   }
 
   public int[] resultFreqs() {

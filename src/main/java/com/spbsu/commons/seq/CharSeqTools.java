@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.trash.FloatingDecimal;
+import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -134,8 +136,31 @@ public class CharSeqTools {
     return result.toString();
   }
 
+  @SafeVarargs
+  public static <X> Seq<X> concat(final Seq<X>... texts) {
+    if (texts.length == 0)
+      throw new IllegalArgumentException();
+    final Seq<X> first = texts[0];
+    if (char.class.isAssignableFrom(first.elementType()) || Character.class.isAssignableFrom(first.elementType())) {
+      return (Seq<X>)new CharSeqComposite((CharSequence[])ArrayTools.repack(texts, CharSequence.class));
+    }
+    int size = 0;
+    for (int i = 0; i < texts.length; i++) {
+      size += texts[i].length();
+    }
+    final Object join = Array.newInstance(first.elementType(), size);
+    int index = 0;
+    for (int i = 0; i < texts.length; i++) {
+      size += texts[i].length();
+      for (int j = 0; j < texts[i].length(); j++) {
+        Array.set(join, index++, texts[i].at(j));
+      }
+    }
+    return new ArraySeq<>((X[])join);
+  }
+
   public static CharSequence concat(final CharSequence... texts) {
-    return new CharSeqComposite(texts);
+    return new CharSeqComposite((CharSequence[])ArrayTools.repack(texts, CharSequence.class));
   }
 
   public static CharSequence[] split(CharSequence sequence, char separator) {
@@ -219,12 +244,12 @@ public class CharSeqTools {
     return index;
   }
 
-  public static boolean startsWith(CharSequence seq, CharSequence prefix) {
+  public static <T> boolean startsWith(Seq<T> seq, Seq<T> prefix) {
     if (seq.length() < prefix.length())
       return false;
     int index = 0;
     while(index < prefix.length()) {
-      if(prefix.charAt(index) != seq.charAt(index))
+      if(!prefix.at(index).equals(seq.at(index)))
         return false;
       index++;
     }
@@ -353,17 +378,78 @@ public class CharSeqTools {
     return result * (negative ? -1 : 1);
   }
 
-  public static class LexicographicalComparator implements Comparator<CharSequence> {
-    public int compare(CharSequence a, CharSequence b) {
-      int index = 0;
-      while (a.length() > index && b.length() > index) {
-        char aCh = a.charAt(index);
-        char bCh = b.charAt(index);
-        if (aCh != bCh)
-          return aCh - bCh;
-        index++;
+  public static <T> Seq<T> create(final T... symbols) {
+    if (symbols.length == 0)
+      return emptySeq((Class<T>)symbols.getClass().getComponentType());
+    final T first = symbols[0];
+    if (first instanceof Character) {
+      if (symbols.length == 1)
+        return (Seq<T>)new CharSeqChar((Character)first);
+      char[] arr = new char[symbols.length];
+      for (int i = 0; i < arr.length; i++) {
+        arr[i] = (Character)symbols[i];
       }
-      return Integer.compare(a.length(), b.length());
+      return (Seq<T>)new CharSeqArray(arr);
     }
+    return new ArraySeq<T>(symbols);
+  }
+
+  public static <T> Seq.Stub<T> emptySeq(final Class<T> componentType) {
+    return new Seq.Stub<T>() {
+      @Override
+      public T at(final int i) {
+        throw new ArrayIndexOutOfBoundsException("Empty sequence");
+      }
+      @Override
+      public int length() {
+        return 0;
+      }
+      @Override
+      public boolean isImmutable() {
+        return true;
+      }
+
+      @Override
+      public Class<T> elementType() {
+        return componentType;
+      }
+    };
+  }
+
+  public static <T extends Comparable<T>> Comparator<Seq<T>> lexicographicalComparator(Class<T> clazz){
+    if (char.class.isAssignableFrom(clazz) || Character.class.isAssignableFrom(clazz)) {
+      return new Comparator<Seq<T>>() {
+        @Override
+        public int compare(final Seq<T> aa, final Seq<T> bb) {
+          final CharSeq a = (CharSeq)(Seq)aa;
+          final CharSeq b = (CharSeq)(Seq)bb;
+          final int minLength = Math.min(a.length(), b.length());
+          int index = 0;
+          while (minLength > index) {
+            final char aCh = a.charAt(index);
+            final char bCh = b.charAt(index);
+            if (aCh != bCh)
+              return aCh - bCh;
+            index++;
+          }
+          return Integer.compare(a.length(), b.length());
+        }
+      };
+    }
+    return new Comparator<Seq<T>>() {
+      @Override
+      public int compare(final Seq<T> a, final Seq<T> b) {
+        final int minLength = Math.min(a.length(), b.length());
+        int index = 0;
+        while (minLength > index) {
+          final T aCh = a.at(index);
+          final T bCh = b.at(index);
+          if (!aCh.equals(bCh))
+            return aCh.compareTo(bCh);
+          index++;
+        }
+        return Integer.compare(a.length(), b.length());
+      }
+    };
   }
 }

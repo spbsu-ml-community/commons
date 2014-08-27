@@ -1,12 +1,16 @@
 package com.spbsu.commons.seq.regexp;
 
 
+import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecTools;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.io.codec.seq.DictExpansion;
 import com.spbsu.commons.io.codec.seq.ListDictionary;
+import com.spbsu.commons.seq.CharSeq;
+import com.spbsu.commons.seq.CharSeqAdapter;
+import com.spbsu.commons.util.ArrayTools;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -29,7 +33,7 @@ public class DictExpansionTest extends TestCase {
       StringBuilder builder = new StringBuilder(len);
       for (int c = 0; c < len; c++)
         builder.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
-      de.accept(builder);
+      de.accept(new CharSeqAdapter(builder));
     }
     assertEquals('z' - 'a' + 1, de.result().size());
   }
@@ -43,7 +47,7 @@ public class DictExpansionTest extends TestCase {
         alpha.add(a);
       }
       FastRandom rnd = new FastRandom();
-      DictExpansion de = new DictExpansion(alpha, reference.size());
+      DictExpansion<Character> de = new DictExpansion<>(alpha, reference.size());
       Vec probabs = new ArrayVec(reference.size());
       VecTools.fill(probabs, 1.);
       VecTools.normalizeL1(probabs);
@@ -52,7 +56,7 @@ public class DictExpansionTest extends TestCase {
         StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
           builder.append(reference.next(probabs, rnd));
-        de.accept(builder);
+        de.accept(new CharSeqAdapter(builder));
   //      System.out.println(builder);
       }
       equalsAtLeastOnce = reference.alphabet().toString().equals(de.result().alphabet().toString());
@@ -63,9 +67,23 @@ public class DictExpansionTest extends TestCase {
   public void testRestoreLong() throws Exception {
     boolean equalsAtLeastOnce = false;
     for (int i = 0; i < 10 && !equalsAtLeastOnce; i++) {
-      ListDictionary reference = new ListDictionary("a", "b", "c", "r", "d", "cc", "aa", "bb", "rabracadabra");
-      ListDictionary start = new ListDictionary("a", "b", "c", "r", "d");
-      DictExpansion de = new DictExpansion(start, reference.size());
+      final ListDictionary<Character> reference = new ListDictionary<>(ArrayTools.map(
+          new CharSequence[]{"a", "b", "c", "r", "d", "cc", "aa", "bb", "rabracadabra"},
+          CharSeq.class, new Computable<CharSequence, CharSeq>() {
+            @Override
+            public CharSeq compute(final CharSequence argument) {
+              return new CharSeqAdapter(argument);
+            }
+          }));
+      final ListDictionary<Character> start = new ListDictionary<>(ArrayTools.map(
+          new CharSequence[]{"a", "b", "c", "r", "d"},
+          CharSeq.class, new Computable<CharSequence, CharSeq>() {
+            @Override
+            public CharSeq compute(final CharSequence argument) {
+              return new CharSeqAdapter(argument);
+            }
+          }));
+      final DictExpansion<Character> de = new DictExpansion<>(start, reference.size());
       FastRandom rng = new FastRandom();
       Vec probabs = new ArrayVec(reference.size());
       VecTools.fill(probabs, 1.);
@@ -75,7 +93,7 @@ public class DictExpansionTest extends TestCase {
         StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
           builder.append(reference.next(probabs, rng));
-        de.accept(builder);
+        de.accept(new CharSeqAdapter(builder));
       }
       equalsAtLeastOnce = reference.alphabet().toString().equals(de.result().alphabet().toString());
     }

@@ -77,4 +77,8 @@ public class VecSeq extends Seq.Stub<Vec> {
     return result;
   }
 
+  @Override
+  public Class<Vec> elementType() {
+    return Vec.class;
+  }
 }

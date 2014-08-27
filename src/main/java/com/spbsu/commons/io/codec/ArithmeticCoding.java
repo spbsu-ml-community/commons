@@ -13,7 +13,7 @@ import java.util.Arrays;
  * Time: 8:21
  */
 public class ArithmeticCoding {
-  public final static class Encoder {
+  public static final class Encoder {
     private final BitOutput output;
     private final int[] limits;
     private final int total;
@@ -27,8 +27,6 @@ public class ArithmeticCoding {
       limits = new int[freq.length];
       int total = 0;
       for (int i = 0; i < freq.length; i++) {
-//        if (freq[i] <= 0)
-//          throw new IllegalArgumentException("Frequencies must be >0! At " + i + " found " + freq[i]);
         total += freq[i] > 0 ? freq[i] : 1;
         limits[i] = total;
       }
@@ -89,7 +87,7 @@ public class ArithmeticCoding {
     }
   }
 
-  public final static class Decoder {
+  public static final class Decoder {
     private final BitInput input;
     private final int[] limits;
     private final int total;
