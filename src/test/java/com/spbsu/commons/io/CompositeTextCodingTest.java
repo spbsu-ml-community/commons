@@ -68,7 +68,7 @@ public class CompositeTextCodingTest extends TestCase {
         }
         CompositeTextCodingTest.packages = packs.toArray(new CharSequence[packs.size()]);
       }
-      if (user_sessions == null) {
+      if (user_sessions == null && false) {
         List<CharSequence> user_sessions = new ArrayList<>();
         try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("/Users/solar/Downloads/session-sample.txt.gz"))))){
           String line;
