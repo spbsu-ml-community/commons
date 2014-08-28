@@ -9,13 +9,17 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 
+import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.io.codec.ArithmeticCoding;
+import com.spbsu.commons.io.codec.CSCInputStream;
+import com.spbsu.commons.io.codec.CSCOutputStream;
 import com.spbsu.commons.io.codec.CompositeStatTextCoding;
 import com.spbsu.commons.io.codec.seq.DictExpansion;
 import com.spbsu.commons.io.codec.seq.ListDictionary;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.ByteSeq;
 import com.spbsu.commons.seq.CharSeqAdapter;
+import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.Seq;
 import junit.framework.TestCase;
 
@@ -116,6 +120,43 @@ public class CompositeTextCodingTest extends TestCase {
     }
     System.out.println(result.alphabet().size() + " " + buffer.position());
     assertTrue(buffer.position() < 140000);
+  }
+
+  public void testSimpleCodingQueryStream() throws IOException {
+    final FastRandom rng = new FastRandom(0);
+    final CharSequence[] dataSet = queries;
+    final HashSet<Byte> alpha = new HashSet<>();
+    for (int t = 0; t < 256; t++)
+      alpha.add((byte)t);
+
+    final DictExpansion<Byte> expansion = new DictExpansion<>(alpha, 1000);
+
+    for (int i = 0; i < 100000; i++) {
+      CharSequence query = dataSet[rng.nextInt(dataSet.length)];
+      expansion.accept(new ByteSeq(query.toString().getBytes()));
+    }
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final CSCOutputStream stream = new CSCOutputStream(out, expansion.result(), expansion.resultFreqs());
+
+    for (int i = 0; i < dataSet.length; i++) {
+      CharSequence query = dataSet[i];
+      stream.write(query.toString().getBytes());
+      stream.flush();
+    }
+    stream.close();
+    CharSeqTools.processLines(new InputStreamReader(new CSCInputStream(new ByteArrayInputStream(out.toByteArray()), expansion.result(), expansion.resultFreqs())), new Processor<CharSequence>() {
+      int index = 0;
+
+      @Override
+      public void process(final CharSequence arg) {
+        if (index < dataSet.length)
+          assertEquals(dataSet[index++], arg + "\n");
+        else
+          assertEquals(0, arg.length());
+      }
+    });
+    System.out.println(expansion.result().size() + " " + out.size());
   }
 
   public void testSimpleCodingURL() {

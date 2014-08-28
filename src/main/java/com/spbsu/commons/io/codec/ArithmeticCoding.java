@@ -1,8 +1,10 @@
 package com.spbsu.commons.io.codec;
 
-import com.spbsu.commons.io.BitInput;
-import com.spbsu.commons.io.BitOutput;
+import com.spbsu.commons.io.*;
 
+
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -22,8 +24,16 @@ public class ArithmeticCoding {
     private long high, low;
     private long underflow = 0;
 
-    public Encoder(ByteBuffer output, int[] freq) {
-      this.output = new BitOutput(output);
+    public Encoder(ByteBuffer out, int[] freq) {
+      this(new BitOutputBuffer(out), freq);
+    }
+
+    public Encoder(OutputStream out, int[] freq) {
+      this(new BitOutputStream(out), freq);
+    }
+
+    public Encoder(BitOutput output, int[] freq) {
+      this.output = output;
       limits = new int[freq.length];
       int total = 0;
       for (int i = 0; i < freq.length; i++) {
@@ -96,13 +106,20 @@ public class ArithmeticCoding {
     private long code;
 
     public Decoder(ByteBuffer input, int[] freq) {
-      this.input = new BitInput(input);
-      limits = new int[freq.length]; // all symbols + eof
+      this(new BitInputBuffer(input), freq);
+    }
+
+    public Decoder(InputStream input, int[] freq) {
+      this(new BitInputStream(input), freq);
+    }
+
+    public Decoder(BitInput input, int[] freqs) {
+      this.input = input;
+      limits = new int[freqs.length]; // all symbols + eof
       int total = 0;
-      for (int i = 0; i < freq.length; i++) {
-        if (freq[i] <= 0)
-          throw new IllegalArgumentException("Frequencies must be >0! At " + i + " found " + freq[i]);
-        total += freq[i];
+      for (int i = 0; i < freqs.length; i++) {
+        final int freq = freqs[i] > 0 ? freqs[i] : 1;
+        total += freq;
         limits[i] = total;
       }
       code = this.input.read(31);

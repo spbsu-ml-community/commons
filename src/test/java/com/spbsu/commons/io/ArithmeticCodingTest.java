@@ -4,6 +4,9 @@ import com.spbsu.commons.io.codec.ArithmeticCoding;
 import com.spbsu.commons.random.FastRandom;
 import junit.framework.TestCase;
 
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 /**
@@ -90,6 +93,32 @@ public class ArithmeticCodingTest extends TestCase {
         final int read = decoder.read();
         if (symbols[i] != read) {
           decoder.reset();
+          assertEquals(symbols[i], decoder.read());
+        }
+      }
+    }
+  }
+
+  public void testRandomStream() {
+    FastRandom rng = new FastRandom(0);
+    for (int t = 0; t < 1000; t++) {
+      final int[] freqs = new int[rng.nextPoisson(1000)];
+      for (int i = 0; i < freqs.length; i++) {
+        freqs[i] = rng.nextInt(10000) + 1;
+      }
+      int length = rng.nextPoisson(1000);
+      final ByteArrayOutputStream buffer = new ByteArrayOutputStream(length * 4);
+      ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
+      int[] symbols = new int[length];
+      for (int i = 0; i < symbols.length; i++) {
+        symbols[i] = rng.nextInt(freqs.length);
+        encoder.write(symbols[i]);
+      }
+      encoder.flush();
+      ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(new ByteArrayInputStream(buffer.toByteArray()), freqs);
+      for (int i = 0; i < symbols.length; i++) {
+        final int read = decoder.read();
+        if (symbols[i] != read) {
           assertEquals(symbols[i], decoder.read());
         }
       }

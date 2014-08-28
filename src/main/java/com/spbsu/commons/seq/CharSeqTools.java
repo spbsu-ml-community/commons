@@ -507,4 +507,20 @@ public class CharSeqTools {
       }
     };
   }
+
+  public static Object toArray(final Seq values) {
+    final Object result;
+    if (Integer.class.isAssignableFrom(values.elementType()))
+      result = new int[values.length()];
+    else if (Character.class.isAssignableFrom(values.elementType()))
+      result = new char[values.length()];
+    else if (Byte.class.isAssignableFrom(values.elementType()))
+      result = new byte[values.length()];
+    else
+      result = Array.newInstance(values.elementType());
+    for (int i = 0; i < values.length(); i++) {
+      Array.set(result, i, values.at(i));
+    }
+    return result;
+  }
 }
