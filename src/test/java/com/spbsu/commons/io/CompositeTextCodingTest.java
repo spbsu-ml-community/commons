@@ -2,6 +2,7 @@ package com.spbsu.commons.io;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,8 +11,10 @@ import java.util.zip.GZIPInputStream;
 
 import com.spbsu.commons.io.codec.ArithmeticCoding;
 import com.spbsu.commons.io.codec.CompositeStatTextCoding;
+import com.spbsu.commons.io.codec.seq.DictExpansion;
 import com.spbsu.commons.io.codec.seq.ListDictionary;
 import com.spbsu.commons.random.FastRandom;
+import com.spbsu.commons.seq.ByteSeq;
 import com.spbsu.commons.seq.CharSeqAdapter;
 import com.spbsu.commons.seq.Seq;
 import junit.framework.TestCase;
@@ -182,6 +185,74 @@ public class CompositeTextCodingTest extends TestCase {
     }
     System.out.println(dict.size() + " " + buffer.position());
     assertTrue(rate < 0.44);
+  }
+
+  public void testSimpleByteCodingURL() {
+    FastRandom rng = new FastRandom(0);
+    int bytes = 0;
+    final HashSet<Byte> alpha = new HashSet<>();
+    for (int i = 0; i < urls.length; i++) {
+      CharSequence query = urls[i];
+      bytes += 2 * query.length();
+      for (int t = 0; t < query.length(); t++)
+        alpha.add((byte)query.charAt(t));
+    }
+
+    DictExpansion<Byte> expansion = new DictExpansion<>(alpha, 1000);
+
+    final Charset charset = Charset.forName("UTF-8");
+    for (int i = 0; i < 100000; i++) {
+      final ByteSeq query = new ByteSeq(urls[rng.nextInt(urls.length)].toString().getBytes(charset));
+      expansion.accept(query);
+    }
+
+    final ListDictionary dict = expansion.result();
+
+    int[] symbolFreqs = new int[dict.size()];
+    for (int i = 0; i < urls.length; i++) {
+      CharSequence suffix = urls[i];
+      while(suffix.length() > 0) {
+        final int symbol = dict.search(new ByteSeq(suffix.toString().getBytes(charset)));
+        suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
+        symbolFreqs[symbol]++;
+      }
+    }
+
+    int total = 0;
+    int total1 = 0;
+    int textLength = 0;
+    double sum = 0;
+    double sum1 = 0;
+    for (int i = 0; i < dict.size(); i++) {
+      final int freq = symbolFreqs[i];
+      textLength += freq * dict.get(i).length();
+      total += freq;
+      final int freq1 = expansion.resultFreqs()[i];
+      total1 += freq1;
+      if (freq > 0) {
+        sum -= freq * Math.log(freq)/Math.log(2);
+      }
+      if (freq1 > 0) {
+        sum1 -= freq * Math.log(freq1)/Math.log(2);
+      }
+    }
+    final double codeLength = (sum + total * Math.log(total) / Math.log(2)) / 8;
+    final double codeLength1 = (sum1 + total * Math.log(total1) / Math.log(2)) / 8;
+    System.out.println("Expected code length: " + codeLength / 1024. + "kb. Expected rate: " + codeLength / textLength);
+    final double rate = codeLength1 / textLength;
+    System.out.println("Expected code length true: " + codeLength1 / 1024. + "kb. Expected rate true: " + rate);
+
+//    final ListDictionary result = coding.expansion().result();
+//    for (CharSequence sequence : result.alphabet()) {
+//      System.out.println(sequence);
+//    }
+//    encode.output = new ArithmeticCoding.Encoder(buffer, symbolFreqs);
+//    for (int i = 0; i < urls.length; i++) {
+//      CharSequence query = urls[i];
+//      encode.write(query);
+//    }
+//    System.out.println(dict.size() + " " + buffer.position());
+//    assertTrue(rate < 0.44);
   }
 
   public void testPackageCoding() throws IOException {

@@ -555,7 +555,7 @@ public abstract class ArrayTools {
     return arr;
   }
 
-  public static <T> Object repack(final Object[] arr, final Class<T> clazz) {
+  public static Object repack(final Object[] arr, final Class clazz) {
     final Object repack = Array.newInstance(clazz, arr.length);
     for (int i = 0; i < arr.length; i++) {
       Array.set(repack, i, arr[i]);
