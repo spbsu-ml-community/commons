@@ -51,7 +51,7 @@ public class ListDictionary<T extends Comparable<T>> {
     final List<Seq<T>> initalDict = new ArrayList<>(chars.length);
     for (T character : chars) {
       //noinspection unchecked
-      initalDict.add(CharSeqTools.<T>create(character));
+      initalDict.add(CharSeqTools.create(character));
     }
     //noinspection unchecked
     return initalDict.toArray(new Seq[initalDict.size()]);
