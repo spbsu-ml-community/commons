@@ -51,4 +51,13 @@ public class ArraySeq<T> extends Seq.Stub<T> {
     //noinspection unchecked
     return (Class<T>)arr.getClass().getComponentType();
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < this.length(); i++) {
+      builder.append(this.at(i).toString());
+    }
+    return builder.toString();
+  }
 }
