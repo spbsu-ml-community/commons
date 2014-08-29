@@ -374,10 +374,10 @@ public class CharSeqTools {
     return result * (negative ? -1 : 1);
   }
 
-  public static <T> Seq<T> create(final T... symbols) {
-    return create((Object)symbols);
-  }
-
+  /**
+   * creates Seq from both primitive and non-primitive arrays. In case of non primitive arrays of wrapped objects they will be repacked to primitives.
+   * Until repack the operation is light.
+   */
   @SuppressWarnings("unchecked")
   public static <T> Seq<T> create(final Object symbols) {
     if (!symbols.getClass().isArray())
