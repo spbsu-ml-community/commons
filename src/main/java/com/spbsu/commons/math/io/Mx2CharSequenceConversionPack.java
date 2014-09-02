@@ -1,5 +1,10 @@
 package com.spbsu.commons.math.io;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.vectors.Mx;
@@ -15,6 +20,11 @@ public class Mx2CharSequenceConversionPack implements ConversionPack<Mx,CharSequ
   public static class Mx2CharSequenceConverter implements TypeConverter<Mx, CharSequence> {
     @Override
     public CharSequence convert(Mx from) {
+      final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
+      prettyPrint.setMaximumFractionDigits(5);
+      prettyPrint.setMinimumFractionDigits(0);
+      prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
+
       final StringBuilder builder = new StringBuilder();
       builder.append(from.rows()).append(" ").append(from.columns());
       for (int i = 0; i < from.rows(); i++) {
@@ -22,7 +32,7 @@ public class Mx2CharSequenceConversionPack implements ConversionPack<Mx,CharSequ
         for (int j = 0; j < from.columns(); j++) {
           if (j > 0)
             builder.append(" ");
-          builder.append(from.get(i, j));
+          builder.append(prettyPrint.format(from.get(i, j)));
         }
       }
       return builder;
