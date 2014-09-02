@@ -1,11 +1,17 @@
 package com.spbsu.commons.math.io;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.seq.CharSeqTools;
+import sun.misc.FloatingDecimal;
 
 /**
  * User: solar
@@ -16,10 +22,15 @@ public class Vec2CharSequenceConversionPack implements ConversionPack<Vec,CharSe
   public static class Vec2CharSequenceConverter implements TypeConverter<Vec, CharSequence> {
     @Override
     public CharSequence convert(Vec from) {
+      final NumberFormat prettyPring = NumberFormat.getInstance(Locale.US);
+      prettyPring.setMaximumFractionDigits(5);
+      prettyPring.setMinimumFractionDigits(0);
+      prettyPring.setRoundingMode(RoundingMode.HALF_UP);
+
       final CharSeqBuilder builder = new CharSeqBuilder();
       builder.append(from.dim());
       for (int i = 0; i < from.dim(); i++) {
-        builder.append(" ").append(from.get(i));
+        builder.append(" ").append(prettyPring.format(from.get(i)));
       }
       return builder;
     }
