@@ -13,6 +13,7 @@ import com.spbsu.commons.seq.Seq;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -456,9 +457,11 @@ public abstract class ArrayTools {
     }
   }
 
-  public static <F> F[] toArray(List<F> weakModels) {
+  public static <F> F[] toArray(Collection<F> weakModels) {
+    if (weakModels.size() == 0)
+      throw new IllegalArgumentException("Can create array");
     //noinspection unchecked
-    return weakModels.toArray((F[])(weakModels.size() > 0 ? Array.newInstance(weakModels.get(0).getClass(), weakModels.size()) : new Object[0]));
+    return weakModels.toArray((F[])(weakModels.size() > 0 ? Array.newInstance(weakModels.iterator().next().getClass(), weakModels.size()) : new Object[0]));
   }
 
   public static <T extends Comparable> T max(final Seq<T> target) {
@@ -550,5 +553,13 @@ public abstract class ArrayTools {
       arr[i] = val;
     }
     return arr;
+  }
+
+  public static Object repack(final Object[] arr, final Class clazz) {
+    final Object repack = Array.newInstance(clazz, arr.length);
+    for (int i = 0; i < arr.length; i++) {
+      Array.set(repack, i, arr[i]);
+    }
+    return repack;
   }
 }

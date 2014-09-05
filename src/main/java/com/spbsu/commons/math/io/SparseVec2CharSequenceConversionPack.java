@@ -1,5 +1,10 @@
 package com.spbsu.commons.math.io;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.vectors.Vec;
@@ -17,11 +22,16 @@ public class SparseVec2CharSequenceConversionPack implements ConversionPack<Spar
   public static class SparseVec2CharSequenceConverter implements TypeConverter<SparseVec, CharSequence> {
     @Override
     public CharSequence convert(SparseVec from) {
+      final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
+      prettyPrint.setMaximumFractionDigits(5);
+      prettyPrint.setMinimumFractionDigits(0);
+      prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
+
       CharSeqBuilder builder = new CharSeqBuilder();
       builder.append(from.dim()).append(':').append(from.indices.size());
       VecIterator nzIt = from.nonZeroes();
       while (nzIt.advance()) {
-        builder.append(' ').append(nzIt.index()).append(':').append(nzIt.value());
+        builder.append(' ').append(nzIt.index()).append(':').append(prettyPrint.format(nzIt.value()));
       }
       return builder;
     }

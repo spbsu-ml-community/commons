@@ -148,4 +148,9 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
   public static CharSeq create(final CharSequence string) {
     return new CharSeqAdapter(string);
   }
+
+  @Override
+  public Class<Character> elementType() {
+    return char.class;
+  }
 }

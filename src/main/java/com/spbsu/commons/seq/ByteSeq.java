@@ -7,16 +7,16 @@ import java.util.Arrays;
  * Date: 08.07.14
  * Time: 11:07
  */
-public class IntSeq extends Seq.Stub<Integer> {
-  public final int[] arr;
+public class ByteSeq extends Seq.Stub<Byte> {
+  public final byte[] arr;
   public final int start;
   public final int end;
 
-  public IntSeq(final int[] arr) {
+  public ByteSeq(final byte[] arr) {
     this(arr, 0, arr.length);
   }
 
-  public IntSeq(final int[] arr, int start, int end) {
+  public ByteSeq(final byte[] arr, int start, int end) {
     if (start < 0 || end > arr.length)
       throw new ArrayIndexOutOfBoundsException();
     this.arr = arr;
@@ -25,7 +25,7 @@ public class IntSeq extends Seq.Stub<Integer> {
   }
 
   @Override
-  public Integer at(final int i) {
+  public Byte at(final int i) {
     return arr[start + i];
   }
 
@@ -35,8 +35,8 @@ public class IntSeq extends Seq.Stub<Integer> {
   }
 
   @Override
-  public IntSeq sub(final int start, final int end) {
-    return new IntSeq(arr, start + this.start, end+ this.start);
+  public ByteSeq sub(final int start, final int end) {
+    return new ByteSeq(arr, start + this.start, end+ this.start);
   }
 
   @Override
@@ -49,11 +49,11 @@ public class IntSeq extends Seq.Stub<Integer> {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof IntSeq)) {
+    if (!(o instanceof ByteSeq)) {
       return false;
     }
 
-    final IntSeq intSeq = (IntSeq) o;
+    final ByteSeq intSeq = (ByteSeq) o;
 
     if (end != intSeq.end) {
       return false;
@@ -73,11 +73,11 @@ public class IntSeq extends Seq.Stub<Integer> {
   }
 
   @Override
-  public Class<Integer> elementType() {
-    return int.class;
+  public Class<Byte> elementType() {
+    return byte.class;
   }
 
-  public int intAt(final int index) {
+  public byte byteAt(final int index) {
     return arr[start + index];
   }
 }

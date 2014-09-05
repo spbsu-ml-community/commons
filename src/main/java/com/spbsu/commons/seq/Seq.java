@@ -10,6 +10,7 @@ public interface Seq<T> {
   Seq<T> sub(int start, int end);
   int length();
   boolean isImmutable();
+  Class<T> elementType();
 
   abstract static class Stub<T> implements Seq<T>{
     @Override
@@ -32,6 +33,11 @@ public interface Seq<T> {
         @Override
         public boolean isImmutable() {
           return Stub.this.isImmutable();
+        }
+
+        @Override
+        public Class<T> elementType() {
+          return Stub.this.elementType();
         }
       };
     }

@@ -648,7 +648,7 @@ public class VectorsTest extends TestCase {
 
   public void testToString() {
     final String str = new ArrayVec(0, 1, 2, 3).toString();
-    assertEquals("4 0.0 1.0 2.0 3.0", str);
+    assertEquals("4 0 1 2 3", str);
   }
 
   public void testArgmax() throws Exception {

@@ -62,6 +62,11 @@ public interface Vec extends Seq<Double> {
         result[nz.index()] = nz.value();
       return result;
     }
+
+    @Override
+    public Class<Double> elementType() {
+      return double.class;
+    }
   }
 }
 

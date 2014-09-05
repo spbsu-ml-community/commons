@@ -179,7 +179,7 @@ public class ColsVecSeqMx extends Mx.Stub {
     if (vec.at(idx).length() == 1)
       return vec.at(idx).at(0);
 
-    return new Vec() {
+    return new Vec.Stub() {
       @Override
       public double get(int i) {
         return vec.at(idx).at(i).get(j - indices[idx]);
@@ -206,23 +206,8 @@ public class ColsVecSeqMx extends Mx.Stub {
       }
 
       @Override
-      public double[] toArray() {
-        throw new NotImplementedException();
-      }
-
-      @Override
       public Vec sub(int start, int len) {
         throw new NotImplementedException();
-      }
-
-      @Override
-      public Double at(int i) {
-        return vec.at(idx).at(i).get(j - indices[idx]);
-      }
-
-      @Override
-      public int length() {
-        return rows();
       }
 
       @Override

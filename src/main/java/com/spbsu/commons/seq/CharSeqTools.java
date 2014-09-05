@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.trash.FloatingDecimal;
+import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -63,10 +65,6 @@ public class CharSeqTools {
       index++;
     }
     return true;
-  }
-
-  public static boolean isNullOrEmpty(CharSequence charSequence) {
-    return charSequence == null || charSequence.length() == 0;
   }
 
   public static CharSequence toLowerCase(CharSequence word) {
@@ -134,8 +132,31 @@ public class CharSeqTools {
     return result.toString();
   }
 
+  @SafeVarargs
+  public static <X> Seq<X> concat(final Seq<X>... texts) {
+    if (texts.length == 0)
+      throw new IllegalArgumentException();
+    final Seq<X> first = texts[0];
+    if (char.class.isAssignableFrom(first.elementType()) || Character.class.isAssignableFrom(first.elementType())) {
+      return (Seq<X>)new CharSeqComposite((CharSequence[])ArrayTools.repack(texts, CharSequence.class));
+    }
+    int size = 0;
+    for (int i = 0; i < texts.length; i++) {
+      size += texts[i].length();
+    }
+    final Object join = Array.newInstance(first.elementType(), size);
+    int index = 0;
+    for (int i = 0; i < texts.length; i++) {
+      size += texts[i].length();
+      for (int j = 0; j < texts[i].length(); j++) {
+        Array.set(join, index++, texts[i].at(j));
+      }
+    }
+    return create(join);
+  }
+
   public static CharSequence concat(final CharSequence... texts) {
-    return new CharSeqComposite(texts);
+    return new CharSeqComposite((CharSequence[])ArrayTools.repack(texts, CharSequence.class));
   }
 
   public static CharSequence[] split(CharSequence sequence, char separator) {
@@ -219,12 +240,12 @@ public class CharSeqTools {
     return index;
   }
 
-  public static boolean startsWith(CharSequence seq, CharSequence prefix) {
+  public static <T> boolean startsWith(Seq<T> seq, Seq<T> prefix) {
     if (seq.length() < prefix.length())
       return false;
     int index = 0;
     while(index < prefix.length()) {
-      if(prefix.charAt(index) != seq.charAt(index))
+      if(!prefix.at(index).equals(seq.at(index)))
         return false;
       index++;
     }
@@ -353,17 +374,153 @@ public class CharSeqTools {
     return result * (negative ? -1 : 1);
   }
 
-  public static class LexicographicalComparator implements Comparator<CharSequence> {
-    public int compare(CharSequence a, CharSequence b) {
-      int index = 0;
-      while (a.length() > index && b.length() > index) {
-        char aCh = a.charAt(index);
-        char bCh = b.charAt(index);
-        if (aCh != bCh)
-          return aCh - bCh;
-        index++;
-      }
-      return Integer.compare(a.length(), b.length());
+  /**
+   * creates Seq from both primitive and non-primitive arrays. In case of non primitive arrays of wrapped objects they will be repacked to primitives.
+   * Until repack the operation is light.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Seq<T> create(final Object symbols) {
+    if (!symbols.getClass().isArray())
+      throw new IllegalArgumentException();
+
+    final double length = Array.getLength(symbols);
+    final Class<?> componentType = Object[].class.equals(symbols.getClass()) ? Array.get(symbols, 0).getClass() : symbols.getClass().getComponentType();
+    if (length == 0)
+      return emptySeq((Class<T>) componentType);
+    if (char.class.isAssignableFrom(componentType)) {
+      return length == 1 ? (Seq<T>)new CharSeqChar(Array.getChar(symbols, 0)) : (Seq<T>)new CharSeqArray((char[])symbols);
     }
+    else if (Character.class.isAssignableFrom(componentType)){
+      return length == 1 ?
+             (Seq<T>)new CharSeqChar((Character)Array.get(symbols, 0)) :
+             (Seq<T>)new CharSeqArray((char[])ArrayTools.repack((Object[])symbols, char.class));
+    }
+    else if (int.class.isAssignableFrom(componentType)) {
+      return (Seq<T>)new IntSeq((int[])symbols);
+    }
+    else if (Integer.class.isAssignableFrom(componentType)) {
+      return (Seq<T>)new IntSeq((int[])ArrayTools.repack((Object[])symbols, int.class));
+    }
+    else if (byte.class.isAssignableFrom(componentType)) {
+      return (Seq<T>)new ByteSeq((byte[])symbols);
+    }
+    else if (Byte.class.isAssignableFrom(componentType)) {
+      return (Seq<T>)new ByteSeq((byte[])ArrayTools.repack((Object[])symbols, byte.class));
+    }
+    return (Seq<T>)new ArraySeq((Object[])symbols);
+  }
+
+  public static <T> Seq.Stub<T> emptySeq(final Class<T> componentType) {
+    return new Seq.Stub<T>() {
+      @Override
+      public T at(final int i) {
+        throw new ArrayIndexOutOfBoundsException("Empty sequence");
+      }
+      @Override
+      public int length() {
+        return 0;
+      }
+      @Override
+      public boolean isImmutable() {
+        return true;
+      }
+
+      @Override
+      public Class<T> elementType() {
+        return componentType;
+      }
+    };
+  }
+
+  public static <T extends Comparable<T>> Comparator<Seq<T>> lexicographicalComparator(Class<T> clazz){
+    if (char.class.isAssignableFrom(clazz) || Character.class.isAssignableFrom(clazz)) {
+      return new Comparator<Seq<T>>() {
+        @Override
+        public int compare(final Seq<T> aa, final Seq<T> bb) {
+          final CharSeq a = (CharSeq)(Seq)aa;
+          final CharSeq b = (CharSeq)(Seq)bb;
+          final int minLength = Math.min(a.length(), b.length());
+          int index = 0;
+          while (minLength > index) {
+            final char aCh = a.charAt(index);
+            final char bCh = b.charAt(index);
+            if (aCh != bCh)
+              return aCh - bCh;
+            index++;
+          }
+          return Integer.compare(a.length(), b.length());
+        }
+      };
+    }
+    else if (byte.class.isAssignableFrom(clazz) || Byte.class.isAssignableFrom(clazz)) {
+      return new Comparator<Seq<T>>() {
+        @Override
+        public int compare(final Seq<T> aa, final Seq<T> bb) {
+          final ByteSeq a = (ByteSeq)(Seq)aa;
+          final ByteSeq b = (ByteSeq)(Seq)bb;
+          final int minLength = Math.min(a.length(), b.length());
+          int index = 0;
+          while (minLength > index) {
+            final byte aCh = a.byteAt(index);
+            final byte bCh = b.byteAt(index);
+            if (aCh != bCh)
+              return aCh - bCh;
+            index++;
+          }
+          return Integer.compare(a.length(), b.length());
+        }
+      };
+    }
+    else if (int.class.isAssignableFrom(clazz) || Integer.class.isAssignableFrom(clazz)) {
+      return new Comparator<Seq<T>>() {
+        @Override
+        public int compare(final Seq<T> aa, final Seq<T> bb) {
+          final IntSeq a = (IntSeq)(Seq)aa;
+          final IntSeq b = (IntSeq)(Seq)bb;
+          final int minLength = Math.min(a.length(), b.length());
+          int index = 0;
+          while (minLength > index) {
+            final int aCh = a.intAt(index);
+            final int bCh = b.intAt(index);
+            if (aCh != bCh)
+              return aCh - bCh;
+            index++;
+          }
+          return Integer.compare(a.length(), b.length());
+        }
+      };
+    }
+    return new Comparator<Seq<T>>() {
+      @Override
+      public int compare(final Seq<T> a, final Seq<T> b) {
+        final int minLength = Math.min(a.length(), b.length());
+        int index = 0;
+        while (minLength > index) {
+          final T aCh = a.at(index);
+          final T bCh = b.at(index);
+          if (!aCh.equals(bCh)) {
+            return aCh.compareTo(bCh);
+          }
+          index++;
+        }
+        return Integer.compare(a.length(), b.length());
+      }
+    };
+  }
+
+  public static Object toArray(final Seq values) {
+    final Object result;
+    if (Integer.class.isAssignableFrom(values.elementType()))
+      result = new int[values.length()];
+    else if (Character.class.isAssignableFrom(values.elementType()))
+      result = new char[values.length()];
+    else if (Byte.class.isAssignableFrom(values.elementType()))
+      result = new byte[values.length()];
+    else
+      result = Array.newInstance(values.elementType());
+    for (int i = 0; i < values.length(); i++) {
+      Array.set(result, i, values.at(i));
+    }
+    return result;
   }
 }
