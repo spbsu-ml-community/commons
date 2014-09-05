@@ -1,8 +1,5 @@
 package com.spbsu.commons.net.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -12,12 +9,15 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 import java.util.concurrent.*;
 
+
+import com.spbsu.commons.io.StreamTools;
 import com.spbsu.commons.net.DownloadManager;
 import com.spbsu.commons.net.Policy;
 import com.spbsu.commons.net.Task;
 import com.spbsu.commons.net.URLConnectionTools;
 import com.spbsu.commons.util.Pair;
-import com.spbsu.commons.io.StreamTools;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * User: solar
@@ -155,7 +155,7 @@ public class DownloadManagerImpl implements DownloadManager {
 
                 executor.execute(command);
               }
-              catch (Throwable th) {
+              catch (Exception th) {
                 LOG.warn(th);
               }
             }
