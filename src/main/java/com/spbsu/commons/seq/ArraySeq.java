@@ -1,6 +1,9 @@
 package com.spbsu.commons.seq;
 
-import java.lang.reflect.Array;
+
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * User: solar
@@ -59,5 +62,25 @@ public class ArraySeq<T> extends Seq.Stub<T> {
       builder.append(this.at(i).toString());
     }
     return builder.toString();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (obj == this)
+      return true;
+    if (obj == null || obj.getClass() != getClass())
+      return false;
+
+    final ArraySeq other = (ArraySeq) obj;
+    return new EqualsBuilder().
+        append(arr, other.arr).
+        append(start, other.start).
+        append(end, other.end).
+        isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(arr).append(start).append(end).toHashCode();
   }
 }
