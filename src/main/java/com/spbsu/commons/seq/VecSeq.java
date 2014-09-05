@@ -1,10 +1,9 @@
 package com.spbsu.commons.seq;
 
-import java.util.Arrays;
-
-
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.vectors.VecBuilder;
+
+import java.util.Arrays;
 
 /**
  * Created by vkokarev on 22.07.14.
@@ -13,6 +12,20 @@ public class VecSeq extends Seq.Stub<Vec> {
   final Vec[] vecs;
   public final int start;
   public final int end;
+
+
+  public VecSeq(final Seq<Vec> vecSeq) {
+    this(vecSeq, 0, vecSeq.length());
+  }
+
+  public VecSeq(final Seq<Vec> vecSeq, final int start, final int end) {
+    this.start = start;
+    this.end = end;
+    this.vecs = new Vec[end - start];
+    for (int i = start; i < end; ++i) {
+      vecs[i - start] = vecSeq.at(i);
+    }
+  }
 
   public VecSeq(final Vec[] vecs) {
     this(vecs, 0, vecs.length);
