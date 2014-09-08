@@ -129,11 +129,11 @@ public abstract class ArrayTools {
     while (left < right) {
       int i = partition(a, linked, left, right);
       if (right - i > i - left) {
-        parallelSort(a, linked, left, i - 1);
+        parallelSort(a, linked, left, i);
         left = i + 1;
       } else {
         parallelSort(a, linked, i + 1, right);
-        right = i - 1;
+        right = i;
       }
     }
   }
