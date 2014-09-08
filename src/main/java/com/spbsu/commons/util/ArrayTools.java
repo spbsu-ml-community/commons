@@ -6,10 +6,9 @@ import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecTools;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
+import com.spbsu.commons.math.vectors.impl.vectors.VecBuilder;
 import com.spbsu.commons.random.FastRandom;
-import com.spbsu.commons.seq.ArraySeq;
-import com.spbsu.commons.seq.IntSeq;
-import com.spbsu.commons.seq.Seq;
+import com.spbsu.commons.seq.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -552,6 +551,29 @@ public abstract class ArrayTools {
       }
       return new ArraySeq<I>(result);
     }
+  }
+
+  public static <I> Seq<I> concat(final Seq<I>... seqs) {
+    if (seqs.length == 0) {
+      throw new IllegalArgumentException();
+    }
+
+    final SeqBuilder seqBuilder;
+    final Seq<I> example = seqs[0];
+    if (example instanceof Vec) {
+      seqBuilder = new VecBuilder();
+    }
+    else if (example instanceof IntSeq) {
+      seqBuilder = new IntSeqBuilder();
+    }
+    else {
+      seqBuilder = new ArraySeqBuilder(example.at(0).getClass());
+    }
+
+    for (Seq<I> seq : seqs) {
+      seqBuilder.addAll(seq);
+    }
+    return seqBuilder.build();
   }
 
   public static int sum(int[] arr, int from, int end) {
