@@ -187,7 +187,7 @@ public class CharSeqTools {
   }
 
   public static CharSequence[] split(CharSequence sequence, CharSequence separator) {
-    final List<CharSequence> result = new ArrayList<CharSequence>(10);
+    final List<CharSequence> result = new ArrayList<>(10);
     int last = 0;
     for (int i = 0; i < sequence.length(); i++) {
       boolean accept = separator.length() <= sequence.length() - i;
@@ -253,6 +253,19 @@ public class CharSeqTools {
     return true;
   }
 
+  public static boolean startsWith(CharSequence seq, CharSequence prefix) {
+    if (seq.length() < prefix.length())
+      return false;
+    int index = 0;
+    while(index < prefix.length()) {
+      if(prefix.charAt(index) != seq.charAt(index))
+        return false;
+      index++;
+    }
+
+    return true;
+  }
+
   public static boolean isImmutable(final CharSequence next) {
     if(next instanceof String)
       return true;
@@ -286,49 +299,50 @@ public class CharSeqTools {
     return compacted;
   }
 
-  public static void processAndSplitLines(@NotNull final Reader input, @NotNull final Processor<CharSequence[]> seqProcessor, @Nullable final String delimeters, final boolean trim) throws IOException {
+  public static void processAndSplitLines(@NotNull final Reader in, @NotNull final Processor<CharSequence[]> seqProcessor, @Nullable final String delimeters, final boolean trim) throws IOException {
     final char[] buffer = new char[4096*4];
     final List<CharSequence> parts = new ArrayList<>();
     CharSeqBuilder line = new CharSeqBuilder();
     int read;
+    try (Reader input = in) {
+      boolean skipCaretReturn = false;
+      while ((read = input.read(buffer)) >= 0) {
+        int offset = 0;
+        int index = 0;
 
-    boolean skipCaretReturn = false;
-    while ((read = input.read(buffer)) >= 0) {
-      int offset = 0;
-      int index = 0;
-
-      while (index < read){
-        if (skipCaretReturn && buffer[offset] == '\r') { // skip '\r'
-          offset = ++index;
-          skipCaretReturn = false;
-        }
-
-        while (index < read && buffer[index] != '\n') {
-          if (delimeters != null && delimeters.indexOf(buffer[index]) >= 0) {
-            line.append(buffer, offset, index++);
-            offset = index;
-            parts.add((trim ? trim(line) : line).toString());
-            line = new CharSeqBuilder();
+        while (index < read) {
+          if (skipCaretReturn && buffer[offset] == '\r') { // skip '\r'
+            offset = ++index;
+            skipCaretReturn = false;
           }
-          index++;
-        }
 
-        if (index < read) {
-          line.append(buffer, offset, index);
-          parts.add((trim ? trim(line) : line).toString());
-          seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
-          line.clear();
-          parts.clear();
-          offset = ++index; // skip '\n'
-          skipCaretReturn = true;
+          while (index < read && buffer[index] != '\n') {
+            if (delimeters != null && delimeters.indexOf(buffer[index]) >= 0) {
+              line.append(buffer, offset, index++);
+              offset = index;
+              parts.add((trim ? trim(line) : line).toString());
+              line = new CharSeqBuilder();
+            }
+            index++;
+          }
+
+          if (index < read) {
+            line.append(buffer, offset, index);
+            parts.add((trim ? trim(line) : line).toString());
+            seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
+            line.clear();
+            parts.clear();
+            offset = ++index; // skip '\n'
+            skipCaretReturn = true;
+          }
         }
+        if (offset < read)
+          line.append(buffer, offset, read);
       }
-      if (offset < read)
-        line.append(buffer, offset, read);
-    }
-    if (line.length() > 0) {
-      parts.add((trim ? trim(line) : line).toString());
-      seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
+      if (line.length() > 0) {
+        parts.add((trim ? trim(line) : line).toString());
+        seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
+      }
     }
   }
 
@@ -522,5 +536,24 @@ public class CharSeqTools {
       Array.set(result, i, values.at(i));
     }
     return result;
+  }
+
+  public static CharSequence replace(final CharSequence seq, final CharSequence from, final CharSequence to) {
+    return concatWithDelimeter(to, split(seq, from));
+  }
+
+  public static boolean endsWith(final CharSequence seq, final CharSequence suffix) {
+    final int sLength = suffix.length();
+    final int length = seq.length();
+    if (length < sLength)
+      return false;
+    int index = 0;
+    while(index < sLength) {
+      if(suffix.charAt(sLength - index - 1) != seq.charAt(sLength - index - 1))
+        return false;
+      index++;
+    }
+
+    return true;
   }
 }

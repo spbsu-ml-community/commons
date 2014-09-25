@@ -4,17 +4,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
 import java.net.*;
+import java.text.AttributedString;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.util.jar.*;
 
 
 import com.spbsu.commons.filters.Filter;
+import com.spbsu.commons.func.Action;
+import com.spbsu.commons.io.StreamTools;
+import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.util.logging.Logger;
 import sun.net.www.protocol.file.FileURLConnection;
 
@@ -33,7 +36,7 @@ public class RuntimeUtils {
    */
   public static void gc(){
     Object obj = new Object();
-    WeakReference ref = new WeakReference<Object>(obj);
+    WeakReference ref = new WeakReference<>(obj);
     //noinspection UnusedAssignment
     obj = null;
     while (ref.get()!=null) {
@@ -42,7 +45,7 @@ public class RuntimeUtils {
   }
 
   public static Class[] findTypeParameters(final Class<?> clazz, final Class<?> interfaceClass) {
-    HashMap<TypeVariable, Type> mapping = new HashMap<TypeVariable, Type>();
+    HashMap<TypeVariable, Type> mapping = new HashMap<>();
     populateTypeParametersMapping(clazz, mapping);
     TypeVariable[] parameters = interfaceClass.getTypeParameters();
     Class[] infered = new Class[parameters.length];
@@ -89,7 +92,7 @@ public class RuntimeUtils {
       throw new UnsupportedOperationException("Operation is not supported for current type of classloader");
     }
     URL[] dirs = ((URLClassLoader) loader).getURLs();
-    Set<String> result = new HashSet<String>();
+    Set<String> result = new HashSet<>();
     populateFromURLs(path, dirs, result);
     return result.toArray(new String[result.size()]);
   }
@@ -108,8 +111,9 @@ public class RuntimeUtils {
           if (new File(dirPath).isDirectory()) {
             dirPath = dirPath.substring(0, dirPath.length());
             File packageDir = new File(dirPath + path);
-            if (packageDir.listFiles() != null) {
-              for (File file : packageDir.listFiles()) {
+            final File[] files = packageDir.listFiles();
+            if (files != null) {
+              for (File file : files) {
                 result.add(path + file.getName());
               }
             }
@@ -149,7 +153,7 @@ public class RuntimeUtils {
     if (classPath == null) {
       return;
     }
-    final List<URL> additionalUrls = new ArrayList<URL>();
+    final List<URL> additionalUrls = new ArrayList<>();
     for (String urlString : classPath.split("\\s")) {
       try {
         additionalUrls.add(new URL(urlString));
@@ -183,6 +187,7 @@ public class RuntimeUtils {
 
   @Nullable
   public static <T> T newInstanceByAssignable(final Class<T> targetClass, Object... args) {
+    @SuppressWarnings("unchecked")
     final Constructor<T>[] constructors = (Constructor<T>[])targetClass.getConstructors();
 constructor_next:
     for (Constructor<T> constructor : constructors) {
@@ -211,4 +216,15 @@ constructor_next:
   }
 
   private RuntimeUtils() {}
+
+  public static CharSequence bashEscape(CharSequence command) {
+    command = CharSeqTools.replace(command, "\\", "\\\\");
+    command = CharSeqTools.replace(command, "\"", "\\\"");
+    command = CharSeqTools.replace(command, "$", "\\$");
+    command = CharSeqTools.replace(command, "&", "\\&");
+    command = CharSeqTools.replace(command, "<", "\\<");
+    command = CharSeqTools.replace(command, ">", "\\>");
+    command = CharSeqTools.replace(command, " ", "\\ ");
+    return command;
+  }
 }

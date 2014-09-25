@@ -1,28 +1,55 @@
 package com.spbsu.commons.seq.regexp;
 
-import com.spbsu.commons.seq.Seq;
-
 import java.util.Arrays;
+
+
+import com.spbsu.commons.seq.CharSeq;
+import com.spbsu.commons.seq.Seq;
 
 /**
  * User: solar
  * Date: 12.09.11
  * Time: 20:18
  */
-public class SimpleRegExp<T> implements Matcher<T> {
+public class SimpleRegExp implements Matcher<Character> {
+  public static SimpleRegExp create(String str) {
+    final Pattern<Character> result = new Pattern<>(Alphabet.CHARACTER_ALPHABET);
+    for (int i = 0; i < str.length(); i+=2) {
+      final Condition chCondition = str.charAt(i) == '.' ? Condition.ANY : Alphabet.CHARACTER_ALPHABET.getByT(str.charAt(i));
+      Pattern.Modifier mod = Pattern.Modifier.NONE;
+      if (str.length() > i + 1) {
+        switch(str.charAt(i + 1)) {
+          case '*':
+            mod = Pattern.Modifier.STAR;
+            break;
+          case '?':
+            mod = Pattern.Modifier.QUESTION;
+            break;
+          default:
+            i--;
+        }
+      }
+      //noinspection unchecked
+      result.add((Condition<Character>)chCondition, mod);
+    }
+    return new SimpleRegExp(result);
+  }
 
-  private final Pattern<T> processedExpression;
-  private Pattern<T> pattern;
+  private final Pattern<Character> processedExpression;
+  private Pattern<Character> pattern;
 
-  public SimpleRegExp(final Pattern<T> expression) {
+  long[] limits = new long[50];
+  final int[][] statesStore;
+
+  public SimpleRegExp(final Pattern<Character> expression) {
     pattern = expression;
-    processedExpression = new Pattern<T>(expression.alphabet());
+    processedExpression = new Pattern<>(expression.alphabet());
     int prevMod = 0;
-    Condition<T> prevCon = null;
+    Condition<Character> prevCon = null;
     int expressionSize = expression.size();
     for (int s = 0; s < expressionSize; s++) {
       final Pattern.Modifier mod = expression.modifier(s);
-      final Condition<T> con = expression.condition(s);
+      final Condition<Character> con = expression.condition(s);
       final boolean simplify = (prevMod + mod.ordinal() >= 3) && con.equals(prevCon);
       if (!simplify || mod == Pattern.Modifier.STAR) {
         if (simplify)
@@ -37,14 +64,13 @@ public class SimpleRegExp<T> implements Matcher<T> {
     statesStore = new int[2][processedExpression.size()];
   }
 
-  long[] limits = new long[50];
-  final int[][] statesStore;
-
-  public void match(final Seq<T> seq,
-                    final MatchVisitor visitor) {
-    final Pattern<T> expression = processedExpression;
+  public void match(final Seq<Character> sequence, final MatchVisitor visitor) {
+    CharSeq seq = (CharSeq) sequence;
+    final Pattern<Character> expression = processedExpression;
     int index = 0;
     int seqSize = seq.length();
+    if (seqSize == 0)
+      return;
     final int[][] statesStoreLocal = statesStore;
     Arrays.fill(statesStoreLocal[0], seqSize);
     Arrays.fill(statesStoreLocal[1], seqSize);
@@ -56,7 +82,7 @@ public class SimpleRegExp<T> implements Matcher<T> {
     try {
     for (int i = 0; i < seqSize + 1; i++) {
       int lcount = relIndex;
-      final T current = i < seqSize ? seq.at(i) : seq.at(i - 1);
+      final char current = i < seqSize ? seq.charAt(i) : seq.charAt(i - 1);
       int[] states = statesStoreLocal[index % 2];
       int[] next = statesStoreLocal[(index + 1) % 2];
 //      Arrays.fill(next, seqSize);
@@ -129,7 +155,7 @@ public class SimpleRegExp<T> implements Matcher<T> {
   }
 
   @Override
-  public Pattern<T> pattern() {
+  public Pattern<Character> pattern() {
     return pattern;
   }
 
@@ -140,13 +166,35 @@ public class SimpleRegExp<T> implements Matcher<T> {
 
     SimpleRegExp that = (SimpleRegExp) o;
 
-    if (pattern != null ? !pattern.equals(that.pattern) : that.pattern != null) return false;
-
-    return true;
+    return !(pattern != null ? !pattern.equals(that.pattern) : that.pattern != null);
   }
 
   @Override
   public int hashCode() {
     return pattern != null ? pattern.hashCode() : 0;
+  }
+
+  public boolean match(final CharSeq seq) {
+    final int[] counter = new int[]{0};
+    match(seq, new MatchVisitor() {
+      @Override
+      public boolean found(final int start, final int end) {
+        counter[0]++;
+        return false;
+      }
+    });
+    return counter[0] == 1;
+  }
+
+  public int count(final CharSeq seq) {
+    final int[] counter = new int[]{0};
+    match(seq, new MatchVisitor() {
+      @Override
+      public boolean found(final int start, final int end) {
+        counter[0]++;
+        return false;
+      }
+    });
+    return counter[0];
   }
 }

@@ -18,7 +18,7 @@ public class CharSeqComposite extends CharSeq {
   int length = -1;
 
   public CharSeqComposite(final CharSequence[] parts, final int start, final int end) {
-    fragments = CharSeqTools.discloseComposites(Arrays.asList(parts).subList(start, end)).toArray(new CharSequence[fragments.length]);
+    fragments = CharSeqTools.discloseComposites(Arrays.asList(parts).subList(start, end)).toArray(new CharSequence[end - start]);
   }
 
   public int length() {
@@ -32,6 +32,8 @@ public class CharSeqComposite extends CharSeq {
   }
 
   public char charAt(int offset) {
+    if (offset >= length)
+      throw new ArrayIndexOutOfBoundsException(offset);
     if (fragmentsCount() == 1) {
       return fragment(0).charAt(offset);
     }

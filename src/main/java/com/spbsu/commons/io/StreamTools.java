@@ -3,6 +3,7 @@ package com.spbsu.commons.io;
 
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.CharSeqArray;
+import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.util.logging.Logger;
 import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TCharArrayList;
@@ -29,12 +30,12 @@ public class StreamTools {
 
   public static CharSequence readReader(final Reader reader) throws IOException {
     final char[] buffer = new char[BUFFER_LENGTH];
-    final TCharArrayList stringBuilder = new TCharArrayList();
+    final CharSeqBuilder stringBuilder = new CharSeqBuilder();
     int read;
     while ((read = reader.read(buffer)) != -1) {
-      stringBuilder.add(buffer, 0, read);
+      stringBuilder.append(buffer, 0, read);
     }
-    return new CharSeqArray(stringBuilder.toArray());
+    return stringBuilder.build();
   }
 
   public static CharSequence readReaderNoIO(final Reader reader) {
@@ -68,11 +69,8 @@ public class StreamTools {
   }
 
   public static CharSequence readFile(File file, Charset charset) throws IOException {
-    final InputStream in = new BufferedInputStream(new FileInputStream(file));
-    try {
+    try (final InputStream in = new BufferedInputStream(new FileInputStream(file))) {
       return readReader(new InputStreamReader(in, charset));
-    } finally {
-      in.close();
     }
   }
 
@@ -280,5 +278,13 @@ public class StreamTools {
       throw ioe;
     }
     return bytes;
+  }
+
+  public static void writeChars(final CharSequence command, final OutputStream outputStream) {
+    try (final OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8"))) {
+      writer.write(command.toString());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

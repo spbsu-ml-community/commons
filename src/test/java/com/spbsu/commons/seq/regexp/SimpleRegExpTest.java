@@ -2,7 +2,6 @@ package com.spbsu.commons.seq.regexp;
 
 import com.spbsu.commons.seq.CharSeq;
 import com.spbsu.commons.seq.regexp.converters.PatternStringConverter;
-import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.logging.Interval;
 import junit.framework.TestCase;
 
@@ -17,7 +16,7 @@ import java.util.Random;
  */
 public class SimpleRegExpTest extends TestCase {
   private final Alphabet<Character> A = Alphabet.CHARACTER_ALPHABET;
-  private Pattern<Character> pattern = new Pattern<Character>(Alphabet.CHARACTER_ALPHABET);
+  private Pattern<Character> pattern = new Pattern<>(Alphabet.CHARACTER_ALPHABET);
 
   private String string;
   private TestMatchVisitor mv;
@@ -40,7 +39,7 @@ public class SimpleRegExpTest extends TestCase {
   }
 
   private void match() {
-    SimpleRegExp<Character> matcher = new SimpleRegExp<Character>(pattern);
+    SimpleRegExp matcher = new SimpleRegExp(pattern);
     mv = new TestMatchVisitor();
     matcher.match(CharSeq.create(string), mv);
   }
@@ -260,14 +259,14 @@ public class SimpleRegExpTest extends TestCase {
 
   public void testFolding1() {
     string = "bbm";
-    pattern = parseRegExp("b*m");
+    pattern = SimpleRegExp.create("b*m").pattern();
     match();
     assertEquals(1, mv.occurrences());
   }
   public void testFolding2() {
     string = "bbmbmm";
     pattern.clear();
-    pattern = parseRegExp("b*m?.m");
+    pattern = SimpleRegExp.create("b*m?.m").pattern();
     match();
     assertTrue(mv.contains("bbmbm"));
     assertTrue(mv.contains("bmm"));
@@ -277,7 +276,7 @@ public class SimpleRegExpTest extends TestCase {
   public void testFolding3() {
     string = "bbmbmm";
     pattern.clear();
-    pattern = parseRegExp("b*m?.m?m");
+    pattern = SimpleRegExp.create("b*m?.m?m").pattern();
     match();
     assertTrue(mv.contains("bbmbmm"));
     assertEquals(1, mv.occurrences());
@@ -286,17 +285,17 @@ public class SimpleRegExpTest extends TestCase {
   public void testDots() {
     string = "bb";
     pattern.clear();
-    pattern = parseRegExp("b..?");
+    pattern = SimpleRegExp.create("b..?").pattern();
     match();
     TestMatchVisitor old = mv;
     mv = new TestMatchVisitor();
-    pattern = parseRegExp("b.?.");
+    pattern = SimpleRegExp.create("b.?.").pattern();
     match();
     assertEquals(old.occurrences(), mv.occurrences());
   }
 
   public void testPerformance() {
-    pattern = parseRegExp("z?a*c*bm?");
+    pattern = SimpleRegExp.create("z?a*c*bm?").pattern();
 
     long time = 0;
     final int count = 200;
@@ -344,28 +343,4 @@ public class SimpleRegExpTest extends TestCase {
     assertEquals(11, mv.occurrences());
     assertEquals(pStr, converter.convertTo(pattern));
   }
-
-  public Pattern<Character> parseRegExp(String str) {
-    Pattern<Character> result = new Pattern<Character>(Alphabet.CHARACTER_ALPHABET);
-    for (int i = 0; i < str.length(); i+=2) {
-      final SimpleRegExp.Condition chCondition = str.charAt(i) == '.' ? SimpleRegExp.Condition.ANY : A.getByT(str.charAt(i));
-      Pattern.Modifier mod = Pattern.Modifier.NONE;
-      if (str.length() > i + 1) {
-        switch(str.charAt(i + 1)) {
-          case '*':
-            mod = Pattern.Modifier.STAR;
-            break;
-          case '?':
-            mod = Pattern.Modifier.QUESTION;
-            break;
-          default:
-            i--;
-        }
-      }
-      //noinspection unchecked
-      result.add((SimpleRegExp.Condition<Character>)chCondition, mod);
-    }
-    return result;
-  }
-
 }

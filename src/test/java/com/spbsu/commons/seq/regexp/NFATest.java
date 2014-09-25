@@ -136,7 +136,7 @@ public class NFATest extends TestCase {
   }
 
   public void testZeroOrOne() {
-//    pattern = parseRegExp("ab?");
+//    pattern = create("ab?");
 //    string = "ac";
 //    found();
 //    assertEquals(1, mv.occurrences());

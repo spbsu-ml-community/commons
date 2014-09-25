@@ -153,4 +153,11 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
   public Class<Character> elementType() {
     return char.class;
   }
+
+  public int indexOf(final char ch) {
+    int index = 0;
+    while (index < length() && at(index) != ch)
+      index++;
+    return index;
+  }
 }

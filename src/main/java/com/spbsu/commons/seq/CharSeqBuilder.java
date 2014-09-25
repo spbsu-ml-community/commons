@@ -112,7 +112,7 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
   }
 
   @Override
-  public Seq<Character> build() {
+  public CharSeq build() {
     return new CharSeqComposite(fragments.toArray(new CharSequence[fragments.size()]));
   }
 }
