@@ -32,8 +32,6 @@ public class CharSeqComposite extends CharSeq {
   }
 
   public char charAt(int offset) {
-    if (offset >= length)
-      throw new ArrayIndexOutOfBoundsException(offset);
     if (fragmentsCount() == 1) {
       return fragment(0).charAt(offset);
     }
