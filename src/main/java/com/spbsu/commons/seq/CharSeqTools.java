@@ -556,4 +556,47 @@ public class CharSeqTools {
 
     return true;
   }
+
+  public static boolean isAlpha(final CharSequence suffix) {
+    if (suffix.length() == 0)
+      return false;
+    int index = 0;
+    while(index < suffix.length()) {
+      if (!Character.isAlphabetic(suffix.charAt(index++)))
+        return false;
+    }
+    return true;
+  }
+
+  public static boolean isNumeric(final CharSequence arg) {
+    if (arg.length() == 0)
+      return false;
+    int index = 0;
+    while(index < arg.length()) {
+      if (!Character.isDigit(arg.charAt(index++)))
+        return false;
+    }
+    return true;
+  }
+
+  // TODO: optimize for n/m complexity
+  public static int indexOf(final CharSequence value, final CharSequence toFind) {
+    final int looking4length = toFind.length();
+    if (value.length() < looking4length)
+      return -1;
+    if (looking4length == 0)
+      return 0;
+    int index = 0;
+    final int lastIndex = value.length() - looking4length;
+    while (index <= lastIndex) {
+      int i = 0;
+      while (i < looking4length && value.charAt(i) == toFind.charAt(i)) {
+        i++;
+      }
+      if (i == looking4length)
+        return index;
+      index++;
+    }
+    return -1;
+  }
 }

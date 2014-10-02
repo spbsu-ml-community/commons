@@ -172,7 +172,7 @@ public class CompositeTextCodingTest extends TestCase {
 
     CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
 
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 10000000; i++) {
       final CharSequence query = urls[rng.nextInt(urls.length)];
       coding.accept(query);
     }

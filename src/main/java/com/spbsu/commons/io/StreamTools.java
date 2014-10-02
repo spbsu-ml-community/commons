@@ -287,4 +287,12 @@ public class StreamTools {
       throw new RuntimeException(e);
     }
   }
+
+  public static void appendChars(final CharSequence seq, final File file) {
+    try(final FileOutputStream outputStream = new FileOutputStream(file, true)) {
+      writeChars(seq, outputStream);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
