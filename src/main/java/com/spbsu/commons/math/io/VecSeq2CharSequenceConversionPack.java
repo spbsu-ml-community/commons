@@ -25,7 +25,7 @@ public class VecSeq2CharSequenceConversionPack implements ConversionPack<VecSeq,
     @Override
     public CharSequence convert(final VecSeq vecSeq) {
       final StringBuilder sb = new StringBuilder();
-      boolean isSimilar = false;
+      boolean isSimilar = true;
       int offset = 0;
       VecType tag = vecSeq.at(0) instanceof SparseVec ? VecType.SPARSE : VecType.COMMON;
       final int len = vecSeq.at(0).dim();
@@ -102,7 +102,7 @@ public class VecSeq2CharSequenceConversionPack implements ConversionPack<VecSeq,
         if (serializedVec.length() > 0) {
           if (!isSimilar) {
             vecParts = CharSeqTools.split(serializedVec, TYPE_VALUE_DELIMETER);
-            type = VecType.getByName(String.valueOf(parts[0]));
+            type = VecType.getByName(String.valueOf(vecParts[0]));
             vecStr = vecParts[1];
           } else {
             vecStr = CharSeqTools.concatWithDelimeter("", len, serializedVec);
