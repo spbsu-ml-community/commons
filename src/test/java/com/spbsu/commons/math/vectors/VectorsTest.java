@@ -1,14 +1,13 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.math.vectors.impl.vectors.DVector;
-import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.random.GaussianRandomVec;
 import com.spbsu.commons.util.ArrayTools;
 import com.spbsu.commons.util.Factories;
-
 import com.spbsu.commons.util.logging.Interval;
 import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.hash.TIntHashSet;
@@ -17,7 +16,6 @@ import junit.framework.TestCase;
 import java.util.*;
 
 import static com.spbsu.commons.math.vectors.VecTools.*;
-import static com.spbsu.commons.math.vectors.MxTools.multiply;
 
 /**
  * User: terry
@@ -654,5 +652,17 @@ public class VectorsTest extends TestCase {
   public void testArgmax() throws Exception {
     final Vec vec = new ArrayVec(1, 4, 2, 5, 9);
     assertEquals(4, VecTools.argmax(vec));
+  }
+
+  public void testCutSparseVec() throws Exception {
+    final SparseVec sparseVec = new SparseVec(5, new int[]{1, 2, 4}, new double[]{0.1, 0.2, 0.4});
+    final int[] indexesToCut = {0, 1, 4};
+
+    final int[] expectedIdxs = {1, 4};
+    final double[] expectedValues = {0.1, 0.4};
+    final SparseVec cutVec = VecTools.cutSparseVec(sparseVec, indexesToCut);
+
+    assertTrue(Arrays.equals(expectedIdxs, cutVec.indices.toArray()));
+    assertTrue(Arrays.equals(expectedValues, cutVec.values.toArray()));
   }
 }

@@ -525,15 +525,15 @@ public abstract class ArrayTools {
   public static <I> Seq<I> cut(final Seq<I> data, final int[] indices) {
     if (indices.length == 0 || data.length() == 0)
       throw new IllegalArgumentException();
-    if (data instanceof Vec) {
+    if (data instanceof SparseVec) {
+      return (Seq<I>) VecTools.cutSparseVec((SparseVec) data, indices);
+    }
+    else if (data instanceof Vec) {
       final Vec dataVec = (Vec) data;
       final Vec result = new ArrayVec(indices.length);
       for (int i = 0; i < indices.length; i++) {
         result.set(i, dataVec.get(indices[i]));
       }
-      // TODO: support sparse vectors cutting
-      if (data instanceof SparseVec)
-        return (Seq<I>) VecTools.copySparse(result);
       return (Seq<I>) result;
     }
     else if (data instanceof IntSeq) {
@@ -544,8 +544,15 @@ public abstract class ArrayTools {
       }
       return (Seq<I>) new IntSeq(ints);
     }
-    else {
-      final I[] result = (I[])Array.newInstance(data.at(0).getClass(), indices.length);
+    else if (data instanceof VecSeq) {
+      final VecSeq vecSeq = (VecSeq) data;
+      final Vec[] cutVecs = new Vec[indices.length];
+      for (int i = 0; i < indices.length; i++) {
+        cutVecs[i] = vecSeq.at(indices[i]);
+      }
+      return (Seq<I>) new VecSeq(cutVecs);
+    } else {
+      final I[] result = (I[]) Array.newInstance(data.at(0).getClass(), indices.length);
       for (int i = 0; i < indices.length; i++) {
         result[i] = data.at(indices[i]);
       }

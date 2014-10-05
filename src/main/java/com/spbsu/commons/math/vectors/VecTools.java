@@ -1,21 +1,21 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.math.MathTools;
+import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.*;
 import com.spbsu.commons.seq.IntSeq;
+import com.spbsu.commons.util.ArrayTools;
+import gnu.trove.list.TDoubleList;
+import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-
-import com.spbsu.commons.math.MathTools;
-import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
-import com.spbsu.commons.util.ArrayTools;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 import static java.lang.Math.log;
 import static java.lang.Math.sqrt;
@@ -720,5 +720,30 @@ public class VecTools {
       ints[iter.index()] = (int) iter.value();
     }
     return new IntSeq(ints);
+  }
+
+  //it's assuming that idxs is sorted
+  public static SparseVec cutSparseVec(final SparseVec sourceVec, final int[] idxs) {
+    final TIntList sourceIdxs = sourceVec.indices;
+    final TDoubleList sourceValues = sourceVec.values;
+    final TIntList newIdxs = new TIntArrayList(Math.min(sourceIdxs.size(), idxs.length));
+    final TDoubleList newValues = new TDoubleArrayList(Math.min(sourceIdxs.size(), idxs.length));
+
+    int iPos = 0;
+    int jPos = 0;
+    while (iPos < sourceIdxs.size() && jPos < idxs.length) {
+      if (sourceIdxs.get(iPos) < idxs[jPos]) {
+        iPos++;
+      }
+      else if (sourceIdxs.get(iPos) > idxs[jPos]) {
+        jPos++;
+      } else {
+        newIdxs.add(sourceIdxs.get(iPos));
+        newValues.add(sourceValues.get(iPos));
+        iPos++;
+        jPos++;
+      }
+    }
+    return new SparseVec(sourceVec.dim(), newIdxs.toArray(), newValues.toArray());
   }
 }
