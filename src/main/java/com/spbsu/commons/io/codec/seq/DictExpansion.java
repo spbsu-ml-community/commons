@@ -1,13 +1,21 @@
 package com.spbsu.commons.io.codec.seq;
 
+import java.io.PrintStream;
+import java.util.*;
+
+
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.ArrayTools;
+import gnu.trove.list.TLongList;
+import gnu.trove.list.linked.TLongLinkedList;
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.procedure.TIntIntProcedure;
 import gnu.trove.procedure.TLongIntProcedure;
-
-import java.util.*;
+import gnu.trove.procedure.TLongProcedure;
 
 import static java.lang.Math.log;
 import static java.lang.Math.min;
@@ -24,7 +32,7 @@ public class DictExpansion<T extends Comparable<T>> {
   public static final double MAX_POWER = 100000000;
   public static final double MAX_MIN_PROBABILITY = 0.01;
   private final int size;
-  private final boolean trace;
+  private final PrintStream trace;
   private ListDictionary<T> suggest;
   private ListDictionary<T> current;
   private ListDictionary<T> result;
@@ -44,19 +52,20 @@ public class DictExpansion<T extends Comparable<T>> {
   private double bestCompressionRate = 1;
   private int noRateIncreaseTurns = 0;
 
+
   public DictExpansion(Collection<T> alphabet, int size) {
-    this(alphabet, size, false);
+    this(alphabet, size, null);
   }
 
-  public DictExpansion(Collection<T> alphabet, int size, boolean trace) {
+  public DictExpansion(Collection<T> alphabet, int size, final PrintStream trace) {
     this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, trace);
   }
 
   public DictExpansion(ListDictionary<T> alphabet, int size) {
-    this(alphabet, size, false);
+    this(alphabet, size, null);
   }
 
-  public DictExpansion(ListDictionary<T> alphabet, int size, boolean trace) {
+  public DictExpansion(ListDictionary<T> alphabet, int size, final PrintStream trace) {
     this.size = size;
     this.trace = trace;
     this.alphabetSize = alphabet.size();
@@ -104,15 +113,33 @@ public class DictExpansion<T extends Comparable<T>> {
       return result.toString();
     }
   }
-  public void accept(Seq<T> seq) {
+
+  public void accept(final Seq<T> seq) {
     int prev = -1;
+
+    final ListDictionary<T> current;
+    final ListDictionary<T> suggest;
+    final ListDictionary<T> result;
+    synchronized (this) {
+      current = this.current;
+      suggest = this.suggest;
+      result = this.result;
+    }
+
+    final TIntIntMap symbolFreqsCurrent = new TIntIntHashMap();
+    int powerCurrent = 0;
+    int pairsCount = 0;
+    final TIntIntMap symbolFreqsSuggest = new TIntIntHashMap();
+    int powerSuggest = 0;
+    final TLongList pairs = new TLongLinkedList();
+
     {
       Seq<T> suffix = seq;
-      while(suffix.length() > 0) {
+      while (suffix.length() > 0) {
         final int symbol = current.search(suffix);
-        symbolFreqsCurrent[symbol]++;
+        symbolFreqsCurrent.adjustOrPutValue(symbol, 1, 1);
         if (prev >= 0) {
-          pairFreqs.adjustOrPutValue((long)prev << 32 | symbol, 1, 1);
+          pairs.add((long) prev << 32 | symbol);
           pairsCount++;
         }
         prev = symbol;
@@ -120,16 +147,49 @@ public class DictExpansion<T extends Comparable<T>> {
         powerCurrent++;
       }
     }
+
     {
       Seq<T> suffix = seq;
-      while(suffix.length() > 0) {
+      while (suffix.length() > 0) {
         final int symbol = suggest.search(suffix);
-        symbolFreqsSuggest[symbol]++;
+        symbolFreqsSuggest.adjustOrPutValue(symbol, 1, 1);
         suffix = suffix.sub(suggest.get(symbol).length(), suffix.length());
         powerSuggest++;
       }
     }
 
+    synchronized (this) {
+      if (result == this.result) {
+        symbolFreqsCurrent.forEachEntry(new TIntIntProcedure() {
+          @Override
+          public boolean execute(final int pair, final int freq) {
+            DictExpansion.this.symbolFreqsCurrent[pair] += freq;
+            return true;
+          }
+        });
+        pairs.forEach(new TLongProcedure() {
+          @Override
+          public boolean execute(final long pair) {
+            pairFreqs.adjustOrPutValue(pair, 1, 1);
+            return true;
+          }
+        });
+        this.pairsCount += pairsCount;
+        this.powerCurrent += powerCurrent;
+        symbolFreqsSuggest.forEachEntry(new TIntIntProcedure() {
+          @Override
+          public boolean execute(final int pair, final int freq) {
+            DictExpansion.this.symbolFreqsSuggest[pair] += freq;
+            return true;
+          }
+        });
+        this.powerSuggest += powerSuggest;
+        update();
+      }
+    }
+  }
+
+  private void update() {
     if ((powerSuggest > -log(probFound) / minProbSuggest && powerCurrent > -log(probFound) / minProbCurrent) || powerSuggest > MAX_POWER) {
       double sum = 0;
       double textLength = 0;
@@ -152,8 +212,14 @@ public class DictExpansion<T extends Comparable<T>> {
       result = current;
       resultFreqs = symbolFreqsCurrent;
 
-      if (trace)
-        System.out.println("Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + minProbSuggest);
+      if (trace != null) {
+        final String message = "Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + minProbSuggest;
+        trace.println(message);
+
+        if (trace != System.out) {
+          System.out.println(message);
+        }
+      }
 
       final ListDictionary<T> reduce = reduce();
       final ListDictionary<T> expand = expand();
