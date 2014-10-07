@@ -18,7 +18,7 @@ public class CompositeStatTextCoding {
   private boolean stop = false;
 
   public CompositeStatTextCoding(Collection<Character> alphabet, int dictSize) {
-    this.expansion = new DictExpansion<>(alphabet, dictSize, System.out);
+    this.expansion = new DictExpansion<>(alphabet, dictSize, true);
   }
 
   public void accept(CharSequence seq) {
