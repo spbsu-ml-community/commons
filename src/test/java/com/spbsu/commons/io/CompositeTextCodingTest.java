@@ -22,15 +22,12 @@ import com.spbsu.commons.seq.CharSeqAdapter;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.Seq;
 import junit.framework.TestCase;
-import org.junit.Ignore;
 
 /**
  * User: solar
  * Date: 03.06.14
  * Time: 14:40
  */
-//TODO: Too slow
-@Ignore
 public class CompositeTextCodingTest extends TestCase {
   public static CharSequence[] queries;
   public static CharSequence[] urls;
@@ -175,7 +172,7 @@ public class CompositeTextCodingTest extends TestCase {
 
     CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
 
-    for (int i = 0; i < 10000000; i++) {
+    for (int i = 0; i < 100000; i++) {
       final CharSequence query = urls[rng.nextInt(urls.length)];
       coding.accept(query);
     }
