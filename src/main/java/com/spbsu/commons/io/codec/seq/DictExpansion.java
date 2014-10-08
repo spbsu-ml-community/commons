@@ -53,11 +53,12 @@ public class DictExpansion<T extends Comparable<T>> {
   private int noRateIncreaseTurns = 0;
 
   public DictExpansion(Collection<T> alphabet, int size) {
-    this(alphabet, size, false);
+    this(alphabet, size, null);
   }
 
+  @Deprecated
   public DictExpansion(Collection<T> alphabet, int size, boolean trace) {
-    this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, trace);
+    this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, trace ? System.out : null);
   }
 
   public DictExpansion(Collection<T> alphabet, int size, final PrintStream trace) {
@@ -65,9 +66,10 @@ public class DictExpansion<T extends Comparable<T>> {
   }
 
   public DictExpansion(ListDictionary<T> alphabet, int size) {
-    this(alphabet, size, false);
+    this(alphabet, size, null);
   }
 
+  @Deprecated
   public DictExpansion(ListDictionary<T> alphabet, int size, boolean trace) {
     this(alphabet, size, trace ? System.out : null);
   }
