@@ -3,7 +3,6 @@ package com.spbsu.commons.math.vectors.impl.vectors;
 import com.spbsu.commons.math.vectors.Basis;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
-import com.spbsu.commons.math.vectors.VecTools;
 import com.spbsu.commons.math.vectors.impl.basis.IntBasis;
 import com.spbsu.commons.math.vectors.impl.iterators.SparseVecNZIterator;
 import com.spbsu.commons.util.ArrayTools;
@@ -32,9 +31,10 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
   protected CustomBasisVec() {
   }
 
-  protected void init(int[] indeces, double[] values) {
-    ArrayTools.parallelSort(indeces, values);
-    this.indices.add(indeces);
+  protected void init(int[] indices, double[] values) {
+    if (!ArrayTools.isSorted(indices))
+      ArrayTools.parallelSort(indices, values);
+    this.indices.add(indices);
     this.values.add(values);
   }
 
