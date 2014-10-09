@@ -14,6 +14,7 @@ public class GeoPoint {
   public static final double MIN_LONGITUDE = -180.0;
   public static final double MAX_LONGITUDE = 180.0;
 
+  @NotNull
   public static GeoPoint valueOf(final double latitude, final double longitude) {
     if (Double.isNaN(latitude) || Double.isInfinite(latitude) || Double.isNaN(longitude) || Double.isInfinite(latitude))
       throw new IllegalArgumentException();
