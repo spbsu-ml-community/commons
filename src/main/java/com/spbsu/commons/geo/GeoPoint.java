@@ -31,7 +31,7 @@ public class GeoPoint {
   /**
    * Constructs object from string in format 'longitude','latitude' if not <code>inverted</code> and 'latitude','longitude' otherwise.
    */
-  private static GeoPoint valueOf(@NotNull final String stringValue, final Format format) {
+  public static GeoPoint valueOf(@NotNull final String stringValue, final Format format) {
     final int i = stringValue.indexOf(",");
     if (i < 0)
       throw new IllegalArgumentException();
