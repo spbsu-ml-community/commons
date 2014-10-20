@@ -9,6 +9,7 @@ import com.spbsu.commons.seq.VecSeq;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 
 /**
@@ -22,21 +23,30 @@ public class VecSeq2CharSequenceConversionPack implements ConversionPack<VecSeq,
     private static final SparseVec2CharSequenceConversionPack.SparseVec2CharSequenceConverter sparseVec2StrConverter = new SparseVec2CharSequenceConversionPack.SparseVec2CharSequenceConverter();
     private static final Vec2CharSequenceConversionPack.Vec2CharSequenceConverter vec2StrConverter = new Vec2CharSequenceConversionPack.Vec2CharSequenceConverter();
 
+
+    /**
+     * NO RLE SUPPORT
+     * @param vecSeq
+     * @return
+     */
     @Override
     public CharSequence convert(final VecSeq vecSeq) {
       final StringBuilder sb = new StringBuilder();
-      boolean isSimilar = true;
+      boolean isSimilar = false;
       int offset = 0;
       VecType tag = vecSeq.at(0) instanceof SparseVec ? VecType.SPARSE : VecType.COMMON;
       final int len = vecSeq.at(0).dim();
       for (int i = 0; i < vecSeq.length(); ++i) {
-          if (vecSeq.at(i).dim() != len
-              || (tag.equals(VecType.SPARSE) && ! (vecSeq.at(i) instanceof SparseVec))) {
-            isSimilar = false;
-            break;
-          }
+        if (vecSeq.at(i).dim() != len
+            || (tag.equals(VecType.SPARSE) && !(vecSeq.at(i) instanceof SparseVec))) {
+          isSimilar = false;
+          break;
+        }
       }
-      sb.append(isSimilar).append(VEC_DELIMETER);
+
+      sb.append(isSimilar)
+          .append(false)
+          .append(VEC_DELIMETER);
       if (isSimilar) {
         sb.append(tag.getName())
             .append(VEC_DELIMETER)
@@ -56,7 +66,7 @@ public class VecSeq2CharSequenceConversionPack implements ConversionPack<VecSeq,
             serializedVec = vec2StrConverter.convert(vec);
             break;
           case SPARSE:
-            serializedVec = sparseVec2StrConverter.convert((SparseVec)vec);
+            serializedVec = sparseVec2StrConverter.convert((SparseVec) vec);
             break;
           default:
             throw new IllegalArgumentException("unexpected tag");
@@ -82,45 +92,56 @@ public class VecSeq2CharSequenceConversionPack implements ConversionPack<VecSeq,
 
     @Override
     public VecSeq convert(final CharSequence from) {
-      final CharSequence[] parts = CharSeqTools.split(from, VEC_DELIMETER);
-      final boolean isSimilar = Boolean.parseBoolean(parts[0].toString());
+      final StringTokenizer tokenizer = new StringTokenizer(from.toString(), VEC_DELIMETER);
+      final boolean isSimilar = Boolean.valueOf(tokenizer.nextToken());
+      final boolean isRLE = Boolean.valueOf(tokenizer.nextToken());
       VecType type = null;
-      CharSequence len = null;
-      int offset = 1;
+      CharSequence len = "";
       if (isSimilar) {
-        type = VecType.getByName(String.valueOf(parts[1]));
-        len = parts[2].toString();
-        offset += 2;
+        type = VecType.getByName(tokenizer.nextToken());
+        len = tokenizer.nextToken();
       }
-      final List<Vec> vecs = new ArrayList<>(parts.length - offset);
+      final List<Vec> vecs = new ArrayList<>(tokenizer.countTokens());
 
-      for (int i = offset; i < parts.length; ++i) {
-        final CharSequence serializedVec = parts[i];
+      while (tokenizer.hasMoreTokens()) {
+        final String token = tokenizer.nextToken();
+        final CharSequence serializedVec;
+        final Integer times;
+
+        if (isRLE) {
+          final String[] parts = token.split(" ", 2);
+          times = Integer.valueOf(parts[0]);
+          serializedVec = parts[1];
+        } else {
+          times = 1;
+          serializedVec = token;
+        }
+
         final CharSequence[] vecParts;
         final CharSequence vecStr;
         final Vec vec;
-        if (serializedVec.length() > 0) {
-          if (!isSimilar) {
-            vecParts = CharSeqTools.split(serializedVec, TYPE_VALUE_DELIMETER);
-            type = VecType.getByName(String.valueOf(vecParts[0]));
-            vecStr = vecParts[1];
-          } else {
-            vecStr = CharSeqTools.concatWithDelimeter("", len, serializedVec);
-          }
-          switch (type) {
-            case COMMON:
-              vec = str2VecConverter.convert(vecStr);
-              break;
-            case SPARSE:
-              vec = sparseStr2VecConverter.convert(vecStr);
-              break;
-            default:
-              throw new RuntimeException("unexpected type");
-          }
+
+        if (!isSimilar) {
+          vecParts = CharSeqTools.split(serializedVec, TYPE_VALUE_DELIMETER);
+          type = VecType.getByName(String.valueOf(vecParts[0]));
+          vecStr = vecParts[1];
         } else {
-          vec = vecs.get(vecs.size() - 1);
+          vecStr = CharSeqTools.concatWithDelimeter("", len, serializedVec);
         }
-        vecs.add(vec);
+        switch (type) {
+          case COMMON:
+            vec = str2VecConverter.convert(vecStr);
+            break;
+          case SPARSE:
+            vec = sparseStr2VecConverter.convert(vecStr);
+            break;
+          default:
+            throw new RuntimeException("unexpected type");
+        }
+
+        for (int i = 0; i < times; ++i) {
+          vecs.add(vec);
+        }
       }
       return new VecSeq(vecs.toArray(new Vec[vecs.size()]));
     }
