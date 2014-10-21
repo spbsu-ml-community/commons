@@ -658,7 +658,7 @@ public class VectorsTest extends TestCase {
     final SparseVec sparseVec = new SparseVec(5, new int[]{1, 2, 4}, new double[]{0.1, 0.2, 0.4});
     final int[] indexesToCut = {0, 1, 4};
 
-    final int[] expectedIdxs = {1, 4};
+    final int[] expectedIdxs = {1, 2};
     final double[] expectedValues = {0.1, 0.4};
     final SparseVec cutVec = VecTools.cutSparseVec(sparseVec, indexesToCut);
 

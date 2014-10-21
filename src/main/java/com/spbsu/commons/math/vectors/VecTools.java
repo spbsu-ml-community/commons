@@ -738,12 +738,12 @@ public class VecTools {
       else if (sourceIdxs.get(iPos) > idxs[jPos]) {
         jPos++;
       } else {
-        newIdxs.add(sourceIdxs.get(iPos));
+        newIdxs.add(jPos);
         newValues.add(sourceValues.get(iPos));
         iPos++;
         jPos++;
       }
     }
-    return new SparseVec(sourceVec.dim(), newIdxs.toArray(), newValues.toArray());
+    return new SparseVec(idxs.length, newIdxs.toArray(), newValues.toArray());
   }
 }
