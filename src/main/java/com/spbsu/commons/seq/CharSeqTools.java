@@ -441,12 +441,6 @@ public class CharSeqTools {
   }
 
 
-  public static JsonParser parseJSON(final CharSequence part) throws IOException {
-    final ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.getFactory().enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-    return objectMapper.getFactory().createParser(new CharSeqReader(part));
-  }
-
   public static float parseFloat(CharSequence in) {
     return FloatingDecimal.readJavaFormatString(in).floatValue();
   }
