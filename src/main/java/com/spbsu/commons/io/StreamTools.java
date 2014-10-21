@@ -21,6 +21,7 @@ import java.util.zip.ZipInputStream;
  * Date: 10.10.2009
  */
 public class StreamTools {
+  public static final Charset UTF = Charset.forName("UTF-8");
   private static final Logger LOG = Logger.create(StreamTools.class);
   private static final int BUFFER_LENGTH = 4096;
   private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");

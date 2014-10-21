@@ -100,6 +100,13 @@ public class TypeConvertersCollection implements ConversionRepository {
   }
 
   public synchronized <U,V> TypeConverter<U,V> converter(Class<U> from, Class<V> to) {
+    if (to.isAssignableFrom(from))
+      return new TypeConverter<U, V>() {
+        @Override
+        public V convert(final U from) {
+          return (V)from;
+        }
+      };
     final Pair<Class, Class> key = Pair.create((Class)from, (Class)to);
     TypeConverter<U, V> converter = (TypeConverter<U, V>)cache.get(key);
     if (converter == null) { // trying to fall back by inheritance

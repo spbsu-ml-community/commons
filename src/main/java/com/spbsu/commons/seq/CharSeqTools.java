@@ -176,17 +176,19 @@ public class CharSeqTools {
     return result.toArray(new CharSequence[result.size()]);
   }
 
-  public static int split(CharSequence sequence, char separator, CharSequence[] result) {
+  public static CharSequence[] split(CharSequence sequence, char separator, CharSequence[] result) {
     int last = 0;
     int index = 0;
-    for (int i = 0; i < sequence.length(); i++) {
+    for (int i = 0; i < sequence.length() && index < result.length - 1; i++) {
       if (sequence.charAt(i) == separator) {
         result[index++] = sequence.subSequence(last, i);
         last = i + 1;
       }
     }
     result[index++] = sequence.subSequence(last, sequence.length());
-    return index;
+    if (index < result.length)
+      throw new IllegalArgumentException("Too little parts found in input");
+    return result;
   }
 
   public static CharSequence[] split(CharSequence sequence, CharSequence separator) {
@@ -438,12 +440,6 @@ public class CharSeqTools {
     }, null, false);
   }
 
-
-  public static JsonParser parseJSON(final CharBufferSeq part) throws IOException {
-    final ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.getFactory().enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-    return objectMapper.getFactory().createParser(part.getReader());
-  }
 
   public static JsonParser parseJSON(final CharSequence part) throws IOException {
     final ObjectMapper objectMapper = new ObjectMapper();

@@ -3,12 +3,9 @@ package com.spbsu.commons.io.codec.seq;
 import java.util.*;
 
 
-import com.spbsu.commons.math.vectors.Vec;
-import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.Pair;
-import gnu.trove.list.array.TIntArrayList;
 
 /**
 * User: solar
@@ -71,17 +68,6 @@ public class ListDictionary<T extends Comparable<T>> {
     throw new RuntimeException("Dictionary index is corrupted!");
   }
 
-  public int encode(Seq<T> seq, TIntArrayList result) {
-    int count = 0;
-    while(seq.length() > 0) {
-      final int symbol = search(seq);
-      result.add(symbol);
-      count++;
-      seq = seq.sub(get(symbol).length(), seq.length());
-    }
-    return count;
-  }
-
   public Seq<T> get(int index) {
     return sex[index];
   }
@@ -96,9 +82,5 @@ public class ListDictionary<T extends Comparable<T>> {
 
   public int parent(int second) {
     return parents[second];
-  }
-
-  public Seq<T> next(Vec probabs, FastRandom rng) {
-    return get(rng.nextSimple(probabs));
   }
 }

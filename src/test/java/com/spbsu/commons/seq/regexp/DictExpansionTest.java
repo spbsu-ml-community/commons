@@ -55,7 +55,7 @@ public class DictExpansionTest extends TestCase {
         int len = rnd.nextInt(30);
         StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
-          builder.append(reference.next(probabs, rnd));
+          builder.append(reference.get(rnd.nextSimple(probabs)));
         de.accept(new CharSeqAdapter(builder));
   //      System.out.println(builder);
       }
@@ -92,7 +92,7 @@ public class DictExpansionTest extends TestCase {
         int len = rng.nextInt(100);
         StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
-          builder.append(reference.next(probabs, rng));
+          builder.append(reference.get(rng.nextSimple(probabs)));
         de.accept(new CharSeqAdapter(builder));
       }
       equalsAtLeastOnce = reference.alphabet().toString().equals(de.result().alphabet().toString());
