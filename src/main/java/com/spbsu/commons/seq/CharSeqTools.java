@@ -467,6 +467,24 @@ public class CharSeqTools {
     return result * (negative ? -1 : 1);
   }
 
+  public static long parseLong(final CharSequence part) {
+    long result = 0;
+    boolean negative = false;
+    int offset = 0;
+    if (part.charAt(0) == '-') {
+      offset++;
+      negative = true;
+    }
+    while (offset < part.length()) {
+      int nextCh = part.charAt(offset++) - '0';
+      if (nextCh < 0 || nextCh > 9)
+        throw new IllegalArgumentException("Can not parse integer: " + part);
+      result *= 10;
+      result += nextCh;
+    }
+    return result * (negative ? -1l : 1l);
+  }
+
   /**
    * creates Seq from both primitive and non-primitive arrays. In case of non primitive arrays of wrapped objects they will be repacked to primitives.
    * Until repack the operation is light.
@@ -677,5 +695,9 @@ public class CharSeqTools {
       index++;
     }
     return -1;
+  }
+
+  public static boolean parseBoolean(final CharSequence sequence) {
+    return equals(sequence, "true") || equals(sequence, "yes") || equals(sequence, "1");
   }
 }

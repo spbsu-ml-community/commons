@@ -6,23 +6,22 @@ package com.spbsu.commons.filters;
  * Time: 23:23:54
  */
 public class AndFilter<T> implements Filter<T> {
-  private Filter<T> firstFilter;
-  private Filter<T> secondFilter;
+  private Filter<T>[] filters;
 
-  public AndFilter(Filter<T> firstFilter, Filter<T> secondFilter) {
-    this.firstFilter = firstFilter;
-    this.secondFilter = secondFilter;
+  public AndFilter(Filter... filters) {
+    //noinspection unchecked
+    this.filters = (Filter<T>[])filters;
   }
 
   public boolean accept(T t) {
-    return firstFilter.accept(t) && secondFilter.accept(t);
+    for(int i = 0; i < filters.length; i++) {
+      if (!filters[i].accept(t))
+        return false;
+    }
+    return true;
   }
 
-  public Filter<T> getFirstFilter() {
-    return firstFilter;
-  }
-
-  public Filter<T> getSecondFilter() {
-    return secondFilter;
+  public Filter<T>[] filters() {
+    return filters;
   }
 }
