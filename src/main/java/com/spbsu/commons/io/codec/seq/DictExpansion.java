@@ -224,10 +224,6 @@ public class DictExpansion<T extends Comparable<T>> {
       if (trace != null) {
         final String message = "Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + minProbSuggest;
         trace.println(message);
-
-        if (trace != System.out) {
-          System.out.println(message);
-        }
       }
 
       final ListDictionary<T> reduce = reduce();
