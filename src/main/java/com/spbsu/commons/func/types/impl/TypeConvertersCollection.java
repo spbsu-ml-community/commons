@@ -125,7 +125,7 @@ public class TypeConvertersCollection implements ConversionRepository {
       else if (base != null)
         converter = base.converter(from, to);
       if (converter == null)
-        throw new RuntimeException("Unable to find proper converter to at from " + from + " to " + to);
+        throw new RuntimeException("Unable to find proper converter from " + from + " to " + to);
     }
     cache.put(key, converter);
     return converter;

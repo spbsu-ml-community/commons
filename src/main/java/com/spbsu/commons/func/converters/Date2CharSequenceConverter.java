@@ -1,6 +1,8 @@
 package com.spbsu.commons.func.converters;
 
 import com.spbsu.commons.func.Converter;
+import com.spbsu.commons.seq.CharSeqTools;
+
 
 import java.util.Date;
 
@@ -8,10 +10,10 @@ import java.util.Date;
  * User: terry
  * Date: 16.08.2009
  */
-public class Date2StringConverter implements Converter<Date, String> {
+public class Date2CharSequenceConverter implements Converter<Date, CharSequence> {
   @Override
-  public Date convertFrom(String source) {
-    return new Date(Long.parseLong(source));
+  public Date convertFrom(CharSequence source) {
+    return new Date(CharSeqTools.parseLong(source));
   }
 
   @Override

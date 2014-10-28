@@ -118,15 +118,21 @@ public class RuntimeUtils {
               }
             }
           }
-          else if (dirPath.endsWith(".jar")) {
-            populateFromJar(path, result, new JarFile(dirPath), dir);
+          else {
+            try {
+              populateFromJar(path, result, new JarFile(dirPath), dir);
+            }
+            catch (IOException exc) {
+              // skip
+            }
           }
         }
+        else throw new RuntimeException("Unknown connection");
       } catch (FileNotFoundException e) {
         // a file specified in the classpath may be unavailable
         // it is not an error necessarily (classpath may contain unused URLs)
         // ignore
-        LOG.debug("Unreachable classpath element: "+dir);
+        throw new RuntimeException("Unreachable directory " + dir.toString());
       }
     }
   }
