@@ -4,19 +4,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
 import java.net.*;
-import java.text.AttributedString;
 import java.util.*;
-import java.util.jar.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 
 import com.spbsu.commons.filters.Filter;
-import com.spbsu.commons.func.Action;
-import com.spbsu.commons.io.StreamTools;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.util.logging.Logger;
 import sun.net.www.protocol.file.FileURLConnection;
@@ -84,7 +82,7 @@ public class RuntimeUtils {
     }
   }
 
-
+  @Deprecated
   public static String[] packageResourcesList(String path) throws URISyntaxException, IOException {
     path = path.replace('.', '/') + "/";
     ClassLoader loader = RuntimeUtils.class.getClassLoader();
@@ -95,6 +93,36 @@ public class RuntimeUtils {
     Set<String> result = new HashSet<>();
     populateFromURLs(path, dirs, result);
     return result.toArray(new String[result.size()]);
+  }
+
+  public static List<String> packageResourcesList(Class clazz, String path) throws URISyntaxException, IOException {
+    if (!path.endsWith("/")) {
+      path += "/";
+    }
+    final List<String> result = new ArrayList<>();
+
+    final URL dirURL = clazz.getResource(path);
+    if (dirURL == null) {
+      throw new RuntimeException("Invalid path " + path);
+    }
+
+    switch (dirURL.getProtocol()) {
+      case "file":
+        for (final String fileName : new File(dirURL.toURI()).list()) {
+          result.add(path + fileName);
+        }
+        return result;
+      case "jar":
+        final String classpath = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
+        for (final JarEntry entry : Collections.list(new JarFile(new File(classpath)).entries())) {
+          String name = entry.getName();
+          if (name.matches(path.substring(1) + "[^\\/]+\\/?")) {
+            result.add("/" + entry);
+          }
+        }
+        return result;
+    }
+    throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
   }
 
   private static void populateFromURLs(String path, URL[] dirs, Set<String> result) throws IOException {
