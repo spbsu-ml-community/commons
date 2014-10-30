@@ -27,4 +27,20 @@ public class CharSeqToolsTest extends TestCase {
     assertEquals(15, CharSeqTools.hexCharToByte('f'));
     assertEquals(15, CharSeqTools.hexCharToByte('F'));
   }
+
+  public void testCountLeadingOccurrences() {
+    assertEquals(0, CharSeqTools.countLeadingOccurrences("abcd", '/'));
+    assertEquals(0, CharSeqTools.countLeadingOccurrences("ab/cd/", '/'));
+    assertEquals(1, CharSeqTools.countLeadingOccurrences("/abcd", '/'));
+    assertEquals(5, CharSeqTools.countLeadingOccurrences("/////abcd/", '/'));
+    assertEquals(5, CharSeqTools.countLeadingOccurrences("/////", '/'));
+  }
+
+  public void testRemoveLeading() {
+    assertEquals("abcd", CharSeqTools.removeLeading("abcd", '/'));
+    assertEquals("ab/cd/", CharSeqTools.removeLeading("ab/cd/", '/'));
+    assertEquals("abcd", CharSeqTools.removeLeading("/abcd", '/'));
+    assertEquals("abcd/", CharSeqTools.removeLeading("/////abcd/", '/'));
+    assertEquals("", CharSeqTools.removeLeading("/////", '/'));
+  }
 }

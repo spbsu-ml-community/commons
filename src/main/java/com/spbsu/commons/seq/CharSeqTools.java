@@ -1,12 +1,6 @@
 package com.spbsu.commons.seq;
 
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spbsu.commons.func.Processor;
-import com.spbsu.commons.seq.trash.FloatingDecimal;
-import com.spbsu.commons.util.ArrayTools;
-import gnu.trove.strategy.HashingStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,6 +15,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+
+import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.seq.trash.FloatingDecimal;
+import com.spbsu.commons.util.ArrayTools;
+import gnu.trove.strategy.HashingStrategy;
 /**
  * User: terry
  * Date: 10.10.2009
@@ -699,5 +699,23 @@ public class CharSeqTools {
 
   public static boolean parseBoolean(final CharSequence sequence) {
     return equals(sequence, "true") || equals(sequence, "yes") || equals(sequence, "1");
+  }
+
+  /**
+   * Removes leading occurrences of specified char from specified sequence.
+   */
+  public static CharSequence removeLeading(final CharSequence s, final char c) {
+    final int index = countLeadingOccurrences(s, c);
+    return s.subSequence(index, s.length());
+  }
+
+  /**
+   * Counts number of occurrences of specified char at the beginning of specified sequence.
+   */
+  public static int countLeadingOccurrences(final CharSequence s, final char c) {
+    int i = 0;
+    while (i < s.length() && s.charAt(i) == c)
+      i++;
+    return i;
   }
 }
