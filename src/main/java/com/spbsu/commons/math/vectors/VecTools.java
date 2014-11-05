@@ -317,15 +317,11 @@ public class VecTools {
   }
 
   public static Mx outer(Vec a, Vec b) {
-    if (a.dim() != b.dim())
-      throw new IllegalArgumentException("Vector dimensions must be equal for outer product");
     final VecBasedMx result = new VecBasedMx(a.dim(), b.dim());
-    if (a.dim() != b.dim())
-      throw new IllegalArgumentException("Vector dimensions must be equal for outer product");
     {
       final VecIterator itA = a.nonZeroes();
       while (itA.advance()) {
-        final int rowStart = itA.index() * a.dim();
+        final int rowStart = itA.index() * b.dim();
         final VecIterator itB = b.nonZeroes();
         while (itB.advance()) {
           result.set(rowStart + itB.index(), itB.value() * itA.value());
