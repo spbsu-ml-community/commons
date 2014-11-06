@@ -668,25 +668,8 @@ public class CharSeqTools {
     return true;
   }
 
-  // TODO: optimize for n/m complexity
   public static int indexOf(final CharSequence value, final CharSequence toFind) {
-    final int looking4length = toFind.length();
-    if (value.length() < looking4length)
-      return -1;
-    if (looking4length == 0)
-      return 0;
-    int index = 0;
-    final int lastIndex = value.length() - looking4length;
-    while (index <= lastIndex) {
-      int i = 0;
-      while (i < looking4length && value.charAt(i) == toFind.charAt(i)) {
-        i++;
-      }
-      if (i == looking4length)
-        return index;
-      index++;
-    }
-    return -1;
+    return indexOf(value, 0, toFind);
   }
 
   public static boolean parseBoolean(final CharSequence sequence) {
@@ -722,5 +705,26 @@ public class CharSeqTools {
     }
     result[index++] = sequence.subSequence(last, sequence.length());
     return index;
+  }
+
+  // TODO: optimize for n/m complexity
+  public static int indexOf(final CharSequence value, final int start, final CharSequence looking4) {
+    final int looking4length = looking4.length();
+    if (value.length() < looking4length)
+      return -1;
+    if (looking4length == 0)
+      return 0;
+    int index = start;
+    final int lastIndex = value.length() - looking4length;
+    while (index <= lastIndex) {
+      int i = 0;
+      while (i < looking4length && value.charAt(index + i) == looking4.charAt(i)) {
+        i++;
+      }
+      if (i == looking4length)
+        return index;
+      index++;
+    }
+    return -1;
   }
 }
