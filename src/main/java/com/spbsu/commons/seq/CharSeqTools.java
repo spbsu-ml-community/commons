@@ -177,15 +177,7 @@ public class CharSeqTools {
   }
 
   public static CharSequence[] split(CharSequence sequence, char separator, CharSequence[] result) {
-    int last = 0;
-    int index = 0;
-    for (int i = 0; i < sequence.length() && index < result.length - 1; i++) {
-      if (sequence.charAt(i) == separator) {
-        result[index++] = sequence.subSequence(last, i);
-        last = i + 1;
-      }
-    }
-    result[index++] = sequence.subSequence(last, sequence.length());
+    final int index = trySplit(sequence, separator, result);
     if (index < result.length)
       throw new IllegalArgumentException("Too little parts found in input");
     return result;
@@ -717,5 +709,18 @@ public class CharSeqTools {
     while (i < s.length() && s.charAt(i) == c)
       i++;
     return i;
+  }
+
+  public static int trySplit(final CharSequence sequence, final char separator, final CharSequence[] result) {
+    int last = 0;
+    int index = 0;
+    for (int i = 0; i < sequence.length() && index < result.length - 1; i++) {
+      if (sequence.charAt(i) == separator) {
+        result[index++] = sequence.subSequence(last, i);
+        last = i + 1;
+      }
+    }
+    result[index++] = sequence.subSequence(last, sequence.length());
+    return index;
   }
 }
