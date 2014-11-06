@@ -11,10 +11,7 @@ import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 
 import com.spbsu.commons.func.Processor;
@@ -692,6 +689,13 @@ public class CharSeqTools {
     while (i < s.length() && s.charAt(i) == c)
       i++;
     return i;
+  }
+
+  public static int getTotalLength(final Collection<? extends CharSequence> sequences) {
+    int length = 0;
+    for (final CharSequence sequence: sequences)
+      length += sequence.length();
+    return length;
   }
 
   public static int trySplit(final CharSequence sequence, final char separator, final CharSequence[] result) {
