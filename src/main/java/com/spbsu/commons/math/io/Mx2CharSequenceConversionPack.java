@@ -24,6 +24,7 @@ public class Mx2CharSequenceConversionPack implements ConversionPack<Mx,CharSequ
       prettyPrint.setMaximumFractionDigits(5);
       prettyPrint.setMinimumFractionDigits(0);
       prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
+      prettyPrint.setGroupingUsed(false);
 
       final StringBuilder builder = new StringBuilder();
       builder.append(from.rows()).append(" ").append(from.columns());

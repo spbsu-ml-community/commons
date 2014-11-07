@@ -11,7 +11,6 @@ import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.seq.CharSeqTools;
-import sun.misc.FloatingDecimal;
 
 /**
  * User: solar
@@ -22,15 +21,16 @@ public class Vec2CharSequenceConversionPack implements ConversionPack<Vec,CharSe
   public static class Vec2CharSequenceConverter implements TypeConverter<Vec, CharSequence> {
     @Override
     public CharSequence convert(Vec from) {
-      final NumberFormat prettyPring = NumberFormat.getInstance(Locale.US);
-      prettyPring.setMaximumFractionDigits(5);
-      prettyPring.setMinimumFractionDigits(0);
-      prettyPring.setRoundingMode(RoundingMode.HALF_UP);
+      final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
+      prettyPrint.setMaximumFractionDigits(5);
+      prettyPrint.setMinimumFractionDigits(0);
+      prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
+      prettyPrint.setGroupingUsed(false);
 
       final CharSeqBuilder builder = new CharSeqBuilder();
       builder.append(from.dim());
       for (int i = 0; i < from.dim(); i++) {
-        builder.append(" ").append(prettyPring.format(from.get(i)));
+        builder.append(" ").append(prettyPrint.format(from.get(i)));
       }
       return builder;
     }

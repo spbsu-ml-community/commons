@@ -1,15 +1,16 @@
 package com.spbsu.commons.math.io;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.vectors.VecIterator;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.seq.CharSeqTools;
-
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 /**
  * User: solar
@@ -24,6 +25,7 @@ public class SparseVec2CharSequenceConversionPack implements ConversionPack<Spar
       prettyPrint.setMaximumFractionDigits(5);
       prettyPrint.setMinimumFractionDigits(0);
       prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
+      prettyPrint.setGroupingUsed(false);
 
       CharSeqBuilder builder = new CharSeqBuilder();
       builder.append(from.dim()).append(':').append(from.indices.size());
