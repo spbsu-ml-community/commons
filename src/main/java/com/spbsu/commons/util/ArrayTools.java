@@ -621,4 +621,12 @@ public abstract class ArrayTools {
     }
     return true;
   }
+
+  public static <T> int indexOf(T instance, T[] array) {
+    for(int i = 0; i < array.length; i++) {
+      if (instance.equals(array[i]))
+        return i;
+    }
+    return -1;
+  }
 }
