@@ -15,7 +15,7 @@ import static java.lang.Math.sqrt;
  * Date: 05.06.14
  */
 public class MxTools {
-  private static final double EPSILON = 1e-5;
+  private static final double EPSILON = 1e-18;
 
   public static boolean checkSymmetry(Mx a) {
     if (a.columns() != a.rows())
@@ -26,6 +26,44 @@ public class MxTools {
         if (Math.abs(a.get(i, j) - a.get(j, i)) > EPSILON)
           return false;
     return true;
+  }
+
+  public static Vec rowSum(Mx a) {
+    Vec result = new ArrayVec(a.rows());
+    for (int row = 0; row < a.rows(); ++row) {
+      double val = 0;
+      for (int col = 0; col < a.columns(); ++col) {
+        val += a.get(row, col);
+      }
+      result.set(row, val);
+    }
+    return result;
+  }
+
+  public static Mx inverse(Mx A) {
+    Mx L = new VecBasedMx(A.rows(), A.columns());
+    Mx Q = new VecBasedMx(A.rows(), A.columns());
+    householderLQ(A, L, Q);
+    L = inverseLTriangle(L);
+    final Mx Inv = MxTools.multiply(Q, L);
+    return Inv;
+  }
+
+  public static Mx laplacian(Mx a) {
+    Vec d = rowSum(a);
+    Mx L = new VecBasedMx(a.rows(), a.columns());
+    for (int i = 0; i < a.rows(); ++i) {
+      for (int j = i + 1; j < a.columns(); ++j) {
+        final double val = -a.get(i, j);
+        L.set(i, j, val);
+        L.set(j, i, val);
+      }
+    }
+    for (int i = 0; i < a.rows(); ++i) {
+      final double val = d.get(i) - a.get(i, i);
+      L.set(i, i, val);
+    }
+    return L;
   }
 
   public static Mx choleskyDecomposition(Mx a) {
@@ -40,7 +78,7 @@ public class MxTools {
       for (int j = 0; j < i; j++) {
         double val = a.get(i, j);
         for (int k = 0; k < j; k++) {
-          val -= l.get(i, k) *  l.get(j, k);
+          val -= l.get(i, k) * l.get(j, k);
         }
         val /= val != 0 ? l.get(j, j) : 1;
         l.set(i, j, val != 0 ? val : 0);
@@ -71,7 +109,7 @@ public class MxTools {
         for (int k = j; k < i; k++) {
           sum -= a.get(i, k) * inverse.get(k, j);
         }
-        inverse.set(i, j, sum*inverse.get(i,i));
+        inverse.set(i, j, sum * inverse.get(i, i));
       }
     }
     return inverse;
@@ -141,7 +179,7 @@ public class MxTools {
 
   public static Vec multiply(Mx mx, Vec vec) {
     if (vec instanceof Mx)
-      return multiply(mx, (Mx)vec);
+      return multiply(mx, (Mx) vec);
     return multiply(mx, new VecBasedMx(1, vec));
   }
 
@@ -187,7 +225,7 @@ public class MxTools {
       final double origDiag = L.get(i, i);
       double diag = origDiag > 0 ? -sqrt(diag2) : sqrt(diag2);
       double r = 2 * sqrt(0.5 * (diag2 - diag * origDiag));
-      hhplane.set(i, (origDiag - diag)/r);
+      hhplane.set(i, (origDiag - diag) / r);
       for (int j = i + 1; j < cols; j++) {
         hhplane.set(j, L.get(i, j) / r);
       }
@@ -195,7 +233,7 @@ public class MxTools {
       for (int j = i + 1; j < cols; j++) {
         L.set(i, j, 0.);
       }
-      for (int k = i+1; k < rows; k++) {
+      for (int k = i + 1; k < rows; k++) {
         double product = 0.;
         for (int j = i; j < cols; j++)
           product += L.get(k, j) * hhplane.get(j);
@@ -294,7 +332,7 @@ public class MxTools {
       VecTools.append(temp, mean);
       VecTools.addOuter(covar, temp, temp);
     }
-    VecTools.scale(covar, 1./ds.rows());
+    VecTools.scale(covar, 1. / ds.rows());
     switch (type) {
       case SPHERE:
         final Mx l = choleskyDecomposition(covar);
@@ -307,7 +345,7 @@ public class MxTools {
       case SCALE:
         trans = new VecBasedMx(ds.columns(), ds.columns());
         for (int i = 0; i < trans.columns(); i++) {
-          trans.set(i, i, 1./Math.sqrt(covar.get(i, i)));
+          trans.set(i, i, 1. / Math.sqrt(covar.get(i, i)));
         }
         break;
       default:
