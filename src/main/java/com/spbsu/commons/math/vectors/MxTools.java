@@ -15,7 +15,7 @@ import static java.lang.Math.sqrt;
  * Date: 05.06.14
  */
 public class MxTools {
-  private static final double EPSILON = 1e-18;
+  private static final double EPSILON = 1e-5;
 
   public static boolean checkSymmetry(Mx a) {
     if (a.columns() != a.rows())
