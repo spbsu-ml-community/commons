@@ -7,15 +7,15 @@ import com.spbsu.commons.seq.CharSeqTools;
  * User: terry
  * Date: 23.06.2009
  */
-public class Integer2CharSequenceConverter implements Converter<Integer, CharSequence> {
+public class Double2CharSequenceConverter implements Converter<Double, CharSequence> {
 
   @Override
-  public Integer convertFrom(CharSequence source) {
-    return CharSeqTools.parseInt(source.toString());
+  public Double convertFrom(CharSequence source) {
+    return CharSeqTools.parseDouble(source);
   }
 
   @Override
-  public String convertTo(Integer value) {
+  public String convertTo(Double value) {
     return value.toString();
   }
 }
