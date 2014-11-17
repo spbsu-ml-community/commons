@@ -296,4 +296,16 @@ public class StreamTools {
       throw new RuntimeException(e);
     }
   }
+
+  public static void visitFiles(File dir, Processor<String> processor) {
+    visitFiles(dir, processor, dir.getAbsolutePath().length());
+  }
+  private static void visitFiles(File file, Processor<String> processor, int prefix) {
+    processor.process(file.getAbsolutePath().substring(prefix + 1));
+    if (file.isDirectory()) {
+      for (String next : file.list()) {
+        visitFiles(new File(next, next), processor, prefix);
+      }
+    }
+  }
 }
