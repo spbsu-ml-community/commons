@@ -1,15 +1,16 @@
 package com.spbsu.commons.math.io;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.VecSeq;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
 
 
 /**
@@ -21,7 +22,7 @@ public class VecSeq2CharSequenceConversionPack implements ConversionPack<VecSeq,
 
   public static class VecSeq2CharSequenceConverter implements TypeConverter<VecSeq, CharSequence> {
     private static final SparseVec2CharSequenceConversionPack.SparseVec2CharSequenceConverter sparseVec2StrConverter = new SparseVec2CharSequenceConversionPack.SparseVec2CharSequenceConverter();
-    private static final Vec2CharSequenceConversionPack.Vec2CharSequenceConverter vec2StrConverter = new Vec2CharSequenceConversionPack.Vec2CharSequenceConverter();
+    private static final Vec2CharSequenceConverter vec2StrConverter = new Vec2CharSequenceConverter();
 
 
     /**
@@ -63,7 +64,7 @@ public class VecSeq2CharSequenceConversionPack implements ConversionPack<VecSeq,
         }
         switch (tag) {
           case COMMON:
-            serializedVec = vec2StrConverter.convert(vec);
+            serializedVec = vec2StrConverter.convertTo(vec);
             break;
           case SPARSE:
             serializedVec = sparseVec2StrConverter.convert((SparseVec) vec);
@@ -88,7 +89,7 @@ public class VecSeq2CharSequenceConversionPack implements ConversionPack<VecSeq,
 
   public static class CharSequence2VecSeqConverter implements TypeConverter<CharSequence, VecSeq> {
     private static final SparseVec2CharSequenceConversionPack.CharSequence2SparseVecConverter sparseStr2VecConverter = new SparseVec2CharSequenceConversionPack.CharSequence2SparseVecConverter();
-    private static final Vec2CharSequenceConversionPack.CharSequence2VecConverter str2VecConverter = new Vec2CharSequenceConversionPack.CharSequence2VecConverter();
+    private static final ArrayVec2CharSequenceConversionPack.ArrayCharSequence2VecConverter str2VecConverter = new ArrayVec2CharSequenceConversionPack.ArrayCharSequence2VecConverter();
 
     @Override
     public VecSeq convert(final CharSequence from) {
