@@ -699,16 +699,30 @@ public class CharSeqTools {
   }
 
   public static int trySplit(final CharSequence sequence, final char separator, final CharSequence[] result) {
-    int last = 0;
-    int index = 0;
-    for (int i = 0; i < sequence.length() && index < result.length - 1; i++) {
-      if (sequence.charAt(i) == separator) {
-        result[index++] = sequence.subSequence(last, i);
-        last = i + 1;
+    if (sequence instanceof String) {
+      int last = 0;
+      int index = 0;
+      for (int i = 0; i < sequence.length() && index < result.length - 1; i++) {
+        if (sequence.charAt(i) == separator) {
+          result[index++] = new CharSeqAdapter(sequence, last, i);
+          last = i + 1;
+        }
       }
+      result[index++] = new CharSeqAdapter(sequence, last, sequence.length());
+      return index;
     }
-    result[index++] = sequence.subSequence(last, sequence.length());
-    return index;
+    else {
+      int last = 0;
+      int index = 0;
+      for (int i = 0; i < sequence.length() && index < result.length - 1; i++) {
+        if (sequence.charAt(i) == separator) {
+          result[index++] = sequence.subSequence(last, i);
+          last = i + 1;
+        }
+      }
+      result[index++] = sequence.subSequence(last, sequence.length());
+      return index;
+    }
   }
 
   // TODO: optimize for n/m complexity

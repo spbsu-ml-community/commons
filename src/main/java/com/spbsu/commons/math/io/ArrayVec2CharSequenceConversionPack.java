@@ -7,7 +7,6 @@ import java.util.Locale;
 
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
-import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.seq.CharSeqTools;
@@ -17,10 +16,10 @@ import com.spbsu.commons.seq.CharSeqTools;
  * Date: 25.02.14
  * Time: 10:38
  */
-public class Vec2CharSequenceConversionPack implements ConversionPack<Vec,CharSequence> {
-  public static class Vec2CharSequenceConverter implements TypeConverter<Vec, CharSequence> {
+public class ArrayVec2CharSequenceConversionPack implements ConversionPack<ArrayVec,CharSequence> {
+  public static class ArrayVec2CharSequenceConverter implements TypeConverter<ArrayVec, CharSequence> {
     @Override
-    public CharSequence convert(Vec from) {
+    public CharSequence convert(ArrayVec from) {
       final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
       prettyPrint.setMaximumFractionDigits(5);
       prettyPrint.setMinimumFractionDigits(0);
@@ -36,11 +35,11 @@ public class Vec2CharSequenceConversionPack implements ConversionPack<Vec,CharSe
     }
   }
 
-  public static class CharSequence2VecConverter implements TypeConverter<CharSequence, Vec> {
+  public static class ArrayCharSequence2VecConverter implements TypeConverter<CharSequence, ArrayVec> {
     @Override
-    public Vec convert(CharSequence from) {
+    public ArrayVec convert(CharSequence from) {
       final CharSequence[] parts = CharSeqTools.split(from.toString().trim(), ' ');
-      final Vec result = new ArrayVec(Integer.parseInt(parts[0].toString()));
+      final ArrayVec result = new ArrayVec(Integer.parseInt(parts[0].toString()));
       for (int i = 1; i < parts.length; i++) {
         result.set(i - 1, Double.parseDouble(parts[i].toString()));
       }
@@ -49,12 +48,12 @@ public class Vec2CharSequenceConversionPack implements ConversionPack<Vec,CharSe
   }
 
   @Override
-  public Class<? extends TypeConverter<Vec, CharSequence>> to() {
-    return Vec2CharSequenceConverter.class;
+  public Class<? extends TypeConverter<ArrayVec, CharSequence>> to() {
+    return ArrayVec2CharSequenceConverter.class;
   }
 
   @Override
-  public Class<? extends TypeConverter<CharSequence, Vec>> from() {
-    return CharSequence2VecConverter.class;
+  public Class<? extends TypeConverter<CharSequence, ArrayVec>> from() {
+    return ArrayCharSequence2VecConverter.class;
   }
 }
