@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 public class DownloadManagerImpl implements DownloadManager {
   private static final Log LOG = LogFactory.getLog(DownloadManagerImpl.class);
   private final ExecutorService executor = new ThreadPoolExecutor(10, 20, 100, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
-
     public Thread newThread(Runnable r) {
       Thread newThread = Executors.defaultThreadFactory().newThread(r);
       newThread.setDaemon(true);
