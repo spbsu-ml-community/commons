@@ -35,8 +35,6 @@ public class RowsPermutation implements IndexTransformation {
 
   @Override
   public int forward(int index) {
-    if (index/columns >= perm.length)
-      System.out.println();
     return perm[index/columns] * columns + index % columns;
   }
 

@@ -6,6 +6,10 @@ import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
 import com.spbsu.commons.math.vectors.VecTools;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import static com.spbsu.commons.math.vectors.VecTools.copy;
 import static com.spbsu.commons.math.vectors.VecTools.norm;
 import static com.spbsu.commons.math.vectors.VecTools.scale;
@@ -221,6 +225,15 @@ public abstract class MathTools {
     public double value(int i) {
       return i < cache.length ? cache[i] : Double.POSITIVE_INFINITY;
     }
+  }
+
+  public static NumberFormat numberFormatter() {
+    final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
+    prettyPrint.setMaximumFractionDigits(5);
+    prettyPrint.setMinimumFractionDigits(0);
+    prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
+    prettyPrint.setGroupingUsed(false);
+    return prettyPrint;
   }
 }
 

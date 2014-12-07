@@ -629,4 +629,12 @@ public abstract class ArrayTools {
     }
     return -1;
   }
+
+  public static <T> T[] concat(T[] left, T[] right) {
+    @SuppressWarnings("unchecked")
+    final T[] result = (T[])Array.newInstance(left.getClass().getComponentType(), left.length + right.length);
+    System.arraycopy(left, 0, result, 0, left.length);
+    System.arraycopy(right, 0, result, left.length, right.length);
+    return result;
+  }
 }
