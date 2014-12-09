@@ -298,13 +298,16 @@ public class StreamTools {
   }
 
   public static void visitFiles(File dir, Processor<String> processor) {
-    visitFiles(dir, processor, dir.getAbsolutePath().length());
+    final String absolutePath = dir.getAbsolutePath();
+    visitFiles(dir, processor, absolutePath.endsWith("/") ? absolutePath.length() : absolutePath.length() + 1);
   }
+
   private static void visitFiles(File file, Processor<String> processor, int prefix) {
-    processor.process(file.getAbsolutePath().substring(prefix + 1));
+    final String absolutePath = file.getAbsolutePath();
+    processor.process(prefix < absolutePath.length() ? absolutePath.substring(prefix) : "");
     if (file.isDirectory()) {
       for (String next : file.list()) {
-        visitFiles(new File(next, next), processor, prefix);
+        visitFiles(new File(file, next), processor, prefix);
       }
     }
   }
