@@ -22,6 +22,12 @@ public class ThreadTools {
       public Thread newThread(Runnable r) {
         final Thread thread = new Thread(r, name);
         thread.setDaemon(true);
+        thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+          @Override
+          public void uncaughtException(Thread t, Throwable e) {
+            e.printStackTrace();
+          }
+        });
         return thread;
       }
     });

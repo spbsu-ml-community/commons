@@ -3,7 +3,7 @@ package com.spbsu.commons.math.cbio;
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.io.SparseVec2CharSequenceConversionPack;
-import com.spbsu.commons.math.io.Vec2CharSequenceConversionPack;
+import com.spbsu.commons.math.io.ArrayVec2CharSequenceConversionPack;
 import com.spbsu.commons.math.io.VecSeq2CharSequenceConversionPack;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.seq.CharBufferSeq;
@@ -35,7 +35,7 @@ public class VecSeq2CharBuffSeqConversionPack implements ConversionPack<VecSeq, 
 
   public static class CharBufferSeq2VecSeqConverter implements TypeConverter<CharBufferSeq, VecSeq> {
     private static final SparseVec2CharSequenceConversionPack.CharSequence2SparseVecConverter sparseStr2VecConverter = new SparseVec2CharSequenceConversionPack.CharSequence2SparseVecConverter();
-    private static final Vec2CharSequenceConversionPack.CharSequence2VecConverter str2VecConverter = new Vec2CharSequenceConversionPack.CharSequence2VecConverter();
+    private static final ArrayVec2CharSequenceConversionPack.ArrayCharSequence2VecConverter str2VecConverter = new ArrayVec2CharSequenceConversionPack.ArrayCharSequence2VecConverter();
 
     @Override
     public VecSeq convert(final CharBufferSeq from) {

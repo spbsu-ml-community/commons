@@ -101,14 +101,21 @@ public class StreamTools {
   }
 
   public static void transferData(final InputStream in, final OutputStream out) throws IOException {
+    transferData(in, out, false);
+  }
+
+  public static void transferData(final InputStream in, final OutputStream out, boolean sync) throws IOException {
     final byte[] buffer = new byte[BUFFER_LENGTH];
     final InputStream bufferedIn = new BufferedInputStream(in);
     final OutputStream bufferedOut = new BufferedOutputStream(out);
     int read;
     while ((read = bufferedIn.read(buffer)) != -1) {
       bufferedOut.write(buffer, 0, read);
+      if (sync)
+        bufferedOut.flush();
     }
-    bufferedOut.flush();
+    if (!sync)
+      bufferedOut.flush();
   }
 
   public static void transferData(final Reader in, final Writer out) throws IOException {

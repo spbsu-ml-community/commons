@@ -119,6 +119,20 @@ public class CollectionTools {
     return result;
   }
 
+  /**
+   * filter iterators collection (remove some elements from original collection)
+   * @param iterator
+   * @param filter
+   * @param <T>
+   */
+  public static <T> void filterWithRemove(final Iterator<T> iterator, final Filter<T> filter) {
+    while (iterator.hasNext()) {
+      if (!filter.accept(iterator.next())) {
+        iterator.remove();
+      }
+    }
+  }
+
   public static <T> Iterator<T> filter(final Iterator<T> iterator, final Filter<T> filter) {
     return new Iterator<T>() {
       T nextObject;
