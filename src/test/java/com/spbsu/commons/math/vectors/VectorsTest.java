@@ -1,7 +1,11 @@
 package com.spbsu.commons.math.vectors;
 
+import java.util.*;
+
+
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
+import com.spbsu.commons.math.vectors.impl.vectors.ConcatVec;
 import com.spbsu.commons.math.vectors.impl.vectors.DVector;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.random.FastRandom;
@@ -13,8 +17,6 @@ import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.hash.TIntHashSet;
 import junit.framework.TestCase;
 
-import java.util.*;
-
 import static com.spbsu.commons.math.vectors.VecTools.*;
 
 /**
@@ -25,6 +27,27 @@ public class VectorsTest extends TestCase {
 
   public static final double EPSILON = 0.0001;
 
+  public void testConcatVector() {
+    final Vec origin = new ArrayVec(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+    final ConcatVec cv = new ConcatVec(new ArrayVec(0, 1, 2, 3, 4), new ArrayVec(5, 6, 7, 8, 9));
+
+    assertEquals(cv.dim(), origin.dim());
+    VecTools.equals(cv, origin);
+
+    final Vec cv2 = new ConcatVec(new ArrayVec(0, 1, 2, 3, 4), new SparseVec(10), new SparseVec(4, new int[]{0, 1, 2}, new double[]{1.0, 2.0, 3.0}), new ArrayVec(5, 6, 7, 8, 9));
+    final Vec origin2 = new ArrayVec(0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 5, 6, 7, 8, 9);
+
+    assertEquals(cv2.dim(), origin2.dim());
+    assertTrue(VecTools.equals(cv2, origin2));
+    final VecIterator iter = cv2.nonZeroes();
+    final VecIterator originIter = origin2.nonZeroes();
+    while (originIter.advance()) {
+      assertTrue(iter.advance());
+      assertEquals(iter.value(), originIter.value());
+    }
+    assertFalse(iter.advance());
+
+  }
   public void testDoubleVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector = new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
