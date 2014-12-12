@@ -350,7 +350,7 @@ public class CharSeqTools {
   public static void processAndSplitLinesNIO(@NotNull final Reader in, @NotNull final Processor<CharBufferSeq[]> seqProcessor, @Nullable final String delimeters, final int splitDepth) throws IOException {
       for (;;) {
         final List<CharBuffer> buffers = new ArrayList<>();
-        long read = mapNextLine(in, buffers, 1 << 26);
+        long read = mapNextLine(in, buffers, 1 << 10);
         if (read > 0) {
           final CharBufferSeq cbs = new CharBufferSeq(buffers);
           CharBufferSeq.Tokenizer tokenizer = cbs.getTokenizer(delimeters);
