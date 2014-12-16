@@ -8,7 +8,7 @@ package com.spbsu.commons.filters;
 public class AndFilter<T> implements Filter<T> {
   private Filter<T>[] filters;
 
-  public AndFilter(Filter... filters) {
+  public AndFilter(Filter<T>... filters) {
     //noinspection unchecked
     this.filters = (Filter<T>[])filters;
   }
