@@ -18,6 +18,10 @@ import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.trash.FloatingDecimal;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
+import sun.misc.BASE64Decoder;
+
+import javax.xml.bind.DatatypeConverter;
+
 /**
  * User: terry
  * Date: 10.10.2009
@@ -744,5 +748,13 @@ public class CharSeqTools {
       index++;
     }
     return -1;
+  }
+
+  public static byte[] parseBase64(CharSequence in) {
+    return DatatypeConverter.parseBase64Binary(in.toString());
+  }
+
+  public static CharSequence toBase64(byte[] bytes) {
+    return DatatypeConverter.printBase64Binary(bytes);
   }
 }

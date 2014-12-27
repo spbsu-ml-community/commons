@@ -261,4 +261,23 @@ constructor_next:
     command = CharSeqTools.replace(command, " ", "\\ ");
     return command;
   }
+
+  public static Process runJvm(Class<?> mainClass, String... args) {
+    try {
+      final Method main = mainClass.getMethod("main", String[].class);
+      if (main.getReturnType().equals(void.class)
+              && Modifier.isStatic(main.getModifiers())
+              && Modifier.isPublic(main.getModifiers())) {
+        try {
+          return Runtime.getRuntime().exec(getJavaExec() + " -Xmx1g -classpath" + getJavaClassPath() + " " + mainClass.getName() + " " + CharSeqTools.concatWithDelimeter(" ", args));
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+    } catch (NoSuchMethodException e) {
+      //
+    }
+    throw new IllegalArgumentException("Main class must contain main method :)");
+  }
 }
