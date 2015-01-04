@@ -21,9 +21,9 @@ public final class CSCDictionary {
   private static final String ID = "cscd";
 
   @NotNull
-  private ListDictionary<Byte> dict;
+  private final ListDictionary<Byte> dict;
   @NotNull
-  private int[] freqs;
+  private final int[] freqs;
 
   public CSCDictionary(@NotNull final DictExpansion<Byte> expansion) {
     this(expansion.result(), expansion.resultFreqs());
@@ -32,6 +32,39 @@ public final class CSCDictionary {
   public CSCDictionary(@NotNull final ListDictionary<Byte> dict, @NotNull final int[] freqs) {
     this.dict = dict;
     this.freqs = freqs;
+  }
+
+  @NotNull
+  public static CSCDictionary read(@NotNull final InputStream in) throws IOException {
+    return read(new DataInputStream(in));
+  }
+
+  @NotNull
+  private static CSCDictionary read(@NotNull final DataInputStream in) throws IOException {
+    final byte[] magic = new byte[ID.length()];
+    in.readFully(magic);
+    if (!new String(magic).equals(ID)) {
+      throw new IOException("Bad magic number!");
+    }
+
+    final int length = in.readInt();
+    final ByteSeq[] dict = new ByteSeq[length];
+    final int[] freqs = new int[length];
+
+    for (int i = 0; i < length; i++) {
+      final int freq = in.readInt();
+      final int l = in.readInt();
+      final byte[] seq = new byte[l];
+
+      for (int j = 0; j < l; j++) {
+        seq[j] = in.readByte();
+      }
+
+      freqs[i] = freq;
+      dict[i] = new ByteSeq(seq);
+    }
+
+    return new CSCDictionary(new ListDictionary<>(dict), freqs);
   }
 
   @NotNull
@@ -90,38 +123,5 @@ public final class CSCDictionary {
       }
     }
     out.flush();
-  }
-
-  @NotNull
-  public static CSCDictionary read(@NotNull final InputStream in) throws IOException {
-    return read(new DataInputStream(in));
-  }
-
-  @NotNull
-  private static CSCDictionary read(@NotNull final DataInputStream in) throws IOException {
-    final byte[] magic = new byte[ID.length()];
-    in.readFully(magic);
-    if (!new String(magic).equals(ID)) {
-      throw new IOException("Bad magic number!");
-    }
-
-    final int length = in.readInt();
-    final ByteSeq[] dict = new ByteSeq[length];
-    final int[] freqs = new int[length];
-
-    for (int i = 0; i < length; i++) {
-      final int freq = in.readInt();
-      final int l = in.readInt();
-      final byte[] seq = new byte[l];
-
-      for (int j = 0; j < l; j++) {
-        seq[j] = in.readByte();
-      }
-
-      freqs[i] = freq;
-      dict[i] = new ByteSeq(seq);
-    }
-
-    return new CSCDictionary(new ListDictionary<>(dict), freqs);
   }
 }
