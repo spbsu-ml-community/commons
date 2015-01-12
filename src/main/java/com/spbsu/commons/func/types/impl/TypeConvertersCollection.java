@@ -99,6 +99,7 @@ public class TypeConvertersCollection implements ConversionRepository {
     return ((TypeConverter<F,T>)converter(instance.getClass(), destClass)).convert(instance);
   }
 
+  @Override
   public synchronized <U,V> TypeConverter<U,V> converter(final Class<U> from, final Class<V> to) {
     if (to.isAssignableFrom(from))
       return new TypeConverter<U, V>() {
