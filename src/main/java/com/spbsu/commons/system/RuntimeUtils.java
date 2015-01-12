@@ -269,7 +269,14 @@ constructor_next:
               && Modifier.isStatic(main.getModifiers())
               && Modifier.isPublic(main.getModifiers())) {
         try {
-          return Runtime.getRuntime().exec(getJavaExec() + " -Xmx1g -classpath" + getJavaClassPath() + " " + mainClass.getName() + " " + CharSeqTools.concatWithDelimeter(" ", args));
+          final List<String> parameters = new ArrayList<>();
+          parameters.add(getJavaExec());
+          parameters.add("-Xmx1g");
+          parameters.add("-classpath");
+          parameters.add(getJavaClassPath());
+          parameters.add(mainClass.getName());
+          parameters.addAll(Arrays.asList(args));
+          return Runtime.getRuntime().exec(parameters.toArray(new String[parameters.size()]));
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
