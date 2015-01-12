@@ -15,11 +15,11 @@ public class LFUStrategy implements CacheStrategy {
   private int access;
   private double[] usages;
 
-  public LFUStrategy(int size) {
+  public LFUStrategy(final int size) {
     init(size);
   }
 
-  private void init(int size) {
+  private void init(final int size) {
     usages = new double[size];
   }
 
@@ -29,12 +29,12 @@ public class LFUStrategy implements CacheStrategy {
     return min;
   }
 
-  public void registerAccess(int position) {
+  public void registerAccess(final int position) {
     usages[position] = usages[position] + 1;
     access++;
   }
 
-  public void removePosition(int position) {
+  public void removePosition(final int position) {
     usages[position] = 0;
   }
 

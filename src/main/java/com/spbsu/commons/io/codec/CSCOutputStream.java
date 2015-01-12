@@ -24,7 +24,7 @@ public class CSCOutputStream extends OutputStream {
 
   public CSCOutputStream(final OutputStream base, final ListDictionary<Byte> dict, final int[] freqs) {
     EOF = freqs.length;
-    int[] freqsWithEOF = new int[freqs.length + 1];
+    final int[] freqsWithEOF = new int[freqs.length + 1];
     System.arraycopy(freqs, 0, freqsWithEOF, 0, freqs.length);
     this.base = new ArithmeticCoding.Encoder(base, freqsWithEOF);
     this.dict = dict;

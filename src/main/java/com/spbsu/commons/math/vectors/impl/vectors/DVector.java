@@ -20,7 +20,7 @@ public class DVector<A> extends CommonBasisVec<A> {
   private static Basis active;
   private static Class activeClass;
 
-  private static synchronized <T> GenericBasis<T> basis(Class<T> clazz) {
+  private static synchronized <T> GenericBasis<T> basis(final Class<T> clazz) {
     if (activeClass != clazz && !clazz.equals(activeClass)) {
       GenericBasis basis = basises.get(clazz);
       if (basis == null)
@@ -32,23 +32,23 @@ public class DVector<A> extends CommonBasisVec<A> {
     return (GenericBasis<T>)active;
   }
 
-  public DVector(Class<A> aClass) {
+  public DVector(final Class<A> aClass) {
     super(basis(aClass));
   }
 
-  public DVector(A[] axes, double[] projections) {
+  public DVector(final A[] axes, final double[] projections) {
     //noinspection unchecked
     super(basis((Class<A>)axes.getClass().getComponentType()), axes, projections);
   }
 
-  public DVector(TObjectDoubleHashMap<A> axis2Projection, Class<A> clazz) {
+  public DVector(final TObjectDoubleHashMap<A> axis2Projection, final Class<A> clazz) {
     super(basis(clazz));
     final int[] indeces = new int[axis2Projection.size()];
     final double[] values = new double[axis2Projection.size()];
 
     axis2Projection.forEachEntry(new TObjectDoubleProcedure<A>() {
       int index;
-      public boolean execute(A a, double v) {
+      public boolean execute(final A a, final double v) {
         if(v != 0) {
           indeces[index] = basis().toIndex(a);
           values[index] = v;

@@ -14,8 +14,8 @@ public class CommonRegExpTest extends TestCase {
 
   public void testCharAlphabet() {
      for(int c = 0; c < A.size(); c++){
-       SimpleRegExp.Condition<Character> condition = A.get(c);
-       char ch = condition.toString().charAt(0);
+       final SimpleRegExp.Condition<Character> condition = A.get(c);
+       final char ch = condition.toString().charAt(0);
        System.out.println(condition);
        assertEquals(c, A.getOrder(condition));
        assertTrue(condition.is(ch));

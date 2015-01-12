@@ -11,18 +11,18 @@ public class SubVecTransformation implements IndexTransformation {
   public final int start;
   public final int length;
 
-  public SubVecTransformation(int start, int length) {
+  public SubVecTransformation(final int start, final int length) {
     this.start = start;
     this.length = length;
   }
 
   @Override
-  public int forward(int newIndex) {
+  public int forward(final int newIndex) {
     return start + newIndex;
   }
 
   @Override
-  public int backward(int oldIndex) {
+  public int backward(final int oldIndex) {
     if (oldIndex < start || oldIndex >= start + length)
       return -1;
     return oldIndex - start;
@@ -44,7 +44,7 @@ public class SubVecTransformation implements IndexTransformation {
   }
 
   @Override
-  public IndexTransformation apply(IndexTransformation trans) {
+  public IndexTransformation apply(final IndexTransformation trans) {
     return new CompositeTransformation(new IndexTransformation[]{this, trans});
   }
 }

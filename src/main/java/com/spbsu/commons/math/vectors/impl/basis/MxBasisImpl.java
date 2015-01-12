@@ -11,7 +11,7 @@ public class MxBasisImpl implements MxBasis {
   private final int columns;
   private final int rows;
   private final int size;
-  public MxBasisImpl(int rows, int columns) {
+  public MxBasisImpl(final int rows, final int columns) {
     this.columns = columns;
     this.rows = rows;
     size = columns * rows;
@@ -38,7 +38,7 @@ public class MxBasisImpl implements MxBasis {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     return o instanceof MxBasis && (((MxBasis)o).columns() == columns()) && (((MxBasis)o).rows() == rows());
   }
 }

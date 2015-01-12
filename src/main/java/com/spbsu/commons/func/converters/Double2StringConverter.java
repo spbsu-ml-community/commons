@@ -12,12 +12,12 @@ import com.spbsu.commons.func.Converter;
 public class Double2StringConverter implements Converter<Double, String> {
 
   @Override
-  public Double convertFrom(String source) {
+  public Double convertFrom(final String source) {
     return Double.parseDouble(source);
   }
 
   @Override
-  public String convertTo(Double value) {
+  public String convertTo(final Double value) {
     return value.toString();
   }
 }

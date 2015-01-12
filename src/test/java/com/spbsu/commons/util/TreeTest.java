@@ -74,7 +74,7 @@ public class TreeTest extends TestCase {
 
   }
 
-  private static <T> T getPrivateFieldValue(Object obj, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+  private static <T> T getPrivateFieldValue(final Object obj, final String fieldName) throws NoSuchFieldException, IllegalAccessException {
     final Field field = obj.getClass().getDeclaredField(fieldName);
     field.setAccessible(true);
     final Object o =  field.get(obj);

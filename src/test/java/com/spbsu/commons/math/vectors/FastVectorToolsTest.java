@@ -29,7 +29,7 @@ public class FastVectorToolsTest extends TestCase {
   }
 
   public void testMultiplyAll() throws Exception {
-    List<DVector<CharSequence>> list = new ArrayList<DVector<CharSequence>>();
+    final List<DVector<CharSequence>> list = new ArrayList<DVector<CharSequence>>();
     for (int i = 0; i < 100; i++) {
       list.add(generateRandomVector(length));
     }

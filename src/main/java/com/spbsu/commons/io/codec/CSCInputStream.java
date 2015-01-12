@@ -20,7 +20,7 @@ public class CSCInputStream extends InputStream {
 
   public CSCInputStream(final InputStream base, final ListDictionary<Byte> dict, final int[] freqs) {
     EOF = freqs.length;
-    int[] freqsWithEOF = new int[freqs.length + 1];
+    final int[] freqsWithEOF = new int[freqs.length + 1];
     System.arraycopy(freqs, 0, freqsWithEOF, 0, freqs.length);
     this.base = new ArithmeticCoding.Decoder(base, freqsWithEOF);
     this.dict = dict;

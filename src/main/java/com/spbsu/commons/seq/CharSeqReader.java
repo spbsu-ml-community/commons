@@ -11,12 +11,12 @@ public class CharSeqReader extends Reader {
   private int currentOffset = 0;
   private final CharSequence seq;
 
-  public CharSeqReader(CharSequence seq) {
+  public CharSeqReader(final CharSequence seq) {
     super(seq);
     this.seq = seq;
   }
 
-  public int read(char[] cbuf, int off, int len) throws IOException {
+  public int read(final char[] cbuf, final int off, final int len) throws IOException {
     int read;
     for(read = 0; read < len && currentOffset < seq.length(); read++){
       cbuf[off + read] = seq.charAt(currentOffset++);

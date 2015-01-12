@@ -16,35 +16,35 @@ import com.spbsu.commons.seq.Seq;
  */
 public class RowsVecArrayMx extends Mx.Stub {
   public final Seq<Vec> vec;
-  private int columns;
+  private final int columns;
 
-  public RowsVecArrayMx(Vec[] vec) {
+  public RowsVecArrayMx(final Vec[] vec) {
     this.vec = new ArraySeq<>(vec);
     columns = vec[0].dim();
   }
 
-  public RowsVecArrayMx(Seq<Vec> vec) {
+  public RowsVecArrayMx(final Seq<Vec> vec) {
     this.vec = vec;
     columns = vec.at(0).dim();
   }
 
-  public double get(int i, int j) {
+  public double get(final int i, final int j) {
     return vec.at(i).get(j);
   }
   @Override
-  public Mx set(int i, int j, double val) {
+  public Mx set(final int i, final int j, final double val) {
     vec.at(i).set(j, val);
     return this;
   }
 
   @Override
-  public Mx adjust(int i, int j, double increment) {
+  public Mx adjust(final int i, final int j, final double increment) {
     vec.at(i).adjust(j, increment);
     return this;
   }
 
   @Override
-  public Mx sub(int i, int j, int height, int width) {
+  public Mx sub(final int i, final int j, final int height, final int width) {
     final Vec[] rows = new Vec[height];
     for (int r = 0; r < rows.length; r++) {
       rows[r] = vec.at(i + r).sub(j, width);
@@ -53,28 +53,28 @@ public class RowsVecArrayMx extends Mx.Stub {
   }
 
   @Override
-  public Vec row(int i) {
+  public Vec row(final int i) {
     return vec.at(i);
   }
 
   @Override
-  public Vec col(int j) {
+  public Vec col(final int j) {
     return new IndexTransVec(this, new SubMxTransformation(columns, 0, j, rows(), 1));
   }
 
   @Override
-  public double get(int i) {
+  public double get(final int i) {
     return vec.at(i / columns).get(i % columns);
   }
 
   @Override
-  public Vec set(int i, double val) {
+  public Vec set(final int i, final double val) {
     vec.at(i / columns).set(i % columns, val);
     return this;
   }
 
   @Override
-  public Vec adjust(int i, double increment) {
+  public Vec adjust(final int i, final double increment) {
     vec.at(i / columns).adjust(i % columns, increment);
     return this;
   }
@@ -119,13 +119,13 @@ public class RowsVecArrayMx extends Mx.Stub {
       }
 
       @Override
-      public boolean seek(int pos) {
+      public boolean seek(final int pos) {
         rowIter = vec.at(pos / columns).nonZeroes();
         return rowIter.seek(pos % columns);
       }
 
       @Override
-      public double setValue(double v) {
+      public double setValue(final double v) {
         return rowIter.setValue(v);
       }
     };

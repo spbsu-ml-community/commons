@@ -124,7 +124,7 @@ public class MathToolsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
-  public static void assertEqualsWithPrecision(double v1, double v2) {
+  public static void assertEqualsWithPrecision(final double v1, final double v2) {
     if (v1 != v2) {
       final double ratio = Math.abs(v1 - v2) / Math.min(v1, v2);
       assertTrue(ratio < EPS);
@@ -132,12 +132,12 @@ public class MathToolsTest extends TestCase {
   }
 
   public void testLQDecompositionFail() throws FileNotFoundException {
-    Scanner scanner = new Scanner(new File("commons/src/test/data/math/badMx.txt"));
-    int n = scanner.nextInt();
-    Mx mx = new VecBasedMx(n, n);
-    Mx l = new VecBasedMx(n, n);
-    Mx q = new VecBasedMx(n, n);
-    double eps = 1e-3;
+    final Scanner scanner = new Scanner(new File("commons/src/test/data/math/badMx.txt"));
+    final int n = scanner.nextInt();
+    final Mx mx = new VecBasedMx(n, n);
+    final Mx l = new VecBasedMx(n, n);
+    final Mx q = new VecBasedMx(n, n);
+    final double eps = 1e-3;
     for (int i = 0; i < n; i++)
       for (int j = 0; j < n; j++)
         mx.set(i, j, Double.parseDouble(scanner.next()));
@@ -146,8 +146,8 @@ public class MathToolsTest extends TestCase {
       for (int j = i + 1; j < n; j++)
         if (Math.abs(l.get(i, j)) > eps)
           System.out.println("Bad L = " + l.get(i, j));
-    Mx qq = MxTools.multiply(q, MxTools.transpose(q));
-    Mx lq = MxTools.multiply(l, MxTools.transpose(q));
+    final Mx qq = MxTools.multiply(q, MxTools.transpose(q));
+    final Mx lq = MxTools.multiply(l, MxTools.transpose(q));
     for (int i = 0; i < n; i++)
       for (int j = 0; j < n; j++) {
         if (i != j && Math.abs(qq.get(i, j)) > eps)

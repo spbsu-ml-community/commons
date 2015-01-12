@@ -9,7 +9,7 @@ import com.spbsu.commons.text.stem.Stemmer;
 public class StemsTokenizer extends WordsTokenizer {
   private final Stemmer stemmer;
 
-  public StemsTokenizer(Stemmer stemmer, CharSequence text) {
+  public StemsTokenizer(final Stemmer stemmer, final CharSequence text) {
     super(text);
     this.stemmer = stemmer;
   }

@@ -20,14 +20,14 @@ public class ArithmeticCodingTest extends TestCase {
     {
       final int[] freqs = new int[]{1, 100};
       final ByteBuffer buffer = ByteBuffer.allocate(2 * 4);
-      ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
-      int[] symbols = new int[]{1};
+      final ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
+      final int[] symbols = new int[]{1};
       for (int i = 0; i < symbols.length; i++) {
         encoder.write(symbols[i]);
       }
       encoder.flush();
       buffer.rewind();
-      ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(buffer, freqs);
+      final ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(buffer, freqs);
       for (int i = 0; i < symbols.length; i++) {
         final int read = decoder.read();
         if (symbols[i] != read)
@@ -37,14 +37,14 @@ public class ArithmeticCodingTest extends TestCase {
     {
       final int[] freqs = new int[]{1, 100};
       final ByteBuffer buffer = ByteBuffer.allocate(2 * 4);
-      ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
-      int[] symbols = new int[]{1, 1};
+      final ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
+      final int[] symbols = new int[]{1, 1};
       for (int i = 0; i < symbols.length; i++) {
         encoder.write(symbols[i]);
       }
       encoder.flush();
       buffer.rewind();
-      ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(buffer, freqs);
+      final ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(buffer, freqs);
       for (int i = 0; i < symbols.length; i++) {
         final int read = decoder.read();
         if (symbols[i] != read)
@@ -54,14 +54,14 @@ public class ArithmeticCodingTest extends TestCase {
     {
       final int[] freqs = new int[]{1, 100, 1000};
       final ByteBuffer buffer = ByteBuffer.allocate(2 * 4);
-      ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
-      int[] symbols = new int[]{2, 1, 0};
+      final ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
+      final int[] symbols = new int[]{2, 1, 0};
       for (int i = 0; i < symbols.length; i++) {
         encoder.write(symbols[i]);
       }
       encoder.flush();
       buffer.rewind();
-      ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(buffer, freqs);
+      final ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(buffer, freqs);
       for (int i = 0; i < symbols.length; i++) {
         final int read = decoder.read();
         if (symbols[i] != read)
@@ -71,23 +71,23 @@ public class ArithmeticCodingTest extends TestCase {
   }
 
   public void testRandom() {
-    FastRandom rng = new FastRandom(0);
+    final FastRandom rng = new FastRandom(0);
     for (int t = 0; t < 1000; t++) {
       final int[] freqs = new int[rng.nextPoisson(1000)];
       for (int i = 0; i < freqs.length; i++) {
         freqs[i] = rng.nextInt(10000) + 1;
       }
-      int length = rng.nextPoisson(1000);
+      final int length = rng.nextPoisson(1000);
       final ByteBuffer buffer = ByteBuffer.allocate(length * 4);
-      ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
-      int[] symbols = new int[length];
+      final ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
+      final int[] symbols = new int[length];
       for (int i = 0; i < symbols.length; i++) {
         symbols[i] = rng.nextInt(freqs.length);
         encoder.write(symbols[i]);
       }
       encoder.flush();
       buffer.rewind();
-      ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(buffer, freqs);
+      final ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(buffer, freqs);
       for (int i = 0; i < symbols.length; i++) {
         decoder.mark();
         final int read = decoder.read();
@@ -100,22 +100,22 @@ public class ArithmeticCodingTest extends TestCase {
   }
 
   public void testRandomStream() {
-    FastRandom rng = new FastRandom(0);
+    final FastRandom rng = new FastRandom(0);
     for (int t = 0; t < 1000; t++) {
       final int[] freqs = new int[rng.nextPoisson(1000)];
       for (int i = 0; i < freqs.length; i++) {
         freqs[i] = rng.nextInt(10000) + 1;
       }
-      int length = rng.nextPoisson(1000);
+      final int length = rng.nextPoisson(1000);
       final ByteArrayOutputStream buffer = new ByteArrayOutputStream(length * 4);
-      ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
-      int[] symbols = new int[length];
+      final ArithmeticCoding.Encoder encoder = new ArithmeticCoding.Encoder(buffer, freqs);
+      final int[] symbols = new int[length];
       for (int i = 0; i < symbols.length; i++) {
         symbols[i] = rng.nextInt(freqs.length);
         encoder.write(symbols[i]);
       }
       encoder.flush();
-      ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(new ByteArrayInputStream(buffer.toByteArray()), freqs);
+      final ArithmeticCoding.Decoder decoder = new ArithmeticCoding.Decoder(new ByteArrayInputStream(buffer.toByteArray()), freqs);
       for (int i = 0; i < symbols.length; i++) {
         final int read = decoder.read();
         if (symbols[i] != read) {

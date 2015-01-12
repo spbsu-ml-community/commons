@@ -14,7 +14,7 @@ import java.util.List;
 public class PatternCompiler {
   final List<TLongHashSet> programs = new ArrayList<TLongHashSet>();
 
-  private void connect(int from, int to, int conditionIndex) {
+  private void connect(final int from, final int to, final int conditionIndex) {
     while (programs.size() <= from)
       programs.add(new TLongHashSet());
     programs.get(from).add((((long)to) << 32) | conditionIndex);
@@ -28,7 +28,7 @@ public class PatternCompiler {
       final int state = i + 1;
       final int conditionIndex = alphabet.getOrder(pattern.condition(state - 1));
       active.forEach(new TIntProcedure() {
-        public boolean execute(int a) {
+        public boolean execute(final int a) {
           connect(a, state, conditionIndex);
           return true;
         }

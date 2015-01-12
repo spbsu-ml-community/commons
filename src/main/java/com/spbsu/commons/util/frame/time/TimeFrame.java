@@ -16,7 +16,7 @@ public class TimeFrame extends Frame<Date> {
   private final long startTime;
   private final long endTime;
 
-  public static TimeFrame create(@NotNull Date start, @NotNull Date end) {
+  public static TimeFrame create(@NotNull final Date start, @NotNull final Date end) {
     return new TimeFrame(start, end);
   }
 

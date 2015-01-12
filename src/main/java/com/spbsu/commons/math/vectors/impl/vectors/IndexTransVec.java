@@ -21,7 +21,7 @@ public class IndexTransVec extends Vec.Stub {
   private final Vec base;
   private final IndexTransformation transformation;
 
-  public IndexTransVec(Vec base, IndexTransformation transformation) {
+  public IndexTransVec(Vec base, final IndexTransformation transformation) {
     if (base instanceof VecBasedMx) {
       base = ((VecBasedMx) base).vec;
     }
@@ -36,15 +36,15 @@ public class IndexTransVec extends Vec.Stub {
     }
   }
 
-  public double get(int i) {
+  public double get(final int i) {
     return base.get(transformation.forward(i));
   }
 
-  public Vec set(int i, double val) {
+  public Vec set(final int i, final double val) {
     return base.set(transformation.forward(i), val);
   }
 
-  public Vec adjust(int i, double increment) {
+  public Vec adjust(final int i, final double increment) {
     return base.adjust(transformation.forward(i), increment);
   }
 
@@ -53,28 +53,28 @@ public class IndexTransVec extends Vec.Stub {
     if (this.base instanceof VecBasedMx) {
       base = ((VecBasedMx)this.base).vec;
     }
-    VecIterator result;
+    final VecIterator result;
     if (base instanceof SparseVec) {
-      SparseVec sparseVec = (SparseVec)base;
-      TIntArrayList indices = sparseVec.indices;
+      final SparseVec sparseVec = (SparseVec)base;
+      final TIntArrayList indices = sparseVec.indices;
 
       final TIntArrayList nzIndices = new TIntArrayList(indices.size());
       final TIntArrayList transformed = new TIntArrayList(indices.size());
-      int end = transformation.oldIndexEndHint();
+      final int end = transformation.oldIndexEndHint();
       int firstRelevant = indices.binarySearch(transformation.oldIndexStartHint());
       firstRelevant = firstRelevant >= 0 ? firstRelevant : -firstRelevant - 1;
       for (int i = firstRelevant; i < indices.size(); i++) {
-        int index = indices.getQuick(i);
+        final int index = indices.getQuick(i);
         if (index > end)
           break;
-        int newIndex = transformation.backward(index);
+        final int newIndex = transformation.backward(index);
         if (newIndex >= 0) {
           nzIndices.add(newIndex);
           transformed.add(i);
         }
       }
-      int[] transA = transformed.toArray();
-      int[] nzIndicesA = nzIndices.toArray();
+      final int[] transA = transformed.toArray();
+      final int[] nzIndicesA = nzIndices.toArray();
       ArrayTools.parallelSort(nzIndicesA, transA);
       result = new TransformedSparseVecIterator(indices, sparseVec.values, new TIntArrayList(nzIndicesA), new TIntArrayList(transA));
     }
@@ -94,9 +94,9 @@ public class IndexTransVec extends Vec.Stub {
 
   @Override
   public double[] toArray() {
-    double[] result = new double[transformation.newDim()];
+    final double[] result = new double[transformation.newDim()];
     if (base instanceof SparseVec) {
-      VecIterator iter = base.nonZeroes();
+      final VecIterator iter = base.nonZeroes();
       while (iter.advance()) {
         final int newIndex = transformation.backward(iter.index());
         if (newIndex >= 0)
@@ -112,7 +112,7 @@ public class IndexTransVec extends Vec.Stub {
   }
 
   @Override
-  public Vec sub(int start, int len) {
+  public Vec sub(final int start, final int len) {
     return new IndexTransVec(this, new SubVecTransformation(start, len));
   }
 

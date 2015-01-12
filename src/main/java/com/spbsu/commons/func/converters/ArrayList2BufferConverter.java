@@ -11,7 +11,7 @@ import java.util.List;
  * Date: 13.12.2009
  */
 public class ArrayList2BufferConverter<T> extends List2BufferConverter<T> {
-  public ArrayList2BufferConverter(Converter<T, Buffer> dataConverter) {
+  public ArrayList2BufferConverter(final Converter<T, Buffer> dataConverter) {
     super(dataConverter);
   }
 

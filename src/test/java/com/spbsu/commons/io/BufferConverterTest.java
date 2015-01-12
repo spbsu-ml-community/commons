@@ -25,13 +25,13 @@ public class BufferConverterTest extends TestCase {
 
   public void testCharsequenceCoverter() {
     final CharSequence2BufferConverter<String> converter = new CharSequence2BufferConverter<String>(new StringCSFactory());
-    Buffer buffer = converter.convertTo("fuck");
+    final Buffer buffer = converter.convertTo("fuck");
     assertTrue(CharSeqTools.equals("fuck", converter.convertFrom(buffer)));
   }
 
   public void testCharsequenceCoverter2() {
     final CharSequence2BufferConverter<String> converter = new CharSequence2BufferConverter<String>(new StringCSFactory());
-    Buffer buffer = converter.convertTo("путенг");
+    final Buffer buffer = converter.convertTo("путенг");
     assertTrue(CharSeqTools.equals("путенг", converter.convertFrom(buffer)));
   }
 
@@ -64,18 +64,18 @@ public class BufferConverterTest extends TestCase {
   public void testSetConverter() {
     final Set2BufferConverter<Long> converter =
         new HashSet2BufferConverter<Long>(new Long2BufferConverter());
-    Set<Long> longs = Factories.hashSet(1L, 2L);
-    Buffer buffer = converter.convertTo(longs);
-    Set<Long> result = converter.convertFrom(buffer);
+    final Set<Long> longs = Factories.hashSet(1L, 2L);
+    final Buffer buffer = converter.convertTo(longs);
+    final Set<Long> result = converter.convertFrom(buffer);
     assertEquals(longs, result);
   }
 
   public void testListConverter() {
     final List2BufferConverter<Long> converter =
         new ArrayList2BufferConverter<Long>(new Long2BufferConverter());
-    List<Long> longs = Factories.arrayList(1L, 2L);
-    Buffer buffer = converter.convertTo(longs);
-    List<Long> result = converter.convertFrom(buffer);
+    final List<Long> longs = Factories.arrayList(1L, 2L);
+    final Buffer buffer = converter.convertTo(longs);
+    final List<Long> result = converter.convertFrom(buffer);
     assertEquals(longs, result);
   }
 }

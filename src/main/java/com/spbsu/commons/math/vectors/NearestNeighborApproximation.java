@@ -12,19 +12,19 @@ public class NearestNeighborApproximation {
   private final LSHEuclidNNLocator locator;
   private final double[] target;
 
-  public NearestNeighborApproximation(List<Vec> data, double[] target) {
+  public NearestNeighborApproximation(final List<Vec> data, final double[] target) {
     this.locator = new LSHEuclidNNLocator(data, 50, data.size()/50);
     this.target = target;
   }
 
-  public double get(Vec vec) {
+  public double get(final Vec vec) {
     final int[] nearest = new int[NN_COUNT];
     final double[] distance = new double[NN_COUNT];
     final int count = locator.nearest(vec, NN_COUNT, nearest, distance);
     double avg = 0;
     double totalWeight = 0;
     for (int i = 0; i < count; i++) {
-      double weight = 1/(distance[i] + 0.01);
+      final double weight = 1/(distance[i] + 0.01);
       avg += target[nearest[i]] * weight;
       totalWeight += weight;
     }

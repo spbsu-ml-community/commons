@@ -24,7 +24,7 @@ import sun.net.www.protocol.file.FileURLConnection;
  *         Date: 27.09.11
  */
 public class RuntimeUtils {
-  private static Logger LOG = Logger.create(RuntimeUtils.class);
+  private static final Logger LOG = Logger.create(RuntimeUtils.class);
   /**
    * Method adapted from http://jlibs.googlecode.com/svn/trunk/core/src/main/java/jlibs/core/lang/RuntimeUtil.java.
    * See http://jlibs.googlecode.com for more information
@@ -34,7 +34,7 @@ public class RuntimeUtils {
    */
   public static void gc(){
     Object obj = new Object();
-    WeakReference ref = new WeakReference<>(obj);
+    final WeakReference ref = new WeakReference<>(obj);
     //noinspection UnusedAssignment
     obj = null;
     while (ref.get()!=null) {
@@ -43,10 +43,10 @@ public class RuntimeUtils {
   }
 
   public static Class[] findTypeParameters(final Class<?> clazz, final Class<?> interfaceClass) {
-    HashMap<TypeVariable, Type> mapping = new HashMap<>();
+    final HashMap<TypeVariable, Type> mapping = new HashMap<>();
     populateTypeParametersMapping(clazz, mapping);
-    TypeVariable[] parameters = interfaceClass.getTypeParameters();
-    Class[] infered = new Class[parameters.length];
+    final TypeVariable[] parameters = interfaceClass.getTypeParameters();
+    final Class[] infered = new Class[parameters.length];
     for (int i = 0; i < infered.length; i++) {
       Type current = parameters[i];
 
@@ -60,13 +60,13 @@ public class RuntimeUtils {
     return infered;
   }
 
-  private static void populateTypeParametersMapping(final Type type, Map<TypeVariable, Type> mapping) {
+  private static void populateTypeParametersMapping(final Type type, final Map<TypeVariable, Type> mapping) {
     if (type instanceof ParameterizedType) {
-      ParameterizedType ptype = (ParameterizedType) type;
-      Type raw = ((ParameterizedType) type).getRawType();
+      final ParameterizedType ptype = (ParameterizedType) type;
+      final Type raw = ((ParameterizedType) type).getRawType();
       if (raw instanceof Class) {
-        TypeVariable[] vars = ((Class) raw).getTypeParameters();
-        Type[] arguments = ptype.getActualTypeArguments();
+        final TypeVariable[] vars = ((Class) raw).getTypeParameters();
+        final Type[] arguments = ptype.getActualTypeArguments();
         for (int i = 0; i < arguments.length; i++) {
           mapping.put(vars[i], arguments[i]);
         }
@@ -74,9 +74,9 @@ public class RuntimeUtils {
       populateTypeParametersMapping(raw, mapping);
     }
     if (type instanceof Class) {
-      Class clazz = (Class) type;
+      final Class clazz = (Class) type;
       populateTypeParametersMapping(clazz.getGenericSuperclass(), mapping);
-      for (Type iface : clazz.getGenericInterfaces()) {
+      for (final Type iface : clazz.getGenericInterfaces()) {
         populateTypeParametersMapping(iface, mapping);
       }
     }
@@ -85,17 +85,17 @@ public class RuntimeUtils {
   @Deprecated
   public static String[] packageResourcesList(String path) throws URISyntaxException, IOException {
     path = path.replace('.', '/') + "/";
-    ClassLoader loader = RuntimeUtils.class.getClassLoader();
+    final ClassLoader loader = RuntimeUtils.class.getClassLoader();
     if (!(loader instanceof URLClassLoader)) {
       throw new UnsupportedOperationException("Operation is not supported for current type of classloader");
     }
-    URL[] dirs = ((URLClassLoader) loader).getURLs();
-    Set<String> result = new HashSet<>();
+    final URL[] dirs = ((URLClassLoader) loader).getURLs();
+    final Set<String> result = new HashSet<>();
     populateFromURLs(path, dirs, result);
     return result.toArray(new String[result.size()]);
   }
 
-  public static List<String> packageResourcesList(Class clazz, String path) throws URISyntaxException, IOException {
+  public static List<String> packageResourcesList(final Class clazz, String path) throws URISyntaxException, IOException {
     if (!path.endsWith("/")) {
       path += "/";
     }
@@ -115,7 +115,7 @@ public class RuntimeUtils {
       case "jar":
         final String classpath = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
         for (final JarEntry entry : Collections.list(new JarFile(new File(classpath)).entries())) {
-          String name = entry.getName();
+          final String name = entry.getName();
           if (name.matches(path.substring(1) + "[^\\/]+\\/?")) {
             result.add("/" + entry);
           }
@@ -125,10 +125,10 @@ public class RuntimeUtils {
     throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
   }
 
-  private static void populateFromURLs(String path, URL[] dirs, Set<String> result) throws IOException {
-    for (URL dir : dirs) {
+  private static void populateFromURLs(final String path, final URL[] dirs, final Set<String> result) throws IOException {
+    for (final URL dir : dirs) {
       try {
-        URLConnection connection = dir.openConnection();
+        final URLConnection connection = dir.openConnection();
         if (connection instanceof JarURLConnection) {
           final JarURLConnection jarConnection = (JarURLConnection) connection;
           final URL baseUrl = jarConnection.getJarFileURL();
@@ -138,10 +138,10 @@ public class RuntimeUtils {
           String dirPath = URLDecoder.decode(dir.getPath(), "UTF-8");
           if (new File(dirPath).isDirectory()) {
             dirPath = dirPath.substring(0, dirPath.length());
-            File packageDir = new File(dirPath + path);
+            final File packageDir = new File(dirPath + path);
             final File[] files = packageDir.listFiles();
             if (files != null) {
-              for (File file : files) {
+              for (final File file : files) {
                 result.add(path + file.getName());
               }
             }
@@ -167,11 +167,11 @@ public class RuntimeUtils {
 
   private static void populateFromJar(final String path, final Set<String> result, final JarFile jar, final URL jarUrl) throws IOException
   {
-    Enumeration<JarEntry> entries = jar.entries();
+    final Enumeration<JarEntry> entries = jar.entries();
     while(entries.hasMoreElements()) {
       String name = entries.nextElement().getName();
       if (name.startsWith(path)) {
-        int checkSubdir = name.indexOf("/", path.length());
+        final int checkSubdir = name.indexOf("/", path.length());
         if (checkSubdir >= 0) {
           name = name.substring(0, checkSubdir);
         }
@@ -188,13 +188,13 @@ public class RuntimeUtils {
       return;
     }
     final List<URL> additionalUrls = new ArrayList<>();
-    for (String urlString : classPath.split("\\s")) {
+    for (final String urlString : classPath.split("\\s")) {
       try {
         additionalUrls.add(new URL(urlString));
       } catch (MalformedURLException e) {
         // urlString should be a relative path from this jar directory
         final String basePath = jarUrl.getFile();
-        String baseDir = basePath.substring(0, basePath.lastIndexOf("/"));
+        final String baseDir = basePath.substring(0, basePath.lastIndexOf("/"));
         final URL constructedUrl = new URL(jarUrl.getProtocol(), jarUrl.getHost(), jarUrl.getPort(), baseDir + "/" + urlString);
         additionalUrls.add(constructedUrl);
       }
@@ -202,8 +202,8 @@ public class RuntimeUtils {
     populateFromURLs(path, additionalUrls.toArray(new URL[additionalUrls.size()]), result);
   }
 
-  public static void processSupers(Class<?> clazz, Filter<Class<?>> proc) {
-    Stack<Class<?>> toBeProcessed = new Stack<>();
+  public static void processSupers(final Class<?> clazz, final Filter<Class<?>> proc) {
+    final Stack<Class<?>> toBeProcessed = new Stack<>();
     toBeProcessed.push(clazz);
     while (!toBeProcessed.isEmpty()) {
       final Class<?> pop = toBeProcessed.pop();
@@ -213,18 +213,18 @@ public class RuntimeUtils {
         return;
 
       toBeProcessed.push(pop.getSuperclass());
-      for (Class<?> aClass : pop.getInterfaces()) {
+      for (final Class<?> aClass : pop.getInterfaces()) {
         toBeProcessed.push(aClass);
       }
     }
   }
 
   @Nullable
-  public static <T> T newInstanceByAssignable(final Class<T> targetClass, Object... args) {
+  public static <T> T newInstanceByAssignable(final Class<T> targetClass, final Object... args) {
     @SuppressWarnings("unchecked")
     final Constructor<T>[] constructors = (Constructor<T>[])targetClass.getConstructors();
 constructor_next:
-    for (Constructor<T> constructor : constructors) {
+    for (final Constructor<T> constructor : constructors) {
       final Class<?>[] parameters = constructor.getParameterTypes();
       if (parameters.length == args.length) {
         for (int i = 0; i < parameters.length; i++) {
@@ -262,7 +262,7 @@ constructor_next:
     return command;
   }
 
-  public static Process runJvm(Class<?> mainClass, String... args) {
+  public static Process runJvm(final Class<?> mainClass, final String... args) {
     try {
       final Method main = mainClass.getMethod("main", String[].class);
       if (main.getReturnType().equals(void.class)

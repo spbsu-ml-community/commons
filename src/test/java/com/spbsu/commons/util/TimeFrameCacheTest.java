@@ -27,7 +27,7 @@ public class TimeFrameCacheTest extends TestCase {
     final Holder<Date> holder = new Holder<Date>(now);
     final Holder<Date> holder2 = new Holder<Date>(TimeTools.increment(holder.getValue(), TimeUnit.MINUTES, 3));
     final Holder<Date> holder3 = new Holder<Date>(TimeTools.increment(holder.getValue(), TimeUnit.MINUTES, 5));
-    Frame<Date> frame10 = TimeTools.createTimeFrame(now, TimeUnit.MINUTES, 10);
+    final Frame<Date> frame10 = TimeTools.createTimeFrame(now, TimeUnit.MINUTES, 10);
     cache.put(frame10, Factories.hashSet(holder, holder2, holder3));
     assertEquals(3, cache.get(frame10).size());
   }
@@ -37,11 +37,11 @@ public class TimeFrameCacheTest extends TestCase {
     final TimeFrameCache<Holder<Date>> cache = createCache();
     final Date now = new Date();
     final Holder<Date> holder = new Holder<Date>(now);
-    Frame<Date> frame10 = TimeTools.createTimeFrame(now, TimeUnit.MINUTES, 10);
-    Frame<Date> frame5 = TimeTools.createTimeFrame(now, TimeUnit.MINUTES, 5);
+    final Frame<Date> frame10 = TimeTools.createTimeFrame(now, TimeUnit.MINUTES, 10);
+    final Frame<Date> frame5 = TimeTools.createTimeFrame(now, TimeUnit.MINUTES, 5);
     assertNull(cache.get(frame10));
 
-    Set<Holder<Date>> data = Collections.singleton(holder);
+    final Set<Holder<Date>> data = Collections.singleton(holder);
 
     cache.put(frame10, data);
 
@@ -67,7 +67,7 @@ public class TimeFrameCacheTest extends TestCase {
     return TimeFrameCache.create(new FixedSizeCache<Frame<Date>, Set<Holder<Date>>>(100, CacheStrategy.Type.LRU),
         TimeUnit.MINUTES, new Computable<Holder<Date>, Date>() {
           @Override
-          public Date compute(Holder<Date> argument) {
+          public Date compute(final Holder<Date> argument) {
             return argument.getValue();
           }
         });

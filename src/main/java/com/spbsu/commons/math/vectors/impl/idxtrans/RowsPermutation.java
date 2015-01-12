@@ -20,7 +20,7 @@ public class RowsPermutation implements IndexTransformation {
   int minBack = 0;
 
 
-  public RowsPermutation(int[] perm, int columns) {
+  public RowsPermutation(final int[] perm, final int columns) {
     this.perm = perm;
     for (int i = 0; i < perm.length; i++) {
       maxBack = max(perm[i], maxBack);
@@ -34,12 +34,12 @@ public class RowsPermutation implements IndexTransformation {
   }
 
   @Override
-  public int forward(int index) {
+  public int forward(final int index) {
     return perm[index/columns] * columns + index % columns;
   }
 
   @Override
-  public int backward(int oldIndex) {
+  public int backward(final int oldIndex) {
     return permBack[oldIndex];
   }
 
@@ -59,7 +59,7 @@ public class RowsPermutation implements IndexTransformation {
   }
 
   @Override
-  public IndexTransformation apply(IndexTransformation trans) {
+  public IndexTransformation apply(final IndexTransformation trans) {
     final IndexTransformation[] sequence = new IndexTransformation[]{
             this, trans
     };

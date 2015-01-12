@@ -28,7 +28,7 @@ public abstract class MathTools {
 
   public static int max(final int[] values) {
     int max = values[0];
-    for (int value : values) {
+    for (final int value : values) {
       if (value > max) max = value;
     }
     return max;
@@ -36,7 +36,7 @@ public abstract class MathTools {
 
   public static double max(final double[] values) {
     double max = values[0];
-    for (double value : values) {
+    for (final double value : values) {
       if (value > max) max = value;
     }
     return max;
@@ -44,7 +44,7 @@ public abstract class MathTools {
 
   public static double sum(final double[] values) {
     double sum = 0.0;
-    for (double value : values) {
+    for (final double value : values) {
       sum += value;
     }
     return sum;
@@ -109,13 +109,13 @@ public abstract class MathTools {
     return expectation;
   }
 
-  public static double triroot(double a) {
+  public static double triroot(final double a) {
     return signum(a) * pow(abs(a), 1. / 3.);
   }
 
-  public static int quadratic(double[] x, double a, double b, double c) {
+  public static int quadratic(final double[] x, final double a, final double b, final double c) {
     if (abs(a) > EPSILON) {
-      double D = b * b - 4 * a * c;
+      final double D = b * b - 4 * a * c;
       if (D < 0) {
         return 0;
       }
@@ -129,7 +129,7 @@ public abstract class MathTools {
     }
   }
 
-  public static int cubic(double[] x, double a, double b, double c, double d) {
+  public static int cubic(final double[] x, final double a, double b, double c, double d) {
     if (Math.abs(a) < EPSILON) {
       return quadratic(x, b, c, d);
     }
@@ -138,47 +138,47 @@ public abstract class MathTools {
     final double p = - b2 /3. + c;
     final double q = b * ((2./ 27.) * b2 - c / 3.) + d;
     x[0] = x[1] = x[2] = -b/3.;
-    double Q = p * p * p /27. + q * q /4.;
+    final double Q = p * p * p /27. + q * q /4.;
     if (Q > 0) {
       final double sqrtQ = sqrt(Q);
-      double alpha = triroot(-q/2 + sqrtQ);
-      double beta = triroot(-q/2 - sqrtQ);
+      final double alpha = triroot(-q/2 + sqrtQ);
+      final double beta = triroot(-q/2 - sqrtQ);
       x[0] += alpha + beta;
       return 1;
     }
     else if (Q < 0) {
       final double trirootSqrtMQ = pow(sqrt(-Q), 1./3.);
-      double ab = 2 * trirootSqrtMQ;
-      double ambi = 2 * trirootSqrtMQ;
+      final double ab = 2 * trirootSqrtMQ;
+      final double ambi = 2 * trirootSqrtMQ;
       x[0] += ab;
       x[1] += -ab/2. + ambi * SQRT3/2.;
       x[2] += -ab/2. - ambi * SQRT3/2.;
       return 3;
     }
     else {
-      double ab = 2 * triroot(-q/2);
+      final double ab = 2 * triroot(-q/2);
       x[0] += ab;
       x[1] += -ab/2.;
       return 2;
     }
   }
 
-  public static double sqr(double v) {
+  public static double sqr(final double v) {
     return v * v;
   }
 
-  public static double meanNaive(Vec group) {
+  public static double meanNaive(final Vec group) {
     return VecTools.sum(group)/group.dim();
   }
 
-  public static double meanJS1(Vec group, double sigma) {
-    Vec js = copy(group);
+  public static double meanJS1(final Vec group, final double sigma) {
+    final Vec js = copy(group);
     scale(js, (1-(js.dim() - 2)*sigma*sigma/sqr(norm(group)))/1);
 
     return VecTools.sum(js)/js.dim();
   }
 
-  public static double meanDropFluctuations(Vec group) {
+  public static double meanDropFluctuations(final Vec group) {
     int stop = 100;
     double prevEstimate;
     double nextEstimate = meanNaive(group);
@@ -187,7 +187,7 @@ public abstract class MathTools {
       double sum = 0;
       double totalWeight = 0;
       double nzCount = 0;
-      VecIterator it = group.nonZeroes();
+      final VecIterator it = group.nonZeroes();
       while (it.advance()) {
         final double p = exp(-abs(prevEstimate - it.value()));
         totalWeight += p;
@@ -212,7 +212,7 @@ public abstract class MathTools {
 
   public static class LogFactorial {
     double cache[];
-    public LogFactorial(int size) {
+    public LogFactorial(final int size) {
       double value = 0;
       cache = new double[size];
       cache[0] = 0;
@@ -222,7 +222,7 @@ public abstract class MathTools {
       }
     }
 
-    public double value(int i) {
+    public double value(final int i) {
       return i < cache.length ? cache[i] : Double.POSITIVE_INFINITY;
     }
   }

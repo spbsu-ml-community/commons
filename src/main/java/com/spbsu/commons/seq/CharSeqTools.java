@@ -39,7 +39,7 @@ public class CharSeqTools {
     }
   };
   
-  public static boolean isWhitespace(char ch) {
+  public static boolean isWhitespace(final char ch) {
     return ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r';
   }
 
@@ -53,7 +53,7 @@ public class CharSeqTools {
     throw new IllegalArgumentException("Not a hex char: " + c);
   }
 
-  public static boolean equals(CharSequence text, CharSequence other) {
+  public static boolean equals(final CharSequence text, final CharSequence other) {
     if (text == other) {
       return true;
     }
@@ -71,7 +71,7 @@ public class CharSeqTools {
     return true;
   }
 
-  public static CharSequence toLowerCase(CharSequence word) {
+  public static CharSequence toLowerCase(final CharSequence word) {
     char[] result = null;
     final int length = word.length();
     for (int i = 0; i < length; i++) {
@@ -89,7 +89,7 @@ public class CharSeqTools {
     return new CharSeqArray(result, 0, result.length);
   }
 
-  public static CharSequence toUpperCase(CharSequence word) {
+  public static CharSequence toUpperCase(final CharSequence word) {
     char[] result = null;
     final int length = word.length();
     for (int i = 0; i < length; i++) {
@@ -126,7 +126,7 @@ public class CharSeqTools {
   }
 
   public static CharSequence concatWithDelimeter(final CharSequence delimeter, final List<? extends CharSequence> texts) {
-    CharSeqBuilder result = new CharSeqBuilder(texts.size() * 2);
+    final CharSeqBuilder result = new CharSeqBuilder(texts.size() * 2);
     for (int i = 0; i < texts.size(); i++) {
       if (i > 0)
         result.append(delimeter);
@@ -163,7 +163,7 @@ public class CharSeqTools {
     return new CharSeqComposite((CharSequence[])ArrayTools.repack(texts, CharSequence.class));
   }
 
-  public static CharSequence[] split(CharSequence sequence, char separator) {
+  public static CharSequence[] split(final CharSequence sequence, final char separator) {
     final List<CharSequence> result = new ArrayList<CharSequence>(10);
     int last = 0;
     final int length = sequence.length();
@@ -177,14 +177,14 @@ public class CharSeqTools {
     return result.toArray(new CharSequence[result.size()]);
   }
 
-  public static CharSequence[] split(CharSequence sequence, char separator, CharSequence[] result) {
+  public static CharSequence[] split(final CharSequence sequence, final char separator, final CharSequence[] result) {
     final int index = trySplit(sequence, separator, result);
     if (index < result.length)
       throw new IllegalArgumentException("Too little parts found in input");
     return result;
   }
 
-  public static CharSequence[] split(CharSequence sequence, CharSequence separator) {
+  public static CharSequence[] split(final CharSequence sequence, final CharSequence separator) {
     final List<CharSequence> result = new ArrayList<>(10);
     int last = 0;
     for (int i = 0; i < sequence.length(); i++) {
@@ -202,14 +202,14 @@ public class CharSeqTools {
     return result.toArray(new CharSequence[result.size()]);
   }
 
-  public static CharSequence cut(CharSequence from, int index, char sep) {
+  public static CharSequence cut(final CharSequence from, int index, final char sep) {
     final int start = index;
     while (from.length() > index && from.charAt(index) != sep)
       index++;
     return from.subSequence(start, index);
   }
 
-  public static CharSequence cutBetween(CharSequence sequence, int startIndex, char fromSymbol, char toSymbol) {
+  public static CharSequence cutBetween(final CharSequence sequence, final int startIndex, final char fromSymbol, final char toSymbol) {
     final int startPos = skipTo(sequence, startIndex, fromSymbol) + 1;
     if (startPos >= sequence.length()) {
       return EMPTY;
@@ -217,7 +217,7 @@ public class CharSeqTools {
     int index = startPos;
     int depth = 0;
     while (index < sequence.length()) {
-      char currentSymbol = sequence.charAt(index);
+      final char currentSymbol = sequence.charAt(index);
       if (currentSymbol == fromSymbol) {
         depth++;
       } else if (currentSymbol == toSymbol) {
@@ -232,13 +232,13 @@ public class CharSeqTools {
     return sequence.subSequence(startPos, index);
   }
 
-  public static int skipTo(CharSequence from, int index, char sep) {
+  public static int skipTo(final CharSequence from, int index, final char sep) {
     while (from.length() > index && from.charAt(index) != sep)
       index++;
     return index;
   }
 
-  public static <T> boolean startsWith(Seq<T> seq, Seq<T> prefix) {
+  public static <T> boolean startsWith(final Seq<T> seq, final Seq<T> prefix) {
     if (seq.length() < prefix.length())
       return false;
     int index = 0;
@@ -251,7 +251,7 @@ public class CharSeqTools {
     return true;
   }
 
-  public static boolean startsWith(CharSequence seq, CharSequence prefix) {
+  public static boolean startsWith(final CharSequence seq, final CharSequence prefix) {
     if (seq.length() < prefix.length())
       return false;
     int index = 0;
@@ -272,7 +272,7 @@ public class CharSeqTools {
     return false;
   }
 
-  public static List<CharSequence> discloseComposites(List<CharSequence> fragments) {
+  public static List<CharSequence> discloseComposites(final List<CharSequence> fragments) {
     int fragmentsCount = fragments.size();
     for (final CharSequence fragment : fragments) {
       if (fragment instanceof CharSeqComposite) {
@@ -354,10 +354,10 @@ public class CharSeqTools {
   public static void processAndSplitLinesNIO(@NotNull final Reader in, @NotNull final Processor<CharBufferSeq[]> seqProcessor, @Nullable final String delimeters, final int splitDepth) throws IOException {
       for (;;) {
         final List<CharBuffer> buffers = new ArrayList<>();
-        long read = mapNextLine(in, buffers, 1 << 10);
+        final long read = mapNextLine(in, buffers, 1 << 10);
         if (read > 0) {
           final CharBufferSeq cbs = new CharBufferSeq(buffers);
-          CharBufferSeq.Tokenizer tokenizer = cbs.getTokenizer(delimeters);
+          final CharBufferSeq.Tokenizer tokenizer = cbs.getTokenizer(delimeters);
           final List<CharBufferSeq> result = new ArrayList<>();
           long len = 0;
           for (int i = 0; i < splitDepth; ++i) {
@@ -427,18 +427,18 @@ public class CharSeqTools {
   public static void processLines(final Reader input, final Processor<CharSequence> seqProcessor) throws IOException {
     processAndSplitLines(input, new Processor<CharSequence[]>() {
       @Override
-      public void process(CharSequence[] arg) {
+      public void process(final CharSequence[] arg) {
         seqProcessor.process(arg[0]);
       }
     }, null, false);
   }
 
 
-  public static float parseFloat(CharSequence in) {
+  public static float parseFloat(final CharSequence in) {
     return FloatingDecimal.readJavaFormatString(in).floatValue();
   }
 
-  public static double parseDouble(CharSequence in) {
+  public static double parseDouble(final CharSequence in) {
     return FloatingDecimal.readJavaFormatString(in).doubleValue();
   }
 
@@ -451,7 +451,7 @@ public class CharSeqTools {
       negative = true;
     }
     while (offset < part.length()) {
-      int nextCh = part.charAt(offset++) - '0';
+      final int nextCh = part.charAt(offset++) - '0';
       if (nextCh < 0 || nextCh > 9)
         throw new IllegalArgumentException("Can not parse integer: " + part);
       result *= 10;
@@ -469,7 +469,7 @@ public class CharSeqTools {
       negative = true;
     }
     while (offset < part.length()) {
-      int nextCh = part.charAt(offset++) - '0';
+      final int nextCh = part.charAt(offset++) - '0';
       if (nextCh < 0 || nextCh > 9)
         throw new IllegalArgumentException("Can not parse integer: " + part);
       result *= 10;
@@ -536,7 +536,7 @@ public class CharSeqTools {
     };
   }
 
-  public static <T extends Comparable<T>> Comparator<Seq<T>> lexicographicalComparator(Class<T> clazz){
+  public static <T extends Comparable<T>> Comparator<Seq<T>> lexicographicalComparator(final Class<T> clazz){
     if (char.class.isAssignableFrom(clazz) || Character.class.isAssignableFrom(clazz)) {
       return new Comparator<Seq<T>>() {
         @Override
@@ -750,11 +750,11 @@ public class CharSeqTools {
     return -1;
   }
 
-  public static byte[] parseBase64(CharSequence in) {
+  public static byte[] parseBase64(final CharSequence in) {
     return DatatypeConverter.parseBase64Binary(in.toString());
   }
 
-  public static CharSequence toBase64(byte[] bytes) {
+  public static CharSequence toBase64(final byte[] bytes) {
     return DatatypeConverter.printBase64Binary(bytes);
   }
 }

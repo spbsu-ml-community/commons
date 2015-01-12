@@ -10,18 +10,18 @@ import java.nio.ByteBuffer;
  * Time: 15:31:06
  */
 public class BufferFactory {
-  public static Buffer wrap(byte[] array) {
+  public static Buffer wrap(final byte[] array) {
     return new ByteBufferWrapper(ByteBuffer.wrap(array));
   }
 
-  public static Buffer wrap(ByteBuffer... buffers) {
+  public static Buffer wrap(final ByteBuffer... buffers) {
     if (buffers.length == 1)
       return new ByteBufferWrapper(buffers[0]);
     return new CompositeBuffer(buffers);
   }
 
-  private static void visitSimpleBuffers(Processor<Buffer> visitor, Buffer... buffers) {
-    for (Buffer buffer : buffers) {
+  private static void visitSimpleBuffers(final Processor<Buffer> visitor, final Buffer... buffers) {
+    for (final Buffer buffer : buffers) {
       if (buffer instanceof CompositeBuffer)
         ((CompositeBuffer) buffer).visitParts(visitor);
       else
@@ -29,7 +29,7 @@ public class BufferFactory {
     }
   }
 
-  public static Buffer join(Buffer... buffers) {
+  public static Buffer join(final Buffer... buffers) {
     if (buffers.length == 1)
       return buffers[0];
     { // compact
@@ -37,7 +37,7 @@ public class BufferFactory {
         int count;
         int totalLength;
         boolean isDirect;
-        public void process(Buffer arg) {
+        public void process(final Buffer arg) {
           totalLength += arg.remaining();
           count++;
           if (arg instanceof ByteBufferWrapper)
@@ -50,8 +50,8 @@ public class BufferFactory {
         final byte[] buffer = new byte[analyzer.totalLength];
         class ContentsCopier implements Processor<Buffer> {
           int index;
-          public void process(Buffer arg) {
-            int old = arg.position();
+          public void process(final Buffer arg) {
+            final int old = arg.position();
             try {
               index += arg.get(buffer, index, buffer.length - index);
             }
@@ -67,7 +67,7 @@ public class BufferFactory {
         final Buffer[] compactedBuffers = new Buffer[analyzer.count];
         class BuffersCopier implements Processor<Buffer> {
           int index;
-          public void process(Buffer arg) {
+          public void process(final Buffer arg) {
             compactedBuffers[index++] = arg;
           }
         }
@@ -82,7 +82,7 @@ public class BufferFactory {
     if (src instanceof CompositeBuffer) {
       final int toCopy = Math.min(dst.remaining(), src.remaining());
       ((CompositeBuffer) src).visitParts(new Processor<Buffer>() {
-        public void process(Buffer arg) {
+        public void process(final Buffer arg) {
           final int old = arg.position();
           try {
             write(arg, dst);
@@ -101,7 +101,7 @@ public class BufferFactory {
         final byte[] buffer = new byte[1024];
         int index = 0;
         while (index < howManyToCopy) {
-          int read = cast.get(buffer);
+          final int read = cast.get(buffer);
           dst.put(buffer, 0, Math.min(howManyToCopy - index, read));
           index += read;
         }
@@ -116,7 +116,7 @@ public class BufferFactory {
   }
 
 
-  public static Buffer duplicate(Buffer original) {
+  public static Buffer duplicate(final Buffer original) {
     if (original instanceof CompositeBuffer)
       //noinspection unchecked
       return ((CompositeBuffer)original).duplicate();

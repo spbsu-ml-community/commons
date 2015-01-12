@@ -15,12 +15,12 @@ public class SniffWriter extends Writer {
   private final CharSeqBuilder builder = new CharSeqBuilder();
   private final Writer delegate;
 
-  public SniffWriter(Writer writer) {
+  public SniffWriter(final Writer writer) {
     delegate = writer;
   }
 
   @Override
-  public void write(char[] cbuf, int off, int len) throws IOException {
+  public void write(final char[] cbuf, final int off, final int len) throws IOException {
     builder.append(cbuf, off, len);
     delegate.write(cbuf, off, len);
   }

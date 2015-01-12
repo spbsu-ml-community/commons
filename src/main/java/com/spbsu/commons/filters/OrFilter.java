@@ -6,15 +6,15 @@ package com.spbsu.commons.filters;
  * Time: 23:26:12
  */
 public class OrFilter<T> implements Filter<T> {
-  private Filter<T> firstFilter;
-  private Filter<T> secondFilter;
+  private final Filter<T> firstFilter;
+  private final Filter<T> secondFilter;
 
-  public OrFilter(Filter<T> firstFilter, Filter<T> secondFilter) {
+  public OrFilter(final Filter<T> firstFilter, final Filter<T> secondFilter) {
     this.firstFilter = firstFilter;
     this.secondFilter = secondFilter;
   }
 
-  public boolean accept(T t) {
+  public boolean accept(final T t) {
     return firstFilter.accept(t) || secondFilter.accept(t);
   }
 

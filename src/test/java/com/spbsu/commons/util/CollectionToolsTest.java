@@ -55,8 +55,8 @@ public class CollectionToolsTest extends TestCase {
   }
 
   public void testParallelSort() {
-    FastRandom rng = new FastRandom(0);
-    double[] array = new double[100000];
+    final FastRandom rng = new FastRandom(0);
+    final double[] array = new double[100000];
     for (int i = 0; i < array.length; i++) {
       array[i] = rng.nextDouble();
     }

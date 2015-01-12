@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class Shingles {
 
-  public static double textDistanceByShingles(CharSequence one, CharSequence two) {
+  public static double textDistanceByShingles(final CharSequence one, final CharSequence two) {
     final long[] shingles1 = getShingles(one, 10);
     final long[] shingles2 = getShingles(two, 10);
     for (int i = 0; i < shingles1.length; i++) {
@@ -23,7 +23,7 @@ public class Shingles {
     return 0;
   }
 
-  public static long[] getShingles(CharSequence text, int count) {
+  public static long[] getShingles(CharSequence text, final int count) {
     final Holder<CharSequence> wordHolder = new Holder<CharSequence>();
     final Stack<Holder<Long>> shingles = new Stack<Holder<Long>>();
     final List<Pair<Long, Integer>> maxShingles = new LinkedList<Pair<Long, Integer>>();
@@ -31,7 +31,7 @@ public class Shingles {
     while (text.length() > 0) {
       text = nextWord(text, wordHolder);
       final long textHash = hash(wordHolder.getValue());
-      for (Holder<Long> shingle : shingles) {
+      for (final Holder<Long> shingle : shingles) {
         shingle.setValue(shingle.getValue() * 32 + textHash);
       }
       shingles.push(new Holder<Long>(textHash));
@@ -42,7 +42,7 @@ public class Shingles {
         final ListIterator<Pair<Long, Integer>> iterator = maxShingles.listIterator();
         boolean inserted = false;
         while (iterator.hasNext()) {
-          Long shingle = iterator.next().getFirst();
+          final Long shingle = iterator.next().getFirst();
           if (shingle > newShingle) {
             maxShingles.add(iterator.previousIndex(), Pair.create(newShingle, position));
             inserted = true;
@@ -60,13 +60,13 @@ public class Shingles {
     }
     final long[] result = new long[count];
     int index = maxShingles.size();
-    for (Pair<Long, Integer> shingle : maxShingles) {
+    for (final Pair<Long, Integer> shingle : maxShingles) {
       result[--index] = shingle.getFirst();
     }
     return result;
   }
 
-  private static long hash(CharSequence seq) {
+  private static long hash(final CharSequence seq) {
     long hash = 0;
 
     for (int i = 0; i < seq.length(); i++) {
@@ -75,7 +75,7 @@ public class Shingles {
     return hash;
   }
 
-  private static CharSequence nextWord(CharSequence sequence, Holder<CharSequence> wordHolder) {
+  private static CharSequence nextWord(final CharSequence sequence, final Holder<CharSequence> wordHolder) {
     int offset = 0;
     while (offset < sequence.length() && !Character.isLetterOrDigit(sequence.charAt(offset))) {
       offset++;

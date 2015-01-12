@@ -15,9 +15,9 @@ import java.util.Map;
  */
 public class ConverterTest extends TestCase {
   public void testSizeConvertion() {
-    int[] sizes = new int[]{0, 1, 100, 10000, 299999, 17000000};
-    for (int size : sizes) {
-      ByteBuffer buffer = ByteBuffer.allocate(5);
+    final int[] sizes = new int[]{0, 1, 100, 10000, 299999, 17000000};
+    for (final int size : sizes) {
+      final ByteBuffer buffer = ByteBuffer.allocate(5);
       NioConverterTools.storeSize(size, buffer);
       buffer.rewind();
       assertEquals(size, NioConverterTools.restoreSize(buffer));
@@ -101,7 +101,7 @@ public class ConverterTest extends TestCase {
     final Map2BufferConverter<CharSequence, Integer> conv = new Map2BufferConverter<CharSequence, Integer>(
       new CharSequence2BufferConverterOld() {
         @Override
-        protected CharSequence createCharsequence(char[] chars) {
+        protected CharSequence createCharsequence(final char[] chars) {
           return new String(chars);
         }
       },

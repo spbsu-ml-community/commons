@@ -8,7 +8,7 @@ import java.util.Arrays;
  * Time: 23:03
  */
 public class Pattern<T> {
-  private Alphabet<T> alphabet;
+  private final Alphabet<T> alphabet;
 
   public enum Modifier {
     NONE,
@@ -30,7 +30,7 @@ public class Pattern<T> {
     toStringValue = null;
   }
 
-  public Pattern(Alphabet<T> alphabet) {
+  public Pattern(final Alphabet<T> alphabet) {
     this.alphabet = alphabet;
     manyItems = 0;
     bagSize = INITIAL_CAPACITY;
@@ -52,19 +52,19 @@ public class Pattern<T> {
     manyItems++;
   }
 
-  public Matcher.Condition<T> condition(int i) {
+  public Matcher.Condition<T> condition(final int i) {
     //if (i < manyItems && i >= 0)
     return conditions[i];
     //throw new IndexOutOfBoundsException("Condition index " + i + " out of range [0 - " + manyItems + "]");
   }
 
-  public Modifier modifier(int i) {
+  public Modifier modifier(final int i) {
     //if (i < manyItems && i >= 0)
     return modifiers[i];
     //throw new IndexOutOfBoundsException("Modifier index " + i + " out of range [0 - " + manyItems + "]");
   }
 
-  public void removeLast(int elements) {
+  public void removeLast(final int elements) {
     if (manyItems < elements) {
       update();
       //throw new IllegalStateException("Cannot remove " + elements + " elements from " + manyItems);
@@ -72,9 +72,9 @@ public class Pattern<T> {
     }
   }
 
-  public void ensureCapacity(int minimumCapacity) {
-    SimpleRegExp.Condition<T>[] biggerConArray;
-    Modifier[] biggerModArray;
+  public void ensureCapacity(final int minimumCapacity) {
+    final SimpleRegExp.Condition<T>[] biggerConArray;
+    final Modifier[] biggerModArray;
 
     if (bagSize < minimumCapacity) {
       biggerConArray = new Matcher.Condition[minimumCapacity];
@@ -112,11 +112,11 @@ public class Pattern<T> {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    Pattern pattern = (Pattern) o;
+    final Pattern pattern = (Pattern) o;
 
     if (bagSize != pattern.bagSize) return false;
     if (manyItems != pattern.manyItems) return false;

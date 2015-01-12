@@ -14,10 +14,10 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  * For matrix with a great number of empty rows it is better to implement CCS
  */
 public class SparseMx<B extends MxBasis> extends Mx.Stub {
-  private B mxBasis;
+  private final B mxBasis;
   private final Vec emptyRow;
-  private IntBasis vecBasis;
-  private SparseVec rows[];
+  private final IntBasis vecBasis;
+  private final SparseVec[] rows;
 
   public SparseMx(final B mxBasis) {
     this.mxBasis = mxBasis;

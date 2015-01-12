@@ -34,7 +34,7 @@ public class MapBasisTest extends TestCase {
     assertTrue(basis.toIndex("Second") == 1);
     assertTrue(basis.toIndex("Third") == 2);
 
-    Collection<String> collection = new LinkedList<String>();
+    final Collection<String> collection = new LinkedList<String>();
     collection.add("First");
     collection.add("Second");
     collection.add("Third");
@@ -48,7 +48,7 @@ public class MapBasisTest extends TestCase {
     assertTrue(basis.toIndex("Second") == 1);
     assertTrue(basis.toIndex("Third") == 2);
 
-    GenericBasis<String> genericBasis = new MapBasis<String>();
+    final GenericBasis<String> genericBasis = new MapBasis<String>();
     genericBasis.add("First");
     genericBasis.add("Second");
     genericBasis.add("Third");
@@ -174,7 +174,7 @@ public class MapBasisTest extends TestCase {
     basis.add("B");
     basis.add("C");
 
-    TObjectIntHashMap<String> map = basis.getMap();
+    final TObjectIntHashMap<String> map = basis.getMap();
     assertTrue(map.size() == 3);
     assertTrue(map.containsKey("A"));
     assertTrue(map.containsKey("B"));
@@ -186,7 +186,7 @@ public class MapBasisTest extends TestCase {
     basis.add("B");
     basis.add("C");
 
-    List<String> list = basis.getInverted();
+    final List<String> list = basis.getInverted();
     assertTrue(list.get(0).equals("A"));
     assertTrue(list.get(1).equals("B"));
     assertTrue(list.get(2).equals("C"));

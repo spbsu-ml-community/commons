@@ -27,21 +27,21 @@ public class LSHEuclidNNLocator {
     int[] order;
   }
 
-  public LSHEuclidNNLocator(List<Vec> pool, int size, int parts) {
+  public LSHEuclidNNLocator(final List<Vec> pool, final int size, final int parts) {
     this(pool, size, parts, new FastRandom());
   }
 
-  public LSHEuclidNNLocator(List<Vec> pool, int size, int parts, final Random random) {
+  public LSHEuclidNNLocator(final List<Vec> pool, final int size, final int parts, final Random random) {
     this.pool = pool;
     final int dim = pool.get(0).dim();
     final int poolSize = pool.size();
     for (int i = 0; i < size; i++) {
-      Axis axis = new Axis();
+      final Axis axis = new Axis();
       axis.a = new ArrayVec(dim);
       for (int k = 0; k < dim; k++) {
         axis.a.set(k, random.nextGaussian());
       }
-      double[] products = new double[poolSize];
+      final double[] products = new double[poolSize];
       for (int d = 0; d < poolSize; d++) {
         products[d] = VecTools.multiply(axis.a, pool.get(d));
       }
@@ -65,7 +65,7 @@ public class LSHEuclidNNLocator {
       final int quant = poolSize / parts;
       for (int j = 1; j < parts; j++) {
         int split = j * quant;
-        double value = products[split];
+        final double value = products[split];
         while (split < poolSize && products[split] == value)
           split++;
         axis.splits[part] = value;
@@ -79,12 +79,12 @@ public class LSHEuclidNNLocator {
     }
   }
 
-  public int nearest(Vec x, int count, int[] nearest, double[] distance) {
+  public int nearest(final Vec x, final int count, final int[] nearest, final double[] distance) {
     final int[] candidates;
     {
       final TIntHashSet found = new TIntHashSet(axes.size() * axes.get(0).splits.length);
-      for (Axis axis : axes) {
-        double product = VecTools.multiply(axis.a, x);
+      for (final Axis axis : axes) {
+        final double product = VecTools.multiply(axis.a, x);
         int split = Arrays.binarySearch(axis.splits, product);
         split = split >= 0 ? split : -split-1;
         int start = split > 0 ? axis.limits[split - 1] : 0;
@@ -107,13 +107,13 @@ public class LSHEuclidNNLocator {
     return rSize;
   }
 
-  public int nearest(Vec vec, int size, int[] result) {
+  public int nearest(final Vec vec, final int size, final int[] result) {
     return nearest(vec, size, result, new double[size]);
   }
 
-  public Vec[] nearest(Vec x, int count) {
+  public Vec[] nearest(final Vec x, final int count) {
     final int[] nearest = new int[count];
-    Vec[] result = new Vec[nearest(x, count, nearest, new double[count])];
+    final Vec[] result = new Vec[nearest(x, count, nearest, new double[count])];
     for (int i = 0; i < result.length; i++)
       result[i] = pool.get(nearest[i]);
     return result;

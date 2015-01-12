@@ -9,7 +9,7 @@ import junit.framework.TestCase;
  */
 public class StemmerTest extends TestCase {
   public void testStemer() {
-    String[] words = new String[]{"consign",
+    final String[] words = new String[]{"consign",
                                   "consigned",
                                   "consigning",
                                   "consignment",
@@ -111,7 +111,7 @@ public class StemmerTest extends TestCase {
                                   "вами"
     };
 
-    String[] stems = new String[]{"consign",
+    final String[] stems = new String[]{"consign",
                                   "consign",
                                   "consign",
                                   "consign",

@@ -12,15 +12,15 @@ import com.spbsu.commons.util.ArrayTools;
  */
 public class ArrayVec extends Vec.Stub {
   public final ArrayPart<double[]> data;
-  public ArrayVec(double... values) {
+  public ArrayVec(final double... values) {
     data = new ArrayPart<double[]>(values);
   }
 
-  public ArrayVec(int dim) {
+  public ArrayVec(final int dim) {
     data = new ArrayPart<double[]>(new double[dim]);
   }
 
-  public ArrayVec(double[] values, int offset, int length) {
+  public ArrayVec(final double[] values, final int offset, final int length) {
     data = new ArrayPart<double[]>(values, offset, length);
   }
 
@@ -29,27 +29,27 @@ public class ArrayVec extends Vec.Stub {
     return data.length;
   }
 
-  public void add(ArrayVec right) {
+  public void add(final ArrayVec right) {
     ArrayTools.add(data.array, data.start, right.data.array, right.data.start, data.length);
   }
 
-  public void fill(double v) {
+  public void fill(final double v) {
     ArrayTools.fill(data.array, data.start, data.length, v);
   }
 
-  public void scale(double s) {
+  public void scale(final double s) {
     ArrayTools.mul(data.array, data.start, data.length, s);
   }
 
-  public void scale(ArrayVec other) {
+  public void scale(final ArrayVec other) {
     ArrayTools.scale(data.array, data.start, other.data.array, other.data.start, data.length);
   }
 
-  public double mul(ArrayVec other) {
+  public double mul(final ArrayVec other) {
     return ArrayTools.mul(data.array, data.start, other.data.array, other.data.start, data.length);
   }
 
-  public double l2(ArrayVec other) {
+  public double l2(final ArrayVec other) {
     return ArrayTools.l2(data.array, data.start, other.data.array, other.data.start, data.length);
   }
 
@@ -87,18 +87,18 @@ public class ArrayVec extends Vec.Stub {
   }
 
   @Override
-  public double get(int i) {
+  public double get(final int i) {
     return data.array[i + data.start];
   }
 
   @Override
-  public Vec set(int i, double val) {
+  public Vec set(final int i, final double val) {
     data.array[data.start + i] = val;
     return this;
   }
 
   @Override
-  public Vec adjust(int i, double increment) {
+  public Vec adjust(final int i, final double increment) {
     data.array[data.start + i] += increment;
     return this;
   }
@@ -109,11 +109,11 @@ public class ArrayVec extends Vec.Stub {
   }
 
   @Override
-  public ArrayVec sub(int start, int length) {
+  public ArrayVec sub(final int start, final int length) {
     return new ArrayVec(data.array, this.data.start + start, length);
   }
 
-  public void assign(ArrayVec vec) {
+  public void assign(final ArrayVec vec) {
     ArrayTools.assign(data.array, data.start, vec.data.array, vec.data.start, data.length);
   }
 }

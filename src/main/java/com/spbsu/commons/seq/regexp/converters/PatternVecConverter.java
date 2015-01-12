@@ -23,8 +23,8 @@ public class PatternVecConverter<T> implements Converter<Pattern<T>, Vec> {
     final int size = vec.dim();
     final Pattern<T> p = new Pattern<T>(alphabet);
     for (int i = 0; i < size; i+=2) {
-      int code = (int) vec.get(i);
-      int mod = (int) vec.get(i + 1);
+      final int code = (int) vec.get(i);
+      final int mod = (int) vec.get(i + 1);
       p.add(alphabet.get(code), Pattern.Modifier.values()[mod]);
     }
     return p;

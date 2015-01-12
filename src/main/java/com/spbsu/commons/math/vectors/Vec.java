@@ -56,7 +56,7 @@ public interface Vec extends Seq<Double> {
 
     @Override
     public double[] toArray() {
-      double[] result = new double[dim()];
+      final double[] result = new double[dim()];
       final VecIterator nz = nonZeroes();
       while (nz.advance())
         result[nz.index()] = nz.value();

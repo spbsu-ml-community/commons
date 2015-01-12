@@ -37,7 +37,7 @@ public class CompositeTextCodingTest extends TestCase {
   private static synchronized void loadDataSet() {
     try {
       if (queries == null) {
-        List<CharSequence> queries = new ArrayList<CharSequence>();
+        final List<CharSequence> queries = new ArrayList<CharSequence>();
         try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/queries.txt.gz"))))) {
           String line;
           while ((line = lnr.readLine()) != null) {
@@ -48,7 +48,7 @@ public class CompositeTextCodingTest extends TestCase {
       }
 
       if (urls == null) {
-        List<CharSequence> urls = new ArrayList<CharSequence>();
+        final List<CharSequence> urls = new ArrayList<CharSequence>();
         try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/urls.txt.gz"))))) {
           String line;
           while ((line = lnr.readLine()) != null) {
@@ -59,9 +59,9 @@ public class CompositeTextCodingTest extends TestCase {
       }
 
       if (packages == null && false) {
-        List<CharSequence> packs = new ArrayList<>();
-        File dir = new File("/Users/solar/Downloads/results");
-        for (String packName : dir.list()) {
+        final List<CharSequence> packs = new ArrayList<>();
+        final File dir = new File("/Users/solar/Downloads/results");
+        for (final String packName : dir.list()) {
           final File packFile = new File(dir, packName);
           if (!packFile.isHidden() && !packFile.isDirectory())
             packs.add(StreamTools.readFile(packFile));
@@ -69,7 +69,7 @@ public class CompositeTextCodingTest extends TestCase {
         CompositeTextCodingTest.packages = packs.toArray(new CharSequence[packs.size()]);
       }
       if (user_sessions == null && false) {
-        List<CharSequence> user_sessions = new ArrayList<>();
+        final List<CharSequence> user_sessions = new ArrayList<>();
         try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("/Users/solar/Downloads/session-sample.txt.gz"))))){
           String line;
           while ((line = lnr.readLine()) != null) {
@@ -91,20 +91,20 @@ public class CompositeTextCodingTest extends TestCase {
   }
 
   public void testSimpleCodingQuery() {
-    FastRandom rng = new FastRandom(0);
+    final FastRandom rng = new FastRandom(0);
     int bytes = 0;
     final HashSet<Character> alpha = new HashSet<Character>();
     for (int i = 0; i < queries.length; i++) {
-      CharSequence query = queries[i];
+      final CharSequence query = queries[i];
       bytes += 2 * query.length();
       for (int t = 0; t < query.length(); t++)
         alpha.add(query.charAt(t));
     }
 
-    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
+    final CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
 
     for (int i = 0; i < 100000; i++) {
-      CharSequence query = queries[rng.nextInt(queries.length)];
+      final CharSequence query = queries[rng.nextInt(queries.length)];
       coding.accept(query);
     }
 
@@ -115,7 +115,7 @@ public class CompositeTextCodingTest extends TestCase {
 //      System.out.println(sequence);
 //    }
     for (int i = 0; i < queries.length; i++) {
-      CharSequence query = queries[i];
+      final CharSequence query = queries[i];
       encode.write(query);
     }
     System.out.println(result.alphabet().size() + " " + buffer.position());
@@ -132,7 +132,7 @@ public class CompositeTextCodingTest extends TestCase {
     final DictExpansion<Byte> expansion = new DictExpansion<>(alpha, 1000);
 
     for (int i = 0; i < 100000; i++) {
-      CharSequence query = dataSet[rng.nextInt(dataSet.length)];
+      final CharSequence query = dataSet[rng.nextInt(dataSet.length)];
       expansion.accept(new ByteSeq(query.toString().getBytes()));
     }
 
@@ -140,7 +140,7 @@ public class CompositeTextCodingTest extends TestCase {
     final CSCOutputStream stream = new CSCOutputStream(out, expansion.result(), expansion.resultFreqs());
 
     for (int i = 0; i < dataSet.length; i++) {
-      CharSequence query = dataSet[i];
+      final CharSequence query = dataSet[i];
       stream.write(query.toString().getBytes());
       stream.flush();
     }
@@ -160,17 +160,17 @@ public class CompositeTextCodingTest extends TestCase {
   }
 
   public void testSimpleCodingURL() {
-    FastRandom rng = new FastRandom(0);
+    final FastRandom rng = new FastRandom(0);
     int bytes = 0;
     final HashSet<Character> alpha = new HashSet<Character>();
     for (int i = 0; i < urls.length; i++) {
-      CharSequence query = urls[i];
+      final CharSequence query = urls[i];
       bytes += 2 * query.length();
       for (int t = 0; t < query.length(); t++)
         alpha.add(query.charAt(t));
     }
 
-    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
+    final CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
 
     for (int i = 0; i < 100000; i++) {
       final CharSequence query = urls[rng.nextInt(urls.length)];
@@ -181,7 +181,7 @@ public class CompositeTextCodingTest extends TestCase {
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
     final ListDictionary dict = coding.expansion().result();
 
-    int[] symbolFreqs = new int[dict.size()];
+    final int[] symbolFreqs = new int[dict.size()];
     for (int i = 0; i < urls.length; i++) {
       CharSequence suffix = urls[i];
       while(suffix.length() > 0) {
@@ -221,7 +221,7 @@ public class CompositeTextCodingTest extends TestCase {
 //    }
     encode.output = new ArithmeticCoding.Encoder(buffer, symbolFreqs);
     for (int i = 0; i < urls.length; i++) {
-      CharSequence query = urls[i];
+      final CharSequence query = urls[i];
       encode.write(query);
     }
     System.out.println(dict.size() + " " + buffer.position());
@@ -229,17 +229,17 @@ public class CompositeTextCodingTest extends TestCase {
   }
 
   public void testSimpleByteCodingURL() {
-    FastRandom rng = new FastRandom(0);
+    final FastRandom rng = new FastRandom(0);
     int bytes = 0;
     final HashSet<Byte> alpha = new HashSet<>();
     for (int i = 0; i < urls.length; i++) {
-      CharSequence query = urls[i];
+      final CharSequence query = urls[i];
       bytes += 2 * query.length();
       for (int t = 0; t < query.length(); t++)
         alpha.add((byte)query.charAt(t));
     }
 
-    DictExpansion<Byte> expansion = new DictExpansion<>(alpha, 1000);
+    final DictExpansion<Byte> expansion = new DictExpansion<>(alpha, 1000);
 
     final Charset charset = Charset.forName("UTF-8");
     for (int i = 0; i < 100000; i++) {
@@ -249,7 +249,7 @@ public class CompositeTextCodingTest extends TestCase {
 
     final ListDictionary dict = expansion.result();
 
-    int[] symbolFreqs = new int[dict.size()];
+    final int[] symbolFreqs = new int[dict.size()];
     for (int i = 0; i < urls.length; i++) {
       CharSequence suffix = urls[i];
       while(suffix.length() > 0) {
@@ -299,33 +299,33 @@ public class CompositeTextCodingTest extends TestCase {
   public void testPackageCoding() throws IOException {
     if (packages == null)
       return;
-    FastRandom rng = new FastRandom(0);
+    final FastRandom rng = new FastRandom(0);
     long bytes = 0;
     final HashSet<Character> alpha = new HashSet<Character>();
     for (int i = 0; i < packages.length; i++) {
-      CharSequence query = packages[i];
+      final CharSequence query = packages[i];
       bytes += 2 * query.length();
       for (int t = 0; t < query.length(); t++)
         alpha.add(query.charAt(t));
     }
 
-    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 10000);
+    final CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 10000);
 
     for (int i = 0; i < 100000; i++) {
-      CharSequence query = packages[rng.nextInt(packages.length)];
+      final CharSequence query = packages[rng.nextInt(packages.length)];
       coding.accept(query);
     }
 
     final ByteBuffer buffer = ByteBuffer.allocate((int)Math.min(1000000000l, bytes/10));
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
     final ListDictionary<Character> result = coding.expansion().result();
-    FileWriter output = new FileWriter("./out.dict");
-    for (Seq<Character> sequence : result.alphabet()) {
+    final FileWriter output = new FileWriter("./out.dict");
+    for (final Seq<Character> sequence : result.alphabet()) {
       output.append(sequence.toString()).append("\n");
     }
     output.close();
     for (int i = 0; i < packages.length; i++) {
-      CharSequence query = packages[i];
+      final CharSequence query = packages[i];
       encode.write(query);
     }
     System.out.println(result.alphabet().size() + " " + buffer.position());
@@ -335,33 +335,33 @@ public class CompositeTextCodingTest extends TestCase {
   public void testUserSessionsCoding() throws IOException {
     if (user_sessions == null)
       return;
-    FastRandom rng = new FastRandom(0);
+    final FastRandom rng = new FastRandom(0);
     long bytes = 0;
     final HashSet<Character> alpha = new HashSet<>();
     for (int i = 0; i < user_sessions.length; i++) {
-      CharSequence query = user_sessions[i];
+      final CharSequence query = user_sessions[i];
       bytes += 2 * query.length();
       for (int t = 0; t < query.length(); t++)
         alpha.add(query.charAt(t));
     }
 
-    CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 100000);
+    final CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 100000);
 
     for (int i = 0; i < 1000000; i++) {
-      CharSequence query = user_sessions[rng.nextInt(user_sessions.length)];
+      final CharSequence query = user_sessions[rng.nextInt(user_sessions.length)];
       coding.accept(query);
     }
 
     final ByteBuffer buffer = ByteBuffer.allocate((int)Math.min(1000000000l, bytes/10));
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
     final ListDictionary<Character> result = coding.expansion().result();
-    FileWriter output = new FileWriter("./out.dict");
-    for (Seq<Character> sequence : result.alphabet()) {
+    final FileWriter output = new FileWriter("./out.dict");
+    for (final Seq<Character> sequence : result.alphabet()) {
       output.append(sequence.toString()).append("\n");
     }
     output.close();
     for (int i = 0; i < user_sessions.length; i++) {
-      CharSequence query = user_sessions[i];
+      final CharSequence query = user_sessions[i];
       encode.write(query);
     }
     System.out.println(result.alphabet().size() + " " + buffer.position());

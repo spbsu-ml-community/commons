@@ -25,7 +25,7 @@ public abstract class TaskBase<T> implements Task<T> {
     return completedFlag;
   }
 
-  public void setRequestProperty(String key, String value) {
+  public void setRequestProperty(final String key, final String value) {
     requestProps.add(Pair.create(key, value));
   }
 

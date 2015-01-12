@@ -12,12 +12,12 @@ import java.nio.ByteBuffer;
  */
 public class Long2ByteBufferConverter implements Converter<Long, ByteBuffer> {
   @Override
-  public Long convertFrom(ByteBuffer source) {
+  public Long convertFrom(final ByteBuffer source) {
     return source.getLong();
   }
 
   @Override
-  public ByteBuffer convertTo(Long object) {
+  public ByteBuffer convertTo(final Long object) {
     final ByteBuffer buffer = ByteBuffer.allocate(8);
     buffer.putLong(object);
     buffer.rewind();

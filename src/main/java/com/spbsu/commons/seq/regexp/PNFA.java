@@ -20,7 +20,7 @@ public class PNFA<T> implements Matcher<T> {
   private final Alphabet<T> alphabet;
   private final Random rand = new FastRandom();
 
-  public PNFA(Vec pro_bab, Alphabet<T> alpha) {
+  public PNFA(final Vec pro_bab, final Alphabet<T> alpha) {
     alphabet = alpha;
 
     final int a = pro_bab.dim() / alpha.size();
@@ -32,7 +32,7 @@ public class PNFA<T> implements Matcher<T> {
       int sindex = 0;
       for (int from = 0; from < statesCount; from++) {
         for (int to = from; to < statesCount; to++) {
-          int index = c * a + sindex++;
+          final int index = c * a + sindex++;
           transitions[index] = (((long) to << 32) | from);
           this.pro_bab[index] = C / (C + Math.exp(-pro_bab.get(index)));
         }
@@ -46,7 +46,7 @@ public class PNFA<T> implements Matcher<T> {
 //    pro_bab[coffset + statesCount * from - from * (from + 1) / 2 + to] = prob;
 //  }
 //
-  public void match(Seq<T> ts, final MatchVisitor visitor) {
+  public void match(final Seq<T> ts, final MatchVisitor visitor) {
     final int seqSize = ts.length();
     final int[] statesLocal = states;
     final int statesCount = statesLocal.length / 2;
@@ -95,26 +95,26 @@ public class PNFA<T> implements Matcher<T> {
     return null;
   }
 
-  public double p(int index) {
+  public double p(final int index) {
     return pro_bab[index];
   }
 
-  public int from(int index) {
+  public int from(final int index) {
     final long currentTrans = transitions[index];
     return (int) currentTrans;
   }
   
-  public int to(int index) {
+  public int to(final int index) {
     final long currentTrans = transitions[index];
     return (int) (currentTrans >> 32);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    PNFA pnfa = (PNFA) o;
+    final PNFA pnfa = (PNFA) o;
 
     if (alphabet != null ? !alphabet.equals(pnfa.alphabet) : pnfa.alphabet != null) return false;
     if (!Arrays.equals(pro_bab, pnfa.pro_bab)) return false;

@@ -9,59 +9,59 @@ import org.apache.commons.logging.LogFactory;
  * Date: 10.10.2009
  */
 public class Logger implements Log {
-  public static Logger create(Class clazz) {
+  public static Logger create(final Class clazz) {
     return create(clazz.getName());
   }
 
-  public static Logger create(String name) {
+  public static Logger create(final String name) {
     return new Logger(name);
   }
 
   private final Log innerLog;
 
-  private Logger(String name) {
+  private Logger(final String name) {
     this.innerLog = LogFactory.getLog(name);
   }
 
-  public void message(String msg) {
+  public void message(final String msg) {
     innerLog.info(msg);
   }
 
-  public void error(Throwable e) throws RuntimeException {
+  public void error(final Throwable e) throws RuntimeException {
     innerLog.error("Exception caught: ", e);
     throw new RuntimeException(e);
   }
 
-  public void error(String message, Throwable e) throws RuntimeException {
+  public void error(final String message, final Throwable e) throws RuntimeException {
     innerLog.error(message, e);
     throw new RuntimeException(message, e);
   }
 
-  public void assertTrue(boolean condition, String message) {
+  public void assertTrue(final boolean condition, final String message) {
     if (!condition) {
       innerLog.error("Assertion failed: " + message);
       throw new RuntimeException(message);
     }
   }
 
-  public void warning(String message, Throwable th) {
+  public void warning(final String message, final Throwable th) {
     innerLog.warn(message, th);
   }
 
-  public void warning(String message) {
+  public void warning(final String message) {
     innerLog.warn(message);
   }
 
-  public void warning(Throwable th) {
+  public void warning(final Throwable th) {
     innerLog.warn("Exception occured!", th);
   }
 
-  public void error(String message) {
+  public void error(final String message) {
     innerLog.error(message);
     throw new RuntimeException(message);
   }
 
-  public void info(CharSequence message) {
+  public void info(final CharSequence message) {
     innerLog.info(message.toString());
   }
 

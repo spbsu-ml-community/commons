@@ -28,8 +28,8 @@ public class DownloadManagerImpl implements DownloadManager {
   private static final Log LOG = LogFactory.getLog(DownloadManagerImpl.class);
   private final ExecutorService executor = new ThreadPoolExecutor(10, 20, 100, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
 
-    public Thread newThread(Runnable r) {
-      Thread newThread = Executors.defaultThreadFactory().newThread(r);
+    public Thread newThread(final Runnable r) {
+      final Thread newThread = Executors.defaultThreadFactory().newThread(r);
       newThread.setDaemon(true);
       return newThread;
     }
@@ -86,7 +86,7 @@ public class DownloadManagerImpl implements DownloadManager {
           public void run() {
             //noinspection InfiniteLoopStatement
             while (true) {
-              Pair<String, Pair<Type, Task>> pair;
+              final Pair<String, Pair<Type, Task>> pair;
               synchronized (tasksQueue) {
                 while (tasksQueue.isEmpty()) {
                   try {
@@ -98,7 +98,7 @@ public class DownloadManagerImpl implements DownloadManager {
                 }
                 pair = tasksQueue.remove();
                 final String url = pair.getFirst();
-                String hostPath;
+                final String hostPath;
                 final Pair<String, Policy> path2CustomPolicy = getPolicyForURL(pair.getFirst());
                 if (path2CustomPolicy != null) {
                   hostPath = path2CustomPolicy.getFirst();
@@ -173,13 +173,13 @@ public class DownloadManagerImpl implements DownloadManager {
     host2proxy.put(host, proxy);
   }
 
-  public Pair<String, Policy> getPolicyForURL(String url) {
+  public Pair<String, Policy> getPolicyForURL(final String url) {
     if (url == null) {
       return null;
     }
     final String[] policyPaths = host2customPolicy.keySet().toArray(new String[host2customPolicy.size()]);
     String candidate = null;
-    for (String path : policyPaths) {
+    for (final String path : policyPaths) {
       if (url.contains(path)) {
         if (candidate == null || path.length() > candidate.length()) {
           candidate = path;
@@ -189,9 +189,9 @@ public class DownloadManagerImpl implements DownloadManager {
     return candidate == null ? null : Pair.create(candidate, host2customPolicy.get(candidate));
   }
 
-  public void request(String url, final Task<CharSequence> resultHandler) {
+  public void request(final String url, final Task<CharSequence> resultHandler) {
     requestCharData(url, new Task<Pair<URLStatus, CharSequence>>() {
-      public void start(Pair<URLStatus, CharSequence> param) {
+      public void start(final Pair<URLStatus, CharSequence> param) {
         resultHandler.start(param.getSecond());
       }
 
@@ -203,7 +203,7 @@ public class DownloadManagerImpl implements DownloadManager {
         return resultHandler.isCompleted();
       }
 
-      public void setRequestProperty(String key, String value) {
+      public void setRequestProperty(final String key, final String value) {
       }
 
       public Iterator<Pair<String, String>> getPropertiesIterator() {
@@ -220,28 +220,28 @@ public class DownloadManagerImpl implements DownloadManager {
     });
   }
 
-  public void requestCharData(String url, Task<Pair<URLStatus, CharSequence>> resultHandler) {
+  public void requestCharData(final String url, final Task<Pair<URLStatus, CharSequence>> resultHandler) {
     synchronized (tasksQueue) {
       tasksQueue.add(Pair.create(url, Pair.create(Type.TEXT, (Task) resultHandler)));
       tasksQueue.notify();
     }
   }
 
-  public void requestBinaryData(String url, Task<Pair<URLStatus, byte[]>> resultHandler) {
+  public void requestBinaryData(final String url, final Task<Pair<URLStatus, byte[]>> resultHandler) {
     synchronized (tasksQueue) {
       tasksQueue.add(Pair.create(url, Pair.create(Type.BINARY, (Task) resultHandler)));
       tasksQueue.notify();
     }
   }
 
-  public void requestStatus(String url, Task<URLStatus> resultHandler) {
+  public void requestStatus(final String url, final Task<URLStatus> resultHandler) {
     synchronized (tasksQueue) {
       tasksQueue.add(Pair.create(url, Pair.create(Type.HEAD, (Task) resultHandler)));
       tasksQueue.notify();
     }
   }
 
-  public void requestCharDataWithPost(String url, String msg, Task<Pair<URLStatus, CharSequence>> resultHandler) {
+  public void requestCharDataWithPost(final String url, final String msg, final Task<Pair<URLStatus, CharSequence>> resultHandler) {
     synchronized (tasksQueue) {
       resultHandler.setRequestProperty(MAGIC_POST_REQUEST, msg);
       tasksQueue.add(Pair.create(url, Pair.create(Type.POST, (Task) resultHandler)));
@@ -249,7 +249,7 @@ public class DownloadManagerImpl implements DownloadManager {
     }
   }
 
-  public void cancelRequest(Task<?> resultHandler) {
+  public void cancelRequest(final Task<?> resultHandler) {
     synchronized (tasksQueue) {
       final Iterator<Pair<String, Pair<Type, Task>>> iterator = tasksQueue.iterator();
       while (iterator.hasNext()) {
@@ -265,8 +265,8 @@ public class DownloadManagerImpl implements DownloadManager {
     }
   }
 
-  public void waitFor(Task<?>... resultHandler) {
-    for (Task<?> task : resultHandler) {
+  public void waitFor(final Task<?>... resultHandler) {
+    for (final Task<?> task : resultHandler) {
       //noinspection SynchronizationOnLocalVariableOrMethodParameter
       synchronized (task) {
         while (!task.isCompleted()) {
@@ -288,7 +288,7 @@ public class DownloadManagerImpl implements DownloadManager {
     private static final String DOWNLOADER_NAME = "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9";
     private static final String SUPPORT_ENCODING = "windows-1251,utf-8;q=0.7,*;q=0.7";
 
-    public Downloader(String url, Type type, Task task) {
+    public Downloader(final String url, final Type type, final Task task) {
       this.url = url;
       this.type = type;
       this.task = task;
@@ -301,7 +301,7 @@ public class DownloadManagerImpl implements DownloadManager {
       try {
         try {
           final URL structedUrl = new URL(url);
-          Proxy proxy = host2proxy.get(structedUrl.getHost().toLowerCase());
+          final Proxy proxy = host2proxy.get(structedUrl.getHost().toLowerCase());
           urlConnection = proxy != null ? structedUrl.openConnection(proxy) : structedUrl.openConnection();
           urlConnection.setReadTimeout(READ_TIMEOUT);
           urlConnection.setConnectTimeout(CONNECTION_TIMEOUT);
@@ -318,7 +318,7 @@ public class DownloadManagerImpl implements DownloadManager {
         switch (type) {
           case HEAD:
             //noinspection unchecked
-            Task<URLStatus> headTask = (Task<URLStatus>) task;
+            final Task<URLStatus> headTask = (Task<URLStatus>) task;
             if (ioe != null) {
               headTask.start(URLStatusImpl.create(url, ioe));
             } else if (urlConnection instanceof HttpURLConnection) {
@@ -327,7 +327,7 @@ public class DownloadManagerImpl implements DownloadManager {
                 connection.setRequestMethod("HEAD");
                 final Iterator<Pair<String, String>> propertiesIterator = task.getPropertiesIterator();
                 while (propertiesIterator.hasNext()) {
-                  Pair<String, String> nextProp = propertiesIterator.next();
+                  final Pair<String, String> nextProp = propertiesIterator.next();
                   connection.setRequestProperty(nextProp.getFirst(), nextProp.getSecond());
                 }
                 connection.connect();
@@ -343,14 +343,14 @@ public class DownloadManagerImpl implements DownloadManager {
             break;
           case BINARY:
             //noinspection unchecked
-            Task<Pair<URLStatus, byte[]>> binaryTask = (Task<Pair<URLStatus, byte[]>>) task;
+            final Task<Pair<URLStatus, byte[]>> binaryTask = (Task<Pair<URLStatus, byte[]>>) task;
             if (ioe != null) {
               binaryTask.start(Pair.create(URLStatusImpl.create(url, ioe), (byte[]) null));
             } else {
               try {
                 //noinspection ConstantConditions
                 final byte[] content = StreamTools.readByteStream(urlConnection.getInputStream());
-                URLStatus status;
+                final URLStatus status;
                 if (urlConnection instanceof HttpURLConnection) {
                   final HttpURLConnection connection = (HttpURLConnection) urlConnection;
                     status = new URLStatusImpl(url, URLConnectionTools.determineEncoding(connection, DEFAULT_ENCODING), connection.getResponseCode(),
@@ -367,7 +367,7 @@ public class DownloadManagerImpl implements DownloadManager {
             break;
           case TEXT:
             //noinspection unchecked
-            Task<Pair<URLStatus, CharSequence>> textTask = (Task<Pair<URLStatus, CharSequence>>) task;
+            final Task<Pair<URLStatus, CharSequence>> textTask = (Task<Pair<URLStatus, CharSequence>>) task;
             if (ioe != null) {
               textTask.start(Pair.create(URLStatusImpl.create(url, ioe), (CharSequence) null));
             } else if (urlConnection instanceof HttpURLConnection) {
@@ -376,7 +376,7 @@ public class DownloadManagerImpl implements DownloadManager {
                 connection.setRequestMethod("GET");
                 final Iterator<Pair<String, String>> propertiesIterator = task.getPropertiesIterator();
                 while (propertiesIterator.hasNext()) {
-                  Pair<String, String> nextProp = propertiesIterator.next();
+                  final Pair<String, String> nextProp = propertiesIterator.next();
                   connection.setRequestProperty(nextProp.getFirst(), nextProp.getSecond());
                 }
                 connection.connect();
@@ -402,7 +402,7 @@ public class DownloadManagerImpl implements DownloadManager {
             }
             break;
           case POST:
-            Task<Pair<URLStatus, CharSequence>> postTask = (Task<Pair<URLStatus, CharSequence>>) task;
+            final Task<Pair<URLStatus, CharSequence>> postTask = (Task<Pair<URLStatus, CharSequence>>) task;
             if (ioe != null) {
               postTask.start(Pair.create(URLStatusImpl.create(url, ioe), (CharSequence) null));
             } else if (urlConnection instanceof HttpURLConnection) {
@@ -414,7 +414,7 @@ public class DownloadManagerImpl implements DownloadManager {
                 String msg = "";
                 String encoding = "";
                 while (propertiesIterator.hasNext()) {
-                  Pair<String, String> nextProp = propertiesIterator.next();
+                  final Pair<String, String> nextProp = propertiesIterator.next();
                   if (MAGIC_POST_REQUEST.equals(nextProp.getFirst())) {
                     msg = nextProp.getSecond();
                   } else {
@@ -460,14 +460,14 @@ public class DownloadManagerImpl implements DownloadManager {
           task.setCompleted();
         }
         synchronized (hostPath2connectionCount) {
-          String hostPath;
-          Pair<String, Policy> path2CustomPolicy = getPolicyForURL(url);
+          final String hostPath;
+          final Pair<String, Policy> path2CustomPolicy = getPolicyForURL(url);
           if (path2CustomPolicy != null) {
             hostPath = path2CustomPolicy.getFirst();
           } else {
             hostPath = URI.create(url).getHost();
           }
-          Integer conectionCount = hostPath2connectionCount.get(hostPath);
+          final Integer conectionCount = hostPath2connectionCount.get(hostPath);
           if (conectionCount != null && conectionCount > 0) {
             hostPath2connectionCount.put(hostPath, conectionCount - 1);
           }

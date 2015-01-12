@@ -15,13 +15,13 @@ import com.spbsu.commons.seq.regexp.SimpleRegExp;
 public class PatternStringConverter implements Converter<Pattern<Character>,String> {
   private final Alphabet<Character> alpha;
 
-  public PatternStringConverter(Alphabet<Character> alpha) {
+  public PatternStringConverter(final Alphabet<Character> alpha) {
     this.alpha = alpha;
   }
 
   @Override
-  public Pattern<Character> convertFrom(String str) {
-    Pattern<Character> result = new Pattern<Character>(alpha);
+  public Pattern<Character> convertFrom(final String str) {
+    final Pattern<Character> result = new Pattern<Character>(alpha);
     for (int i = 0; i < str.length(); i+=2) {
       final SimpleRegExp.Condition chCondition = str.charAt(i) == '.' ? Matcher.Condition.ANY : alpha.getByT(str.charAt(i));
       Pattern.Modifier mod = Pattern.Modifier.NONE;
@@ -45,7 +45,7 @@ public class PatternStringConverter implements Converter<Pattern<Character>,Stri
 
   private static final String[] SIGNS = new String[]{"", "?", "*", ""};
   @Override
-  public String convertTo(Pattern pattern) {
+  public String convertTo(final Pattern pattern) {
     final StringBuilder sb = new StringBuilder();
     for (int i = 0; i < pattern.size(); i++) {
       sb.append(alpha.getT(pattern.condition(i)).toString()).append(SIGNS[pattern.modifier(i).ordinal()]);

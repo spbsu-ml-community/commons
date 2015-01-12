@@ -12,7 +12,7 @@ public class MxIteratorImpl implements MxIterator {
   private final VecIterator parent;
   private final int columns;
 
-  public MxIteratorImpl(VecIterator parent, int columns) {
+  public MxIteratorImpl(final VecIterator parent, final int columns) {
     this.parent = parent;
     this.columns = columns;
   }
@@ -43,12 +43,12 @@ public class MxIteratorImpl implements MxIterator {
   }
 
   @Override
-  public boolean seek(int pos) {
+  public boolean seek(final int pos) {
     return parent.seek(pos);
   }
 
   @Override
-  public double setValue(double v) {
+  public double setValue(final double v) {
     return parent.setValue(v);
   }
 

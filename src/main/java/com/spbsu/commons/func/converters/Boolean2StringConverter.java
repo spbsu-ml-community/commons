@@ -10,12 +10,12 @@ import com.spbsu.commons.func.Converter;
 public class Boolean2StringConverter implements Converter<Boolean, String> {
 
   @Override
-  public Boolean convertFrom(String source) {
+  public Boolean convertFrom(final String source) {
     return Boolean.parseBoolean(source);
   }
 
   @Override
-  public String convertTo(Boolean value) {
+  public String convertTo(final Boolean value) {
     return value.toString();
   }
 }

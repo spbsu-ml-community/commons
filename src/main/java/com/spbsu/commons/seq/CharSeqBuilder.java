@@ -8,11 +8,11 @@ import java.util.List;
 public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Character> {
   private final List<CharSequence> fragments;
 
-  public CharSeqBuilder(CharSequence... fragments) {
+  public CharSeqBuilder(final CharSequence... fragments) {
     this(new ArrayList<>(Arrays.asList(fragments)));
   }
 
-  public CharSeqBuilder(List<CharSequence> fragments) {
+  public CharSeqBuilder(final List<CharSequence> fragments) {
     this.fragments = CharSeqTools.discloseComposites(fragments);
   }
 
@@ -20,7 +20,7 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
     this.fragments = new ArrayList<>(parts);
   }
 
-  public CharSeqBuilder append(CharSequence next) {
+  public CharSeqBuilder append(final CharSequence next) {
     if (CharSeqTools.isImmutable(next))
       add(next);
     else if (next instanceof CharSeqComposite) {
@@ -33,27 +33,27 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
     return this;
   }
 
-  public CharSeqBuilder append(char ch) {
+  public CharSeqBuilder append(final char ch) {
     add(new CharSeqChar(ch));
     return this;
   }
 
-  public CharSeqBuilder append(int n) {
+  public CharSeqBuilder append(final int n) {
     add(Integer.toString(n));
     return this;
   }
 
-  public CharSeqBuilder append(float n) {
+  public CharSeqBuilder append(final float n) {
     add(Float.toString(n));
     return this;
   }
 
-  public CharSeqBuilder append(double n) {
+  public CharSeqBuilder append(final double n) {
     add(Double.toString(n));
     return this;
   }
 
-  public CharSeqBuilder append(boolean b) {
+  public CharSeqBuilder append(final boolean b) {
     add(Boolean.toString(b));
     return this;
   }
@@ -70,17 +70,17 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
     return this;
   }
 
-  public CharSeqBuilder append(Object o) {
+  public CharSeqBuilder append(final Object o) {
     add(String.valueOf(o));
     return this;
   }
 
-  public CharSeqBuilder append(char[] text) {
+  public CharSeqBuilder append(final char[] text) {
     add(copy(text));
     return this;
   }
 
-  public CharSeqBuilder append(char[] text, int start, int end) {
+  public CharSeqBuilder append(final char[] text, final int start, final int end) {
     add(copy(text, start, end));
     return this;
   }

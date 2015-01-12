@@ -47,34 +47,34 @@ public class DictExpansion<T extends Comparable<T>> {
   private int[] symbolFreqsCurrent = null;
   private int[] symbolFreqsSuggest = null;
   private int[] resultFreqs = null;
-  private int alphabetSize;
+  private final int alphabetSize;
   private double probFound = 0.1;
   private double bestCompressionRate = 1;
   private int noRateIncreaseTurns = 0;
 
-  public DictExpansion(Collection<T> alphabet, int size) {
+  public DictExpansion(final Collection<T> alphabet, final int size) {
     this(alphabet, size, null);
   }
 
   @Deprecated
-  public DictExpansion(Collection<T> alphabet, int size, boolean trace) {
+  public DictExpansion(final Collection<T> alphabet, final int size, final boolean trace) {
     this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, trace ? System.out : null);
   }
 
-  public DictExpansion(Collection<T> alphabet, int size, final PrintStream trace) {
+  public DictExpansion(final Collection<T> alphabet, final int size, final PrintStream trace) {
     this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, trace);
   }
 
-  public DictExpansion(ListDictionary<T> alphabet, int size) {
+  public DictExpansion(final ListDictionary<T> alphabet, final int size) {
     this(alphabet, size, null);
   }
 
   @Deprecated
-  public DictExpansion(ListDictionary<T> alphabet, int size, boolean trace) {
+  public DictExpansion(final ListDictionary<T> alphabet, final int size, final boolean trace) {
     this(alphabet, size, trace ? System.out : null);
   }
 
-  public DictExpansion(ListDictionary<T> alphabet, int size, final PrintStream trace) {
+  public DictExpansion(final ListDictionary<T> alphabet, final int size, final PrintStream trace) {
     this.size = size;
     this.trace = trace;
     this.alphabetSize = alphabet.size();
@@ -101,7 +101,7 @@ public class DictExpansion<T extends Comparable<T>> {
     double score;
     int count;
 
-    private StatItem(long code, int first, int second, double score, int count) {
+    private StatItem(final long code, final int first, final int second, final double score, final int count) {
       this.code = code;
       this.first = first;
       this.second = second;
@@ -111,7 +111,7 @@ public class DictExpansion<T extends Comparable<T>> {
 
     @Override
     public String toString() {
-      StringBuilder result = new StringBuilder();
+      final StringBuilder result = new StringBuilder();
       if (first >= 0)
         result.append(suggest.get(first));
       result.append(suggest.get(second));
@@ -208,7 +208,7 @@ public class DictExpansion<T extends Comparable<T>> {
         if (freq > 0)
           sum -= freq * log(freq) / log(2);
       }
-      double codeLength = (sum + powerCurrent * log(powerCurrent) / log(2)) / 8.;
+      final double codeLength = (sum + powerCurrent * log(powerCurrent) / log(2)) / 8.;
       final double compressionRate = codeLength / textLength;
       if (compressionRate < bestCompressionRate) {
         bestCompressionRate = compressionRate;
@@ -245,7 +245,7 @@ public class DictExpansion<T extends Comparable<T>> {
     final List<StatItem> items = new ArrayList<>();
     pairFreqs.forEachEntry(new TLongIntProcedure() {
       @Override
-      public boolean execute(long code, int count) {
+      public boolean execute(final long code, final int count) {
         final int first = (int) (code >>> 32);
         final int second = (int) (code & 0xFFFFFFFFl);
         final double pairProbIndependentDirichlet = symbolFreqsCurrent[first] * symbolFreqsCurrent[second] / (double) powerCurrent / (double) powerCurrent;
@@ -258,14 +258,14 @@ public class DictExpansion<T extends Comparable<T>> {
 
     Collections.sort(items, new Comparator<StatItem>() {
       @Override
-      public int compare(StatItem o1, StatItem o2) {
+      public int compare(final StatItem o1, final StatItem o2) {
         return Double.compare(o1.score, o2.score);
       }
     });
     final List<Seq<T>> newDict = new ArrayList<>(current.alphabet());
     int slots = (int)(current.size() * (EXTENSION_FACTOR - 1)) + alphabetSize;
     minProbSuggest = minProbCurrent;
-    for (StatItem item : items) {
+    for (final StatItem item : items) {
       if (item.score >= Math.log(POISSON_SIGNIFICANCE) || --slots < 0)
         break;
       newDict.add(CharSeqTools.concat(current.get(item.first), current.get(item.second)));
@@ -313,14 +313,14 @@ public class DictExpansion<T extends Comparable<T>> {
     }
     Collections.sort(items, new Comparator<StatItem>() {
       @Override
-      public int compare(StatItem o1, StatItem o2) {
+      public int compare(final StatItem o1, final StatItem o2) {
         return Double.compare(o2.score, o1.score);
       }
     });
 
     int slots = size - alphabetSize;
     minProbCurrent = min(1. / current.size(), MAX_MIN_PROBABILITY);
-    for (StatItem item : items) {
+    for (final StatItem item : items) {
       if (item.score < 0. || --slots < 0)
         break;
       final double p = (item.count + 1) / ((double) powerSuggest + suggest.size());

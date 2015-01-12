@@ -16,7 +16,7 @@ public class IntSeq extends Seq.Stub<Integer> {
     this(arr, 0, arr.length);
   }
 
-  public IntSeq(final int[] arr, int start, int end) {
+  public IntSeq(final int[] arr, final int start, final int end) {
     if (start < 0 || end > arr.length)
       throw new ArrayIndexOutOfBoundsException();
     this.arr = arr;

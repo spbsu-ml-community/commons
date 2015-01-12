@@ -23,7 +23,7 @@ public class FastRandom extends Random {
     this(System.nanoTime());
   }
 
-  public FastRandom(long seed) {
+  public FastRandom(final long seed) {
     u = seed ^ v;
     nextLong();
     v = u;
@@ -45,26 +45,26 @@ public class FastRandom extends Random {
     long x = localU ^ (localU << 21);
     x ^= x >>> 35;
     x ^= x << 4;
-    long ret = (x + localV) ^ localW;
+    final long ret = (x + localV) ^ localW;
     u = localU;
     v = localV;
     w = localW;
     return ret;
   }
 
-  protected int next(int bits) {
+  protected int next(final int bits) {
     return (int) (nextLong() >>> (64-bits));
   }
 
   /** Standard Knuth implementation. Use normal approximation for frequencies > 25 */
-  public int nextPoisson(double meanFreq) {
+  public int nextPoisson(final double meanFreq) {
     if (meanFreq > 25) {
       final double val = nextNormal(meanFreq, Math.sqrt(meanFreq));
       if (val < 0)
         return nextPoisson(meanFreq);
       return (int) val + (val - (int)val >= 0.5 ? 1 : 0);
     }
-    double L = exp(-meanFreq);
+    final double L = exp(-meanFreq);
     int k = 0;
     double p = 1;
     do {
@@ -75,11 +75,11 @@ public class FastRandom extends Random {
     return k - 1;
   }
 
-  private double nextNormal(double meanFreq, double stddev) {
+  private double nextNormal(final double meanFreq, final double stddev) {
     return nextGaussian() * stddev + meanFreq;
   }
 
-  public int nextSimple(Vec row) {
+  public int nextSimple(final Vec row) {
     double sum = 0;
     {
       final VecIterator it = row.nonZeroes();
@@ -90,7 +90,7 @@ public class FastRandom extends Random {
     return nextSimple(row, sum);
   }
 
-  public int nextSimple(Vec row, double len) {
+  public int nextSimple(final Vec row, final double len) {
     double rnd = nextDouble() * len;
     final VecIterator it = row.nonZeroes();
     while(rnd > 0 && it.advance()) {

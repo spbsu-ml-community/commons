@@ -8,7 +8,7 @@ public class WordsTokenizer extends BaseTokenizer {
 
   private int offset;
 
-  public WordsTokenizer(CharSequence text) {
+  public WordsTokenizer(final CharSequence text) {
     super(text);
   }
 

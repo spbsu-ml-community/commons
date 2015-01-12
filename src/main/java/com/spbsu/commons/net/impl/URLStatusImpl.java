@@ -30,7 +30,7 @@ public final class URLStatusImpl implements DownloadManager.URLStatus {
   private long lastModified;
 
 
-  private URLStatusImpl(String url, IOException exception) {
+  private URLStatusImpl(final String url, final IOException exception) {
     encoding = null;
     statusCode = -1;
     this.url = url;
@@ -38,7 +38,7 @@ public final class URLStatusImpl implements DownloadManager.URLStatus {
     this.exception = exception;
   }
 
-  public URLStatusImpl(String url, String encoding, int statusCode, String contentType, long contentLength) {
+  public URLStatusImpl(final String url, final String encoding, final int statusCode, final String contentType, final long contentLength) {
     this.encoding = encoding;
     this.statusCode = statusCode;
     this.contentType = contentType;
@@ -47,7 +47,7 @@ public final class URLStatusImpl implements DownloadManager.URLStatus {
     this.url = url;
   }
 
-  private URLStatusImpl(String url, String encoding, int statusCode, String contentType, long contentLength, long lastModified) {
+  private URLStatusImpl(final String url, final String encoding, final int statusCode, final String contentType, final long contentLength, final long lastModified) {
     this.encoding = encoding;
     this.statusCode = statusCode;
     this.contentType = contentType;
@@ -74,7 +74,7 @@ public final class URLStatusImpl implements DownloadManager.URLStatus {
       URL base = null;
       String location = url;
       while (location != null) {
-        URL url;
+        final URL url;
         if (base != null) {
           url = new URL(base, location);
         } else {

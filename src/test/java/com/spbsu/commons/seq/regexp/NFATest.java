@@ -27,17 +27,17 @@ public class NFATest extends TestCase {
   private class TestMatchVisitor implements SimpleRegExp.MatchVisitor {
     TLongArrayList matches = new TLongArrayList(100500);
     private List<String> matchesStr = null;
-    public boolean found(int start, int end) {
+    public boolean found(final int start, final int end) {
       matches.add(((long)start << 32) | end);
       //System.out.println("-- Match found (" + start + "," + end + ") = " + matchBuilder.toString());
       return true;
     }
 
-    public boolean contains(String s) {
+    public boolean contains(final String s) {
       if (matchesStr == null) {
         matchesStr = new ArrayList<String>(matches.size());
         matches.forEach(new TLongProcedure() {
-          public boolean execute(long l) {
+          public boolean execute(final long l) {
             matchesStr.add(string.substring((int)(l >> 32), (int)l));
             return true;
           }
@@ -52,12 +52,12 @@ public class NFATest extends TestCase {
   }
 
   private void match() {
-    Matcher<Character> matcher = new PatternCompiler().compile(pattern);
+    final Matcher<Character> matcher = new PatternCompiler().compile(pattern);
     mv = new TestMatchVisitor();
     matcher.match(CharSeq.create(string), mv);
   }
 
-  private String randomString(int size) {
+  private String randomString(final int size) {
     final StringBuilder sb = new StringBuilder();
     final Random r = new Random();
     for (int i = 0; i < size; i++) {
@@ -152,7 +152,7 @@ public class NFATest extends TestCase {
     assertFalse(mv.contains("axxb"));
     assertFalse(mv.contains("ax"));
 
-    for (String m : mv.matchesStr) {
+    for (final String m : mv.matchesStr) {
       assertTrue(m.charAt(0) == 'a');
       assertTrue(m.charAt(m.length() - 1) == 'b');
     }
@@ -230,7 +230,7 @@ public class NFATest extends TestCase {
     assertFalse(mv.contains("abbkc"));
     assertFalse(mv.contains("asvvc"));
 
-    for (String m : mv.matchesStr) {
+    for (final String m : mv.matchesStr) {
       assertTrue(m.charAt(0) == 'a');
       assertTrue(m.charAt(m.length() - 1) == 'c');
     }
@@ -247,7 +247,7 @@ public class NFATest extends TestCase {
 
     assertTrue(mv.contains("gcjbjbjhbhjbhblkjlkomggo"));
 
-    for (String m : mv.matchesStr) {
+    for (final String m : mv.matchesStr) {
       assertTrue(m.charAt(0) == 'g');
       assertTrue(m.charAt(m.length() - 1) == 'o');
     }
@@ -255,7 +255,7 @@ public class NFATest extends TestCase {
 
   public void testWildcard() {
     pattern = parseRegExp(".*");
-    String s = randomString(100);
+    final String s = randomString(100);
     string = s;
     match();
 
@@ -329,7 +329,7 @@ public class NFATest extends TestCase {
     pattern.clear();
     pattern = parseRegExp("b..?");
     match();
-    TestMatchVisitor old = mv;
+    final TestMatchVisitor old = mv;
     mv = new TestMatchVisitor();
     pattern = parseRegExp("b.?.");
     match();
@@ -349,18 +349,18 @@ public class NFATest extends TestCase {
 
       final Holder<Integer> counter = new Holder<Integer>(0);
       final Matcher.MatchVisitor visitor = new Matcher.MatchVisitor() {
-        public boolean found(int start, int end) {
+        public boolean found(final int start, final int end) {
 //          System.out.println(start + " " + end);
 //          counter.setValue(counter.getValue() + 1);
           return true;
         }
       };
 
-      int cnt = 0;
+      final int cnt = 0;
       Interval.start();
       final java.util.regex.Matcher matcher = stdMatch.matcher(s);
       for (int t = 0; t < 1; t++) {
-        int start = 0;
+        final int start = 0;
         matcher.reset();
         while (matcher.find()) {
 //          System.out.println(matcher.start() + " " + matcher.end());
@@ -386,7 +386,7 @@ public class NFATest extends TestCase {
     pattern.clear();
     pattern.add(A.getByT('e'), Pattern.Modifier.STAR);
 
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     for (int i = 0; i < eLength; i++) {
       sb.append('e');
     }
@@ -416,8 +416,8 @@ public class NFATest extends TestCase {
     assertEquals(pStr, converter.convertTo(pattern));
   }
 
-  public Pattern<Character> parseRegExp(String str) {
-    Pattern<Character> result = new Pattern<Character>(Alphabet.CHARACTER_ALPHABET);
+  public Pattern<Character> parseRegExp(final String str) {
+    final Pattern<Character> result = new Pattern<Character>(Alphabet.CHARACTER_ALPHABET);
     for (int i = 0; i < str.length(); i+=2) {
       final SimpleRegExp.Condition chCondition = str.charAt(i) == '.' ? SimpleRegExp.Condition.ANY : A.getByT(str.charAt(i));
       Pattern.Modifier mod = Pattern.Modifier.NONE;

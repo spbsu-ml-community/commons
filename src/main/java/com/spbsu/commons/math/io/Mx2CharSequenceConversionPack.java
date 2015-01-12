@@ -19,7 +19,7 @@ import com.spbsu.commons.seq.CharSeqTools;
 public class Mx2CharSequenceConversionPack implements ConversionPack<Mx,CharSequence> {
   public static class Mx2CharSequenceConverter implements TypeConverter<Mx, CharSequence> {
     @Override
-    public CharSequence convert(Mx from) {
+    public CharSequence convert(final Mx from) {
       final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
       prettyPrint.setMaximumFractionDigits(5);
       prettyPrint.setMinimumFractionDigits(0);
@@ -42,7 +42,7 @@ public class Mx2CharSequenceConversionPack implements ConversionPack<Mx,CharSequ
 
   public static class CharSequence2MxConverter implements TypeConverter<CharSequence, Mx> {
     @Override
-    public Mx convert(CharSequence from) {
+    public Mx convert(final CharSequence from) {
       final CharSequence[] rows = CharSeqTools.split(from, '\n');
       final CharSequence[] sizes = CharSeqTools.split(rows[0].toString().trim(), ' ');
       final Mx result = new VecBasedMx(Integer.parseInt(sizes[0].toString()), Integer.parseInt(sizes[1].toString()));

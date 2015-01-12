@@ -17,7 +17,7 @@ public class CharSequenceReader extends Reader {
   }
 
   @Override
-  public int read(final char[] cbuf, int off, int len) throws IOException {
+  public int read(final char[] cbuf, int off, final int len) throws IOException {
     int count = 0;
     while(count < len && offset < sequence.length()) {
       cbuf[off++] = sequence.charAt(offset++);

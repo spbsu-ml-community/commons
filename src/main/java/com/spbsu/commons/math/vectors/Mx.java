@@ -39,12 +39,12 @@ public interface Mx extends Vec {
     }
 
     @Override
-    public Vec row(int i) {
+    public Vec row(final int i) {
       return new IndexTransVec(this, new SubMxTransformation(columns(), i, 0, 1, columns()));
     }
 
     @Override
-    public Vec col(int j) {
+    public Vec col(final int j) {
       return new IndexTransVec(this, new SubMxTransformation(columns(), 0, j, rows(), 1));
     }
 

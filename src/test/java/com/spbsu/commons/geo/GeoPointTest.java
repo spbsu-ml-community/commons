@@ -25,7 +25,7 @@ public class GeoPointTest extends TestCase {
     assertValueOfThrowsIAE("Inf,0");
   }
 
-  private static void assertValueOfThrowsIAE(String s) {
+  private static void assertValueOfThrowsIAE(final String s) {
     boolean thrown = false;
     try {
       GeoPoint.valueOf(s);
@@ -60,15 +60,15 @@ public class GeoPointTest extends TestCase {
   }
 
   public void testBound() {
-    GeoPoint p1 = GeoPoint.valueOf("-90.5,0").getBounded();
+    final GeoPoint p1 = GeoPoint.valueOf("-90.5,0").getBounded();
     assertEquals(-90.0, p1.getLatitude());
     assertEquals(0.0, p1.getLongitude());
 
-    GeoPoint p2 = GeoPoint.valueOf("55,180.01").getBounded();
+    final GeoPoint p2 = GeoPoint.valueOf("55,180.01").getBounded();
     assertEquals(55.0, p2.getLatitude());
     assertEquals(180.0, p2.getLongitude());
 
-    GeoPoint p3 = GeoPoint.valueOf("102.73807525634766,57.94528579711914").getBounded();
+    final GeoPoint p3 = GeoPoint.valueOf("102.73807525634766,57.94528579711914").getBounded();
     assertEquals(90.0, p3.getLatitude());
     assertEquals(57.94528579711914, p3.getLongitude());
   }

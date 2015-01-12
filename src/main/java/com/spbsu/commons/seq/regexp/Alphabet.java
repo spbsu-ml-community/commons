@@ -29,18 +29,18 @@ public interface Alphabet<T> {
     private static final int ALPHABET_SIZE = 'z' - 'a' + 1;
 
     class CharCondition implements Matcher.Condition<Character> {
-      private Character my;
+      private final Character my;
 
-      public CharCondition(char c) {
+      public CharCondition(final char c) {
         my = c;
       }
 
-      public boolean is(Character frag) {
+      public boolean is(final Character frag) {
         return frag == my;
       }
 
       @Override
-      public boolean equals(Object o) {
+      public boolean equals(final Object o) {
         return (o instanceof CharCondition && my == ((CharCondition) o).my);
       }
 
@@ -59,7 +59,7 @@ public interface Alphabet<T> {
       return ALPHABET_SIZE;
     }
 
-    public int getOrder(Matcher.Condition<Character> c) {
+    public int getOrder(final Matcher.Condition<Character> c) {
       if (c instanceof CharCondition) {
         final CharCondition condition = (CharCondition) c;
         return condition.my - 'a';
@@ -68,7 +68,7 @@ public interface Alphabet<T> {
       throw new IllegalArgumentException("Not a char condition");
     }
 
-    public SimpleRegExp.Condition<Character> get(int i) {
+    public SimpleRegExp.Condition<Character> get(final int i) {
       if (i < ALPHABET_SIZE)
         return new CharCondition((char) ('a' + i));
       if (i == ALPHABET_SIZE)
@@ -77,12 +77,12 @@ public interface Alphabet<T> {
       throw new IllegalArgumentException("Condition is not in range");
     }
 
-    public SimpleRegExp.Condition<Character> getByT(Character ch) {
+    public SimpleRegExp.Condition<Character> getByT(final Character ch) {
       return get(ch - 'a');
     }
 
     @Override
-    public Character getT(Matcher.Condition condition) {
+    public Character getT(final Matcher.Condition condition) {
       if (condition instanceof CharCondition)
         return ((CharCondition)condition).my;
       else if (condition == SimpleRegExp.Condition.ANY)
@@ -91,12 +91,12 @@ public interface Alphabet<T> {
     }
 
     @Override
-    public int index(Character character) {
+    public int index(final Character character) {
       return character - 'a';
     }
 
     @Override
-    public int index(Seq<Character> characters, int index) {
+    public int index(final Seq<Character> characters, final int index) {
       return ((CharSeq)characters).charAt(index) - 'a';
     }
   };

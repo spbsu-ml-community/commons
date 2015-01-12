@@ -13,20 +13,20 @@ import java.util.Set;
 public abstract class Set2BufferConverter<T> implements Converter<Set<T>, Buffer> {
   final Array2BufferConverter<T> arrayConverter;
 
-  public Set2BufferConverter(Converter<T, Buffer> converter) {
+  public Set2BufferConverter(final Converter<T, Buffer> converter) {
     this.arrayConverter = new Array2BufferConverter<T>(converter);
   }
 
   protected abstract Set<T> createSet();
 
-  public Set<T> convertFrom(Buffer source) {
-    T[] array = arrayConverter.convertFrom(source);
-    Set<T> set = createSet();
+  public Set<T> convertFrom(final Buffer source) {
+    final T[] array = arrayConverter.convertFrom(source);
+    final Set<T> set = createSet();
     set.addAll(Arrays.asList(array));
     return set;
   }
 
-  public Buffer convertTo(Set<T> set) {
+  public Buffer convertTo(final Set<T> set) {
     //noinspection unchecked
     return arrayConverter.convertTo((T[]) set.toArray());
   }

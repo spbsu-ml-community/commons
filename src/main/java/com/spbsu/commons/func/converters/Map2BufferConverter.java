@@ -14,13 +14,13 @@ public class Map2BufferConverter<K,V> implements Converter<Map<K,V>, Buffer> {
   final Converter<K, Buffer> keyConverter;
   final Converter<V, Buffer> valuesConverter;
 
-  public Map2BufferConverter(Converter<K, Buffer> keyConverter, Converter<V, Buffer> valuesConverter) {
+  public Map2BufferConverter(final Converter<K, Buffer> keyConverter, final Converter<V, Buffer> valuesConverter) {
     this.valuesConverter = valuesConverter;
     this.keyConverter = keyConverter;
   }
 
-  public Map<K,V> convertFrom(Buffer source) {
-    Map<K,V> result = new HashMap<K,V>();
+  public Map<K,V> convertFrom(final Buffer source) {
+    final Map<K,V> result = new HashMap<K,V>();
     final int size = NioConverterTools.restoreSize(source);
     for (int i = 0; i < size; i++) {
       result.put(keyConverter.convertFrom(source), valuesConverter.convertFrom(source));

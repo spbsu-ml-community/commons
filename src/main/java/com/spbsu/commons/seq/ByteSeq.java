@@ -16,7 +16,7 @@ public class ByteSeq extends Seq.Stub<Byte> {
     this(arr, 0, arr.length);
   }
 
-  public ByteSeq(final byte[] arr, int start, int end) {
+  public ByteSeq(final byte[] arr, final int start, final int end) {
     if (start < 0 || end > arr.length)
       throw new ArrayIndexOutOfBoundsException();
     this.arr = arr;

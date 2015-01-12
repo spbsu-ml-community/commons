@@ -31,8 +31,8 @@ public class Factories {
     return new HashMap<K, V>();
   }
 
-  public static <K, V> HashMap<K, V> hashMap(K key, V value) {
-    HashMap<K, V> hashMap = new HashMap<K, V>();
+  public static <K, V> HashMap<K, V> hashMap(final K key, final V value) {
+    final HashMap<K, V> hashMap = new HashMap<K, V>();
     hashMap.put(key, value);
     return hashMap;
   }
@@ -53,7 +53,7 @@ public class Factories {
     return new LinkedHashSet<T>(Arrays.asList(elements));
   }
 
-  public static <T> Set<T> hashSet(int size, float loadFactor) {
+  public static <T> Set<T> hashSet(final int size, final float loadFactor) {
     return new HashSet<T>(size, loadFactor);
   }
 

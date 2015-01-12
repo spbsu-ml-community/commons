@@ -31,7 +31,7 @@ public class BigramsTextDecoder implements TextDecoder {
   private final List<Charset> availableCharsets;
   private BigramsTextAnalyzer textAnalyzer = new BigramsTextAnalyzer().setCharFilter(CharFilter.NOT_ASCII_FILTER);
 
-  public BigramsTextDecoder(@NotNull BigramsTable baseBigramsTable, @NotNull List<Charset> availableCharsets) {
+  public BigramsTextDecoder(@NotNull final BigramsTable baseBigramsTable, @NotNull final List<Charset> availableCharsets) {
     if (availableCharsets.size() < 2) {
       throw new IllegalArgumentException("must have at least two available charsets");
     }
@@ -39,18 +39,18 @@ public class BigramsTextDecoder implements TextDecoder {
     this.availableCharsets = availableCharsets;
   }
 
-  public void setTextAnalyzer(@NotNull BigramsTextAnalyzer textAnalyzer) {
+  public void setTextAnalyzer(@NotNull final BigramsTextAnalyzer textAnalyzer) {
     this.textAnalyzer = textAnalyzer;
   }
 
-  public CharSequence decodeText(@NotNull byte[] bytes) {
+  public CharSequence decodeText(@NotNull final byte[] bytes) {
     if (bytes.length == 0) {
       return "";
     }
     final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
     final TreeMap<Double, Charset> delta2Charset = new TreeMap<Double, Charset>();
     final HashMap<Charset, CharSequence> charset2Text = new HashMap<Charset, CharSequence>();
-    for (Charset charset : availableCharsets) {
+    for (final Charset charset : availableCharsets) {
       final CharBuffer text = charset.decode(byteBuffer);
       byteBuffer.rewind();
       charset2Text.put(charset, text.toString()); //todo: string?
@@ -105,7 +105,7 @@ public class BigramsTextDecoder implements TextDecoder {
     return mostProbable.getSecond().decode(ByteBuffer.wrap(TextDecoderTools.getBytes(input, mostProbable.getFirst().name())));
   }
 
-  private double getBigramTablesDelta(BigramsTable base, BigramsTable another, int textLength) {
+  private double getBigramTablesDelta(final BigramsTable base, final BigramsTable another, final int textLength) {
     final Set<CharBigram> bigrams = another.getBigrams();
     if (bigrams.size() == 0) {
       return NO_BIGRAMS_PENALTY;

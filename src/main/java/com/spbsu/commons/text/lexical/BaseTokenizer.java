@@ -9,7 +9,7 @@ public abstract class BaseTokenizer implements Tokenizer {
   protected final CharSequence text;
   private CharSequence nextToken;
 
-  public BaseTokenizer(CharSequence text) {
+  public BaseTokenizer(final CharSequence text) {
     this.text = text;
   }
 

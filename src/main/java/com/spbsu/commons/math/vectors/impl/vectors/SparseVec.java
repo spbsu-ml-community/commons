@@ -13,12 +13,12 @@ import gnu.trove.list.array.TIntArrayList;
  * Time: 15:52:45
  */
 public class SparseVec extends CustomBasisVec<IntBasis> {
-  public SparseVec(int dim, int[] indeces, double[] values) {
+  public SparseVec(final int dim, final int[] indeces, final double[] values) {
     super(new IntBasis(dim));
     init(indeces, values);
   }
 
-  public SparseVec(int dim) {
+  public SparseVec(final int dim) {
     super(new IntBasis(dim));
   }
 

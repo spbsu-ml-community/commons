@@ -12,7 +12,7 @@ import com.spbsu.commons.seq.Seq;
  * Time: 20:18
  */
 public class SimpleRegExp implements Matcher<Character> {
-  public static SimpleRegExp create(String str) {
+  public static SimpleRegExp create(final String str) {
     final Pattern<Character> result = new Pattern<>(Alphabet.CHARACTER_ALPHABET);
     for (int i = 0; i < str.length(); i+=2) {
       final Condition chCondition = str.charAt(i) == '.' ? Condition.ANY : Alphabet.CHARACTER_ALPHABET.getByT(str.charAt(i));
@@ -36,7 +36,7 @@ public class SimpleRegExp implements Matcher<Character> {
   }
 
   private final Pattern<Character> processedExpression;
-  private Pattern<Character> pattern;
+  private final Pattern<Character> pattern;
 
   long[] limits = new long[50];
   final int[][] statesStore;
@@ -46,7 +46,7 @@ public class SimpleRegExp implements Matcher<Character> {
     processedExpression = new Pattern<>(expression.alphabet());
     int prevMod = 0;
     Condition<Character> prevCon = null;
-    int expressionSize = expression.size();
+    final int expressionSize = expression.size();
     for (int s = 0; s < expressionSize; s++) {
       final Pattern.Modifier mod = expression.modifier(s);
       final Condition<Character> con = expression.condition(s);
@@ -65,17 +65,17 @@ public class SimpleRegExp implements Matcher<Character> {
   }
 
   public void match(final Seq<Character> sequence, final MatchVisitor visitor) {
-    CharSeq seq = (CharSeq) sequence;
+    final CharSeq seq = (CharSeq) sequence;
     final Pattern<Character> expression = processedExpression;
     int index = 0;
-    int seqSize = seq.length();
+    final int seqSize = seq.length();
     if (seqSize == 0)
       return;
     final int[][] statesStoreLocal = statesStore;
     Arrays.fill(statesStoreLocal[0], seqSize);
     Arrays.fill(statesStoreLocal[1], seqSize);
 
-    long[] limits = this.limits;
+    final long[] limits = this.limits;
     int relIndex = 0;
     long last = 0xFFFFFFFF00000000L;
 
@@ -83,8 +83,8 @@ public class SimpleRegExp implements Matcher<Character> {
     for (int i = 0; i < seqSize + 1; i++) {
       int lcount = relIndex;
       final char current = i < seqSize ? seq.charAt(i) : seq.charAt(i - 1);
-      int[] states = statesStoreLocal[index % 2];
-      int[] next = statesStoreLocal[(index + 1) % 2];
+      final int[] states = statesStoreLocal[index % 2];
+      final int[] next = statesStoreLocal[(index + 1) % 2];
 //      Arrays.fill(next, seqSize);
       if (states[0] >= seqSize)
         states[0] = index;
@@ -160,11 +160,11 @@ public class SimpleRegExp implements Matcher<Character> {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    SimpleRegExp that = (SimpleRegExp) o;
+    final SimpleRegExp that = (SimpleRegExp) o;
 
     return !(pattern != null ? !pattern.equals(that.pattern) : that.pattern != null);
   }

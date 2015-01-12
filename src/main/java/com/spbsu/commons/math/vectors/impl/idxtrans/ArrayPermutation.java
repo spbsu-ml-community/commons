@@ -18,7 +18,7 @@ public class ArrayPermutation implements IndexTransformation {
   int maxBack = 0;
   int minBack = 0;
 
-  public ArrayPermutation(int[] perm) {
+  public ArrayPermutation(final int[] perm) {
     this.perm = perm;
     for (int i = 0; i < perm.length; i++) {
       maxBack = max(perm[i], maxBack);
@@ -31,12 +31,12 @@ public class ArrayPermutation implements IndexTransformation {
   }
 
   @Override
-  public int forward(int index) {
+  public int forward(final int index) {
     return perm[index];
   }
 
   @Override
-  public int backward(int oldIndex) {
+  public int backward(final int oldIndex) {
     return backPerm[oldIndex];
   }
 
@@ -56,7 +56,7 @@ public class ArrayPermutation implements IndexTransformation {
   }
 
   @Override
-  public IndexTransformation apply(IndexTransformation trans) {
+  public IndexTransformation apply(final IndexTransformation trans) {
     final IndexTransformation[] sequence = new IndexTransformation[]{
             this, trans
     };

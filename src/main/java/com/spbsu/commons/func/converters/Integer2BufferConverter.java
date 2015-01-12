@@ -10,12 +10,12 @@ import com.spbsu.commons.io.BufferFactory;
  * Date: 02.09.2006
  */
 public class Integer2BufferConverter implements Converter<Integer, Buffer> {
-  public Integer convertFrom(Buffer source) {
+  public Integer convertFrom(final Buffer source) {
     if(source.remaining() < 4) return null;
     return source.getInt();
   }
 
-  public Buffer convertTo(Integer object) {
+  public Buffer convertTo(final Integer object) {
     final Buffer buffer = BufferFactory.wrap(new byte[4]);
     buffer.putInt(object);
     buffer.position(0);

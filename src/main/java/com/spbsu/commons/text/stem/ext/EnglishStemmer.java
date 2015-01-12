@@ -9,18 +9,18 @@ import com.spbsu.commons.text.stem.Among;
  */
 public class EnglishStemmer extends AbstractStemmer {
 
-  private Among a_0[] = {
+  private final Among[] a_0 = {
       new Among("commun", -1, -1, "", this),
       new Among("gener", -1, -1, "", this)
   };
 
-  private Among a_1[] = {
+  private final Among[] a_1 = {
       new Among("'", -1, 1, "", this),
       new Among("'s'", 0, 1, "", this),
       new Among("'s", -1, 1, "", this)
   };
 
-  private Among a_2[] = {
+  private final Among[] a_2 = {
       new Among("ied", -1, 2, "", this),
       new Among("s", -1, 3, "", this),
       new Among("ies", 1, 2, "", this),
@@ -29,7 +29,7 @@ public class EnglishStemmer extends AbstractStemmer {
       new Among("us", 1, -1, "", this)
   };
 
-  private Among a_3[] = {
+  private final Among[] a_3 = {
       new Among("", -1, 3, "", this),
       new Among("bb", 0, 2, "", this),
       new Among("dd", 0, 2, "", this),
@@ -45,7 +45,7 @@ public class EnglishStemmer extends AbstractStemmer {
       new Among("iz", 0, 1, "", this)
   };
 
-  private Among a_4[] = {
+  private final Among[] a_4 = {
       new Among("ed", -1, 2, "", this),
       new Among("eed", 0, 1, "", this),
       new Among("ing", -1, 2, "", this),
@@ -54,7 +54,7 @@ public class EnglishStemmer extends AbstractStemmer {
       new Among("ingly", -1, 2, "", this)
   };
 
-  private Among a_5[] = {
+  private final Among[] a_5 = {
       new Among("anci", -1, 3, "", this),
       new Among("enci", -1, 2, "", this),
       new Among("ogi", -1, 13, "", this),
@@ -81,7 +81,7 @@ public class EnglishStemmer extends AbstractStemmer {
       new Among("ousness", -1, 10, "", this)
   };
 
-  private Among a_6[] = {
+  private final Among[] a_6 = {
       new Among("icate", -1, 4, "", this),
       new Among("ative", -1, 6, "", this),
       new Among("alize", -1, 3, "", this),
@@ -93,7 +93,7 @@ public class EnglishStemmer extends AbstractStemmer {
       new Among("ness", -1, 5, "", this)
   };
 
-  private Among a_7[] = {
+  private final Among[] a_7 = {
       new Among("ic", -1, 1, "", this),
       new Among("ance", -1, 1, "", this),
       new Among("ence", -1, 1, "", this),
@@ -114,12 +114,12 @@ public class EnglishStemmer extends AbstractStemmer {
       new Among("ement", 16, 1, "", this)
   };
 
-  private Among a_8[] = {
+  private final Among[] a_8 = {
       new Among("e", -1, 1, "", this),
       new Among("l", -1, 2, "", this)
   };
 
-  private Among a_9[] = {
+  private final Among[] a_9 = {
       new Among("succeed", -1, -1, "", this),
       new Among("proceed", -1, -1, "", this),
       new Among("exceed", -1, -1, "", this),
@@ -130,7 +130,7 @@ public class EnglishStemmer extends AbstractStemmer {
       new Among("outing", -1, -1, "", this)
   };
 
-  private Among a_10[] = {
+  private final Among[] a_10 = {
       new Among("andes", -1, -1, "", this),
       new Among("atlas", -1, -1, "", this),
       new Among("bias", -1, -1, "", this),
@@ -161,7 +161,7 @@ public class EnglishStemmer extends AbstractStemmer {
   private int I_p2;
   private int I_p1;
 
-  private void copy_from(EnglishStemmer other) {
+  private void copy_from(final EnglishStemmer other) {
     B_Y_found = other.B_Y_found;
     I_p2 = other.I_p2;
     I_p1 = other.I_p1;
@@ -169,9 +169,9 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   private boolean r_prelude() {
-    int v_1;
-    int v_2;
-    int v_3;
+    final int v_1;
+    final int v_2;
+    final int v_3;
     int v_4;
     int v_5;
     // (, line 25
@@ -271,8 +271,8 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   private boolean r_mark_regions() {
-    int v_1;
-    int v_2;
+    final int v_1;
+    final int v_2;
     // (, line 32
     I_p1 = limit;
     I_p2 = limit;
@@ -373,7 +373,7 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   private boolean r_shortv() {
-    int v_1;
+    final int v_1;
     // (, line 48
     // or, line 50
     lab0:
@@ -427,8 +427,8 @@ public class EnglishStemmer extends AbstractStemmer {
 
   private boolean r_Step_1a() {
     int among_var;
-    int v_1;
-    int v_2;
+    final int v_1;
+    final int v_2;
     // (, line 57
     // try, line 58
     v_1 = limit - cursor;
@@ -485,7 +485,7 @@ public class EnglishStemmer extends AbstractStemmer {
             // (, line 67
             // hop, line 67
             {
-              int c = cursor - 2;
+              final int c = cursor - 2;
               if (limit_backward > c || c > limit) {
                 break lab2;
               }
@@ -534,9 +534,9 @@ public class EnglishStemmer extends AbstractStemmer {
 
   private boolean r_Step_1b() {
     int among_var;
-    int v_1;
-    int v_3;
-    int v_4;
+    final int v_1;
+    final int v_3;
+    final int v_4;
     // (, line 73
     // [, line 74
     ket = cursor;
@@ -597,7 +597,7 @@ public class EnglishStemmer extends AbstractStemmer {
             // (, line 82
             // <+, line 82
           {
-            int c = cursor;
+            final int c = cursor;
             insert(cursor, cursor, "e");
             cursor = c;
           }
@@ -631,7 +631,7 @@ public class EnglishStemmer extends AbstractStemmer {
             cursor = limit - v_4;
             // <+, line 86
           {
-            int c = cursor;
+            final int c = cursor;
             insert(cursor, cursor, "e");
             cursor = c;
           }
@@ -643,8 +643,8 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   private boolean r_Step_1c() {
-    int v_1;
-    int v_2;
+    final int v_1;
+    final int v_2;
     // (, line 92
     // [, line 93
     ket = cursor;
@@ -693,7 +693,7 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   private boolean r_Step_2() {
-    int among_var;
+    final int among_var;
     // (, line 98
     // [, line 99
     ket = cursor;
@@ -803,7 +803,7 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   private boolean r_Step_3() {
-    int among_var;
+    final int among_var;
     // (, line 125
     // [, line 126
     ket = cursor;
@@ -860,8 +860,8 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   private boolean r_Step_4() {
-    int among_var;
-    int v_1;
+    final int among_var;
+    final int v_1;
     // (, line 139
     // [, line 140
     ket = cursor;
@@ -914,9 +914,9 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   private boolean r_Step_5() {
-    int among_var;
-    int v_1;
-    int v_2;
+    final int among_var;
+    final int v_1;
+    final int v_2;
     // (, line 148
     // [, line 149
     ket = cursor;
@@ -1005,7 +1005,7 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   private boolean r_exception1() {
-    int among_var;
+    final int among_var;
     // (, line 167
     // [, line 169
     bra = cursor;
@@ -1134,19 +1134,19 @@ public class EnglishStemmer extends AbstractStemmer {
   }
 
   public boolean stem() {
-    int v_1;
-    int v_2;
-    int v_3;
-    int v_4;
-    int v_5;
-    int v_6;
-    int v_7;
-    int v_8;
-    int v_9;
-    int v_10;
-    int v_11;
-    int v_12;
-    int v_13;
+    final int v_1;
+    final int v_2;
+    final int v_3;
+    final int v_4;
+    final int v_5;
+    final int v_6;
+    final int v_7;
+    final int v_8;
+    final int v_9;
+    final int v_10;
+    final int v_11;
+    final int v_12;
+    final int v_13;
     // (, line 204
     // or, line 206
     lab0:
@@ -1171,7 +1171,7 @@ public class EnglishStemmer extends AbstractStemmer {
           do {
             // hop, line 207
             {
-              int c = cursor + 3;
+              final int c = cursor + 3;
               if (0 > c || c > limit) {
                 break lab3;
               }

@@ -23,14 +23,14 @@ public class SimpleRegExpTest extends TestCase {
   private TestMatchVisitor mv;
 
   private class TestMatchVisitor implements SimpleRegExp.MatchVisitor {
-    private List<String> matches = new LinkedList<String>();
-    public boolean found(int start, int end) {
+    private final List<String> matches = new LinkedList<String>();
+    public boolean found(final int start, final int end) {
       matches.add(string.substring(start, end));
       //System.out.println("-- Match found (" + start + "," + end + ") = " + matchBuilder.toString());
       return true;
     }
 
-    public boolean contains(String s) {
+    public boolean contains(final String s) {
       return matches.contains(s);
     }
 
@@ -40,12 +40,12 @@ public class SimpleRegExpTest extends TestCase {
   }
 
   private void match() {
-    SimpleRegExp matcher = new SimpleRegExp(pattern);
+    final SimpleRegExp matcher = new SimpleRegExp(pattern);
     mv = new TestMatchVisitor();
     matcher.match(CharSeq.create(string), mv);
   }
 
-  private String randomString(int size) {
+  private String randomString(final int size) {
     final StringBuilder sb = new StringBuilder();
     final Random r = new Random();
     for (int i = 0; i < size; i++) {
@@ -112,7 +112,7 @@ public class SimpleRegExpTest extends TestCase {
     assertFalse(mv.contains("axxb"));
     assertFalse(mv.contains("ax"));
 
-    for (String m : mv.matches) {
+    for (final String m : mv.matches) {
       assertTrue(m.charAt(0) == 'a');
       assertTrue(m.charAt(m.length() - 1) == 'b');
     }
@@ -187,7 +187,7 @@ public class SimpleRegExpTest extends TestCase {
     assertFalse(mv.contains("abbkc"));
     assertFalse(mv.contains("asvvc"));
 
-    for (String m : mv.matches) {
+    for (final String m : mv.matches) {
       assertTrue(m.charAt(0) == 'a');
       assertTrue(m.charAt(m.length() - 1) == 'c');
     }
@@ -195,7 +195,7 @@ public class SimpleRegExpTest extends TestCase {
     pattern.clear();
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
 
-    String s = randomString(100);
+    final String s = randomString(100);
     string = s;
     match();
 
@@ -213,7 +213,7 @@ public class SimpleRegExpTest extends TestCase {
 
     assertTrue(mv.contains("gcjbjbjhbhjbhblkjlkomggo"));
 
-    for (String m : mv.matches) {
+    for (final String m : mv.matches) {
       assertTrue(m.charAt(0) == 'g');
       assertTrue(m.charAt(m.length() - 1) == 'o');
     }
@@ -289,7 +289,7 @@ public class SimpleRegExpTest extends TestCase {
     pattern.clear();
     pattern = SimpleRegExp.create("b..?").pattern();
     match();
-    TestMatchVisitor old = mv;
+    final TestMatchVisitor old = mv;
     mv = new TestMatchVisitor();
     pattern = SimpleRegExp.create("b.?.").pattern();
     match();
@@ -302,7 +302,7 @@ public class SimpleRegExpTest extends TestCase {
     long time = 0;
     final int count = 200;
     for (int i = 0; i < count; i++) {
-      String str = randomString(3000);
+      final String str = randomString(3000);
       string = str;
       Interval.start();
       match();
@@ -316,7 +316,7 @@ public class SimpleRegExpTest extends TestCase {
     pattern.clear();
     pattern.add(A.getByT('e'), Pattern.Modifier.STAR);
 
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     for (int i = 0; i < eLength; i++) {
       sb.append('e');
     }

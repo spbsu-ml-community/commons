@@ -25,14 +25,14 @@ public class MapBasis<T> implements GenericBasis<T> {
     inverted = new ArrayList<T>();
   }
 
-  public MapBasis(int capacity) {
+  public MapBasis(final int capacity) {
     map = new TObjectIntHashMap<T>(capacity);
     inverted = new ArrayList<T>(capacity);
   }
 
-  public MapBasis(T[] basis) {
+  public MapBasis(final T[] basis) {
     this(basis.length);
-    int size = basis.length;
+    final int size = basis.length;
     for (int i = 0; i < size; i++) {
       add(basis[i]);
     }
@@ -40,10 +40,10 @@ public class MapBasis<T> implements GenericBasis<T> {
       throw new RuntimeException(new IllegalArgumentException("Basis must contain unique keys."));
   }
 
-  public MapBasis(Collection<T> basis) {
+  public MapBasis(final Collection<T> basis) {
     this(basis.size());
-    int size = basis.size();
-    Iterator<T> iterator = basis.iterator();
+    final int size = basis.size();
+    final Iterator<T> iterator = basis.iterator();
     for (int i = 0; i < size; i++) {
       add(iterator.next());
     }
@@ -51,15 +51,15 @@ public class MapBasis<T> implements GenericBasis<T> {
       throw new RuntimeException(new IllegalArgumentException("Basis must contain unique keys."));
   }
 
-  public MapBasis(GenericBasis<T> basis) {
+  public MapBasis(final GenericBasis<T> basis) {
     this(basis.size());
-    int size = basis.size();
+    final int size = basis.size();
     for (int i = 0; i < size; i++) {
       add(basis.fromIndex(i));
     }
   }
 
-  @Override public synchronized int add(@NotNull T element) {
+  @Override public synchronized int add(@NotNull final T element) {
     if(map.containsKey(element))
       return map.get(element) - 1;
     else {
@@ -69,7 +69,7 @@ public class MapBasis<T> implements GenericBasis<T> {
     }
   }
 
-  @Override public synchronized T fromIndex(int index) {
+  @Override public synchronized T fromIndex(final int index) {
     return inverted.get(index);
   }
 
@@ -81,19 +81,19 @@ public class MapBasis<T> implements GenericBasis<T> {
     return new TObjectIntHashMap<T>(map);
   }
 
-  @Override public synchronized T remove(int index) {
-    T item = inverted.remove(index);
-    int from = map.remove(item) - 1;
-    int size = map.size();
+  @Override public synchronized T remove(final int index) {
+    final T item = inverted.remove(index);
+    final int from = map.remove(item) - 1;
+    final int size = map.size();
     for(int i = from; i < size; i++)
       map.adjustValue(inverted.get(i), -1);
     return item;
   }
 
-  @Override public synchronized int remove(@NotNull T element) {
-    int index = map.remove(element) - 1;
+  @Override public synchronized int remove(@NotNull final T element) {
+    final int index = map.remove(element) - 1;
     inverted.remove(index);
-    int size = map.size();
+    final int size = map.size();
     for(int i = index; i < size; i++)
       map.adjustValue(inverted.get(i), -1);
     return index;
@@ -105,7 +105,7 @@ public class MapBasis<T> implements GenericBasis<T> {
     return inverted.size();
   }
 
-  @Override public int toIndex(@NotNull T element) {
+  @Override public int toIndex(@NotNull final T element) {
     final int index = map.get(element);
     if(index > 0)
       return index - 1;
@@ -118,8 +118,8 @@ public class MapBasis<T> implements GenericBasis<T> {
   }
 
   public String toString() {
-    StringBuilder stringBuilder = new StringBuilder();
-    int size = map.size();
+    final StringBuilder stringBuilder = new StringBuilder();
+    final int size = map.size();
     for(int i = 0; i < size; i++)
       stringBuilder.append(i).append("\t<-->\t").append(inverted.get(i)).append("\n");
     return stringBuilder.toString();

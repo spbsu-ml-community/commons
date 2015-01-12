@@ -12,7 +12,7 @@ public class SkipVecNZIterator implements VecIterator {
   protected final Vec vec;
   int index;
 
-  public SkipVecNZIterator(Vec arrayVec) {
+  public SkipVecNZIterator(final Vec arrayVec) {
     this.vec = arrayVec;
     index = -1;
   }
@@ -33,7 +33,7 @@ public class SkipVecNZIterator implements VecIterator {
   }
 
   @Override
-  public boolean seek(int pos) {
+  public boolean seek(final int pos) {
     index = pos - 1;
     return isValid();
   }
@@ -45,7 +45,7 @@ public class SkipVecNZIterator implements VecIterator {
   }
 
   @Override
-  public double setValue(double v) {
+  public double setValue(final double v) {
     vec.set(index, v);
     return v;
   }

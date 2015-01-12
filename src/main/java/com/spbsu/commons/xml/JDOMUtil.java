@@ -25,11 +25,11 @@ public class JDOMUtil {
   private JDOMUtil() {
   }
 
-  public static Element loadXML(File file) throws IOException {
+  public static Element loadXML(final File file) throws IOException {
     return loadXMLDocument(file).detachRootElement();
   }
 
-  public static Element parseXml(String xmlFile) {
+  public static Element parseXml(final String xmlFile) {
     try {
       return loadXML(new ByteArrayInputStream(xmlFile.getBytes("utf-8")));
     } catch (UnsupportedEncodingException e) {
@@ -37,11 +37,11 @@ public class JDOMUtil {
     }
   }
 
-  public static Element loadXML(InputStream xmlStream) {
+  public static Element loadXML(final InputStream xmlStream) {
     return loadXMLDocument(xmlStream).detachRootElement();
   }
 
-  public static Document loadXMLDocument(File file) throws IOException {
+  public static Document loadXMLDocument(final File file) throws IOException {
     final FileInputStream stream = new FileInputStream(file);
     try {
       return loadXMLDocument(stream);
@@ -50,7 +50,7 @@ public class JDOMUtil {
     }
   }
 
-  public static Document loadXMLDocument(InputStream xmlStream) {
+  public static Document loadXMLDocument(final InputStream xmlStream) {
     Reader reader = null;
     try {
       reader = new BufferedReader(new InputStreamReader(xmlStream, "UTF-8"));
@@ -72,7 +72,7 @@ public class JDOMUtil {
     }
   }
 
-  public static void flushXML(Element element, final File file) throws IOException {
+  public static void flushXML(final Element element, final File file) throws IOException {
     PrintWriter writer = null;
     try {
       writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "utf-8"));
@@ -99,7 +99,7 @@ public class JDOMUtil {
     return content != null ? Collections.unmodifiableList(content) : Collections.<Element>emptyList();
   }
 
-  public static String toString(Element el) {
+  public static String toString(final Element el) {
     final StringWriter out = new StringWriter(1000);
     try {
       OUTPUTTER.output(el, out);

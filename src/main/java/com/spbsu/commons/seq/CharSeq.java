@@ -18,11 +18,11 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
     return true;
   }
 
-  public final CharSeq subSequence(int start, int end) {
+  public final CharSeq subSequence(final int start, final int end) {
     return sub(start, end);
   }
 
-  public final CharSeq subSequence(int start) {
+  public final CharSeq subSequence(final int start) {
     return subSequence(start, length());
   }
 
@@ -60,7 +60,7 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
   }
 
   public int hashCode() {
-    int len = length();
+    final int len = length();
     int h = 0;
     for (int i = 0; i < len; i++) {
       h = 31 * h + charAt(i);
@@ -74,7 +74,7 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
     return chars;
   }
 
-  public void copyToArray(int start, char[] array, int offset, int length) {
+  public void copyToArray(int start, final char[] array, int offset, final int length) {
     int index = 0;
     while (index++ < length) {
       array[offset++] = charAt(start++);
@@ -110,24 +110,24 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
     return create(chars);
   }
 
-  public static CharSeq create(char[] text, int start, int end) {
+  public static CharSeq create(final char[] text, final int start, final int end) {
     return new CharSeqArray(text, start, end);
   }
 
-  public static CharSeq create(char[] text) {
+  public static CharSeq create(final char[] text) {
     return new CharSeqArray(text, 0, text.length);
   }
 
-  public static CharSeq copy(char[] text) {
+  public static CharSeq copy(final char[] text) {
     return copy(text, 0, text.length);
   }
 
-  public static CharSeq copy(CharSequence text) {
+  public static CharSeq copy(final CharSequence text) {
     return copy(text, 0, text.length());
   }
 
-  public static CharSeq copy(CharSequence text, int start, int end) {
-    char[] copy = new char[end - start];
+  public static CharSeq copy(final CharSequence text, final int start, final int end) {
+    final char[] copy = new char[end - start];
     if (text instanceof CharSeq) {
       ((CharSeq) text).copyToArray(start, copy, 0, end - start);
     }
@@ -139,8 +139,8 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
     return new CharSeqArray(copy);
   }
 
-  public static CharSeq copy(char[] text, int start, int end) {
-    char[] copy = new char[end - start];
+  public static CharSeq copy(final char[] text, final int start, final int end) {
+    final char[] copy = new char[end - start];
     System.arraycopy(text, start, copy, 0, end - start);
     return new CharSeqArray(copy);
   }

@@ -64,7 +64,7 @@ public class StringUtils {
     }
 
     public static boolean isBlank(@Nullable final CharSequence cs) {
-        int strLen;
+        final int strLen;
         if (cs == null || (strLen = cs.length()) == 0) {
             return true;
         }
@@ -76,9 +76,9 @@ public class StringUtils {
         return true;
     }
 
-    public static String[] split(String str, String delimetet, int initialCapacity) {
+    public static String[] split(final String str, final String delimetet, final int initialCapacity) {
         final char[] text = str.toCharArray();
-        List<String> strFacotorValue = new ArrayList<String>(initialCapacity);
+        final List<String> strFacotorValue = new ArrayList<String>(initialCapacity);
         int begin = 0;
         int end;
         while ((end = str.indexOf(delimetet, begin)) >= 0) {
@@ -89,9 +89,9 @@ public class StringUtils {
         return strFacotorValue.toArray(new String[strFacotorValue.size()]);
     }
 
-    public static List<String> split2List(String str, String delimetet) {
+    public static List<String> split2List(final String str, final String delimetet) {
         final char[] text = str.toCharArray();
-        List<String> strFacotorValue = new ArrayList<String>();
+        final List<String> strFacotorValue = new ArrayList<String>();
         int begin = 0;
         int end;
         while ((end = str.indexOf(delimetet, begin)) >= 0) {

@@ -56,12 +56,12 @@ public class GeoBounds {
 
   @NotNull
   public GeoPoint getCenter() {
-    double centerX = northWestPoint.getLongitude() + getWidth() / 2.0;
-    double centerY = southEastPoint.getLatitude() + getHeight() / 2.0;
+    final double centerX = northWestPoint.getLongitude() + getWidth() / 2.0;
+    final double centerY = southEastPoint.getLatitude() + getHeight() / 2.0;
     return GeoPoint.valueOf(centerY, centerX);
   }
 
-  public boolean intersects(@NotNull GeoBounds other) {
+  public boolean intersects(@NotNull final GeoBounds other) {
     // implement
     throw new UnsupportedOperationException();
   }

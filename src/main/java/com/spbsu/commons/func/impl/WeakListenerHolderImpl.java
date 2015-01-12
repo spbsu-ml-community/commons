@@ -16,14 +16,14 @@ import java.util.List;
 public class WeakListenerHolderImpl<Event> implements WeakListenerHolder<Event> {
   final List<WeakReference<Action<? super Event>>> listeners = new ArrayList<WeakReference<Action<? super Event>>>();
   @Override
-  public void addListener(Action<? super Event> lst) {
+  public void addListener(final Action<? super Event> lst) {
     listeners.add(new WeakReference<Action<? super Event>>(lst));
   }
 
-  protected void invoke(Event e) {
+  protected void invoke(final Event e) {
     final Iterator<WeakReference<Action<? super Event>>> it = listeners.iterator();
     while (it.hasNext()) {
-      WeakReference<Action<? super Event>> next = it.next();
+      final WeakReference<Action<? super Event>> next = it.next();
       final Action<? super Event> action = next.get();
       if (action != null)
         action.invoke(e);

@@ -10,7 +10,7 @@ import java.util.Set;
  * User: terry
  */
 public class HashSet2BufferConverter<T> extends Set2BufferConverter<T> {
-  public HashSet2BufferConverter(Converter<T, Buffer> tBufferConverter) {
+  public HashSet2BufferConverter(final Converter<T, Buffer> tBufferConverter) {
     super(tBufferConverter);
   }
 

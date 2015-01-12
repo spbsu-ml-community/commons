@@ -24,12 +24,12 @@ public class NFA<T> implements Matcher<T>{
   private final int[] states;
   private final Alphabet<T> alphabet;
 
-  public NFA(List<TLongHashSet> programs, TIntHashSet finalStates, final Alphabet<T> alpha) {
+  public NFA(final List<TLongHashSet> programs, final TIntHashSet finalStates, final Alphabet<T> alpha) {
     final int statesCount = programs.size() + 1;
     states = new int[statesCount * 2];
     this.finalStates = new boolean[statesCount];
     finalStates.forEach(new TIntProcedure() {
-      public boolean execute(int i) {
+      public boolean execute(final int i) {
         NFA.this.finalStates[i] = true;
         return true;
       }
@@ -40,9 +40,9 @@ public class NFA<T> implements Matcher<T>{
       final int from = i;
       final TLongHashSet instructions = programs.get(from);
       instructions.forEach(new TLongProcedure() {
-        public boolean execute(long l) {
-          int condition = (int)l;
-          int to = (int)(l >> 32);
+        public boolean execute(final long l) {
+          final int condition = (int)l;
+          final int to = (int)(l >> 32);
           TLongHashSet trans = transitionsMap.get(condition);
           if (trans == null)
             transitionsMap.put(condition, trans = new TLongHashSet());
@@ -60,7 +60,7 @@ public class NFA<T> implements Matcher<T>{
       final long[] trans = current.toArray();
       Arrays.sort(trans);
       for (int t = 0; t < trans.length; t++) {
-        long tran = trans[t];
+        final long tran = trans[t];
         transitions.add((tran >> 32) | (tran << 32));
       }
     }
@@ -68,7 +68,7 @@ public class NFA<T> implements Matcher<T>{
 
     for (int i = 0; i < alphabet.size(); i++) {
       if (transitionsMap.containsKey(i)) {
-        long transitionsStart = ((long)transitions.size()) << 32;
+        final long transitionsStart = ((long)transitions.size()) << 32;
         current.clear();
         current.addAll(transitionsMap.get(i).toArray());
         if (transitionsMap.containsKey(alphabet.size()))
@@ -76,7 +76,7 @@ public class NFA<T> implements Matcher<T>{
         final long[] trans = current.toArray();
         Arrays.sort(trans);
         for (int t = 0; t < trans.length; t++) {
-          long tran = trans[t];
+          final long tran = trans[t];
           transitions.add((tran >> 32) | (tran << 32));
         }
         transitionsIndex.add(transitionsStart | transitions.size());
@@ -87,7 +87,7 @@ public class NFA<T> implements Matcher<T>{
     this.transitionsIndex = transitionsIndex.toArray();
   }
 
-  public void match(Seq<T> ts, MatchVisitor visitor) {
+  public void match(final Seq<T> ts, final MatchVisitor visitor) {
     final int seqSize = ts.length();
     final int[] statesLocal = states;
     final long[] transitionsIndexLocal = transitionsIndex;
@@ -146,11 +146,11 @@ public class NFA<T> implements Matcher<T>{
 
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    NFA nfa = (NFA) o;
+    final NFA nfa = (NFA) o;
 
     if (alphabet != null ? !alphabet.equals(nfa.alphabet) : nfa.alphabet != null) return false;
     if (!Arrays.equals(finalStates, nfa.finalStates)) return false;
@@ -180,10 +180,10 @@ public class NFA<T> implements Matcher<T>{
     return states.length / 2;
   }
 
-  public boolean connected(int stateA, int stateB, int conditionIndex) {
+  public boolean connected(final int stateA, final int stateB, final int conditionIndex) {
     int start = (int)(transitionsIndex[conditionIndex] >> 32);
-    int end = (int)(transitionsIndex[conditionIndex]);
-    long cmp = ((long)stateB << 32) | stateA;
+    final int end = (int)(transitionsIndex[conditionIndex]);
+    final long cmp = ((long)stateB << 32) | stateA;
     while(start < end) {
       if(transitions[start++] == cmp)
         return true;
@@ -193,7 +193,7 @@ public class NFA<T> implements Matcher<T>{
 
   @Override
   public String toString() {
-    int statesCount = this.states.length;
+    final int statesCount = this.states.length;
     final StringBuilder builder = new StringBuilder();
     for (int stateA = 0; stateA < statesCount - 1; stateA++) {
       boolean first = true;

@@ -21,12 +21,12 @@ public class BitOutputBuffer implements BitOutput {
   private byte lastByte;
 
 
-  public BitOutputBuffer(ByteBuffer output) {
+  public BitOutputBuffer(final ByteBuffer output) {
     buffer = output;
   }
 
   @Override
-  public void write(int bits, int count) {
+  public void write(final int bits, int count) {
     final int shift = count - bitsLeft;
     lastByte |= (shift < 0 ? bits << -shift : bits >>> shift) & masks[bitsLeft];
     bitsLeft -= count;

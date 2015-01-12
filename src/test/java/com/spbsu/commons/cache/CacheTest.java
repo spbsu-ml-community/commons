@@ -76,7 +76,7 @@ public class CacheTest extends TestCase {
     for (int i = 0; i < 10000; i++) {
       strategy.registerAccess(Math.abs(position.nextInt()) % 100);
     }
-    Set<Integer> known = new HashSet<Integer>();
+    final Set<Integer> known = new HashSet<Integer>();
     for (int i = 0; i < 100; i++) {
       final int storePosition = strategy.getStorePosition();
       known.add(storePosition);
@@ -92,7 +92,7 @@ public class CacheTest extends TestCase {
       strategy.registerAccess(Math.abs(position.nextInt()) % 100);
       strategy.removePosition(Math.abs(position.nextInt()) % 100);
     }
-    Set<Integer> known = new HashSet<Integer>();
+    final Set<Integer> known = new HashSet<Integer>();
     for (int i = 0; i < 100; i++) {
       final int storePosition = strategy.getStorePosition();
       known.add(storePosition);
@@ -186,13 +186,13 @@ public class CacheTest extends TestCase {
   }
 
   public void testPerformanceUniform() {
-    FixedSizeCache<Integer, Integer> cache = new FixedSizeCache<Integer, Integer>(1000, CacheStrategy.Type.LRU);
-    long time = System.currentTimeMillis();
+    final FixedSizeCache<Integer, Integer> cache = new FixedSizeCache<Integer, Integer>(1000, CacheStrategy.Type.LRU);
+    final long time = System.currentTimeMillis();
     final Holder<Integer> missCount = new Holder<Integer>(0);
     for (int i = 0; i < 1000000; i++) {
-      int key = (int) (Math.random() * 10000);
+      final int key = (int) (Math.random() * 10000);
       cache.get(key, new Computable<Integer, Integer>() {
-        public Integer compute(Integer argument) {
+        public Integer compute(final Integer argument) {
           missCount.setValue(missCount.getValue() + 1);
           return 1;
         }
@@ -204,18 +204,18 @@ public class CacheTest extends TestCase {
 
 
   public void testPerformanceNormal() {
-    FixedSizeCache<Integer, Integer> cache = new FixedSizeCache<Integer, Integer>(1000, CacheStrategy.Type.LRU);
-    long time = System.currentTimeMillis();
-    Random rnd = new Random();
+    final FixedSizeCache<Integer, Integer> cache = new FixedSizeCache<Integer, Integer>(1000, CacheStrategy.Type.LRU);
+    final long time = System.currentTimeMillis();
+    final Random rnd = new Random();
     final Holder<Integer> missCount = new Holder<Integer>(0);
     int maxKey = 0;
 
     for (int i = 0; i < 1000000; i++) {
       final double r = rnd.nextGaussian();
-      int key = (int) (r * r * 10000);
+      final int key = (int) (r * r * 10000);
       maxKey = Math.max(maxKey, key);
       cache.get(key, new Computable<Integer, Integer>() {
-        public Integer compute(Integer argument) {
+        public Integer compute(final Integer argument) {
           missCount.setValue(missCount.getValue() + 1);
           return 1;
         }

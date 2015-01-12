@@ -10,7 +10,7 @@ import com.spbsu.commons.math.vectors.IndexTransformation;
 class CompositeTransformation implements IndexTransformation {
   private final IndexTransformation[] sequence;
 
-  public CompositeTransformation(IndexTransformation[] sequence) {
+  public CompositeTransformation(final IndexTransformation[] sequence) {
     this.sequence = sequence;
   }
 
@@ -44,8 +44,8 @@ class CompositeTransformation implements IndexTransformation {
   }
 
   @Override
-  public IndexTransformation apply(IndexTransformation trans) {
-    IndexTransformation[] sequence = new IndexTransformation[this.sequence.length + 1];
+  public IndexTransformation apply(final IndexTransformation trans) {
+    final IndexTransformation[] sequence = new IndexTransformation[this.sequence.length + 1];
     System.arraycopy(this.sequence, 0, sequence, 1, this.sequence.length);
     sequence[0] = trans;
     return new CompositeTransformation(sequence);

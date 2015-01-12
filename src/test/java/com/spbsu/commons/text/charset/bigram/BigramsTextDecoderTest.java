@@ -110,8 +110,8 @@ public class BigramsTextDecoderTest extends TestCase {
             "за землю Руськую.");
   }
 
-  private void performTest(String s) {
-    for (String charset : TextDecoderTools.CYRILLIC_CHARSETS) {
+  private void performTest(final String s) {
+    for (final String charset : TextDecoderTools.CYRILLIC_CHARSETS) {
       final byte[] bytes = s.getBytes(Charset.forName(charset));
       assertEquals(charset, s, TextDecoderTools.decodeCyrillicText(bytes));
     }

@@ -10,7 +10,7 @@ import com.spbsu.commons.math.vectors.VecTools;
  */
 public class CosineDVectorMetric implements Metric<Vec> {
   @Override
-  public double distance(Vec v, Vec w) {
+  public double distance(final Vec v, final Vec w) {
     return 0.5 * (1 - VecTools.cosine(v, w));
   }
 }

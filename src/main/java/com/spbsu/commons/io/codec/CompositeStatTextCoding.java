@@ -17,11 +17,11 @@ public class CompositeStatTextCoding {
   private final DictExpansion<Character> expansion;
   private boolean stop = false;
 
-  public CompositeStatTextCoding(Collection<Character> alphabet, int dictSize) {
+  public CompositeStatTextCoding(final Collection<Character> alphabet, final int dictSize) {
     this.expansion = new DictExpansion<>(alphabet, dictSize, true);
   }
 
-  public void accept(CharSequence seq) {
+  public void accept(final CharSequence seq) {
     if (!stop)
       expansion.accept(new CharSeqAdapter(seq));
     else throw new RuntimeException("Expansion is not supported after encode/decode routine called");
@@ -35,7 +35,7 @@ public class CompositeStatTextCoding {
     public ArithmeticCoding.Encoder output;
     private final ListDictionary<Character> dict;
 
-    public Encode(ByteBuffer output) {
+    public Encode(final ByteBuffer output) {
       this.output = new ArithmeticCoding.Encoder(output, expansion.resultFreqs());
       this.dict = expansion.result();
       stop = true;
@@ -59,7 +59,7 @@ public class CompositeStatTextCoding {
     private final ArithmeticCoding.Decoder input;
     private final ListDictionary dict;
 
-    public Decode(ByteBuffer input) {
+    public Decode(final ByteBuffer input) {
       this.input = new ArithmeticCoding.Decoder(input, expansion.resultFreqs());
       this.dict = expansion.result();
       stop = true;
@@ -67,7 +67,7 @@ public class CompositeStatTextCoding {
 
     public CharSequence read() {
       int symbol;
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
       while ((symbol = input.read()) != 0) {
         builder.append(dict.get(symbol));
       }

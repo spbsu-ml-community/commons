@@ -10,12 +10,12 @@ import com.spbsu.commons.seq.CharSeqTools;
 public class Integer2CharSequenceConverter implements Converter<Integer, CharSequence> {
 
   @Override
-  public Integer convertFrom(CharSequence source) {
+  public Integer convertFrom(final CharSequence source) {
     return CharSeqTools.parseInt(source.toString());
   }
 
   @Override
-  public String convertTo(Integer value) {
+  public String convertTo(final Integer value) {
     return value.toString();
   }
 }

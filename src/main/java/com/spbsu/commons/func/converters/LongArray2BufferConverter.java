@@ -23,7 +23,7 @@ public class LongArray2BufferConverter implements Converter<long[], Buffer> {
   @Override
   public Buffer convertTo(final long[] array) {
     final Buffer bufferArray = BufferFactory.wrap(new byte[array.length * 8]);
-    for (long anArray : array) {
+    for (final long anArray : array) {
       bufferArray.putLong(anArray);
     }
     bufferArray.position(0);

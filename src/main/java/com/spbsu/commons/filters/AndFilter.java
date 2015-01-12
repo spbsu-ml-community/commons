@@ -9,12 +9,12 @@ public class AndFilter<T> implements Filter<T> {
   private final Filter<T>[] filters;
   private String failureReason = null;
 
-  public AndFilter(Filter... filters) {
+  public AndFilter(final Filter... filters) {
     //noinspection unchecked
     this.filters = (Filter<T>[])filters;
   }
 
-  public boolean accept(T t) {
+  public boolean accept(final T t) {
     for(int i = 0; i < filters.length; i++) {
       if (!filters[i].accept(t)) {
         // doing this not to break the existent API

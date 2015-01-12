@@ -24,7 +24,7 @@ public class IntArrayTree implements IntTree {
   }
 
   @Override
-  public int addTo(int parent) {
+  public int addTo(final int parent) {
     checkIndex(parent);
 
     final int endChildren = children.get(parent);
@@ -39,16 +39,16 @@ public class IntArrayTree implements IntTree {
   }
 
   @Override
-  public boolean hasChildren(int node) {
+  public boolean hasChildren(final int node) {
     return childrenCount(node) > 0;
   }
 
   @Override
-  public int getParent(int node) {
+  public int getParent(final int node) {
     checkIndex(node);
     for (int i = node - 1; i > 0; i--) {
-      int startChildren = children.get(i - 1);
-      int endChildren = children.get(i);
+      final int startChildren = children.get(i - 1);
+      final int endChildren = children.get(i);
       if (startChildren <= node && node < endChildren)
         return i;
     }
@@ -67,18 +67,18 @@ public class IntArrayTree implements IntTree {
     return endChildren - startChildren;
   }
 
-  private void checkIndex(int i) {
+  private void checkIndex(final int i) {
     if (i >= children.size() || i < 0) {
       throw new IndexOutOfBoundsException("Node with label " + i + " not found.");
     }
   }
 
   @Override
-  public boolean isDescendant(int node, int parent) {
+  public boolean isDescendant(final int node, final int parent) {
     return find(parent, node);
   }
 
-  private boolean find(int startNode, int label) {
+  private boolean find(final int startNode, final int label) {
     final int startChildren = startNode > 0 ? children.get(startNode - 1) : 1;
     final int endChildren = children.get(startNode);
     for (int i = startChildren; i < endChildren; i++) {
@@ -141,7 +141,7 @@ public class IntArrayTree implements IntTree {
     }
   }
 
-  private int[] depthFirstTraversal(int from) {
+  private int[] depthFirstTraversal(final int from) {
     final TIntList result = new TIntLinkedList();
     accept(new IntTreeVisitor() {
       @Override

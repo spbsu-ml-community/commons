@@ -16,14 +16,14 @@ import java.io.CharArrayReader;
 import java.io.IOException;
 
 public class JDom2CharSequenceConverter implements Converter<Element, CharSequence> {
-  private static Logger LOG = Logger.create(JDom2CharSequenceConverter.class);
-  private ThreadLocal<SAXBuilder> builderThreadLocal = new ThreadLocal<SAXBuilder>() {
+  private static final Logger LOG = Logger.create(JDom2CharSequenceConverter.class);
+  private final ThreadLocal<SAXBuilder> builderThreadLocal = new ThreadLocal<SAXBuilder>() {
     @Override
     protected SAXBuilder initialValue() {
-      SAXBuilder saxBuilder = new SAXBuilder();
+      final SAXBuilder saxBuilder = new SAXBuilder();
       saxBuilder.setEntityResolver(new EntityResolver() {
         @Override
-        public InputSource resolveEntity(String publicId, String systemId) {
+        public InputSource resolveEntity(final String publicId, final String systemId) {
           return new InputSource(new CharArrayReader(new char[0]));
         }
       });
@@ -32,7 +32,7 @@ public class JDom2CharSequenceConverter implements Converter<Element, CharSequen
   };
   @Override
   public Element convertFrom(final CharSequence source) {
-    Document document;
+    final Document document;
     try {
       document = builderThreadLocal.get().build(new CharSeqReader(source));
     } catch (JDOMException e) {

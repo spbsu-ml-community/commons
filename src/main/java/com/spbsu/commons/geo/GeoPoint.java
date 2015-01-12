@@ -68,10 +68,10 @@ public class GeoPoint {
   }
 
   // Source: http://www.geodatasource.com/developers/java
-  public double distanceTo(GeoPoint to) {
-    double theta = Math.toRadians(getLongitude() - to.getLongitude());
-    double lat1 = Math.toRadians(getLatitude());
-    double lat2 = Math.toRadians(to.getLatitude());
+  public double distanceTo(final GeoPoint to) {
+    final double theta = Math.toRadians(getLongitude() - to.getLongitude());
+    final double lat1 = Math.toRadians(getLatitude());
+    final double lat2 = Math.toRadians(to.getLatitude());
 
     double dist = Math.sin(lat1) * Math.sin(lat2) +
                   Math.cos(lat1) * Math.cos(lat2) * Math.cos(theta);
@@ -83,7 +83,7 @@ public class GeoPoint {
   }
 
   @NotNull
-  public String toString(@NotNull Format format) {
+  public String toString(@NotNull final Format format) {
     return format == Format.LAT_LON ? latitude + "," + longitude : longitude + "," + latitude;
   }
 

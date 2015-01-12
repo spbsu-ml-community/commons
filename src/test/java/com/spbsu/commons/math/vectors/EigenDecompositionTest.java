@@ -30,8 +30,8 @@ public class EigenDecompositionTest extends FileTestCase {
   }
 
   public void testEigenDecomposition() throws IOException {
-    int dim = 4;
-    Mx A = new VecBasedMx(dim, new ArrayVec(10, -10, 0, 0,
+    final int dim = 4;
+    final Mx A = new VecBasedMx(dim, new ArrayVec(10, -10, 0, 0,
                                             -10, 10, 0, 0,
                                             0,   0,  5, -5,
                                             0,   0,  -5, 5));
@@ -42,8 +42,8 @@ public class EigenDecompositionTest extends FileTestCase {
 //            A.adjust(i, i, 0.1);
 //        }
 
-    Mx sigma = new VecBasedMx(dim, dim);
-    Mx Q = new VecBasedMx(dim, dim);
+    final Mx sigma = new VecBasedMx(dim, dim);
+    final Mx Q = new VecBasedMx(dim, dim);
     MxTools.eigenDecomposition(A, Q, sigma);
     if (distance(A, MxTools.multiply(MxTools.transpose(Q), MxTools.multiply(sigma, Q))) > A.dim() * MathTools.EPSILON) {
       System.out.println(MxTools.multiply(MxTools.transpose(Q), MxTools.multiply(sigma, Q)).toString());

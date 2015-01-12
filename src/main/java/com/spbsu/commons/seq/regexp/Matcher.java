@@ -13,7 +13,7 @@ public interface Matcher<T> {
   interface Condition<T> {
     boolean is(T frag);
     static final Condition ANY = new Condition() {
-      public boolean is(Object frag) {
+      public boolean is(final Object frag) {
         return true;
       }
       @Override

@@ -17,9 +17,9 @@ import com.spbsu.commons.seq.CharSeqTools;
  */
 public class Vec2CharSequenceConverter implements Converter<Vec, CharSequence> {
   @Override
-  public Vec convertFrom(CharSequence source) {
+  public Vec convertFrom(final CharSequence source) {
     final CharSequence[] parts = CharSeqTools.split(source, "\t");
-    Vec result;
+    final Vec result;
     if (CharSeqTools.indexOf(source, ":") >= 0) {
       result = new SparseVec(CharSeqTools.parseInt(parts[0]));
       final CharSequence[] idx2val = new CharSequence[2];
@@ -38,14 +38,14 @@ public class Vec2CharSequenceConverter implements Converter<Vec, CharSequence> {
   }
 
   @Override
-  public CharSequence convertTo(Vec v) {
+  public CharSequence convertTo(final Vec v) {
     final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
     prettyPrint.setMaximumFractionDigits(5);
     prettyPrint.setMinimumFractionDigits(0);
     prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
     prettyPrint.setGroupingUsed(false);
 
-    StringBuilder builder = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
     builder.append(v.dim());
     if (v instanceof SparseVec) {
       final VecIterator it = v.nonZeroes();

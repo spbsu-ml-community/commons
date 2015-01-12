@@ -20,11 +20,11 @@ public class Combinatorics {
   public static class PartialPermutations implements Enumeration {
     private final int base;
     private final int positions;
-    private int[] bitVec;
+    private final int[] bitVec;
     private boolean isExhausted;
 
     //permutation will contain elements from {0, ... , base-1}
-    public PartialPermutations(int base, int positions) {
+    public PartialPermutations(final int base, final int positions) {
       this.positions = positions;
       this.bitVec = new int[positions];
       this.base = base;
@@ -37,7 +37,7 @@ public class Combinatorics {
 
     @Override
     public int[] next() {
-      int[] copy = Arrays.copyOf(bitVec, bitVec.length);
+      final int[] copy = Arrays.copyOf(bitVec, bitVec.length);
       gotoNext();
       return copy;
     }
@@ -69,7 +69,7 @@ public class Combinatorics {
     }
   }
 
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     final Permutations permutations = new Permutations(3);
     while (permutations.hasNext()) {
       System.out.println(Arrays.toString(permutations.next()));
@@ -78,10 +78,10 @@ public class Combinatorics {
 
   public static class Permutations implements Enumeration {
     private final int positions;
-    private int[] bitVec;
+    private final int[] bitVec;
     private boolean isExhausted;
 
-    public Permutations(int base) {
+    public Permutations(final int base) {
       this.positions = base;
       this.bitVec = new int[base];
 
@@ -97,7 +97,7 @@ public class Combinatorics {
 
     @Override
     public int[] next() {
-      int[] copy = Arrays.copyOf(bitVec, bitVec.length);
+      final int[] copy = Arrays.copyOf(bitVec, bitVec.length);
       gotoNext();
       return copy;
     }
@@ -137,7 +137,7 @@ public class Combinatorics {
       return MathTools.factorial(positions);
     }
 
-    private boolean isNumInArray(int[] arr, int num, int start, int end) {
+    private boolean isNumInArray(final int[] arr, final int num, final int start, final int end) {
       for(int i = start; i < end; i++) {
         if(arr[i] == num) {
           return true;

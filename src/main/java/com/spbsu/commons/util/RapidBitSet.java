@@ -58,7 +58,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
   /**
    * Given a bit index, return word index containing it.
    */
-  private static int wordIndex(int bitIndex) {
+  private static int wordIndex(final int bitIndex) {
     return bitIndex >> ADDRESS_BITS_PER_WORD;
   }
 
@@ -103,7 +103,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @throws NegativeArraySizeException if the specified initial size
    *                                    is negative.
    */
-  public RapidBitSet(int nbits) {
+  public RapidBitSet(final int nbits) {
     // nbits can't be negative; size 0 is OK
     if (nbits < 0)
       throw new NegativeArraySizeException("nbits < 0: " + nbits);
@@ -112,7 +112,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
     sizeIsSticky = true;
   }
 
-  private void initWords(int nbits) {
+  private void initWords(final int nbits) {
     words = new long[wordIndex(nbits - 1) + 1];
   }
 
@@ -121,10 +121,10 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *
    * @param wordsRequired the minimum acceptable number of words.
    */
-  private void ensureCapacity(int wordsRequired) {
+  private void ensureCapacity(final int wordsRequired) {
     if (words.length < wordsRequired) {
       // Allocate larger of doubled size or required size
-      int request = Math.max(2 * words.length, wordsRequired);
+      final int request = Math.max(2 * words.length, wordsRequired);
       words = Arrays.copyOf(words, request);
       sizeIsSticky = false;
     }
@@ -138,8 +138,8 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *
    * @param  wordIndex the index to be accommodated.
    */
-  private void expandTo(int wordIndex) {
-    int wordsRequired = wordIndex + 1;
+  private void expandTo(final int wordIndex) {
+    final int wordsRequired = wordIndex + 1;
     if (wordsInUse < wordsRequired) {
       ensureCapacity(wordsRequired);
       wordsInUse = wordsRequired;
@@ -149,7 +149,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
   /**
    * Checks that fromIndex ... toIndex is a valid range of bit indices.
    */
-  private static void checkRange(int fromIndex, int toIndex) {
+  private static void checkRange(final int fromIndex, final int toIndex) {
     if (fromIndex < 0)
       throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
     if (toIndex < 0)
@@ -167,11 +167,11 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @throws IndexOutOfBoundsException if the specified index is negative.
    * @since 1.4
    */
-  public void flip(int bitIndex) {
+  public void flip(final int bitIndex) {
     if (bitIndex < 0)
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
-    int wordIndex = wordIndex(bitIndex);
+    final int wordIndex = wordIndex(bitIndex);
     expandTo(wordIndex);
 
     words[wordIndex] ^= (1L << bitIndex);
@@ -192,18 +192,18 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *                                   larger than <tt>toIndex</tt>.
    * @since 1.4
    */
-  public void flip(int fromIndex, int toIndex) {
+  public void flip(final int fromIndex, final int toIndex) {
     checkRange(fromIndex, toIndex);
 
     if (fromIndex == toIndex)
       return;
 
-    int startWordIndex = wordIndex(fromIndex);
-    int endWordIndex = wordIndex(toIndex - 1);
+    final int startWordIndex = wordIndex(fromIndex);
+    final int endWordIndex = wordIndex(toIndex - 1);
     expandTo(endWordIndex);
 
-    long firstWordMask = WORD_MASK << fromIndex;
-    long lastWordMask = WORD_MASK >>> -toIndex;
+    final long firstWordMask = WORD_MASK << fromIndex;
+    final long lastWordMask = WORD_MASK >>> -toIndex;
     if (startWordIndex == endWordIndex) {
       // Case 1: One word
       words[startWordIndex] ^= (firstWordMask & lastWordMask);
@@ -231,11 +231,11 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @throws IndexOutOfBoundsException if the specified index is negative.
    * @since JDK1.0
    */
-  public void set(int bitIndex) {
+  public void set(final int bitIndex) {
     if (bitIndex < 0)
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
-    int wordIndex = wordIndex(bitIndex);
+    final int wordIndex = wordIndex(bitIndex);
     expandTo(wordIndex);
 
     words[wordIndex] |= (1L << bitIndex); // Restores invariants
@@ -254,7 +254,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @throws IndexOutOfBoundsException if the specified index is negative.
    * @since 1.4
    */
-  public void set(int bitIndex, boolean value) {
+  public void set(final int bitIndex, final boolean value) {
     if (value)
       set(bitIndex);
     else
@@ -272,19 +272,19 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *                                   larger than <tt>toIndex</tt>.
    * @since 1.4
    */
-  public void set(int fromIndex, int toIndex) {
+  public void set(final int fromIndex, final int toIndex) {
     checkRange(fromIndex, toIndex);
 
     if (fromIndex == toIndex)
       return;
 
     // Increase capacity if necessary
-    int startWordIndex = wordIndex(fromIndex);
-    int endWordIndex = wordIndex(toIndex - 1);
+    final int startWordIndex = wordIndex(fromIndex);
+    final int endWordIndex = wordIndex(toIndex - 1);
     expandTo(endWordIndex);
 
-    long firstWordMask = WORD_MASK << fromIndex;
-    long lastWordMask = WORD_MASK >>> -toIndex;
+    final long firstWordMask = WORD_MASK << fromIndex;
+    final long lastWordMask = WORD_MASK >>> -toIndex;
     if (startWordIndex == endWordIndex) {
       // Case 1: One word
       words[startWordIndex] |= (firstWordMask & lastWordMask);
@@ -316,7 +316,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *                                   larger than <tt>toIndex</tt>.
    * @since 1.4
    */
-  public void set(int fromIndex, int toIndex, boolean value) {
+  public void set(final int fromIndex, final int toIndex, final boolean value) {
     if (value)
       set(fromIndex, toIndex);
     else
@@ -330,11 +330,11 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @throws IndexOutOfBoundsException if the specified index is negative.
    * @since JDK1.0
    */
-  public void clear(int bitIndex) {
+  public void clear(final int bitIndex) {
     if (bitIndex < 0)
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
-    int wordIndex = wordIndex(bitIndex);
+    final int wordIndex = wordIndex(bitIndex);
     if (wordIndex >= wordsInUse)
       return;
 
@@ -355,13 +355,13 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *                                   larger than <tt>toIndex</tt>.
    * @since 1.4
    */
-  public void clear(int fromIndex, int toIndex) {
+  public void clear(final int fromIndex, int toIndex) {
     checkRange(fromIndex, toIndex);
 
     if (fromIndex == toIndex)
       return;
 
-    int startWordIndex = wordIndex(fromIndex);
+    final int startWordIndex = wordIndex(fromIndex);
     if (startWordIndex >= wordsInUse)
       return;
 
@@ -371,8 +371,8 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
       endWordIndex = wordsInUse - 1;
     }
 
-    long firstWordMask = WORD_MASK << fromIndex;
-    long lastWordMask = WORD_MASK >>> -toIndex;
+    final long firstWordMask = WORD_MASK << fromIndex;
+    final long lastWordMask = WORD_MASK >>> -toIndex;
     if (startWordIndex == endWordIndex) {
       // Case 1: One word
       words[startWordIndex] &= ~(firstWordMask & lastWordMask);
@@ -413,13 +413,13 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @return the value of the bit with the specified index.
    * @throws IndexOutOfBoundsException if the specified index is negative.
    */
-  public boolean get(int bitIndex) {
+  public boolean get(final int bitIndex) {
     if (bitIndex < 0)
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
     checkInvariants();
 
-    int wordIndex = wordIndex(bitIndex);
+    final int wordIndex = wordIndex(bitIndex);
     return (wordIndex < wordsInUse)
       && ((words[wordIndex] & (1L << bitIndex)) != 0);
   }
@@ -436,12 +436,12 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *                                   larger than <tt>toIndex</tt>.
    * @since 1.4
    */
-  public RapidBitSet get(int fromIndex, int toIndex) {
+  public RapidBitSet get(final int fromIndex, int toIndex) {
     checkRange(fromIndex, toIndex);
 
     checkInvariants();
 
-    int len = length();
+    final int len = length();
 
     // If no set bits in range return empty bitset
     if (len <= fromIndex || fromIndex == toIndex)
@@ -451,10 +451,10 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
     if (toIndex > len)
       toIndex = len;
 
-    RapidBitSet result = new RapidBitSet(toIndex - fromIndex);
-    int targetWords = wordIndex(toIndex - fromIndex - 1) + 1;
+    final RapidBitSet result = new RapidBitSet(toIndex - fromIndex);
+    final int targetWords = wordIndex(toIndex - fromIndex - 1) + 1;
     int sourceIndex = wordIndex(fromIndex);
-    boolean wordAligned = ((fromIndex & BIT_INDEX_MASK) == 0);
+    final boolean wordAligned = ((fromIndex & BIT_INDEX_MASK) == 0);
 
     // Process all words but the last word
     for (int i = 0; i < targetWords - 1; i++, sourceIndex++)
@@ -463,7 +463,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
           (words[sourceIndex + 1] << -fromIndex);
 
     // Process the last word
-    long lastWordMask = WORD_MASK >>> -toIndex;
+    final long lastWordMask = WORD_MASK >>> -toIndex;
     result.words[targetWords - 1] =
       ((toIndex - 1) & BIT_INDEX_MASK) < (fromIndex & BIT_INDEX_MASK)
         ? /* straddles source words */
@@ -498,7 +498,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @throws IndexOutOfBoundsException if the specified index is negative.
    * @since 1.4
    */
-  public int nextSetBit(int fromIndex) {
+  public int nextSetBit(final int fromIndex) {
     if (fromIndex < 0)
       throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
 
@@ -558,7 +558,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @throws IndexOutOfBoundsException if the specified index is negative.
    * @since 1.4
    */
-  public int nextClearBit(int fromIndex) {
+  public int nextClearBit(final int fromIndex) {
     // Neither spec nor implementation handle bitsets of maximal length.
     // See 4816253.
     if (fromIndex < 0)
@@ -618,7 +618,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @param  set <code>BitSet</code> to intersect with
    * @since 1.4
    */
-  public boolean intersects(RapidBitSet set) {
+  public boolean intersects(final RapidBitSet set) {
     for (int i = Math.min(wordsInUse, set.wordsInUse) - 1; i >= 0; i--)
       if ((words[i] & set.words[i]) != 0)
         return true;
@@ -669,7 +669,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *
    * @param set a bit set.
    */
-  public void and(RapidBitSet set) {
+  public void and(final RapidBitSet set) {
     if (this == set)
       return;
 
@@ -696,11 +696,11 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *
    * @param set a bit set.
    */
-  public void or(RapidBitSet set) {
+  public void or(final RapidBitSet set) {
     if (this == set)
       return;
 
-    int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
+    final int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
 
     if (wordsInUse < set.wordsInUse) {
       ensureCapacity(set.wordsInUse);
@@ -735,8 +735,8 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *
    * @param set a bit set.
    */
-  public void xor(RapidBitSet set) {
-    int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
+  public void xor(final RapidBitSet set) {
+    final int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
 
     if (wordsInUse < set.wordsInUse) {
       ensureCapacity(set.wordsInUse);
@@ -765,7 +765,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *            <code>BitSet</code>.
    * @since 1.2
    */
-  public void andNot(RapidBitSet set) {
+  public void andNot(final RapidBitSet set) {
     // Perform logical (a & !b) on words in common
     for (int i = Math.min(wordsInUse, set.wordsInUse) - 1; i >= 0; i--)
       words[i] &= ~set.words[i];
@@ -834,13 +834,13 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    *         <code>false</code> otherwise.
    * @see java.util.BitSet#size()
    */
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (!(obj instanceof RapidBitSet))
       return false;
     if (this == obj)
       return true;
 
-    RapidBitSet set = (RapidBitSet) obj;
+    final RapidBitSet set = (RapidBitSet) obj;
 
     checkInvariants();
     set.checkInvariants();
@@ -872,7 +872,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
       trimToSize();
 
     try {
-      RapidBitSet result = (RapidBitSet) super.clone();
+      final RapidBitSet result = (RapidBitSet) super.clone();
       result.words = words.clone();
       result.checkInvariants();
       return result;
@@ -919,7 +919,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * Save the state of the <tt>BitSet</tt> instance to a stream (i.e.,
    * serialize it).
    */
-  private void writeObject(ObjectOutputStream s)
+  private void writeObject(final ObjectOutputStream s)
     throws IOException {
 
     checkInvariants();
@@ -927,7 +927,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
     if (!sizeIsSticky)
       trimToSize();
 
-    ObjectOutputStream.PutField fields = s.putFields();
+    final ObjectOutputStream.PutField fields = s.putFields();
     fields.put("bits", words);
     s.writeFields();
   }
@@ -936,10 +936,10 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * Reconstitute the <tt>BitSet</tt> instance from a stream (i.e.,
    * deserialize it).
    */
-  private void readObject(ObjectInputStream s)
+  private void readObject(final ObjectInputStream s)
     throws IOException, ClassNotFoundException {
 
-    ObjectInputStream.GetField fields = s.readFields();
+    final ObjectInputStream.GetField fields = s.readFields();
     words = (long[]) fields.get("bits", null);
 
     // Assume maximum length then find real length
@@ -977,16 +977,16 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
   public String toString() {
     checkInvariants();
 
-    int numBits = (wordsInUse > 128) ?
+    final int numBits = (wordsInUse > 128) ?
       cardinality() : wordsInUse * BITS_PER_WORD;
-    StringBuilder b = new StringBuilder(6 * numBits + 2);
+    final StringBuilder b = new StringBuilder(6 * numBits + 2);
     b.append('{');
 
     int i = nextSetBit(0);
     if (i != -1) {
       b.append(i);
       for (i = nextSetBit(i + 1); i >= 0; i = nextSetBit(i + 1)) {
-        int endOfRun = nextClearBit(i);
+        final int endOfRun = nextClearBit(i);
         do {
           b.append(", ").append(i);
         }

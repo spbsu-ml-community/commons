@@ -18,25 +18,25 @@ public class List2CharSequenceConverter<T> implements Converter<List<T>, CharSeq
   private final Converter<T, CharSequence> converter;
   private final char separator;
 
-  public List2CharSequenceConverter(final Converter<T, CharSequence> converter, char separator) {
+  public List2CharSequenceConverter(final Converter<T, CharSequence> converter, final char separator) {
     this.converter = converter;
     this.separator = separator;
   }
 
   @Override
-  public List<T> convertFrom(CharSequence source) {
+  public List<T> convertFrom(final CharSequence source) {
     final List<T> result = new ArrayList<T>();
-    CharSequence[] parts = CharSeqTools.split(source, separator);
-    for (CharSequence part : parts) {
+    final CharSequence[] parts = CharSeqTools.split(source, separator);
+    for (final CharSequence part : parts) {
       result.add(converter.convertFrom(part));
     }
     return result;
   }
 
   @Override
-  public CharSequence convertTo(List<T> data) {
-    StringBuilder stringBuilder = new StringBuilder();
-    for (T element : data) {
+  public CharSequence convertTo(final List<T> data) {
+    final StringBuilder stringBuilder = new StringBuilder();
+    for (final T element : data) {
       if (stringBuilder.length() > 0)
         stringBuilder.append(separator);
       stringBuilder.append(converter.convertTo(element));

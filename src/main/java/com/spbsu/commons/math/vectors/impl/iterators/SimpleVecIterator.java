@@ -9,10 +9,10 @@ import com.spbsu.commons.math.vectors.VecIterator;
 * Time: 16:23
 */
 public class SimpleVecIterator implements VecIterator {
-  private Vec vec;
+  private final Vec vec;
   int index = 0;
 
-  public SimpleVecIterator(Vec vec) {
+  public SimpleVecIterator(final Vec vec) {
     this.vec = vec;
   }
 
@@ -37,12 +37,12 @@ public class SimpleVecIterator implements VecIterator {
   }
 
   @Override
-  public boolean seek(int pos) {
+  public boolean seek(final int pos) {
     return (index = pos) < vec.dim();
   }
 
   @Override
-  public double setValue(double v) {
+  public double setValue(final double v) {
     return vec.set(index, v).get(index);
   }
 }

@@ -18,61 +18,61 @@ public class VecBasedMx extends Mx.Stub {
   public final Vec vec;
   public final int columns;
 
-  public VecBasedMx(int columns, Vec vec) {
+  public VecBasedMx(final int columns, final Vec vec) {
     this.columns = columns;
     this.vec = vec;
   }
 
-  public VecBasedMx(int rows, int columns) {
+  public VecBasedMx(final int rows, final int columns) {
     this(columns, new ArrayVec(rows * columns));
   }
 
-  public VecBasedMx(Mx mx) {
+  public VecBasedMx(final Mx mx) {
     if (mx instanceof VecBasedMx)
       vec = VecTools.copy(((VecBasedMx) mx).vec);
     else vec = mx;
     columns = mx.columns();
   }
 
-  public double get(int i, int j) {
+  public double get(final int i, final int j) {
     return vec.get(columns * i + j);
   }
   @Override
-  public Mx set(int i, int j, double val) {
+  public Mx set(final int i, final int j, final double val) {
     vec.set(j + columns * i, val);
     return this;
   }
 
   @Override
-  public Mx adjust(int i, int j, double increment) {
+  public Mx adjust(final int i, final int j, final double increment) {
     vec.adjust(j + columns * i, increment);
     return this;
   }
 
   @Override
-  public Mx sub(int i, int j, int height, int width) {
+  public Mx sub(final int i, final int j, final int height, final int width) {
     return new VecBasedMx(width, new IndexTransVec(vec,
             new SubMxTransformation(columns(), i, j, height, width)));
   }
 
   @Override
-  public Vec row(int i) {
+  public Vec row(final int i) {
     return vec.sub(i * columns, columns);
   }
 
   @Override
-  public double get(int i) {
+  public double get(final int i) {
     return vec.get(i);
   }
 
   @Override
-  public Vec set(int i, double val) {
+  public Vec set(final int i, final double val) {
     vec.set(i, val);
     return this;
   }
 
   @Override
-  public Vec adjust(int i, double increment) {
+  public Vec adjust(final int i, final double increment) {
     vec.adjust(i, increment);
     return this;
   }

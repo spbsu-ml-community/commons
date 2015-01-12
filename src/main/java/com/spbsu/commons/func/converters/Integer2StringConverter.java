@@ -9,12 +9,12 @@ import com.spbsu.commons.func.Converter;
 public class Integer2StringConverter implements Converter<Integer, String> {
 
   @Override
-  public Integer convertFrom(String source) {
+  public Integer convertFrom(final String source) {
     return Integer.parseInt(source);
   }
 
   @Override
-  public String convertTo(Integer value) {
+  public String convertTo(final Integer value) {
     return value.toString();
   }
 }

@@ -19,19 +19,19 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
   public TDoubleArrayList values = new TDoubleArrayList();
   protected B basis;
 
-  public CustomBasisVec(B basis, int[] indeces, double[] values) {
+  public CustomBasisVec(final B basis, final int[] indeces, final double[] values) {
     this.basis = basis;
     init(indeces, values);
   }
 
-  public CustomBasisVec(B basis) {
+  public CustomBasisVec(final B basis) {
     this.basis = basis;
   }
 
   protected CustomBasisVec() {
   }
 
-  protected void init(int[] indices, double[] values) {
+  protected void init(final int[] indices, final double[] values) {
     if (!ArrayTools.isSorted(indices))
       ArrayTools.parallelSort(indices, values);
     this.indices.add(indices);
@@ -39,7 +39,7 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
   }
 
   @Override
-  public double get(int i) {
+  public double get(final int i) {
     final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       return values.getQuick(realIndex);
@@ -48,7 +48,7 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
   }
 
   @Override
-  public Vec set(int i, double val) {
+  public Vec set(final int i, final double val) {
     final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       if (val == 0) {
@@ -66,7 +66,7 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
     return this;
   }
 
-  private int index(int n) {
+  private int index(final int n) {
     final TIntArrayList indicesLocal = indices;
     if (n < 16) {
       final int size = indicesLocal.size();
@@ -81,7 +81,7 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
   }
 
   @Override
-  public Vec adjust(int i, double increment) {
+  public Vec adjust(final int i, final double increment) {
     final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       final double newValue = values.getQuick(realIndex) + increment;
@@ -115,16 +115,16 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
 
   @Override
   public synchronized double[] toArray() {
-    double[] result = new double[basis.size()];
-    VecIterator iter = nonZeroes();
+    final double[] result = new double[basis.size()];
+    final VecIterator iter = nonZeroes();
     while (iter.advance())
       result[iter.index()] = iter.value();
     return result;
   }
 
   @Override
-  public Vec sub(int start, int len) {
-    int end = start + len;
+  public Vec sub(final int start, final int len) {
+    final int end = start + len;
     int sindex = 0;
     int eindex = 0;
     for (int i = 0; i < indices.size() && indices.get(i) < end; i++) {
@@ -132,8 +132,8 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
         sindex++;
       eindex++;
     }
-    int[] indices = new int[eindex - sindex];
-    double[] values = new double[eindex - sindex];
+    final int[] indices = new int[eindex - sindex];
+    final double[] values = new double[eindex - sindex];
     for (int i = 0; i < indices.length; i++) {
       indices[i] = this.indices.get(i + sindex) - start;
       values[i] = this.values.get(i + sindex);
@@ -148,7 +148,7 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
   }
 
   /**way faster than set, but index must be greater all indices we already have in vector */
-  public void add(int index, double v) {
+  public void add(final int index, final double v) {
     if (v != 0.) {
       this.indices.add(index);
       this.values.add(v);

@@ -18,7 +18,7 @@ public class TransformedSparseVecIterator implements VecIterator {
   private final TIntArrayList nzIndices;
   private final TIntArrayList nzTransformed;
 
-  public TransformedSparseVecIterator(TIntArrayList origIndices, TDoubleArrayList origValues, TIntArrayList nzIndices, TIntArrayList nzTransformed) {
+  public TransformedSparseVecIterator(final TIntArrayList origIndices, final TDoubleArrayList origValues, final TIntArrayList nzIndices, final TIntArrayList nzTransformed) {
     this.origIndices = origIndices;
     this.origValues = origValues;
     this.nzIndices = nzIndices;
@@ -41,14 +41,14 @@ public class TransformedSparseVecIterator implements VecIterator {
   public final boolean advance() {
     if (needRemove) {
       needRemove = false;
-      int oldIndex = nzTransformed.getQuick(index);
+      final int oldIndex = nzTransformed.getQuick(index);
       origIndices.removeAt(oldIndex);
       origValues.removeAt(oldIndex);
       nzTransformed.removeAt(index);
       nzIndices.removeAt(index);
       size--;
       for (int i = 0; i < size; i++) {
-        int old = nzTransformed.getQuick(i);
+        final int old = nzTransformed.getQuick(i);
         if (old > oldIndex) {
           nzTransformed.setQuick(i, old - 1);
         }
@@ -59,7 +59,7 @@ public class TransformedSparseVecIterator implements VecIterator {
   }
 
   @Override
-  public boolean seek(int pos) {
+  public boolean seek(final int pos) {
     advance();
     if (pos == 0) {
       index = -1;
@@ -72,7 +72,7 @@ public class TransformedSparseVecIterator implements VecIterator {
   }
 
   @Override
-  public double setValue(double v) {
+  public double setValue(final double v) {
     origValues.setQuick(nzTransformed.getQuick(index), v);
     needRemove = (v == 0);
     return v;

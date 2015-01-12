@@ -7,9 +7,9 @@ import com.spbsu.commons.math.vectors.Basis;
  * Date: 16.01.2010
  */
 public class IntBasis implements Basis {
-  private int size;
+  private final int size;
 
-  public IntBasis(int size) {
+  public IntBasis(final int size) {
     this.size = size;
   }
 
@@ -19,7 +19,7 @@ public class IntBasis implements Basis {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     return this == o || !(o == null || getClass() != o.getClass()) && size == ((IntBasis) o).size;
 
   }

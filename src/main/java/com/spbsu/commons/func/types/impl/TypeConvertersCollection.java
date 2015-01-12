@@ -25,12 +25,12 @@ import java.util.Set;
  * Time: 12:15
  */
 public class TypeConvertersCollection implements ConversionRepository {
-  private static Log LOG = LogFactory.getLog(TypeConvertersCollection.class);
-  private ConversionRepository base;
-  private Filter<TypeConverter> customize;
+  private static final Log LOG = LogFactory.getLog(TypeConvertersCollection.class);
+  private final ConversionRepository base;
+  private final Filter<TypeConverter> customize;
   private Map<Pair<Class, Class>, Factory<TypeConverter>> factories = new HashMap<Pair<Class, Class>, Factory<TypeConverter>>();
-  private Map<Pair<Class, Class>, TypeConverter> instances = new HashMap<Pair<Class, Class>, TypeConverter>();
-  private Map<Pair<Class, Class>, TypeConverter> cache = new HashMap<Pair<Class, Class>, TypeConverter>();
+  private final Map<Pair<Class, Class>, TypeConverter> instances = new HashMap<Pair<Class, Class>, TypeConverter>();
+  private final Map<Pair<Class, Class>, TypeConverter> cache = new HashMap<Pair<Class, Class>, TypeConverter>();
 
   public TypeConvertersCollection(final Object... converters) {
     this(null, converters);
@@ -40,16 +40,16 @@ public class TypeConvertersCollection implements ConversionRepository {
    * java.lang.String -- name of package
    */
 
-  public TypeConvertersCollection(ConversionRepository base, final Object... converters) {
+  public TypeConvertersCollection(final ConversionRepository base, final Object... converters) {
     this.base = base;
     this.customize = base instanceof TypeConvertersCollection ? ((TypeConvertersCollection)base).customize : null;
-    for (Object convId : converters) {
+    for (final Object convId : converters) {
       try {
         if (convId instanceof String) {
-          String pack = (String) convId;
-          String[] resources = RuntimeUtils.packageResourcesList(pack);
-          Set<Class> registered = new HashSet<Class>();
-          for (String resource : resources) {
+          final String pack = (String) convId;
+          final String[] resources = RuntimeUtils.packageResourcesList(pack);
+          final Set<Class> registered = new HashSet<Class>();
+          for (final String resource : resources) {
             if (resource.endsWith(".class")) {
               final Class<?> converterClass = Class.forName(resource.substring(0, resource.length() - ".class".length()).replace('/', '.'));
               if (!registered.contains(converterClass) && converterClass.getEnclosingClass() == null) // only top level classes
@@ -74,7 +74,7 @@ public class TypeConvertersCollection implements ConversionRepository {
     createInstances(factories, customize);
   }
 
-  private TypeConvertersCollection(ConversionRepository base, Map<Pair<Class, Class>, Factory<TypeConverter>> factories, Filter<TypeConverter> filter){
+  private TypeConvertersCollection(final ConversionRepository base, final Map<Pair<Class, Class>, Factory<TypeConverter>> factories, final Filter<TypeConverter> filter){
     this.base = base;
     this.factories = factories;
     this.customize = filter;
@@ -82,11 +82,11 @@ public class TypeConvertersCollection implements ConversionRepository {
     createInstances(factories, filter);
   }
 
-  private void createInstances(Map<Pair<Class, Class>, Factory<TypeConverter>> factories, Filter<TypeConverter> filter) {
-    for (Map.Entry<Pair<Class, Class>, Factory<TypeConverter>> entry : factories.entrySet()) {
+  private void createInstances(final Map<Pair<Class, Class>, Factory<TypeConverter>> factories, final Filter<TypeConverter> filter) {
+    for (final Map.Entry<Pair<Class, Class>, Factory<TypeConverter>> entry : factories.entrySet()) {
       if (entry.getValue() == null)
         continue;
-      TypeConverter converter = entry.getValue().create();
+      final TypeConverter converter = entry.getValue().create();
       if (converter instanceof ConversionDependant)
         ((ConversionDependant) converter).setConversionRepository(this);
       if (filter == null || filter.accept(converter))
@@ -99,7 +99,7 @@ public class TypeConvertersCollection implements ConversionRepository {
     return ((TypeConverter<F,T>)converter(instance.getClass(), destClass)).convert(instance);
   }
 
-  public synchronized <U,V> TypeConverter<U,V> converter(Class<U> from, Class<V> to) {
+  public synchronized <U,V> TypeConverter<U,V> converter(final Class<U> from, final Class<V> to) {
     if (to.isAssignableFrom(from))
       return new TypeConverter<U, V>() {
         @Override
@@ -111,8 +111,8 @@ public class TypeConvertersCollection implements ConversionRepository {
     TypeConverter<U, V> converter = (TypeConverter<U, V>)cache.get(key);
     if (converter == null) { // trying to fall back by inheritance
       Pair<Class<?>, Class<?>> bestMatch = null;
-      for (Pair p : instances.keySet()) {
-        Pair<Class<?>, Class<?>> candidate = (Pair<Class<?>, Class<?>>)p;
+      for (final Pair p : instances.keySet()) {
+        final Pair<Class<?>, Class<?>> candidate = (Pair<Class<?>, Class<?>>)p;
         if (candidate.first.isAssignableFrom(key.first) && key.second.isAssignableFrom(candidate.second)) { // match!
           if (bestMatch == null
               || (bestMatch.first.isAssignableFrom(candidate.first)
@@ -232,7 +232,7 @@ public class TypeConvertersCollection implements ConversionRepository {
     return false;
   }
 
-  private boolean registerInner(Pair<Class,Class> key, Factory<TypeConverter> converter) {
+  private boolean registerInner(final Pair<Class,Class> key, final Factory<TypeConverter> converter) {
     if (factories.containsKey(key)) {
       LOG.warn("Conflict found for types" + key.first.getName() + " -> " + key.second.getName());
       factories.put(key, null);

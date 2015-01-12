@@ -18,15 +18,15 @@ public class ListDictionary<T extends Comparable<T>> {
   private final Comparator<Seq<T>> cmp;
 
   @SafeVarargs
-  public ListDictionary(Seq<T>... sex) {
+  public ListDictionary(final Seq<T>... sex) {
     this.sex = sex;
     this.parents = new int[sex.length];
-    Stack<Pair<Seq<T>,Integer>> parents = new Stack<>();
+    final Stack<Pair<Seq<T>,Integer>> parents = new Stack<>();
     cmp = CharSeqTools.lexicographicalComparator(sex[0].elementType());
     Arrays.sort(this.sex, cmp);
 
     for (int i = 0; i < sex.length; i++) {
-      Seq<T> current = this.sex[i];
+      final Seq<T> current = this.sex[i];
       this.parents[i] = -1;
       while (!parents.empty()) {
         if(CharSeqTools.startsWith(current, parents.peek().getFirst())) {
@@ -40,13 +40,13 @@ public class ListDictionary<T extends Comparable<T>> {
   }
 
   @SafeVarargs
-  public ListDictionary(T... chars) {
+  public ListDictionary(final T... chars) {
     this(convertToSeqs(chars));
   }
 
-  private static <T> Seq<T>[] convertToSeqs(T[] chars) {
+  private static <T> Seq<T>[] convertToSeqs(final T[] chars) {
     final List<Seq<T>> initalDict = new ArrayList<>(chars.length);
-    for (T character : chars) {
+    for (final T character : chars) {
       //noinspection unchecked
       initalDict.add((Seq<T>)CharSeqTools.create(new Object[]{character}));
     }
@@ -54,7 +54,7 @@ public class ListDictionary<T extends Comparable<T>> {
     return initalDict.toArray(new Seq[initalDict.size()]);
   }
 
-  public int search(Seq<T> seq) {
+  public int search(final Seq<T> seq) {
     int index = Arrays.binarySearch(sex, seq, cmp);
     if (index >= 0)
       return index;
@@ -68,7 +68,7 @@ public class ListDictionary<T extends Comparable<T>> {
     throw new RuntimeException("Dictionary index is corrupted!");
   }
 
-  public Seq<T> get(int index) {
+  public Seq<T> get(final int index) {
     return sex[index];
   }
 
@@ -80,7 +80,7 @@ public class ListDictionary<T extends Comparable<T>> {
     return Arrays.asList(sex);
   }
 
-  public int parent(int second) {
+  public int parent(final int second) {
     return parents[second];
   }
 }

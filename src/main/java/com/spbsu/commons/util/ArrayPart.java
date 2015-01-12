@@ -14,21 +14,21 @@ public class ArrayPart<ArrayType> {
   public final int start;
   public final int length;
 
-  public ArrayPart(ArrayType array, int start, int length) {
+  public ArrayPart(final ArrayType array, final int start, final int length) {
     this.array = array;
     this.start = start;
     this.length = length;
   }
 
-  public ArrayPart(ArrayType array) {
+  public ArrayPart(final ArrayType array) {
     this(array, 0, Array.getLength(array));
   }
 
-  public ArrayPart<ArrayType> sub(int start, int length) {
+  public ArrayPart<ArrayType> sub(final int start, final int length) {
     return new ArrayPart<ArrayType>(array, start + this.start, length);
   }
 
-  public double doubleAt(int index) {
+  public double doubleAt(final int index) {
     return Array.getDouble(array, index + start);
   }
 

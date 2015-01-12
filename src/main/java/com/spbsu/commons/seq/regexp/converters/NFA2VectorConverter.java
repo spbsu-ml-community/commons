@@ -21,12 +21,12 @@ import java.util.ArrayList;
 public class NFA2VectorConverter implements Converter<NFA<Character>,Vec>{
   private final Alphabet<Character> alpha;
 
-  public NFA2VectorConverter(Alphabet<Character> alpha) {
+  public NFA2VectorConverter(final Alphabet<Character> alpha) {
     this.alpha = alpha;
   }
 
   @Override
-  public Vec convertTo(NFA<Character> source) {
+  public Vec convertTo(final NFA<Character> source) {
     final int statesCount = source.states();
     final Vec result = new SparseVec(new IntBasis(alpha.size() * (statesCount * (statesCount + 1) / 2)).size());
     int index = 0;
@@ -43,7 +43,7 @@ public class NFA2VectorConverter implements Converter<NFA<Character>,Vec>{
   }
 
   @Override
-  public NFA<Character> convertFrom(Vec source) {
+  public NFA<Character> convertFrom(final Vec source) {
     final TIntHashSet finalStates = new TIntHashSet();
     final int a = source.dim() / alpha.size();
     final int statesCount = (int) ((Math.sqrt(8 * a + 1) - 1) / 2.); //

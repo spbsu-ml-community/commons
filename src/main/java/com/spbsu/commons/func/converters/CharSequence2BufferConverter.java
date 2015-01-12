@@ -21,27 +21,27 @@ import java.nio.charset.CharsetEncoder;
 public class CharSequence2BufferConverter<T extends CharSequence> implements Converter<T, Buffer> {
   static CharsetDecoder DECODER;
   static CharsetEncoder ENCODER;
-  private Computable<char[], ? extends T> factory;
+  private final Computable<char[], ? extends T> factory;
 
-  public CharSequence2BufferConverter(Computable<char[], ? extends T> factory) {
+  public CharSequence2BufferConverter(final Computable<char[], ? extends T> factory) {
     this.factory = factory;
   }
 
   static {
-    Charset cs = Charset.forName("UTF-8");
+    final Charset cs = Charset.forName("UTF-8");
     DECODER = cs.newDecoder();
     ENCODER = cs.newEncoder();
   }
 
-  public static synchronized CharBuffer decode(ByteBuffer byteBuffer) throws CharacterCodingException {
+  public static synchronized CharBuffer decode(final ByteBuffer byteBuffer) throws CharacterCodingException {
     return DECODER.decode(byteBuffer);
   }
 
-  public static synchronized ByteBuffer encode(CharBuffer charBuffer) throws CharacterCodingException {
+  public static synchronized ByteBuffer encode(final CharBuffer charBuffer) throws CharacterCodingException {
     return ENCODER.encode(charBuffer);
   }
 
-  public T convertFrom(Buffer source) {
+  public T convertFrom(final Buffer source) {
     if (source.remaining() < 1)
       throw new BufferUnderflowException();
     final int length = NioConverterTools.restoreSize(source);
@@ -60,7 +60,7 @@ public class CharSequence2BufferConverter<T extends CharSequence> implements Con
     }
   }
 
-  public Buffer convertTo(T cs) {
+  public Buffer convertTo(final T cs) {
     try {
       final ByteBuffer contents = encode(CharBuffer.wrap(cs));
       return BufferFactory.join(NioConverterTools.storeSize(contents.remaining()), BufferFactory.wrap(contents));

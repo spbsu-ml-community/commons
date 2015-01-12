@@ -19,7 +19,7 @@ public class BitInputBuffer implements BitInput {
   private final ByteBuffer buffer;
   private int offset = 0;
 
-  public BitInputBuffer(ByteBuffer input) {
+  public BitInputBuffer(final ByteBuffer input) {
     buffer = input;
   }
 

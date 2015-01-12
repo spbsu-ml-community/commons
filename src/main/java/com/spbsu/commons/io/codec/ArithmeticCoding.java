@@ -24,15 +24,15 @@ public class ArithmeticCoding {
     private long high, low;
     private long underflow = 0;
 
-    public Encoder(ByteBuffer out, int[] freq) {
+    public Encoder(final ByteBuffer out, final int[] freq) {
       this(new BitOutputBuffer(out), freq);
     }
 
-    public Encoder(OutputStream out, int[] freq) {
+    public Encoder(final OutputStream out, final int[] freq) {
       this(new BitOutputStream(out), freq);
     }
 
-    public Encoder(BitOutput output, int[] freq) {
+    public Encoder(final BitOutput output, final int[] freq) {
       this.output = output;
       limits = new int[freq.length];
       int total = 0;
@@ -46,10 +46,10 @@ public class ArithmeticCoding {
     }
 
 
-    public void write(int symbol) {
-      long tempRange= (high-low)+1;
-      long symStart = symbol > 0 ? limits[symbol - 1] : 0;
-      long symEnd = limits[symbol];
+    public void write(final int symbol) {
+      final long tempRange= (high-low)+1;
+      final long symStart = symbol > 0 ? limits[symbol - 1] : 0;
+      final long symEnd = limits[symbol];
       high=low + ((tempRange*symEnd)/total)-1;
       low	=low + ((tempRange*symStart)/total);
 
@@ -105,15 +105,15 @@ public class ArithmeticCoding {
     private long high, low;
     private long code;
 
-    public Decoder(ByteBuffer input, int[] freq) {
+    public Decoder(final ByteBuffer input, final int[] freq) {
       this(new BitInputBuffer(input), freq);
     }
 
-    public Decoder(InputStream input, int[] freq) {
+    public Decoder(final InputStream input, final int[] freq) {
       this(new BitInputStream(input), freq);
     }
 
-    public Decoder(BitInput input, int[] freqs) {
+    public Decoder(final BitInput input, final int[] freqs) {
       this.input = input;
       limits = new int[freqs.length]; // all symbols + eof
       int total = 0;
@@ -131,12 +131,12 @@ public class ArithmeticCoding {
     }
 
     public int read() {
-      long tempRange= (high-low)+1;
-      int value = (int)(((((code-low)+1)*total)-1)/tempRange);
-      int result = Math.abs(Arrays.binarySearch(limits, value) + 1);
+      final long tempRange= (high-low)+1;
+      final int value = (int)(((((code-low)+1)*total)-1)/tempRange);
+      final int result = Math.abs(Arrays.binarySearch(limits, value) + 1);
 
-      long symHigh = limits[result];
-      long symLow = result > 0 ? limits[result - 1] : 0;
+      final long symHigh = limits[result];
+      final long symLow = result > 0 ? limits[result - 1] : 0;
 
       high=low+((tempRange*symHigh)/total)-1;
       low	=low+((tempRange*symLow )/total);

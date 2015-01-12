@@ -19,8 +19,8 @@ public class Pair2CharSequenceConversionPack implements ConversionPack<Pair, Cha
 
     @Override
     public CharSequence convert(final Pair from) {
-      Class convType1 = owner.conversionType(from.first.getClass(), CharSequence.class);
-      Class convType2 = owner.conversionType(from.second.getClass(), CharSequence.class);
+      final Class convType1 = owner.conversionType(from.first.getClass(), CharSequence.class);
+      final Class convType2 = owner.conversionType(from.second.getClass(), CharSequence.class);
       final CharSequence firstConversion = owner.convert(from.first, CharSequence.class);
       return CharSeqTools.concat("(",
           Integer.toString(firstConversion.length()), ",",
@@ -41,7 +41,7 @@ public class Pair2CharSequenceConversionPack implements ConversionPack<Pair, Cha
     }
 
     @Override
-    public final Pair convert(CharSequence seq) {
+    public final Pair convert(final CharSequence seq) {
       final CharSequence[] split = CharSeqTools.split(seq.subSequence(1, seq.length() - 1), ',', new CharSequence[4]);
       final int firstLength = CharSeqTools.parseInt(split[0]);
       final CharSequence first = split[3].subSequence(0, firstLength);

@@ -63,21 +63,21 @@ public class TextDecoderTools {
     textAnalyzer.setCharFilter(CharFilter.NOT_ASCII_FILTER);
     textAnalyzer.setMaxAnalysisLength(500);
     final List<Charset> cyrillicCharsets = new ArrayList<Charset>();
-    for (String charset : CYRILLIC_CHARSETS) {
+    for (final String charset : CYRILLIC_CHARSETS) {
       cyrillicCharsets.add(Charset.forName(charset));
     }
     cyrillicTextDecoder = new BigramsTextDecoder(cyrBigramsTable, cyrillicCharsets);
   }
 
-  public static CharSequence decodeCyrillicText(@NotNull byte[] bytes) {
+  public static CharSequence decodeCyrillicText(@NotNull final byte[] bytes) {
     return cyrillicTextDecoder.decodeText(bytes);
   }
 
-  public static CharSequence decodeCyrillicText(@NotNull CharSequence text) {
+  public static CharSequence decodeCyrillicText(@NotNull final CharSequence text) {
     return cyrillicTextDecoder.decodeText(text);
   }
 
-  public static byte[] getBytes(CharSequence sequence, String encName) {
+  public static byte[] getBytes(final CharSequence sequence, final String encName) {
     try {
       return sequence.toString().getBytes(encName);
     }

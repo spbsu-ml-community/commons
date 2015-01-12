@@ -181,19 +181,19 @@ public class NIOTest extends TestCase {
   }
 
   public void testLocalPosMove() throws Exception {
-    byte[] zlo = new byte[] {'z', 'l', 'o'};
+    final byte[] zlo = new byte[] {'z', 'l', 'o'};
     final Buffer src = BufferFactory.join(BufferFactory.wrap(new byte[3]), BufferFactory.wrap(new byte[1]));
     src.putByte((byte)2);
     src.put(zlo);
     src.position(0);
     assertEquals((byte)2, src.getByte());
-    byte[] read = new byte[3];
+    final byte[] read = new byte[3];
     src.get(read);
     assertTrue(Arrays.equals(zlo, read));
   }
 
   public void testLocalPosMove1() throws Exception {
-    byte[] zlo = new byte[] {'z', 'l', 'o'};
+    final byte[] zlo = new byte[] {'z', 'l', 'o'};
     final Buffer buffer = BufferFactory.wrap(new byte[4]);
     buffer.putByte((byte)3);
     final Buffer src = BufferFactory.join(buffer, BufferFactory.wrap(new byte[1]));
@@ -201,7 +201,7 @@ public class NIOTest extends TestCase {
     src.put(zlo);
     src.position(0);
     assertEquals((byte)2, src.getByte());
-    byte[] read = new byte[3];
+    final byte[] read = new byte[3];
     src.get(read);
     assertTrue(Arrays.equals(zlo, read));
   }

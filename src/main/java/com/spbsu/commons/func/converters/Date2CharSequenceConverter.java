@@ -12,12 +12,12 @@ import java.util.Date;
  */
 public class Date2CharSequenceConverter implements Converter<Date, CharSequence> {
   @Override
-  public Date convertFrom(CharSequence source) {
+  public Date convertFrom(final CharSequence source) {
     return new Date(CharSeqTools.parseLong(source));
   }
 
   @Override
-  public String convertTo(Date object) {
+  public String convertTo(final Date object) {
     return Long.toString(object.getTime());
   }
 }

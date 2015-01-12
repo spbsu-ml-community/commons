@@ -35,7 +35,7 @@ public class VecBuilder implements SeqBuilder<Double> {
     return this;
   }
 
-  public void append(double d) {
+  public void append(final double d) {
     data.add(d);
   }
 

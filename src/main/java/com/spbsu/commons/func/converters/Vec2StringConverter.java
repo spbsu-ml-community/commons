@@ -18,13 +18,13 @@ import java.util.StringTokenizer;
  */
 public class Vec2StringConverter implements Converter<Vec, String>{
   @Override
-  public Vec convertFrom(String source) {
-    StringTokenizer tok = new StringTokenizer(source, "\t");
-    Vec vec;
+  public Vec convertFrom(final String source) {
+    final StringTokenizer tok = new StringTokenizer(source, "\t");
+    final Vec vec;
     if (source.contains(":")) {
       vec = new SparseVec(new IntBasis(Integer.parseInt(tok.nextToken())).size());
       while(tok.hasMoreElements()) {
-        StringTokenizer p = new StringTokenizer(tok.nextToken(), ":");
+        final StringTokenizer p = new StringTokenizer(tok.nextToken(), ":");
         vec.set(Integer.parseInt(p.nextToken()), Double.parseDouble(p.nextToken()));
       }
     }
@@ -38,8 +38,8 @@ public class Vec2StringConverter implements Converter<Vec, String>{
   }
 
   @Override
-  public String convertTo(Vec v) {
-    StringBuilder builder = new StringBuilder();
+  public String convertTo(final Vec v) {
+    final StringBuilder builder = new StringBuilder();
     builder.append(v.dim());
     if (v instanceof SparseVec) {
       final VecIterator it = v.nonZeroes();

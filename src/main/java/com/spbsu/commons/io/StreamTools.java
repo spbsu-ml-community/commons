@@ -69,17 +69,17 @@ public class StreamTools {
     }
   }
 
-  public static CharSequence readFile(File file, Charset charset) throws IOException {
+  public static CharSequence readFile(final File file, final Charset charset) throws IOException {
     try (final InputStream in = new BufferedInputStream(new FileInputStream(file))) {
       return readReader(new InputStreamReader(in, charset));
     }
   }
 
-  public static void readFile(File file, Processor<CharSequence> lineProcessor) throws IOException {
+  public static void readFile(final File file, final Processor<CharSequence> lineProcessor) throws IOException {
     readFile(file, DEFAULT_CHARSET, lineProcessor);
   }
 
-  public static void readFile(File file, Charset charset, Processor<CharSequence> lineProcessor) throws IOException {
+  public static void readFile(final File file, final Charset charset, final Processor<CharSequence> lineProcessor) throws IOException {
     final LineNumberReader reader = new LineNumberReader(
         new InputStreamReader(new FileInputStream(file), charset), BUFFER_LENGTH);
     int lineCounter = 0;
@@ -96,7 +96,7 @@ public class StreamTools {
     }
   }
 
-  public static CharSequence readFile(File file) throws IOException {
+  public static CharSequence readFile(final File file) throws IOException {
     return readFile(file, DEFAULT_CHARSET);
   }
 
@@ -104,7 +104,7 @@ public class StreamTools {
     transferData(in, out, false);
   }
 
-  public static void transferData(final InputStream in, final OutputStream out, boolean sync) throws IOException {
+  public static void transferData(final InputStream in, final OutputStream out, final boolean sync) throws IOException {
     final byte[] buffer = new byte[BUFFER_LENGTH];
     final InputStream bufferedIn = new BufferedInputStream(in);
     final OutputStream bufferedOut = new BufferedOutputStream(out);
@@ -152,11 +152,11 @@ public class StreamTools {
     }
   }
 
-  public static CharSequence readURL(String urlStr) throws IOException {
+  public static CharSequence readURL(final String urlStr) throws IOException {
     return readURL(urlStr, DEFAULT_CHARSET);
   }
 
-  public static CharSequence readURL(String urlStr, Charset charset) throws IOException {
+  public static CharSequence readURL(final String urlStr, final Charset charset) throws IOException {
     InputStream inputStream = null;
     try {
       final URL url = new URL(urlStr);
@@ -175,7 +175,7 @@ public class StreamTools {
     }
   }
 
-  public static Reader communicate(String urlStr, CharSequence toSend) {
+  public static Reader communicate(final String urlStr, final CharSequence toSend) {
     OutputStream outputStream = null;
     try {
       final URL url = new URL(urlStr);
@@ -183,7 +183,7 @@ public class StreamTools {
       urlConnection.setDoOutput(true);
       urlConnection.setDoInput(true);
       outputStream = urlConnection.getOutputStream();
-      OutputStreamWriter writer = new OutputStreamWriter(outputStream, DEFAULT_CHARSET.name());
+      final OutputStreamWriter writer = new OutputStreamWriter(outputStream, DEFAULT_CHARSET.name());
       writer.append(toSend);
       writer.close();
       return new InputStreamReader(urlConnection.getInputStream(), DEFAULT_CHARSET.name());
@@ -203,11 +203,11 @@ public class StreamTools {
     return null;
   }
 
-  public static void writeChars(CharSequence sequence, File file) throws IOException {
+  public static void writeChars(final CharSequence sequence, final File file) throws IOException {
     writeChars(sequence, file, DEFAULT_CHARSET);
   }
 
-  public static void writeChars(CharSequence sequence, File file, Charset charset) throws IOException {
+  public static void writeChars(final CharSequence sequence, final File file, final Charset charset) throws IOException {
     final PrintWriter writer = new PrintWriter(file, charset.name());
     try {
       writer.print(sequence);
@@ -216,7 +216,7 @@ public class StreamTools {
     }
   }
 
-  public static void writeBytes(byte[] bytes, File file) throws IOException {
+  public static void writeBytes(final byte[] bytes, final File file) throws IOException {
     final DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file));
     try {
       outputStream.write(bytes);
@@ -225,7 +225,7 @@ public class StreamTools {
     }
   }
 
-  public static byte[] readFileBytes(File file) throws IOException {
+  public static byte[] readFileBytes(final File file) throws IOException {
     DataInputStream dataInputStream = null;
     try {
       final byte[] bytes = new byte[(int) file.length()];
@@ -259,12 +259,12 @@ public class StreamTools {
     }
   }
 
-  public static TByteArrayList transformByExternalCommand(String command, InputStream input) throws IOException {
+  public static TByteArrayList transformByExternalCommand(final String command, final InputStream input) throws IOException {
     final Process process = Runtime.getRuntime().exec(command);
     final InputStream in = process.getInputStream();
     final OutputStream out = process.getOutputStream();
-    TByteArrayList bytes = new TByteArrayList(100500);
-    byte[] buffer = new byte[1024 * 1024];
+    final TByteArrayList bytes = new TByteArrayList(100500);
+    final byte[] buffer = new byte[1024 * 1024];
     try {
       int read;
       while ((read = input.read(buffer)) > 0) {
@@ -304,16 +304,16 @@ public class StreamTools {
     }
   }
 
-  public static void visitFiles(File dir, Processor<String> processor) {
+  public static void visitFiles(final File dir, final Processor<String> processor) {
     final String absolutePath = dir.getAbsolutePath();
     visitFiles(dir, processor, absolutePath.endsWith("/") ? absolutePath.length() : absolutePath.length() + 1);
   }
 
-  private static void visitFiles(File file, Processor<String> processor, int prefix) {
+  private static void visitFiles(final File file, final Processor<String> processor, final int prefix) {
     final String absolutePath = file.getAbsolutePath();
     processor.process(prefix < absolutePath.length() ? absolutePath.substring(prefix) : "");
     if (file.isDirectory()) {
-      for (String next : file.list()) {
+      for (final String next : file.list()) {
         visitFiles(new File(file, next), processor, prefix);
       }
     }

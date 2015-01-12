@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
  * @author lyadzhin
  */
 public class CharBigram implements Comparable<CharBigram> {
-  public static CharBigram valueOf(char c1, char c2) {
+  public static CharBigram valueOf(final char c1, final char c2) {
     return new CharBigram(c1, c2); //TODO: IMPLEMENT CACHING
   }
 
@@ -14,7 +14,7 @@ public class CharBigram implements Comparable<CharBigram> {
    * Constructs bigram of first two characters of CharSequence.
    * Throws runtime exception if string length is less than 2.
    */
-  public static CharBigram valueOf(@NotNull CharSequence s) {
+  public static CharBigram valueOf(@NotNull final CharSequence s) {
     if (s.length() < 2) {
       throw new IllegalArgumentException("s length must be >= 2");
     }
@@ -25,7 +25,7 @@ public class CharBigram implements Comparable<CharBigram> {
   private final char c2;
   private int hashCode = -1;
 
-  private CharBigram(char c1, char c2) {
+  private CharBigram(final char c1, final char c2) {
     this.c1 = c1;
     this.c2 = c2;
   }
@@ -38,7 +38,7 @@ public class CharBigram implements Comparable<CharBigram> {
     return c2;
   }
 
-  public int compareTo(@NotNull CharBigram o) {
+  public int compareTo(@NotNull final CharBigram o) {
     if (c1 < o.c1) {
       return -1;
     } else if (c1 > o.c1) {
@@ -55,7 +55,7 @@ public class CharBigram implements Comparable<CharBigram> {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }

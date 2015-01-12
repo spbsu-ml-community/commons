@@ -18,23 +18,23 @@ public class GaussianRandomVec {
   public final Vec m;
   private final Random random;
 
-  public GaussianRandomVec(Vec m, Mx sigma, Random random) {
+  public GaussianRandomVec(final Vec m, final Mx sigma, final Random random) {
     this.m = m;
     this.random = random;
     L = MxTools.choleskyDecomposition(sigma);
   }
 
-  public GaussianRandomVec(Vec m, Mx sigma) {
+  public GaussianRandomVec(final Vec m, final Mx sigma) {
     this(m, sigma, new FastRandom());
   }
 
   public Vec next() {
     final int dim = m.dim();
-    Vec gaussian = new ArrayVec(dim);
+    final Vec gaussian = new ArrayVec(dim);
     for (int i = 0; i < dim; i++) {
       gaussian.set(i, random.nextGaussian());
     }
-    Vec result = MxTools.multiply(L, gaussian);
+    final Vec result = MxTools.multiply(L, gaussian);
     VecTools.append(result, m);
     return result;
   }

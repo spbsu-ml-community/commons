@@ -15,7 +15,7 @@ public class SubMxTransformation implements IndexTransformation {
   public final int width;
   public final int height;
 
-  public SubMxTransformation(int columns, int i, int j, int height, int width) {
+  public SubMxTransformation(final int columns, final int i, final int j, final int height, final int width) {
     this.start = i * columns + j;
     this.columns = columns;
     this.i = i;
@@ -25,14 +25,14 @@ public class SubMxTransformation implements IndexTransformation {
   }
 
   @Override
-  public int forward(int newIndex) {
+  public int forward(final int newIndex) {
     final int x = newIndex / width;
     final int y = newIndex % width;
     return start + y + x * columns;
   }
 
   @Override
-  public int backward(int oldIndex) {
+  public int backward(final int oldIndex) {
     if (oldIndex < start)
       return -1;
     final int x = oldIndex / columns;
@@ -58,7 +58,7 @@ public class SubMxTransformation implements IndexTransformation {
   }
 
   @Override
-  public IndexTransformation apply(IndexTransformation trans) {
+  public IndexTransformation apply(final IndexTransformation trans) {
     return new CompositeTransformation(new IndexTransformation[]{this, trans});
   }
 }

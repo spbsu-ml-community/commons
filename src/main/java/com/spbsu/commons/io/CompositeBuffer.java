@@ -23,22 +23,22 @@ public class CompositeBuffer implements Buffer {
   private int activeNo;
   private int localPos;
 
-  private static Buffer[] copyTo(ByteBuffer[] buffers) {
+  private static Buffer[] copyTo(final ByteBuffer[] buffers) {
     final Buffer[] rw = new Buffer[buffers.length];
     for (int i = 0; i < buffers.length; i++)
       rw[i] = BufferFactory.wrap(buffers[i]);
     return rw;
   }
 
-  public CompositeBuffer(ByteBuffer... buffers) {
+  public CompositeBuffer(final ByteBuffer... buffers) {
     this(copyTo(buffers));
   }
 
-  public CompositeBuffer(Buffer... buffers){
+  public CompositeBuffer(final Buffer... buffers){
     this.buffers = buffers;
     int capacity = 0;
     active = EMPTY;
-    for (Buffer buffer : buffers) {
+    for (final Buffer buffer : buffers) {
       if (active == EMPTY)
         active = buffer;
       capacity += buffer.remaining();
@@ -63,7 +63,7 @@ public class CompositeBuffer implements Buffer {
     return limit;
   }
 
-  public Buffer limit(int pos) {
+  public Buffer limit(final int pos) {
     limit = pos;
     return this;
   }
@@ -78,7 +78,7 @@ public class CompositeBuffer implements Buffer {
     }
     int index = 0;
     active = null;
-    for (Buffer buffer : buffers) {
+    for (final Buffer buffer : buffers) {
       if (pos <= buffer.remaining()) {
         active = buffer;
         break;
@@ -101,7 +101,7 @@ public class CompositeBuffer implements Buffer {
     return new CompositeBuffer(buffers);
   }
 
-  public Buffer putByte(byte b) {
+  public Buffer putByte(final byte b) {
     if (active.remaining() < localPos + 1) {
       if (activeNo >= buffers.length)
         throw new BufferOverflowException();
@@ -114,7 +114,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
-  public Buffer putByte(int pos, byte b) {
+  public Buffer putByte(final int pos, final byte b) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -126,7 +126,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
-  public Buffer putChar(char c) {
+  public Buffer putChar(final char c) {
     if (active.remaining() < localPos + 2)
       return putByte((byte)((c >> 8) & 0xFF)).putByte((byte)(c & 0xFF));
     active.putChar(active.position() + localPos, c);
@@ -135,7 +135,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
-  public Buffer putChar(int pos, char c) {
+  public Buffer putChar(final int pos, final char c) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -147,7 +147,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
-  public Buffer putShort(short i) {
+  public Buffer putShort(final short i) {
     if (active.remaining() < localPos + 2)
       return putByte((byte)((i >> 8) & 0xFF)).putByte((byte)(i & 0xFF));
     active.putShort(active.position() + localPos, i);
@@ -156,7 +156,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
-  public Buffer putShort(int pos, short i) {
+  public Buffer putShort(final int pos, final short i) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -168,7 +168,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
-  public Buffer putInt(int i) {
+  public Buffer putInt(final int i) {
     if (active.remaining() < localPos + 4)
       return putByte((byte)((i >> 24) & 0xFF))
               .putByte((byte)((i >> 16) & 0xFF))
@@ -180,7 +180,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
-  public Buffer putInt(int pos, int i) {
+  public Buffer putInt(final int pos, final int i) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -192,7 +192,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
-  public Buffer putLong(long l) {
+  public Buffer putLong(final long l) {
     if (active.remaining() < localPos + 8)
       return putByte((byte)((l >> 56) & 0xFF))
               .putByte((byte)((l >> 48) & 0xFF))
@@ -208,7 +208,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
-  public Buffer putLong(int pos, long l) {
+  public Buffer putLong(final int pos, final long l) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -220,19 +220,19 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
-  public Buffer putFloat(float f) {
+  public Buffer putFloat(final float f) {
     return putInt(Float.floatToIntBits(f));
   }
 
-  public Buffer putFloat(int pos, float f) {
+  public Buffer putFloat(final int pos, final float f) {
     return putInt(pos, Float.floatToIntBits(f));
   }
 
-  public Buffer putDouble(double d) {
+  public Buffer putDouble(final double d) {
     return putLong(Double.doubleToLongBits(d));
   }
 
-  public Buffer putDouble(int pos, double d) {
+  public Buffer putDouble(final int pos, final double d) {
     return putLong(pos, Double.doubleToLongBits(d));
   }
 
@@ -248,7 +248,7 @@ public class CompositeBuffer implements Buffer {
     return active.getByte(active.position() + localPos++);
   }
 
-  public byte getByte(int pos) {
+  public byte getByte(final int pos) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -266,7 +266,7 @@ public class CompositeBuffer implements Buffer {
     return active.getChar(active.position() + (localPos += 2) - 2);
   }
 
-  public char getChar(int pos) {
+  public char getChar(final int pos) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -284,7 +284,7 @@ public class CompositeBuffer implements Buffer {
     return active.getShort((localPos += 2) - 2 + active.position());
   }
 
-  public short getShort(int pos) {
+  public short getShort(final int pos) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -305,7 +305,7 @@ public class CompositeBuffer implements Buffer {
     return active.getInt((localPos += 4) - 4 + active.position());
   }
 
-  public int getInt(int pos) {
+  public int getInt(final int pos) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -330,7 +330,7 @@ public class CompositeBuffer implements Buffer {
     return active.getLong((localPos += 8) - 8 + active.position());
   }
 
-  public long getLong(int pos) {
+  public long getLong(final int pos) {
     final int oldPosition = position;
     try {
       position(pos);
@@ -345,7 +345,7 @@ public class CompositeBuffer implements Buffer {
     return Float.intBitsToFloat(getInt());
   }
 
-  public float getFloat(int pos) {
+  public float getFloat(final int pos) {
     return Float.intBitsToFloat(getInt(pos));
   }
 
@@ -353,20 +353,20 @@ public class CompositeBuffer implements Buffer {
     return Double.longBitsToDouble(getLong());
   }
 
-  public double getDouble(int pos) {
+  public double getDouble(final int pos) {
     return Double.longBitsToDouble(getLong(pos));
   }
 
-  public Buffer put(byte[] array) {
+  public Buffer put(final byte[] array) {
     return put(array, 0, array.length);
   }
 
-  public Buffer put(byte[] array, int off, int len) {
+  public Buffer put(final byte[] array, final int off, final int len) {
     if (len > remaining())
       throw new BufferUnderflowException();
     int index = 0;
     while (index < len) {
-      int old = active.position();
+      final int old = active.position();
       final int copyFromActive = Math.min(active.remaining() - localPos, len - index);
       active.position(old + localPos);
       active.put(array, off + index, copyFromActive); // copy
@@ -384,14 +384,14 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
-  public int get(byte[] array) {
+  public int get(final byte[] array) {
     return get(array, 0, array.length);
   }
 
-  public int get(byte[] array, int off, int len) {
+  public int get(final byte[] array, final int off, final int len) {
     int index = 0;
     while (len > index) {
-      int old = active.position();
+      final int old = active.position();
       final int copyFromActive = Math.min(active.remaining() - localPos, len - index);
       active.position(localPos + old);
       active.get(array, off + index, copyFromActive); // copy
@@ -409,7 +409,7 @@ public class CompositeBuffer implements Buffer {
     return index;
   }
 
-  public void visitParts(Processor<Buffer> visitor) {
+  public void visitParts(final Processor<Buffer> visitor) {
     int active = activeNo;
     int position = this.position;
     Buffer current = localPos > 0 ? BufferFactory.duplicate(this.active).position(localPos) : this.active;

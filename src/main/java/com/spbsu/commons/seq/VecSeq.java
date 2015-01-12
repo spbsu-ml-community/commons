@@ -31,7 +31,7 @@ public class VecSeq extends Seq.Stub<Vec> {
     this(vecs, 0, vecs.length);
   }
 
-  public VecSeq(final Vec[] vecs, int start, int end) {
+  public VecSeq(final Vec[] vecs, final int start, final int end) {
     if (start < 0 || end > vecs.length)
       throw new ArrayIndexOutOfBoundsException();
     this.vecs = vecs;

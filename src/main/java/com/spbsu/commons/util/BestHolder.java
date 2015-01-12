@@ -15,11 +15,11 @@ public class BestHolder<T> {
     return new BestHolder<T>();
   }
 
-  public static <T> BestHolder<T> create(T initValue, double initScore) {
+  public static <T> BestHolder<T> create(final T initValue, final double initScore) {
     return new BestHolder<T>(initValue, initScore);
   }
 
-  public BestHolder(T value, double score) {
+  public BestHolder(final T value, final double score) {
     this.value = value;
     this.score = score;
   }
@@ -40,7 +40,7 @@ public class BestHolder<T> {
     return value;
   }
 
-  public synchronized boolean update(T update, double score) {
+  public synchronized boolean update(final T update, final double score) {
     if (score > this.score) {
       this.score = score;
       value = update;

@@ -12,7 +12,7 @@ public class CharSeqAdapter extends CharSeq {
   public CharSeqAdapter(final CharSequence delegate) {
     this(delegate, 0, delegate.length());
   }
-  public CharSeqAdapter(final CharSequence delegate, int start, int end) {
+  public CharSeqAdapter(final CharSequence delegate, final int start, final int end) {
     if (start < 0 || start > end || end > delegate.length())
       throw new ArrayIndexOutOfBoundsException();
     this.start = start;

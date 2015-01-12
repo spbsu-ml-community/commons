@@ -15,35 +15,35 @@ import com.spbsu.commons.seq.Seq;
 public class ColsVecArrayMx extends Mx.Stub {
   public final Seq<Vec> vec;
 
-  public ColsVecArrayMx(Vec[] vec) {
+  public ColsVecArrayMx(final Vec[] vec) {
     if (vec.length == 0)
       throw new IllegalArgumentException("Unable to create ColsVecArrayMx from empty array!");
     this.vec = new ArraySeq<Vec>(vec);
   }
 
-  public ColsVecArrayMx(Seq<Vec> vec) {
+  public ColsVecArrayMx(final Seq<Vec> vec) {
     if (vec.length() == 0)
       throw new IllegalArgumentException("Unable to create ColsVecArrayMx from empty array!");
     this.vec = vec;
   }
 
-  public double get(int i, int j) {
+  public double get(final int i, final int j) {
     return vec.at(i).get(j);
   }
   @Override
-  public Mx set(int i, int j, double val) {
+  public Mx set(final int i, final int j, final double val) {
     vec.at(j).set(i, val);
     return this;
   }
 
   @Override
-  public Mx adjust(int i, int j, double increment) {
+  public Mx adjust(final int i, final int j, final double increment) {
     vec.at(j).adjust(i, increment);
     return this;
   }
 
   @Override
-  public Mx sub(int i, int j, int height, int width) {
+  public Mx sub(final int i, final int j, final int height, final int width) {
     final Vec[] cols = new Vec[width];
     for (int r = 0; r < cols.length; r++) {
       cols[r] = vec.at(j + r).sub(i, height);
@@ -52,23 +52,23 @@ public class ColsVecArrayMx extends Mx.Stub {
   }
 
   @Override
-  public Vec col(int j) {
+  public Vec col(final int j) {
     return vec.at(j);
   }
 
   @Override
-  public double get(int i) {
+  public double get(final int i) {
     return vec.at(i % vec.length()).get(i / vec.length());
   }
 
   @Override
-  public Vec set(int i, double val) {
+  public Vec set(final int i, final double val) {
     vec.at(i % vec.length()).set(i / vec.length(), val);
     return this;
   }
 
   @Override
-  public Vec adjust(int i, double increment) {
+  public Vec adjust(final int i, final double increment) {
     vec.at(i % vec.length()).adjust(i / vec.length(), increment);
     return this;
   }

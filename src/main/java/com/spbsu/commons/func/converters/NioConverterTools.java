@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
  * Date: 21.06.2009
  */
 public class NioConverterTools {
-  public static void storeSize(int toEncode, ByteBuffer buffer) {
+  public static void storeSize(final int toEncode, final ByteBuffer buffer) {
     if(toEncode >= (1 << (7 * 4)))
       throw new RuntimeException("Such long arrays are not supported by this converter");
     boolean started = false;
@@ -27,7 +27,7 @@ public class NioConverterTools {
     }
   }
 
-  public static int restoreSize(ByteBuffer source) {
+  public static int restoreSize(final ByteBuffer source) {
     byte currentByte = source.get();
     int size = 0;
     while((currentByte & 0x80) != 0){
@@ -39,7 +39,7 @@ public class NioConverterTools {
     return size;
   }
 
-  public static void storeSize(int toEncode, DataOutput output) throws IOException {
+  public static void storeSize(final int toEncode, final DataOutput output) throws IOException {
     if(toEncode >= (1 << (7 * 4)))
       throw new RuntimeException("Such long arrays are not supported by this converter");
     boolean started = false;
@@ -53,7 +53,7 @@ public class NioConverterTools {
     }
   }
 
-  public static int restoreSize(DataInput input) throws IOException {
+  public static int restoreSize(final DataInput input) throws IOException {
     byte currentByte = (byte) input.readUnsignedByte();
     int size = 0;
     while((currentByte & 0x80) != 0){
@@ -65,10 +65,10 @@ public class NioConverterTools {
     return size;
   }
 
-  public static Buffer storeSize(int toEncode) {
+  public static Buffer storeSize(final int toEncode) {
     if(toEncode >= (1 << (7 * 4)))
       throw new RuntimeException("Such long arrays are not supported by this converter");
-    Buffer buffer = BufferFactory.wrap(new byte[4]);
+    final Buffer buffer = BufferFactory.wrap(new byte[4]);
     boolean started = false;
     for(int i = 0; i < 4; i++){
       byte current = (byte)(toEncode >> ((3 - i) * 7) & 0x7F);
@@ -83,7 +83,7 @@ public class NioConverterTools {
     return buffer;
   }
 
-  public static int restoreSize(Buffer source) {
+  public static int restoreSize(final Buffer source) {
     byte currentByte = source.getByte();
     int size = 0;
     while((currentByte & 0x80) != 0){

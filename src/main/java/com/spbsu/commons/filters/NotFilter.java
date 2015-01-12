@@ -6,13 +6,13 @@ package com.spbsu.commons.filters;
  * Time: 23:29:31
  */
 public class NotFilter<T> implements Filter<T> {
-  private Filter<T> filter;
+  private final Filter<T> filter;
 
-  public NotFilter(Filter<T> filter) {
+  public NotFilter(final Filter<T> filter) {
     this.filter = filter;
   }
 
-  public boolean accept(T t) {
+  public boolean accept(final T t) {
     return !filter.accept(t);
   }
 

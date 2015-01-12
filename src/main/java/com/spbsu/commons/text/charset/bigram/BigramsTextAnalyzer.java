@@ -16,17 +16,17 @@ public class BigramsTextAnalyzer {
   private int maxAnalysisLength = LENGTH_UNLIMITED;
   private boolean ignoreCase = true;
 
-  public BigramsTextAnalyzer setCharFilter(@NotNull CharFilter charFilter) {
+  public BigramsTextAnalyzer setCharFilter(@NotNull final CharFilter charFilter) {
     this.charFilter = charFilter;
     return this;
   }
 
-  public BigramsTextAnalyzer setIgnoreCase(boolean ignoreCase) {
+  public BigramsTextAnalyzer setIgnoreCase(final boolean ignoreCase) {
     this.ignoreCase = ignoreCase;
     return this;
   }
 
-  public BigramsTextAnalyzer setMaxAnalysisLength(int maxAnalysisLength) {
+  public BigramsTextAnalyzer setMaxAnalysisLength(final int maxAnalysisLength) {
     if (maxAnalysisLength < 2 && maxAnalysisLength != LENGTH_UNLIMITED) {
       throw new IllegalArgumentException("analyzeDepthLimit must be >= 2 or == DEPTH_UNLIMITED");
     }
@@ -34,13 +34,13 @@ public class BigramsTextAnalyzer {
     return this;
   }
 
-  public BigramsTable buildBigramsTable(@NotNull CharSequence s) {
+  public BigramsTable buildBigramsTable(@NotNull final CharSequence s) {
     return buildBigramsTable(CharBuffer.wrap(s));
   }
 
   //todo: text is large, analyzeDepthLimit is set to limited, first 'analyzeDepthLimit'-symbols aren't accepted
   //todo: by filter
-  public BigramsTable buildBigramsTable(@NotNull CharBuffer charBuffer) {
+  public BigramsTable buildBigramsTable(@NotNull final CharBuffer charBuffer) {
     final int length = charBuffer.length();
     if (length < 2) {
       return BigramsTable.EMPTY_TABLE;
@@ -67,7 +67,7 @@ public class BigramsTextAnalyzer {
     return BigramsTable.create(bigram2Count, totalCount);
   }
 
-  private char getChar(CharBuffer charBuffer, int i) {
+  private char getChar(final CharBuffer charBuffer, final int i) {
     return (ignoreCase) ? Character.toUpperCase(charBuffer.get(i)) : charBuffer.get(i);
   }
 

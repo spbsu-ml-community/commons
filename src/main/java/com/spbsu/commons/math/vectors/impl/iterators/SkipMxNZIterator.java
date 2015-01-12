@@ -11,7 +11,7 @@ import com.spbsu.commons.math.vectors.VecIterator;
 */
 public class SkipMxNZIterator extends SkipVecNZIterator implements MxIterator {
   private final int columns;
-  public SkipMxNZIterator(Mx mx) {
+  public SkipMxNZIterator(final Mx mx) {
     super(mx);
     columns = mx.columns();
   }

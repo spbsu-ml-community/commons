@@ -25,16 +25,16 @@ public class URLConnectionTools {
                     return null;
                 }
 
-                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                public void checkClientTrusted(final java.security.cert.X509Certificate[] certs, final String authType) {
                 }
 
-                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                public void checkServerTrusted(final java.security.cert.X509Certificate[] certs, final String authType) {
                 }
             }
     };
 
-    private static HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-        public boolean verify(String string, SSLSession sslSession) {
+    private static final HostnameVerifier hostnameVerifier = new HostnameVerifier() {
+        public boolean verify(final String string, final SSLSession sslSession) {
             return true;
         }
     };
@@ -51,7 +51,7 @@ public class URLConnectionTools {
         }
     }
 
-    public static URLConnection establishConnection(URL url) throws IOException {
+    public static URLConnection establishConnection(final URL url) throws IOException {
         if (!"https".equalsIgnoreCase(url.getProtocol())) {
             return url.openConnection();
         }
@@ -60,10 +60,10 @@ public class URLConnectionTools {
         return connection;
     }
 
-    public static String extractEncoding(String contentTypeString) {
+    public static String extractEncoding(final String contentTypeString) {
         final String str = "charset=";
         String encoding = null;
-        int index = contentTypeString.lastIndexOf(str);
+        final int index = contentTypeString.lastIndexOf(str);
         if (index >= 0) {
             encoding = contentTypeString.substring(index + str.length()).trim();
             int ind = 0;
@@ -81,7 +81,7 @@ public class URLConnectionTools {
         return determineEncoding(connection, null);
     }
 
-    public static String determineEncoding(final URLConnection connection, String defaultEncoding) {
+    public static String determineEncoding(final URLConnection connection, final String defaultEncoding) {
         String encoding = connection.getContentEncoding();
         if (encoding != null) {
             return encoding;
@@ -103,11 +103,11 @@ public class URLConnectionTools {
         return Charset.forName(encoding);
     }
 
-    public static void installAuthenticator(String userName, String password) {
+    public static void installAuthenticator(final String userName, final String password) {
         SSLAuthenticator.install(userName, password);
     }
 
-    public static String extractContentType(String contentType) {
+    public static String extractContentType(final String contentType) {
         if (contentType == null) {
             return contentType;
         }
@@ -121,9 +121,10 @@ public class URLConnectionTools {
     }
 
     static class SSLAuthenticator extends Authenticator {
-        private String username, password;
+        private final String username;
+        private final String password;
 
-        private SSLAuthenticator(String user, String pass) {
+        private SSLAuthenticator(final String user, final String pass) {
             username = user;
             password = pass;
         }
@@ -132,7 +133,7 @@ public class URLConnectionTools {
             return new PasswordAuthentication(username, password.toCharArray());
         }
 
-        public static void install(String user, String pass) {
+        public static void install(final String user, final String pass) {
             setDefault(new SSLAuthenticator(user, pass));
         }
     }

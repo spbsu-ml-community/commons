@@ -12,14 +12,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class ArraySeq<T> extends Seq.Stub<T> {
   private final T[] arr;
-  private int start;
-  private int end;
+  private final int start;
+  private final int end;
 
   public ArraySeq(final T[] arr) {
     this(arr, 0, arr.length);
   }
 
-  public ArraySeq(final T[] arr, int start, int end) {
+  public ArraySeq(final T[] arr, final int start, final int end) {
     if (end > arr.length || start < 0)
       throw new ArrayIndexOutOfBoundsException();
     this.arr = arr;

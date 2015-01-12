@@ -19,7 +19,7 @@ import com.spbsu.commons.seq.CharSeqTools;
 public class ArrayVec2CharSequenceConversionPack implements ConversionPack<ArrayVec,CharSequence> {
   public static class ArrayVec2CharSequenceConverter implements TypeConverter<ArrayVec, CharSequence> {
     @Override
-    public CharSequence convert(ArrayVec from) {
+    public CharSequence convert(final ArrayVec from) {
       final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
       prettyPrint.setMaximumFractionDigits(5);
       prettyPrint.setMinimumFractionDigits(0);
@@ -37,7 +37,7 @@ public class ArrayVec2CharSequenceConversionPack implements ConversionPack<Array
 
   public static class ArrayCharSequence2VecConverter implements TypeConverter<CharSequence, ArrayVec> {
     @Override
-    public ArrayVec convert(CharSequence from) {
+    public ArrayVec convert(final CharSequence from) {
       final CharSequence[] parts = CharSeqTools.split(from.toString().trim(), ' ');
       final ArrayVec result = new ArrayVec(Integer.parseInt(parts[0].toString()));
       for (int i = 1; i < parts.length; i++) {

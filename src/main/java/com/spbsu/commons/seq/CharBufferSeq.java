@@ -41,7 +41,7 @@ public class CharBufferSeq implements Seq<CharBuffer> {
     this.offset = offset;
   }
 
-  public CharBufferSeq(final CharBufferSeq cbs, int length) {
+  public CharBufferSeq(final CharBufferSeq cbs, final int length) {
     this(cbs.buffers, length);
   }
 
@@ -53,7 +53,7 @@ public class CharBufferSeq implements Seq<CharBuffer> {
   @Override
   public String toString(){
     final StringBuilder sb = new StringBuilder((int)lengthArray[lengthArray.length - 1]);
-    for (CharBuffer cb : buffers) {
+    for (final CharBuffer cb : buffers) {
       sb.append(cb.asReadOnlyBuffer());
     }
     return sb.substring((int)offset);
@@ -64,7 +64,7 @@ public class CharBufferSeq implements Seq<CharBuffer> {
   }
 
   @Override
-  public Seq<CharBuffer> sub(int start, int end) {
+  public Seq<CharBuffer> sub(final int start, final int end) {
     return new CharBufferSeq(Arrays.copyOfRange(buffers, start, end), offset > start ? offset - start : 0);
   }
 
@@ -118,9 +118,9 @@ public class CharBufferSeq implements Seq<CharBuffer> {
         return result;
       }
       while (bufferId < buffers.length) {
-        CharBuffer buffer = buffers[bufferId];
-        int len = buffer.length();
-        StringBuilder sb = new StringBuilder();
+        final CharBuffer buffer = buffers[bufferId];
+        final int len = buffer.length();
+        final StringBuilder sb = new StringBuilder();
         while (bufferOffset < len) {
           final char letter = buffer.get(bufferOffset++);
           if (lettersPassed++ < offset)
@@ -171,10 +171,10 @@ public class CharBufferSeq implements Seq<CharBuffer> {
     }
 
     @Override
-    public int read(char[] cbuf, int off, int len) throws IOException {
+    public int read(final char[] cbuf, final int off, final int len) throws IOException {
       while (skipped < offset) {
-        char[] tmp = new char[(int)offset];
-        int read = fairRead(tmp, 0, (int) offset);
+        final char[] tmp = new char[(int)offset];
+        final int read = fairRead(tmp, 0, (int) offset);
         if (read > 0) {
           skipped += read;
         } else {
@@ -184,11 +184,11 @@ public class CharBufferSeq implements Seq<CharBuffer> {
       return fairRead(cbuf, off, len);
     }
 
-    public int fairRead(char[] cbuf, int off, int len) throws IOException {
+    public int fairRead(final char[] cbuf, final int off, final int len) throws IOException {
       int total = 0;
       while (total < len && readerId < readers.size()) {
         final Reader reader = readers.get(readerId);
-        int read = reader.read(cbuf, off + total, len - total);
+        final int read = reader.read(cbuf, off + total, len - total);
         if (read > 0) {
           total += read;
         } else {

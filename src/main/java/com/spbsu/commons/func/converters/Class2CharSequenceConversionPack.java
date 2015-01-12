@@ -18,7 +18,7 @@ public class Class2CharSequenceConversionPack implements ConversionPack<Class, C
 
   public static class From implements TypeConverter<CharSequence, Class> {
     @Override
-    public final Class convert(CharSequence seq) {
+    public final Class convert(final CharSequence seq) {
       try {
         return Class.forName(seq.toString());
       } catch (ClassNotFoundException e) {

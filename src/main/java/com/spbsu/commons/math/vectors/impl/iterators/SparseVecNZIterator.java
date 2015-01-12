@@ -15,10 +15,10 @@ public class SparseVecNZIterator implements VecIterator {
   boolean needRemove = false;
   int size;
   int idx = -1;
-  private TIntArrayList indices;
-  private TDoubleArrayList values;
+  private final TIntArrayList indices;
+  private final TDoubleArrayList values;
 
-  public SparseVecNZIterator(CustomBasisVec sparseVec) {
+  public SparseVecNZIterator(final CustomBasisVec sparseVec) {
     this.indices = sparseVec.indices;
     this.values = sparseVec.values;
     size = indices.size();
@@ -48,14 +48,14 @@ public class SparseVecNZIterator implements VecIterator {
   }
 
   @Override
-  public boolean seek(int pos) {
+  public boolean seek(final int pos) {
     advance();
     index = indices.binarySearch(pos - 1);
     return isValid();
   }
 
   @Override
-  public double setValue(double v) {
+  public double setValue(final double v) {
     values.setQuick(index, v);
     needRemove = (v == 0);
     return v;

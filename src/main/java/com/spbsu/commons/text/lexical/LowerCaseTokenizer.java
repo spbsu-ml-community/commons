@@ -9,7 +9,7 @@ import com.spbsu.commons.seq.CharSeqTools;
 public class LowerCaseTokenizer implements Tokenizer {
   private final Tokenizer tokenizer;
 
-  public LowerCaseTokenizer(Tokenizer tokenizer) {
+  public LowerCaseTokenizer(final Tokenizer tokenizer) {
     this.tokenizer = tokenizer;
   }
 

@@ -10,12 +10,12 @@ import com.spbsu.commons.seq.CharSeqTools;
 public class Double2CharSequenceConverter implements Converter<Double, CharSequence> {
 
   @Override
-  public Double convertFrom(CharSequence source) {
+  public Double convertFrom(final CharSequence source) {
     return CharSeqTools.parseDouble(source);
   }
 
   @Override
-  public String convertTo(Double value) {
+  public String convertTo(final Double value) {
     return value.toString();
   }
 }

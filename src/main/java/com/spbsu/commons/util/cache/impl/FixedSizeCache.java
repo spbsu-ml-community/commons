@@ -141,7 +141,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
     }
   }
 
-  private boolean alterCacheStrategy(K key, Pair<K, V> atPosition) {
+  private boolean alterCacheStrategy(final K key, final Pair<K, V> atPosition) {
     return atPosition != null && (atPosition.getFirst() == key || atPosition.getFirst().equals(key));
   }
 

@@ -18,7 +18,7 @@ public class ScopedCache {
   private final CacheHolder owner;
   Map<Class<? extends CacheHolder>, Map<Class<? extends Computable<? extends CacheHolder, ?>>, Object>> cache = new HashMap<>();
 
-  public ScopedCache(Class<? extends CacheHolder> clazz, CacheHolder owner) {
+  public ScopedCache(final Class<? extends CacheHolder> clazz, final CacheHolder owner) {
     this.owner = owner;
     RuntimeUtils.processSupers(clazz, new Filter<Class<?>>() {
       @Override
@@ -58,8 +58,8 @@ public class ScopedCache {
     return (R)result;
   }
 
-  public void copyScope(ScopedCache to, Class<? extends CacheHolder> scope) {
-    for (Map.Entry<Class<? extends CacheHolder>, Map<Class<? extends Computable<? extends CacheHolder, ?>>, Object>> entry : cache.entrySet()) {
+  public void copyScope(final ScopedCache to, final Class<? extends CacheHolder> scope) {
+    for (final Map.Entry<Class<? extends CacheHolder>, Map<Class<? extends Computable<? extends CacheHolder, ?>>, Object>> entry : cache.entrySet()) {
       if (entry.getKey().isAssignableFrom(scope))
         to.cache.put(entry.getKey(), entry.getValue());
     }

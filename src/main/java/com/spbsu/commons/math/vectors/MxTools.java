@@ -17,10 +17,10 @@ import static java.lang.Math.sqrt;
 public class MxTools {
   private static final double EPSILON = 1e-5;
 
-  public static boolean checkSymmetry(Mx a) {
+  public static boolean checkSymmetry(final Mx a) {
     if (a.columns() != a.rows())
       return false;
-    int dim = a.columns();
+    final int dim = a.columns();
     for (int i = 0; i < dim; i++)
       for (int j = 0; j < dim; j++)
         if (Math.abs(a.get(i, j) - a.get(j, i)) > EPSILON)
@@ -28,8 +28,8 @@ public class MxTools {
     return true;
   }
 
-  public static Vec rowSum(Mx a) {
-    Vec result = new ArrayVec(a.rows());
+  public static Vec rowSum(final Mx a) {
+    final Vec result = new ArrayVec(a.rows());
     for (int row = 0; row < a.rows(); ++row) {
       double val = 0;
       for (int col = 0; col < a.columns(); ++col) {
@@ -40,18 +40,18 @@ public class MxTools {
     return result;
   }
 
-  public static Mx inverse(Mx A) {
+  public static Mx inverse(final Mx A) {
     Mx L = new VecBasedMx(A.rows(), A.columns());
-    Mx Q = new VecBasedMx(A.rows(), A.columns());
+    final Mx Q = new VecBasedMx(A.rows(), A.columns());
     householderLQ(A, L, Q);
     L = inverseLTriangle(L);
     final Mx Inv = MxTools.multiply(Q, L);
     return Inv;
   }
 
-  public static Mx laplacian(Mx a) {
-    Vec d = rowSum(a);
-    Mx L = new VecBasedMx(a.rows(), a.columns());
+  public static Mx laplacian(final Mx a) {
+    final Vec d = rowSum(a);
+    final Mx L = new VecBasedMx(a.rows(), a.columns());
     for (int i = 0; i < a.rows(); ++i) {
       for (int j = i + 1; j < a.columns(); ++j) {
         final double val = -a.get(i, j);
@@ -66,12 +66,12 @@ public class MxTools {
     return L;
   }
 
-  public static Mx choleskyDecomposition(Mx a) {
+  public static Mx choleskyDecomposition(final Mx a) {
     if (a.columns() != a.rows())
       throw new IllegalArgumentException("Matrix must be square for Cholesky decomposition!");
     if (!checkSymmetry(a))
       throw new IllegalArgumentException("Matrix must be symmetric!");
-    Mx l = new VecBasedMx(a.columns(), a.columns());
+    final Mx l = new VecBasedMx(a.columns(), a.columns());
     // Cholesky–Banachiewicz schema
     for (int i = 0; i < a.rows(); i++) {
       double sum2 = 0;
@@ -84,7 +84,7 @@ public class MxTools {
         l.set(i, j, val != 0 ? val : 0);
         sum2 += val * val;
       }
-      double diagonal = a.get(i, i) - sum2;
+      final double diagonal = a.get(i, i) - sum2;
       if (diagonal < 0)
         throw new IllegalArgumentException("Matrix must be positive definite!");
       l.set(i, i, sqrt(diagonal));
@@ -92,7 +92,7 @@ public class MxTools {
     return l;
   }
 
-  public static Mx inverseLTriangle(Mx a) {
+  public static Mx inverseLTriangle(final Mx a) {
     final int dim = a.rows();
     if (a.columns() != dim)
       throw new IllegalArgumentException("Matrix must be square for inverse!");
@@ -115,21 +115,21 @@ public class MxTools {
     return inverse;
   }
 
-  public static Mx E(int dim) {
+  public static Mx E(final int dim) {
     final Mx result = new VecBasedMx(dim, dim);
     for (int i = 0; i < dim; i++)
       result.set(i, i, 1);
     return result;
   }
 
-  public static Mx sparseE(int dim) {
+  public static Mx sparseE(final int dim) {
     final Mx result = new VecBasedMx(dim, new SparseVec(dim * dim));
     for (int i = 0; i < dim; i++)
       result.set(i, i, 1);
     return result;
   }
 
-  public static Mx multiply(Mx a, Mx b) {
+  public static Mx multiply(final Mx a, final Mx b) {
     final int dim = a.columns();
     if (dim != b.rows())
       throw new IllegalArgumentException("Matrices must have a.columns == b.rows!");
@@ -148,7 +148,7 @@ public class MxTools {
     return result;
   }
 
-  public static double trace(Mx a) {
+  public static double trace(final Mx a) {
     double result = 0.0;
     for (int i = 0; i < a.rows(); i++) {
       result += a.get(i, i);
@@ -156,7 +156,7 @@ public class MxTools {
     return result;
   }
 
-  public static Mx transpose(Mx a) {
+  public static Mx transpose(final Mx a) {
     final Mx result = new VecBasedMx(a.columns(), a.rows());
     for (int i = 0; i < a.rows(); i++) {
       for (int j = 0; j < a.columns(); j++)
@@ -165,11 +165,11 @@ public class MxTools {
     return result;
   }
 
-  public static Mx transposeIt(Mx a) {
+  public static Mx transposeIt(final Mx a) {
     final int rows = a.rows();
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < i; j++) {
-        double save = a.get(i, j);
+        final double save = a.get(i, j);
         a.set(i, j, a.get(j, i));
         a.set(j, i, save);
       }
@@ -177,22 +177,22 @@ public class MxTools {
     return a;
   }
 
-  public static Vec multiply(Mx mx, Vec vec) {
+  public static Vec multiply(final Mx mx, final Vec vec) {
     if (vec instanceof Mx)
       return multiply(mx, (Mx) vec);
     return multiply(mx, new VecBasedMx(1, vec));
   }
 
-  public static Mx mahalanobis(List<Vec> pool) {
+  public static Mx mahalanobis(final List<Vec> pool) {
     final int dim = pool.get(0).dim();
-    Vec mean = new ArrayVec(dim);
-    Mx covar = new VecBasedMx(dim, dim);
+    final Vec mean = new ArrayVec(dim);
+    final Mx covar = new VecBasedMx(dim, dim);
     for (int i = 0; i < pool.size(); i++) {
       VecTools.append(mean, pool.get(i));
     }
     VecTools.scale(mean, -1. / pool.size());
-    Vec temp = new ArrayVec(dim);
-    for (Vec vec : pool) {
+    final Vec temp = new ArrayVec(dim);
+    for (final Vec vec : pool) {
       VecTools.assign(temp, vec);
       VecTools.append(temp, mean);
       VecTools.addOuter(covar, temp, temp);
@@ -202,7 +202,7 @@ public class MxTools {
     return inverseLTriangle(l);
   }
 
-  public static void householderLQ(Mx A, Mx L, Mx Q) {
+  public static void householderLQ(final Mx A, final Mx L, final Mx Q) {
     final int cols = A.columns();
     final int rows = A.rows();
     VecTools.assign(L, A);
@@ -211,7 +211,7 @@ public class MxTools {
       for (int i = 0; i < cols; i++)
         Q.set(i, i, 1.);
     }
-    Vec hhplane = new ArrayVec(cols);
+    final Vec hhplane = new ArrayVec(cols);
     for (int i = 0; i < cols - 1; i++) {
       if (i > 0)
         hhplane.set(i - 1, 0);
@@ -223,8 +223,8 @@ public class MxTools {
       if (diag2 < EPSILON)
         continue;
       final double origDiag = L.get(i, i);
-      double diag = origDiag > 0 ? -sqrt(diag2) : sqrt(diag2);
-      double r = 2 * sqrt(0.5 * (diag2 - diag * origDiag));
+      final double diag = origDiag > 0 ? -sqrt(diag2) : sqrt(diag2);
+      final double r = 2 * sqrt(0.5 * (diag2 - diag * origDiag));
       hhplane.set(i, (origDiag - diag) / r);
       for (int j = i + 1; j < cols; j++) {
         hhplane.set(j, L.get(i, j) / r);
@@ -255,10 +255,10 @@ public class MxTools {
     }
   }
 
-  public static void eigenDecomposition(Mx mx, Mx q, Mx sigma) {
+  public static void eigenDecomposition(final Mx mx, final Mx q, final Mx sigma) {
     Mx similar = mx;
     Mx joinedInvertedTransform = E(mx.columns());
-    Mx trans = new VecBasedMx(mx.columns(), new ArrayVec(mx.dim()));
+    final Mx trans = new VecBasedMx(mx.columns(), new ArrayVec(mx.dim()));
 
     for (int i = 0; i < 100 && nonTriangularWeight(similar) > EPSILON * similar.dim(); i++) {
       householderLQ(similar, sigma, trans);
@@ -271,17 +271,17 @@ public class MxTools {
     VecTools.assign(sigma, similar);
     VecTools.assign(q, joinedInvertedTransform);
 
-    MxIterator mxIterator = sigma.nonZeroes();
+    final MxIterator mxIterator = sigma.nonZeroes();
     while (mxIterator.advance()) {
       if (mxIterator.row() != mxIterator.column())
         mxIterator.setValue(0);
     }
   }
 
-  public static double nonTriangularWeight(Mx mx) {
+  public static double nonTriangularWeight(final Mx mx) {
     double lower = 0;
     double upper = 0;
-    MxIterator mxIterator = mx.nonZeroes();
+    final MxIterator mxIterator = mx.nonZeroes();
     while (mxIterator.advance()) {
       if (mxIterator.row() > mxIterator.column())
         upper += mxIterator.value() * mxIterator.value();
@@ -292,14 +292,14 @@ public class MxTools {
     return Math.sqrt(Math.max(lower, upper));
   }
 
-  public static Mx inverseCholesky(Mx a) {
+  public static Mx inverseCholesky(final Mx a) {
     final Mx l = choleskyDecomposition(a);
     final Mx inverseL = inverseLTriangle(l);
     return multiply(transpose(inverseL), inverseL);
   }
 
-  public static String prettyPrint(Mx mx) {
-    StringBuilder builder = new StringBuilder();
+  public static String prettyPrint(final Mx mx) {
+    final StringBuilder builder = new StringBuilder();
     for (int i = 0; i < mx.rows(); i++) {
       for (int j = 0; j < mx.columns(); j++) {
         if (j > 0)
@@ -311,7 +311,7 @@ public class MxTools {
     return builder.toString();
   }
 
-  public static Vec[] splitMxColumns(Mx mx) {
+  public static Vec[] splitMxColumns(final Mx mx) {
     final Vec[] columns = new Vec[mx.columns()];
     for (int i = 0; i < mx.columns(); i++) {
       columns[i] = new ArrayVec(mx.col(i).toArray());
@@ -319,15 +319,15 @@ public class MxTools {
     return columns;
   }
 
-  public static Mx normalize(Mx ds, NormalizationType type, NormalizationProperties props) {
+  public static Mx normalize(final Mx ds, final NormalizationType type, final NormalizationProperties props) {
     final Vec mean = new ArrayVec(ds.columns());
     final Mx covar = new VecBasedMx(ds.columns(), ds.columns());
     double targetMean;
     double targetVar;
-    Mx trans;
-    Vec temp = new ArrayVec(ds.columns());
+    final Mx trans;
+    final Vec temp = new ArrayVec(ds.columns());
     for (int i = 0; i < ds.rows(); i++) {
-      Vec vec = ds.row(i);
+      final Vec vec = ds.row(i);
       VecTools.assign(temp, vec);
       VecTools.append(temp, mean);
       VecTools.addOuter(covar, temp, temp);
@@ -351,9 +351,9 @@ public class MxTools {
       default:
         throw new NotImplementedException();
     }
-    Mx normalized = VecTools.copy(ds);
+    final Mx normalized = VecTools.copy(ds);
     for (int i = 0; i < ds.rows(); i++) {
-      Vec row = normalized.row(i);
+      final Vec row = normalized.row(i);
       VecTools.append(row, mean);
       VecTools.assign(row, multiply(trans, row));
     }
@@ -362,10 +362,10 @@ public class MxTools {
     return normalized;
   }
 
-  public static double nonDiagonalWeight(Mx mx) {
+  public static double nonDiagonalWeight(final Mx mx) {
     double lower = 0;
     double upper = 0;
-    MxIterator mxIterator = mx.nonZeroes();
+    final MxIterator mxIterator = mx.nonZeroes();
     while (mxIterator.advance()) {
       if (mxIterator.row() > mxIterator.column())
         upper += mxIterator.value() * mxIterator.value();

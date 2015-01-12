@@ -6,7 +6,7 @@ package com.spbsu.commons.filters;
  * Time: 23:27:52
  */
 public class TrueFilter<T> implements Filter<T> {
-  public boolean accept(T t) {
+  public boolean accept(final T t) {
     return true;
   }
 

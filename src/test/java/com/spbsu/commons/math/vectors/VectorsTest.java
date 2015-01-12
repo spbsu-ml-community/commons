@@ -67,7 +67,7 @@ public class VectorsTest extends TestCase {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector = new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
     final DVector<CharSequence> minusVector = new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{-1.5, -2});
-    DVector<CharSequence> sum = append(new DVector<CharSequence>(CharSequence.class), vector, vector);
+    final DVector<CharSequence> sum = append(new DVector<CharSequence>(CharSequence.class), vector, vector);
 
     assertEquals(3.0, sum.get("h"));
     assertEquals(4.0, sum.get("hz"));
@@ -176,7 +176,7 @@ public class VectorsTest extends TestCase {
     );
     final HashSet<CharSequence> found = new HashSet<CharSequence>();
     v.forEach(new TObjectDoubleProcedure<CharSequence>() {
-      public boolean execute(CharSequence charSequence, double v) {
+      public boolean execute(final CharSequence charSequence, final double v) {
         found.add(charSequence);
         return true;
       }
@@ -186,7 +186,7 @@ public class VectorsTest extends TestCase {
 
 
   public void testInverseTriangle() {
-    Mx a = new VecBasedMx(3, new ArrayVec(
+    final Mx a = new VecBasedMx(3, new ArrayVec(
             1, 0, 0,
             1, 2, 0,
             1, 2, 3
@@ -196,29 +196,29 @@ public class VectorsTest extends TestCase {
   }
 
   public void testOuterProduct() {
-    Vec u = new ArrayVec(1.0, 2.0);
-    Vec v = new ArrayVec(3.0, 4.0);
+    final Vec u = new ArrayVec(1.0, 2.0);
+    final Vec v = new ArrayVec(3.0, 4.0);
 
-    Mx expected = new VecBasedMx(2, new ArrayVec(3.0, 4.0,
+    final Mx expected = new VecBasedMx(2, new ArrayVec(3.0, 4.0,
                                                  6.0, 8.0));
-    Mx product = outer(u, v);
+    final Mx product = outer(u, v);
     for (int i = 0; i < product.dim(); i++) {
         assertEquals(expected.get(i), product.get(i), 1e-10);
     }
   }
 
   public void testMultiply() {
-    Mx a = new VecBasedMx(3, new ArrayVec(
+    final Mx a = new VecBasedMx(3, new ArrayVec(
             1, 0, 0,
             1, 1, 0,
             1, 2, 3
     ));
-    Mx b = new VecBasedMx(3, new ArrayVec(
+    final Mx b = new VecBasedMx(3, new ArrayVec(
             1, 0, 2,
             1, 2, 0,
             1, 2, 0
     ));
-    Mx c = new VecBasedMx(3, new ArrayVec(
+    final Mx c = new VecBasedMx(3, new ArrayVec(
             1, 0, 2,
             2, 2, 2,
             6, 10, 2
@@ -227,17 +227,17 @@ public class VectorsTest extends TestCase {
   }
 
   public void testSparseMultiply() {
-    Mx a = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
+    final Mx a = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
             1, 0, 0,
             1, 1, 0,
             1, 2, 3
     )));
-    Mx b = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
+    final Mx b = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
             1, 0, 2,
             1, 2, 0,
             1, 2, 0
     )));
-    Mx c = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
+    final Mx c = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
             1, 0, 2,
             2, 2, 2,
             6, 10, 2
@@ -247,7 +247,7 @@ public class VectorsTest extends TestCase {
 
 
   public void testInverse() {
-    Mx a = new VecBasedMx(3, new ArrayVec(
+    final Mx a = new VecBasedMx(3, new ArrayVec(
             1, 1, 1,
             1, 2, 1,
             1, 1, 2
@@ -261,7 +261,7 @@ public class VectorsTest extends TestCase {
 
   public void testRandomInverse() {
     final int dim = 100;
-    Random rand = new FastRandom(0);
+    final Random rand = new FastRandom(0);
     for (int c = 0; c < 100; c++) {
       final Mx a = new VecBasedMx(dim, dim);
       for (int i = 0; i < dim; i++) {
@@ -289,13 +289,13 @@ public class VectorsTest extends TestCase {
             0.25, 0.3, 1
     }));
     final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
-    GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(3), Sigma, new Random());
-    List<Vec> pool = new ArrayList<Vec>(100500);
+    final GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(3), Sigma, new Random());
+    final List<Vec> pool = new ArrayList<Vec>(100500);
     for (int i = 0; i < 20000; i++) {
       pool.add(randomVec.next());
     }
 
-    Mx m = MxTools.mahalanobis(pool);
+    final Mx m = MxTools.mahalanobis(pool);
     assertTrue(distance(L, MxTools.inverseLTriangle(m)) < 0.1);
   }
 
@@ -306,13 +306,13 @@ public class VectorsTest extends TestCase {
             0.5, 1,
     }));
     final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
-    GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma, new Random(1408619692919L));
-    List<Vec> pool = new ArrayList<Vec>(100500);
+    final GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma, new Random(1408619692919L));
+    final List<Vec> pool = new ArrayList<Vec>(100500);
     for (int i = 0; i < 20000; i++) {
       pool.add(randomVec.next());
     }
 
-    Mx m = MxTools.mahalanobis(pool);
+    final Mx m = MxTools.mahalanobis(pool);
     assertTrue("Distance is: " + Double.toString(distance(L, MxTools.inverseLTriangle(m))), distance(L, MxTools.inverseLTriangle(m)) < 0.02);
   }
 
@@ -324,25 +324,25 @@ public class VectorsTest extends TestCase {
     }));
     final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
     final Random random = new FastRandom(1408621387063L);
-    GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma, random);
-    List<Vec> pool = new ArrayList<Vec>();
+    final GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma, random);
+    final List<Vec> pool = new ArrayList<Vec>();
     for (int i = 0; i < 10000; i++) {
       pool.add(randomVec.next());
     }
-    LSHEuclidNNLocator locator = new LSHEuclidNNLocator(pool, 50, 200, random);
-    double[] dist = new double[pool.size()];
-    int[] order = new int[pool.size()];
+    final LSHEuclidNNLocator locator = new LSHEuclidNNLocator(pool, 50, 200, random);
+    final double[] dist = new double[pool.size()];
+    final int[] order = new int[pool.size()];
     int mistakes = 0;
     for (int t = 0; t < 100; t++) {
-      Vec current = pool.get(random.nextInt(pool.size()));
+      final Vec current = pool.get(random.nextInt(pool.size()));
       for (int i = 0; i < pool.size(); i++) {
         dist[i] = distance(current, pool.get(i));
         order[i] = i;
       }
       ArrayTools.parallelSort(dist, order);
-      int[] nearestFound = new int[10];
+      final int[] nearestFound = new int[10];
       locator.nearest(current, 10, nearestFound, new double[10]);
-      TIntHashSet found = new TIntHashSet(nearestFound);
+      final TIntHashSet found = new TIntHashSet(nearestFound);
       for (int i = 0; i < 10; i++) {
         mistakes += found.contains(order[i]) ? 0 : 1;
       }
@@ -356,9 +356,9 @@ public class VectorsTest extends TestCase {
             1, 2, 2,
             1, 2, 3
     );
-    Mx a = new VecBasedMx(3, vec);
-    Mx l = new VecBasedMx(3, 3);
-    Mx q = new VecBasedMx(3, 3);
+    final Mx a = new VecBasedMx(3, vec);
+    final Mx l = new VecBasedMx(3, 3);
+    final Mx q = new VecBasedMx(3, 3);
 
     MxTools.householderLQ(a, l, q);
     assertTrue(distance(MxTools.multiply(MxTools.transpose(q), q), MxTools.E(3)) < 0.00001);
@@ -371,11 +371,11 @@ public class VectorsTest extends TestCase {
             1, 2, 2,
             1, 2, 3
     );
-    Mx a = new VecBasedMx(3, vec);
-    Mx q = new VecBasedMx(3, 3);
-    Mx sigma = new VecBasedMx(3, 3);
+    final Mx a = new VecBasedMx(3, vec);
+    final Mx q = new VecBasedMx(3, 3);
+    final Mx sigma = new VecBasedMx(3, 3);
     MxTools.eigenDecomposition(a, q, sigma);
-    Mx result = MxTools.multiply(MxTools.transpose(q), MxTools.multiply(sigma, q));
+    final Mx result = MxTools.multiply(MxTools.transpose(q), MxTools.multiply(sigma, q));
     assertTrue(distance(a, result) < 0.001);
   }
 
@@ -385,9 +385,9 @@ public class VectorsTest extends TestCase {
             1, 2, 2,
             1, 2, 3
     );
-    Mx a = new VecBasedMx(3, vec);
-    Mx l = new VecBasedMx(3, 3);
-    Mx qt = new VecBasedMx(3, 3);
+    final Mx a = new VecBasedMx(3, vec);
+    final Mx l = new VecBasedMx(3, 3);
+    final Mx qt = new VecBasedMx(3, 3);
 
     MxTools.householderLQ(a, l, qt);
     final Mx invL = MxTools.inverseLTriangle(l);
@@ -402,9 +402,9 @@ public class VectorsTest extends TestCase {
             2846.879988, 1028.206595, 1156.55439, 662.1189985,
             2761.270001, 825.7811009, 662.1189985, 1273.369898
     );
-    Mx a = new VecBasedMx(4, vec);
-    Mx l = new VecBasedMx(4, 4);
-    Mx qt = new VecBasedMx(4, 4);
+    final Mx a = new VecBasedMx(4, vec);
+    final Mx l = new VecBasedMx(4, 4);
+    final Mx qt = new VecBasedMx(4, 4);
 
     MxTools.householderLQ(a, l, qt);
     final Mx invL = MxTools.inverseLTriangle(l);
@@ -420,9 +420,9 @@ public class VectorsTest extends TestCase {
             20.63053123, 7.197349856, 6.646254717, 0.5007998021, 6.786926655,
             2862.410003, 832.7343011, 759.4528004, 6.786926655, 1270.2229
     );
-    Mx a = new VecBasedMx(5, vec);
-    Mx l = new VecBasedMx(5, 5);
-    Mx qt = new VecBasedMx(5, 5);
+    final Mx a = new VecBasedMx(5, vec);
+    final Mx l = new VecBasedMx(5, 5);
+    final Mx qt = new VecBasedMx(5, 5);
 
     MxTools.householderLQ(a, l, qt);
     final Mx invL = MxTools.inverseLTriangle(l);
@@ -431,7 +431,7 @@ public class VectorsTest extends TestCase {
   }
 
   public void testSubMx1() {
-    Mx a = new VecBasedMx(3, new ArrayVec(
+    final Mx a = new VecBasedMx(3, new ArrayVec(
             1, 0, 0,
             1, 2, 0,
             1, 2, 3
@@ -440,7 +440,7 @@ public class VectorsTest extends TestCase {
   }
 
   public void testSubMxSparse1() {
-    Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
+    final Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
             1, 0, 0,
             1, 2, 0,
             1, 2, 3
@@ -449,14 +449,14 @@ public class VectorsTest extends TestCase {
   }
 
   public void testSubMxInverse1() {
-    Mx temp = new VecBasedMx(4, copySparse(new ArrayVec(
+    final Mx temp = new VecBasedMx(4, copySparse(new ArrayVec(
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 1, 2, 0,
             0, 1, 2, 3
     )));
-    Mx sub = temp.sub(1, 1, 3, 3);
-    Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
+    final Mx sub = temp.sub(1, 1, 3, 3);
+    final Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
             1, 0, 0,
             1, 2, 0,
             1, 2, 3
@@ -467,15 +467,15 @@ public class VectorsTest extends TestCase {
   }
 
   public void testSubMxWriteSparse() {
-    Mx refResult = new VecBasedMx(4, copySparse(new ArrayVec(
+    final Mx refResult = new VecBasedMx(4, copySparse(new ArrayVec(
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 1, 2, 0,
             0, 1, 2, 3
     )));
-    Mx temp = MxTools.E(4);
-    Mx sub = temp.sub(1, 1, 3, 3);
-    Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
+    final Mx temp = MxTools.E(4);
+    final Mx sub = temp.sub(1, 1, 3, 3);
+    final Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
             1, 0, 0,
             1, 2, 0,
             1, 2, 3
@@ -485,15 +485,15 @@ public class VectorsTest extends TestCase {
   }
 
   public void testSubMxWrite() {
-    Mx refResult = new VecBasedMx(4, new ArrayVec(
+    final Mx refResult = new VecBasedMx(4, new ArrayVec(
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 1, 2, 0,
             0, 1, 2, 3
     ));
-    Mx temp = MxTools.E(4);
-    Mx sub = temp.sub(1, 1, 3, 3);
-    Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
+    final Mx temp = MxTools.E(4);
+    final Mx sub = temp.sub(1, 1, 3, 3);
+    final Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
             1, 0, 0,
             1, 2, 0,
             1, 2, 3
@@ -503,22 +503,22 @@ public class VectorsTest extends TestCase {
   }
 
   public void testSubSubMx() {
-    Mx full = new VecBasedMx(4, new ArrayVec(new double[]{
+    final Mx full = new VecBasedMx(4, new ArrayVec(new double[]{
             0, 1, 2, 3,
             1, 2, 3, 4,
             2, 3, 4, 5,
             3, 4, 5, 6
     }));
 
-    Mx sub3x3 = full.sub(0, 0, 3, 3);
+    final Mx sub3x3 = full.sub(0, 0, 3, 3);
 
-    Vec rowSub = sub3x3.row(1);
+    final Vec rowSub = sub3x3.row(1);
     assertTrue(Arrays.equals(rowSub.toArray(), new double[]{1, 2, 3}));
 
-    Vec colSub = sub3x3.col(2);
+    final Vec colSub = sub3x3.col(2);
     assertTrue(Arrays.equals(colSub.toArray(), new double[]{2, 3, 4}));
 
-    Mx subSub = sub3x3.sub(1, 1, 3, 2);
+    final Mx subSub = sub3x3.sub(1, 1, 3, 2);
     assertTrue(Arrays.equals(subSub.toArray(), new double[]{2, 3,
         3, 4,
         4, 5})
@@ -526,16 +526,16 @@ public class VectorsTest extends TestCase {
   }
 
   public void testStressMultiply() {
-    Random rnd = new FastRandom();
-    Mx temp = MxTools.E(1000);
+    final Random rnd = new FastRandom();
+    final Mx temp = MxTools.E(1000);
     Interval.start();
     Interval.suspend();
     for (int i = 0; i < 10; i++) {
-      Mx mx = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
+      final Mx mx = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
       for (int j = 0; j < mx.dim(); j++)
         mx.set(j, rnd.nextGaussian());
       Interval.resume();
-      Mx result = MxTools.multiply(temp, mx);
+      final Mx result = MxTools.multiply(temp, mx);
       Interval.suspend();
       if (distance(mx, result) > EPSILON)
         assertTrue(distance(mx, result) < EPSILON);
@@ -544,16 +544,16 @@ public class VectorsTest extends TestCase {
   }
 
   public void testStressMultiplySparse() {
-    Random rnd = new FastRandom();
-    Mx temp = MxTools.sparseE(1000);
+    final Random rnd = new FastRandom();
+    final Mx temp = MxTools.sparseE(1000);
     Interval.start();
     Interval.suspend();
     for (int i = 0; i < 10; i++) {
-      Mx mx = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
+      final Mx mx = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
       for (int j = 0; j < mx.dim(); j++)
         mx.set(j, rnd.nextGaussian());
       Interval.resume();
-      Mx result = MxTools.multiply(temp, mx);
+      final Mx result = MxTools.multiply(temp, mx);
       Interval.suspend();
       if (distance(mx, result) > EPSILON)
         assertTrue(distance(mx, result) < EPSILON);
@@ -562,15 +562,15 @@ public class VectorsTest extends TestCase {
   }
 
   public void notestStressMultiplyDSparse() {
-    Random rnd = new FastRandom();
+    final Random rnd = new FastRandom();
     Interval.start();
     Interval.suspend();
     for (int i = 0; i < 1; i++) {
-      Mx mxA = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
+      final Mx mxA = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
       for (int j = 0; j < mxA.dim(); j++)
         if (rnd.nextDouble() < 0.05)
           mxA.set(j, rnd.nextGaussian());
-      Mx mxB = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
+      final Mx mxB = new VecBasedMx(1000, new ArrayVec(1000 * 1000));
       for (int j = 0; j < mxB.dim(); j++)
         if (rnd.nextDouble() < 0.05)
           mxB.set(j, rnd.nextGaussian());
@@ -580,8 +580,8 @@ public class VectorsTest extends TestCase {
         resultDense = MxTools.multiply(mxA, mxB);
       Interval.suspend();
 
-      Mx sparseA = new VecBasedMx(1000, copySparse(((VecBasedMx)mxA).vec));
-      Mx sparseB = new VecBasedMx(1000, copySparse(((VecBasedMx)mxB).vec));
+      final Mx sparseA = new VecBasedMx(1000, copySparse(((VecBasedMx)mxA).vec));
+      final Mx sparseB = new VecBasedMx(1000, copySparse(((VecBasedMx)mxB).vec));
       Mx resultSparse = null;
       Interval.resume();
       for (int t = 0; t < 10; t++)
@@ -593,10 +593,10 @@ public class VectorsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
-  private void matrixTest(Mx a) {
+  private void matrixTest(final Mx a) {
     for (int k = 0; k < 3; k++) {
-      Mx col = a.sub(0, k, 3, 1);
-      MxIterator iterator = col.nonZeroes();
+      final Mx col = a.sub(0, k, 3, 1);
+      final MxIterator iterator = col.nonZeroes();
       int i;
       for (i = 0; iterator.advance() && i < a.rows(); i++) {
         assertEquals(a.get(iterator.index(), k), iterator.value());

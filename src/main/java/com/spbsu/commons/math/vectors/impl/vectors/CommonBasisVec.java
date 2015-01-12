@@ -17,15 +17,15 @@ import java.util.List;
  * Time: 18:29:22
  */
 public class CommonBasisVec<T> extends CustomBasisVec<GenericBasis<T>> {
-  public CommonBasisVec(GenericBasis<T> basis, T[] indeces, double[] values) {
+  public CommonBasisVec(final GenericBasis<T> basis, final T[] indeces, final double[] values) {
     super(basis, transform(basis, indeces), values);
   }
 
-  public CommonBasisVec(GenericBasis<T> basis) {
+  public CommonBasisVec(final GenericBasis<T> basis) {
     super(basis);
   }
 
-  private static <T> int[] transform(GenericBasis<T> basis, T[] indeces) {
+  private static <T> int[] transform(final GenericBasis<T> basis, final T[] indeces) {
     final int[] iindeces = new int[indeces.length];
     for (int i = 0; i < indeces.length; i++) {
       iindeces[i] = basis.toIndex(indeces[i]);
@@ -33,15 +33,15 @@ public class CommonBasisVec<T> extends CustomBasisVec<GenericBasis<T>> {
     return iindeces;
   }
 
-  public double get(T key) {
+  public double get(final T key) {
     return get(basis().toIndex(key));
   }
 
-  public Vec set(T key, double val) {
+  public Vec set(final T key, final double val) {
     return super.set(basis().toIndex(key), val);
   }
 
-  public Vec adjust(T key, double increment) {
+  public Vec adjust(final T key, final double increment) {
     return super.adjust(basis().toIndex(key), increment);
   }
 

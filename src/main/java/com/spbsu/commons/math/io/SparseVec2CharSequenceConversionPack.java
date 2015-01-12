@@ -20,16 +20,16 @@ import com.spbsu.commons.seq.CharSeqTools;
 public class SparseVec2CharSequenceConversionPack implements ConversionPack<SparseVec,CharSequence> {
   public static class SparseVec2CharSequenceConverter implements TypeConverter<SparseVec, CharSequence> {
     @Override
-    public CharSequence convert(SparseVec from) {
+    public CharSequence convert(final SparseVec from) {
       final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
       prettyPrint.setMaximumFractionDigits(5);
       prettyPrint.setMinimumFractionDigits(0);
       prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
       prettyPrint.setGroupingUsed(false);
 
-      CharSeqBuilder builder = new CharSeqBuilder();
+      final CharSeqBuilder builder = new CharSeqBuilder();
       builder.append(from.dim()).append(':').append(from.indices.size());
-      VecIterator nzIt = from.nonZeroes();
+      final VecIterator nzIt = from.nonZeroes();
       while (nzIt.advance()) {
         builder.append(' ').append(nzIt.index()).append(':').append(prettyPrint.format(nzIt.value()));
       }
@@ -39,18 +39,18 @@ public class SparseVec2CharSequenceConversionPack implements ConversionPack<Spar
 
   public static class CharSequence2SparseVecConverter implements TypeConverter<CharSequence, SparseVec> {
     @Override
-    public SparseVec convert(CharSequence from) {
+    public SparseVec convert(final CharSequence from) {
       final CharSequence[] parts = CharSeqTools.split(from.toString().trim(), ' ');
-      int dim;
-      int nzCount;
+      final int dim;
+      final int nzCount;
       final CharSequence[] split = new CharSequence[2];
       {
         CharSeqTools.split(parts[0], ':', split);
         dim = CharSeqTools.parseInt(split[0]);
         nzCount = CharSeqTools.parseInt(split[1]);
       }
-      int[] indices = new int[nzCount];
-      double[] values = new double[nzCount];
+      final int[] indices = new int[nzCount];
+      final double[] values = new double[nzCount];
       for (int i = 1; i < parts.length; i++) {
         CharSeqTools.split(parts[i], ':', split);
         indices[i - 1] = CharSeqTools.parseInt(split[0]);

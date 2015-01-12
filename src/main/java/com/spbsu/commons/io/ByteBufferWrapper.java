@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 public class ByteBufferWrapper implements Buffer {
   private final ByteBuffer buffer;
 
-  public ByteBufferWrapper(ByteBuffer buffer) {
+  public ByteBufferWrapper(final ByteBuffer buffer) {
     this.buffer = buffer.duplicate();
   }
 
@@ -22,7 +22,7 @@ public class ByteBufferWrapper implements Buffer {
     return buffer.remaining();
   }
 
-  public Buffer limit(int pos) {
+  public Buffer limit(final int pos) {
     buffer.limit(pos);
     return this;
   }
@@ -31,7 +31,7 @@ public class ByteBufferWrapper implements Buffer {
     return buffer.limit();
   }
 
-  public Buffer position(int pos) {
+  public Buffer position(final int pos) {
     buffer.position(pos);
     return this;
   }
@@ -48,7 +48,7 @@ public class ByteBufferWrapper implements Buffer {
     return buffer.get();
   }
 
-  public byte getByte(int pos) {
+  public byte getByte(final int pos) {
     return buffer.get(pos);
   }
 
@@ -56,7 +56,7 @@ public class ByteBufferWrapper implements Buffer {
     return buffer.getChar();
   }
 
-  public char getChar(int pos) {
+  public char getChar(final int pos) {
     return buffer.getChar(pos);
   }
 
@@ -64,7 +64,7 @@ public class ByteBufferWrapper implements Buffer {
     return buffer.getShort();
   }
 
-  public short getShort(int pos) {
+  public short getShort(final int pos) {
     return buffer.getShort(pos);
   }
 
@@ -72,7 +72,7 @@ public class ByteBufferWrapper implements Buffer {
     return buffer.getInt();
   }
 
-  public int getInt(int pos) {
+  public int getInt(final int pos) {
     return buffer.getInt(pos);
   }
 
@@ -80,7 +80,7 @@ public class ByteBufferWrapper implements Buffer {
     return buffer.getLong();
   }
 
-  public long getLong(int pos) {
+  public long getLong(final int pos) {
     return buffer.getLong(pos);
   }
 
@@ -88,7 +88,7 @@ public class ByteBufferWrapper implements Buffer {
     return buffer.getFloat();
   }
 
-  public float getFloat(int pos) {
+  public float getFloat(final int pos) {
     return buffer.getFloat(pos);
   }
 
@@ -96,95 +96,95 @@ public class ByteBufferWrapper implements Buffer {
     return buffer.getDouble();
   }
 
-  public double getDouble(int pos) {
+  public double getDouble(final int pos) {
     return buffer.getDouble(pos);
   }
 
-  public Buffer putByte(byte b) {
+  public Buffer putByte(final byte b) {
     buffer.put(b);
     return this;
   }
 
-  public Buffer putByte(int pos, byte b) {
+  public Buffer putByte(final int pos, final byte b) {
     buffer.put(pos, b);
     return this;
   }
 
-  public Buffer putChar(char c) {
+  public Buffer putChar(final char c) {
     buffer.putChar(c);
     return this;
   }
 
-  public Buffer putChar(int pos, char c) {
+  public Buffer putChar(final int pos, final char c) {
     buffer.putChar(pos, c);
     return this;
   }
 
-  public Buffer putShort(short i) {
+  public Buffer putShort(final short i) {
     buffer.putShort(i);
     return this;
   }
 
-  public Buffer putShort(int pos, short i) {
+  public Buffer putShort(final int pos, final short i) {
     buffer.putShort(pos, i);
     return this;
   }
 
-  public Buffer putInt(int i) {
+  public Buffer putInt(final int i) {
     buffer.putInt(i);
     return this;
   }
 
-  public Buffer putInt(int pos, int i) {
+  public Buffer putInt(final int pos, final int i) {
     buffer.putInt(pos, i);
     return this;
   }
 
-  public Buffer putLong(long l) {
+  public Buffer putLong(final long l) {
     buffer.putLong(l);
     return this;
   }
 
-  public Buffer putLong(int pos, long l) {
+  public Buffer putLong(final int pos, final long l) {
     buffer.putLong(pos, l);
     return this;
   }
 
-  public Buffer putFloat(float f) {
+  public Buffer putFloat(final float f) {
     buffer.putFloat(f);
     return this;
   }
 
-  public Buffer putFloat(int pos, float f) {
+  public Buffer putFloat(final int pos, final float f) {
     buffer.putFloat(pos, f);
     return this;
   }
 
-  public Buffer putDouble(double d) {
+  public Buffer putDouble(final double d) {
     buffer.putDouble(d);
     return this;
   }
 
-  public Buffer putDouble(int pos, double d) {
+  public Buffer putDouble(final int pos, final double d) {
     buffer.putDouble(pos, d);
     return this;
   }
 
-  public Buffer put(byte[] array) {
+  public Buffer put(final byte[] array) {
     buffer.put(array);
     return this;
   }
 
-  public Buffer put(byte[] array, int off, int len) {
+  public Buffer put(final byte[] array, final int off, final int len) {
     buffer.put(array, off, len);
     return this;
   }
 
-  public int get(byte[] array) {
+  public int get(final byte[] array) {
     return get(array, 0, array.length);
   }
 
-  public int get(byte[] array, int off, int len) {
+  public int get(final byte[] array, final int off, final int len) {
     if (len > buffer.remaining()) {
       final int remaining = buffer.remaining();
       buffer.get(array, off, remaining);

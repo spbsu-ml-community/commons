@@ -14,7 +14,7 @@ public class Array2BufferConverter<T> implements Converter<T[], Buffer> {
   private final T[] emptyArray;
   private final Converter<T, Buffer> converter;
 
-  public Array2BufferConverter(T[] emptyArray, final Converter<T, Buffer> converter) {
+  public Array2BufferConverter(final T[] emptyArray, final Converter<T, Buffer> converter) {
     this.emptyArray = emptyArray;
     this.converter = converter;
   }

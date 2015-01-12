@@ -142,7 +142,7 @@ public class CollectionTools {
           return true;
         }
         while (iterator.hasNext()) {
-          T obj = iterator.next();
+          final T obj = iterator.next();
           if (filter.accept(obj)) {
             nextObject = obj;
             return true;
@@ -155,7 +155,7 @@ public class CollectionTools {
         if (!hasNext()) {
           throw new NoSuchElementException();
         } else {
-          T obj = nextObject;
+          final T obj = nextObject;
           nextObject = null;
           return obj;
         }

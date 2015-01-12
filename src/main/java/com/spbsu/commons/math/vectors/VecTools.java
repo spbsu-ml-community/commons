@@ -29,7 +29,7 @@ import static java.lang.Math.sqrt;
 public class VecTools {
   private static final double EPSILON = 1e-5;
 
-  public static int hashCode(Vec v) {
+  public static int hashCode(final Vec v) {
     int hashCode = 0;
     final VecIterator iter = v.nonZeroes();
     while (iter.advance()) {
@@ -67,7 +67,7 @@ public class VecTools {
     return true;
   }
 
-  public static <T extends Vec> T append(T leftOrig, final Vec... rest) {
+  public static <T extends Vec> T append(final T leftOrig, final Vec... rest) {
     Vec left = leftOrig;
     if (left instanceof VecBasedMx)
       left = ((VecBasedMx)left).vec;
@@ -79,8 +79,8 @@ public class VecTools {
       if (left instanceof CustomBasisVec) {
         final VecIterator iterRight = vec.nonZeroes();
         final int maxSize = countNonZeroesUpperBound(left) + countNonZeroesUpperBound(vec);
-        TIntArrayList newIndeces = new TIntArrayList(maxSize);
-        TDoubleArrayList newValues = new TDoubleArrayList(maxSize);
+        final TIntArrayList newIndeces = new TIntArrayList(maxSize);
+        final TDoubleArrayList newValues = new TDoubleArrayList(maxSize);
         final VecIterator iterLeft = left.nonZeroes();
         iterLeft.advance();
         iterRight.advance();
@@ -123,7 +123,7 @@ public class VecTools {
     return leftOrig;
   }
 
-  public static double multiply(Vec left, Vec right) {
+  public static double multiply(final Vec left, final Vec right) {
     checkBasisesEquals(left, right);
     if (left instanceof ArrayVec && right instanceof ArrayVec) {
       return ((ArrayVec) left).mul((ArrayVec) right);
@@ -134,12 +134,13 @@ public class VecTools {
   }
 
   @SuppressWarnings("StatementWithEmptyBody")
-  private static double multiply(VecIterator liter, VecIterator riter) {
+  private static double multiply(final VecIterator liter, final VecIterator riter) {
     double result = 0;
     if (!liter.advance() || !riter.advance())
       return 0;
     while (liter.isValid() && riter.isValid()) {
-      int lindex = liter.index(), rindex = riter.index();
+      final int lindex = liter.index();
+      int rindex = riter.index();
       if (lindex == rindex) {
         result += liter.value() * riter.value();
         liter.advance();
@@ -156,7 +157,7 @@ public class VecTools {
     return result;
   }
 
-  public static double distanceAV(Vec left, Vec right) {
+  public static double distanceAV(final Vec left, final Vec right) {
     checkBasisesEquals(left, right);
     final int size = left.dim();
     double result = 0;
@@ -168,7 +169,7 @@ public class VecTools {
     return sqrt(result);
   }
 
-  public static double distanceAVJS12(Vec left, Vec right) {
+  public static double distanceAVJS12(final Vec left, final Vec right) {
     checkBasisesEquals(left, right);
     final int size = left.dim();
     double result = 0;
@@ -234,7 +235,7 @@ public class VecTools {
     return sqrt(result);
   }
 
-  public static double distanceJS12(Vec left, Vec right) {
+  public static double distanceJS12(final Vec left, final Vec right) {
     checkBasisesEquals(left, right);
     final VecIterator liter = left.nonZeroes();
     final VecIterator riter = right.nonZeroes();
@@ -267,8 +268,8 @@ public class VecTools {
   }
 
   @SuppressWarnings("unchecked")
-  public static SparseVec copySparse(Vec vec) {
-    SparseVec copy;
+  public static SparseVec copySparse(final Vec vec) {
+    final SparseVec copy;
     if (vec instanceof SparseVec)
       copy = new SparseVec(((SparseVec)vec).basis().size());
     else
@@ -277,7 +278,7 @@ public class VecTools {
     return copy;
   }
 
-  public static double l1(Vec vec) {
+  public static double l1(final Vec vec) {
     double result = 0;
     final VecIterator iterator = vec.nonZeroes();
     while (iterator.advance()) {
@@ -286,21 +287,21 @@ public class VecTools {
     return result;
   }
 
-  public static void scale(Vec vec, Vec scale) {
+  public static void scale(final Vec vec, final Vec scale) {
     final VecIterator iterator = vec.nonZeroes();
     while (iterator.advance()) {
       iterator.setValue(iterator.value() * scale.get(iterator.index()));
     }
   }
 
-  public static boolean checkOrthogonality(Mx a) {
+  public static boolean checkOrthogonality(final Mx a) {
     if (a.rows() != a.columns())
       return false;
     final Mx square = MxTools.multiply(a, MxTools.transpose(a));
     return equals(square, MxTools.E(a.columns()));
   }
 
-  public static void addOuter(Mx result, Vec a, Vec b) {
+  public static void addOuter(final Mx result, final Vec a, final Vec b) {
     if (a.dim() != result.rows() || b.dim() != result.columns())
       throw new IllegalArgumentException("Vector dimensions must be equal for outer product");
     {
@@ -316,7 +317,7 @@ public class VecTools {
     }
   }
 
-  public static Mx outer(Vec a, Vec b) {
+  public static Mx outer(final Vec a, final Vec b) {
     final VecBasedMx result = new VecBasedMx(a.dim(), b.dim());
     {
       final VecIterator itA = a.nonZeroes();
@@ -331,14 +332,14 @@ public class VecTools {
     return result;
   }
 
-  public static <T extends Vec> T fill(T x, double val) {
+  public static <T extends Vec> T fill(final T x, final double val) {
     for (int i = 0; i < x.dim(); i++) {
       x.set(i, val);
     }
     return x;
   }
 
-  public static void incscale(Vec result, Vec left, double scale) {
+  public static void incscale(final Vec result, final Vec left, final double scale) {
     if (left instanceof ArrayVec && left.getClass().equals(result.getClass())) {
       final ArrayVec larr = (ArrayVec) left;
       final ArrayVec resarr = (ArrayVec) result;
@@ -353,7 +354,7 @@ public class VecTools {
   }
 
   @SuppressWarnings("unchecked")
-  public static <T extends Vec> T copy(T vec) {
+  public static <T extends Vec> T copy(final T vec) {
     if (vec instanceof VecBasedMx) {
       final VecBasedMx mx = (VecBasedMx) vec;
       return (T)new VecBasedMx(mx.columns(), copy(mx.vec));
@@ -374,19 +375,19 @@ public class VecTools {
 
   @SuppressWarnings("unchecked")
   public static <T extends  Vec> T sum(final Vec a, final Vec b) {
-      Vec result = copy(a);
+      final Vec result = copy(a);
       return (T)append(result, b);
   }
 
   @SuppressWarnings("unchecked")
   public static <T extends Vec> T subtract(final Vec a, final Vec b) {
-    Vec result = copy(a);
+    final Vec result = copy(a);
     for (int i = 0; i < b.dim(); i++)
         result.adjust(i, -1.0 * b.get(i));
       return (T)result;
   }
 
-  public static void assign(Vec a, Vec vec) {
+  public static void assign(final Vec a, final Vec vec) {
     if (a.length() != vec.length()) {
       throw new IllegalArgumentException("Vector dimensions differ");
     }
@@ -406,7 +407,7 @@ public class VecTools {
     }
   }
 
-  public static double sum(Vec target) {
+  public static double sum(final Vec target) {
     final VecIterator iterator = target.nonZeroes();
     double sum = 0;
     while(iterator.advance()) {
@@ -415,7 +416,7 @@ public class VecTools {
     return sum;
   }
 
-  public static double sum2(Vec target) {
+  public static double sum2(final Vec target) {
     final VecIterator iterator = target.nonZeroes();
     double sum2 = 0;
     while(iterator.advance()) {
@@ -424,14 +425,14 @@ public class VecTools {
     return sum2;
   }
 
-  public static Vec fillIndices(Vec vec, int[] indices, double x) {
+  public static Vec fillIndices(final Vec vec, final int[] indices, final double x) {
     for (final int index : indices) {
       vec.set(index, x);
     }
     return vec;
   }
 
-  public static void normalizeL1(Vec row) {
+  public static void normalizeL1(final Vec row) {
     double sum = 0;
     {
       final VecIterator it = row.nonZeroes();
@@ -448,7 +449,7 @@ public class VecTools {
     }
   }
 
-  public static double entropy(Vec prob) {
+  public static double entropy(final Vec prob) {
     normalizeL1(prob);
     double entropy = 0;
     for (int i = 0; i < prob.dim(); i++) {
@@ -458,9 +459,9 @@ public class VecTools {
     return -entropy;
   }
 
-  public static Vec extendVec(Vec sourceVec, double[] addedValues) {
-    Vec result = new ArrayVec(sourceVec.dim() + addedValues.length);
-    for (VecIterator iter = sourceVec.nonZeroes(); iter.advance(); ) {
+  public static Vec extendVec(final Vec sourceVec, final double[] addedValues) {
+    final Vec result = new ArrayVec(sourceVec.dim() + addedValues.length);
+    for (final VecIterator iter = sourceVec.nonZeroes(); iter.advance(); ) {
       result.set(iter.index(), iter.value());
     }
     for (int i = 0; i < addedValues.length; i++) {
@@ -469,12 +470,12 @@ public class VecTools {
     return result;
   }
 
-  public static Vec[] splitMxColumns(Mx features) {
+  public static Vec[] splitMxColumns(final Mx features) {
     return null;
   }
 
   public static Vec concat(final Vec a, final Vec b) {
-    Vec result;
+    final Vec result;
     if (a instanceof SingleValueVec && b instanceof SingleValueVec && a.get(0) == b.get(0)) {
       result = new SingleValueVec(a.get(0), a.dim() + b.dim());
     }
@@ -491,7 +492,7 @@ public class VecTools {
     return result;
   }
 
-  public static void copyTo(final Vec a, final Vec to, int offset) {
+  public static void copyTo(final Vec a, final Vec to, final int offset) {
     final VecIterator nzI = a.nonZeroes();
     while(nzI.advance())
       to.set(offset + nzI.index(), nzI.value());
@@ -521,7 +522,7 @@ public class VecTools {
     VecIterator iter;
     int index;
 
-    private IndexedVecIter(VecIterator iter, int index) {
+    private IndexedVecIter(final VecIterator iter, final int index) {
       this.iter = iter;
       this.index = index;
     }
@@ -530,24 +531,24 @@ public class VecTools {
     List<IndexedVecIter> iters = new LinkedList<>();
     int index;
 
-    public VecIterEntry(int index) {
+    public VecIterEntry(final int index) {
       this.index = index;
     }
 
     @Override
-    public int compareTo(@NotNull VecIterEntry node) {
+    public int compareTo(@NotNull final VecIterEntry node) {
       return index - node.index;
     }
   }
 
-  public static <T extends Vec> double[] multiplyAll(List<T> left, Vec right) {
-    double[] result = new double[left.size()];
+  public static <T extends Vec> double[] multiplyAll(final List<T> left, final Vec right) {
+    final double[] result = new double[left.size()];
 
     final TreeSet<VecIterEntry> iters = new TreeSet<>();
     final TIntObjectHashMap<VecIterEntry> cache = new TIntObjectHashMap<>();
     {
       int index = 0;
-      for (Vec vec : left) {
+      for (final Vec vec : left) {
         final VecIterator iter = vec.nonZeroes();
         if (iter.advance())
           processIter(iters, cache, new IndexedVecIter(iter, index++));
@@ -561,7 +562,7 @@ public class VecTools {
       final double currentValue = riter.value();
 
       while (topEntry != null && topEntry.index < currentIndex) {
-        for (IndexedVecIter iter : topEntry.iters) {
+        for (final IndexedVecIter iter : topEntry.iters) {
           while (iter.iter.index() < currentIndex)
             if(!iter.iter.advance()) break;
           if (iter.iter.isValid())
@@ -572,7 +573,7 @@ public class VecTools {
       }
 
       if (topEntry != null && topEntry.index == currentIndex) {
-        for (IndexedVecIter iter : topEntry.iters) {
+        for (final IndexedVecIter iter : topEntry.iters) {
           result[iter.index] += currentValue * iter.iter.value();
           if (iter.iter.advance())
             processIter(iters, cache, iter);
@@ -584,7 +585,7 @@ public class VecTools {
     return result;
   }
 
-  private static void processIter(Set<VecIterEntry> iters, TIntObjectHashMap<VecIterEntry> cache, IndexedVecIter iter) {
+  private static void processIter(final Set<VecIterEntry> iters, final TIntObjectHashMap<VecIterEntry> cache, final IndexedVecIter iter) {
     final int index = iter.iter.index();
     VecIterEntry iterEntry = cache.get(index);
     if (iterEntry == null) {
@@ -595,25 +596,25 @@ public class VecTools {
     iterEntry.iters.add(iter);
   }
 
-  public static double cosine(Vec left, Vec right) {
-    double scalarMultiplication = multiply(left, right);
+  public static double cosine(final Vec left, final Vec right) {
+    final double scalarMultiplication = multiply(left, right);
     return scalarMultiplication != 0.0 ? scalarMultiplication / (norm(left) * norm(right)) : 0.0;
   }
 
-  public static double infNorm(Vec v) {
+  public static double infNorm(final Vec v) {
     double result = 0.;
-    for (VecIterator iter = v.nonZeroes(); iter.advance(); ) {
+    for (final VecIterator iter = v.nonZeroes(); iter.advance(); ) {
       result = Math.max(result, Math.abs(iter.value()));
     }
     return result;
   }
 
-  public static double norm(Vec v) {
+  public static double norm(final Vec v) {
     return sqrt(sum2(v));
   }
 
   @SuppressWarnings({"UnusedDeclaration"})
-  public static double norm1(Vec v) {
+  public static double norm1(final Vec v) {
     final VecIterator iter = v.nonZeroes();
     double result = 0;
     while (iter.advance()) {
@@ -624,14 +625,14 @@ public class VecTools {
   }
 
 
-  private static int countNonZeroesUpperBound(Vec v) {
+  private static int countNonZeroesUpperBound(final Vec v) {
     if (v instanceof CustomBasisVec) {
       return ((CustomBasisVec) v).indices.size();
     }
     return v.dim();
   }
 
-  public static <T extends Vec> T scale(T vector, double factor) {
+  public static <T extends Vec> T scale(final T vector, final double factor) {
     if (vector instanceof VecBasedMx) {
       scale(((VecBasedMx) vector).vec, factor);
       return vector;
@@ -655,7 +656,7 @@ public class VecTools {
     return vector;
   }
 
-  public static <T extends Vec> T toBinary(T vector) {
+  public static <T extends Vec> T toBinary(final T vector) {
     final VecIterator iter = vector.nonZeroes();
     while (iter.advance()) {
       iter.setValue(1);
@@ -671,8 +672,8 @@ public class VecTools {
     return MathTools.sum(vector.values());
   }
 
-  public static Vec abs(Vec v) {
-    Vec result = copy(v);
+  public static Vec abs(final Vec v) {
+    final Vec result = copy(v);
     final VecIterator it = result.nonZeroes();
     while (it.advance()) {
       it.setValue(Math.abs(it.value()));
@@ -680,14 +681,14 @@ public class VecTools {
     return result;
   }
 
-  public static Vec join(List<Vec> vectors) {
+  public static Vec join(final List<Vec> vectors) {
     int dim = 0;
-    for (Vec vec : vectors)
+    for (final Vec vec : vectors)
       dim += vec.dim();
 
-    Vec result = new ArrayVec(dim);
+    final Vec result = new ArrayVec(dim);
     int offset = 0;
-    for (Vec vec : vectors) {
+    for (final Vec vec : vectors) {
       for (int j = 0; j < vec.dim(); j++) {
         result.set(offset + j, vec.get(j));
       }
@@ -696,7 +697,7 @@ public class VecTools {
     return result;
   }
 
-  public static int argmax(Vec v) {
+  public static int argmax(final Vec v) {
     int argmax = 0;
     double maxValue = Double.NEGATIVE_INFINITY;
     final VecIterator iter = v.nonZeroes();
@@ -709,7 +710,7 @@ public class VecTools {
     return argmax;
   }
 
-  public static IntSeq toIntSeq(Vec v) {
+  public static IntSeq toIntSeq(final Vec v) {
     final int[] ints = new int[v.length()];
     final VecIterator iter = v.nonZeroes();
     while (iter.advance()) {

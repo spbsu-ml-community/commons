@@ -13,11 +13,11 @@ public class LRUStrategy implements CacheStrategy {
   private ListNode head;
   private ListNode tail;
 
-  public LRUStrategy(int size) {
+  public LRUStrategy(final int size) {
     init(size);
   }
 
-  private void init(int size) {
+  private void init(final int size) {
     usages = new ListNode[size];
     ListNode prev = null;
     for (int i = 0; i < usages.length; i++) {
@@ -34,7 +34,7 @@ public class LRUStrategy implements CacheStrategy {
     return tail.value;
   }
 
-  public void registerAccess(int position) {
+  public void registerAccess(final int position) {
     final LRUStrategy.ListNode node = usages[position];
 
     if(node != head){
@@ -53,7 +53,7 @@ public class LRUStrategy implements CacheStrategy {
     access++;
   }
 
-  public void removePosition(int position) {
+  public void removePosition(final int position) {
     final LRUStrategy.ListNode node = usages[position];
 
     if(node != tail){
@@ -94,7 +94,7 @@ public class LRUStrategy implements CacheStrategy {
     ListNode prev;
     int value;
 
-    public ListNode(ListNode next, int value) {
+    public ListNode(final ListNode next, final int value) {
       this.next = next;
       this.value = value;
     }

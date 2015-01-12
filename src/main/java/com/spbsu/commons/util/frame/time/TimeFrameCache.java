@@ -20,20 +20,20 @@ public class TimeFrameCache<V> implements Cache<Frame<Date>, Set<V>> {
   private final Computable<V, Date> keyComputer;
   private final TimeUnit granule;
 
-  private Cache<Frame<Date>, Set<V>> cache;
+  private final Cache<Frame<Date>, Set<V>> cache;
 
-  public static <V> TimeFrameCache<V> create(Cache<Frame<Date>, Set<V>> cache, TimeUnit granule,
-                                             Computable<V, Date> keyDataForValue) {
+  public static <V> TimeFrameCache<V> create(final Cache<Frame<Date>, Set<V>> cache, final TimeUnit granule,
+                                             final Computable<V, Date> keyDataForValue) {
     return new TimeFrameCache<V>(cache, granule, keyDataForValue);
   }
 
-  public TimeFrameCache(Cache<Frame<Date>, Set<V>> cache, TimeUnit granule, Computable<V, Date> keyComputer) {
+  public TimeFrameCache(final Cache<Frame<Date>, Set<V>> cache, final TimeUnit granule, final Computable<V, Date> keyComputer) {
     this.cache = cache;
     this.granule = granule;
     this.keyComputer = keyComputer;
   }
 
-  public synchronized void populate(V value) {
+  public synchronized void populate(final V value) {
     final Frame<Date> dateFrame = TimeTools.createVicinity(keyComputer.compute(value), granule);
     final Set<V> cachedData = cache.get(dateFrame);
     if (cachedData != null) {
@@ -43,10 +43,10 @@ public class TimeFrameCache<V> implements Cache<Frame<Date>, Set<V>> {
 
   @Deprecated
   @Override
-  public Set<V> put(Frame<Date> key, Set<V> value) {
+  public Set<V> put(final Frame<Date> key, final Set<V> value) {
     final List<Frame<Date>> granulated = granulateTimeFrame(key);
-    for (Frame<Date> frame : granulated) {
-      Set<V> acc = Factories.hashSet(value.size() / granulated.size(), 1.0f);
+    for (final Frame<Date> frame : granulated) {
+      final Set<V> acc = Factories.hashSet(value.size() / granulated.size(), 1.0f);
       accumulate(frame, value, acc);
       cache.put(frame, acc);
     }
@@ -54,7 +54,7 @@ public class TimeFrameCache<V> implements Cache<Frame<Date>, Set<V>> {
   }
 
   @Override
-  public synchronized Set<V> get(Frame<Date> key) {
+  public synchronized Set<V> get(final Frame<Date> key) {
     return get(key, null);
   }
 
@@ -69,11 +69,11 @@ public class TimeFrameCache<V> implements Cache<Frame<Date>, Set<V>> {
   }
 
   @Override
-  public synchronized Set<V> get(Frame<Date> key, Computable<Frame<Date>, Set<V>> wayToGet) {
+  public synchronized Set<V> get(final Frame<Date> key, final Computable<Frame<Date>, Set<V>> wayToGet) {
     final List<Frame<Date>> granulatedFrames = granulateTimeFrame(key);
     final Collection<Set<V>> cachedData = Factories.arrayList(granulatedFrames.size());
     int dataSize = 0;
-    for (Frame<Date> granulatedFrame : granulatedFrames) {
+    for (final Frame<Date> granulatedFrame : granulatedFrames) {
       Set<V> dataInFrame = cache.get(granulatedFrame);
       if (dataInFrame == null) {
         if (wayToGet != null) {
@@ -85,34 +85,34 @@ public class TimeFrameCache<V> implements Cache<Frame<Date>, Set<V>> {
       cachedData.add(dataInFrame);
       dataSize += dataInFrame.size();
     }
-    Set<V> acc = Factories.hashSet(dataSize, 1.0f);
-    for (Set<V> cached : cachedData) {
+    final Set<V> acc = Factories.hashSet(dataSize, 1.0f);
+    for (final Set<V> cached : cachedData) {
       accumulate(key, cached, acc);
     }
     return acc;
   }
 
   @Override
-  public synchronized void clear(Frame<Date> key) {
-    for (Frame<Date> dateFrame : granulateTimeFrame(key)) {
+  public synchronized void clear(final Frame<Date> key) {
+    for (final Frame<Date> dateFrame : granulateTimeFrame(key)) {
       cache.clear(dateFrame);
     }
   }
 
-  private void accumulate(Frame<Date> frame, Set<V> src, Set<V> acc) {
-    for (V data : src) {
+  private void accumulate(final Frame<Date> frame, final Set<V> src, final Set<V> acc) {
+    for (final V data : src) {
       if (frame.contains(keyComputer.compute(data))) {
         acc.add(data);
       }
     }
   }
 
-  private List<Frame<Date>> granulateTimeFrame(Frame<Date> frame) {
+  private List<Frame<Date>> granulateTimeFrame(final Frame<Date> frame) {
     final Frame<Date> endFrame = TimeTools.createVicinity(frame.getEnd(), granule);
     Frame<Date> startFrame = TimeTools.createVicinity(frame.getStart(), granule);
-    List<Frame<Date>> granulatedFrames = Factories.arrayList(startFrame);
+    final List<Frame<Date>> granulatedFrames = Factories.arrayList(startFrame);
     while (!startFrame.equals(endFrame)) {
-      Frame<Date> shift = TimeTools.createTimeFrame(startFrame.getEnd(), granule, 1);
+      final Frame<Date> shift = TimeTools.createTimeFrame(startFrame.getEnd(), granule, 1);
       granulatedFrames.add(shift);
       startFrame = shift;
     }

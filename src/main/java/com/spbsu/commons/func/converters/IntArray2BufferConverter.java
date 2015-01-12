@@ -23,7 +23,7 @@ public class IntArray2BufferConverter implements Converter<int[], Buffer> {
   @Override
   public Buffer convertTo(final int[] array) {
     final Buffer bufferArray = BufferFactory.wrap(new byte[array.length * 4]);
-    for (int anArray : array) {
+    for (final int anArray : array) {
       bufferArray.putInt(anArray);
     }
     bufferArray.position(0);

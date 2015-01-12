@@ -13,15 +13,15 @@ import java.util.List;
  */
 public class FrameTools {
 
-  public static <T extends Comparable<T>> boolean contains(Frame<T> src, Frame<T> arg) {
+  public static <T extends Comparable<T>> boolean contains(final Frame<T> src, final Frame<T> arg) {
     return src.getStart().compareTo(arg.getStart()) <= 0 && src.getEnd().compareTo(arg.getEnd()) >= 0;
   }
 
-  public static <T extends Comparable<T>> Frame<T>[] sort(Frame<T>... frames) {
+  public static <T extends Comparable<T>> Frame<T>[] sort(final Frame<T>... frames) {
     final List<Frame<T>> byStartSorted = Factories.arrayList(frames);
     Collections.sort(byStartSorted, new Comparator<Frame<T>>() {
       @Override
-      public int compare(Frame<T> o1, Frame<T> o2) {
+      public int compare(final Frame<T> o1, final Frame<T> o2) {
         return o1.getStart().compareTo(o2.getStart());
       }
     });
@@ -29,7 +29,7 @@ public class FrameTools {
     return byStartSorted.toArray((Frame<T>[]) new Frame[byStartSorted.size()]);
   }
 
-  public static <T extends Comparable<T>> Frame<T>[] merge(Frame<T>... frames) {
+  public static <T extends Comparable<T>> Frame<T>[] merge(final Frame<T>... frames) {
     final Frame<T>[] byStartSorted = sort(frames);
     final List<Frame<T>> merged = Factories.arrayList();
     if (frames.length == 0) {
@@ -37,7 +37,7 @@ public class FrameTools {
     }
     T start = byStartSorted[0].getStart();
     T end = byStartSorted[0].getEnd();
-    for (Frame<T> frame : byStartSorted) {
+    for (final Frame<T> frame : byStartSorted) {
       if (frame.getStart().compareTo(end) > 0) {
         merged.add(Frame.create(start, end));
         start = frame.getStart();
@@ -51,7 +51,7 @@ public class FrameTools {
     return merged.toArray((Frame<T>[]) new Frame[0]);
   }
 
-  public static <T extends Comparable<T>> Frame<T>[] subtract(Frame<T> frame, Frame<T>... subtrahends) {
+  public static <T extends Comparable<T>> Frame<T>[] subtract(final Frame<T> frame, final Frame<T>... subtrahends) {
     throw new UnsupportedOperationException();//todo
   }
 }

@@ -14,7 +14,7 @@ public class Holder<T> {
     return new Holder<T>();
   }
 
-  public static <T> Holder<T> create(T initValue) {
+  public static <T> Holder<T> create(final T initValue) {
     return new Holder<T>(initValue);
   }
 

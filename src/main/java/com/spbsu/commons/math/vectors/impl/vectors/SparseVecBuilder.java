@@ -41,7 +41,7 @@ public class SparseVecBuilder implements SeqBuilder<Double> {
     return this;
   }
 
-  public void append(double d) {
+  public void append(final double d) {
     if (d > MathTools.EPSILON) {
       data.add(d);
       indices.add(index);

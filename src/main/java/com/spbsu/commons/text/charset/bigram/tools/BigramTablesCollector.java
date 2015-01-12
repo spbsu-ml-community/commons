@@ -11,7 +11,7 @@ import java.io.*;
  * @author lyadzhin
  */
 public class BigramTablesCollector {
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     if (args.length < 2) {
       System.out.println("Usage: BigramTablesCollector source_file_name output_file_name");
       return;
@@ -30,7 +30,7 @@ public class BigramTablesCollector {
     return new BigramsTextAnalyzer().setCharFilter(CharFilter.NOT_ASCII_FILTER);
   }
 
-  private static void writeTableToFile(BigramsTable table, String outFile) {
+  private static void writeTableToFile(final BigramsTable table, final String outFile) {
     OutputStream outputStream = null;
     try {
       outputStream = new FileOutputStream(outFile);

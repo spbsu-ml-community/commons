@@ -24,7 +24,7 @@ public class BitInputStream implements BitInput {
   private int current = 0;
   private int offset = 8;
 
-  public BitInputStream(InputStream input) {
+  public BitInputStream(final InputStream input) {
     stream = input;
   }
 

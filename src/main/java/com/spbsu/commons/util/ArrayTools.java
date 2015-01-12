@@ -26,7 +26,7 @@ public abstract class ArrayTools {
   public static final Double[] EMPTY_DOUBLE_OBJECT_ARRAY = new Double[0];
   public static final Integer[] EMPTY_INTEGER_OBJECT_ARRAY = new Integer[0];
 
-  private static FastRandom rng = new FastRandom();
+  private static final FastRandom rng = new FastRandom();
 
   public static double[] convert(final Double[] array) {
     final int length = array.length;
@@ -68,37 +68,37 @@ public abstract class ArrayTools {
     return result;
   }
 
-  public static void parallelSort(int[] a, int[] linked) {
+  public static void parallelSort(final int[] a, final int[] linked) {
     if(a.length != linked.length)
       throw new IllegalArgumentException("arrays sizes are not equal");
 //      shuffle(a, linked); // to guard against worst-case
     parallelSort(a, linked, 0, a.length - 1);
   }
 
-  public static void parallelSort(int[] a, double[] linked) {
+  public static void parallelSort(final int[] a, final double[] linked) {
     if(a.length != linked.length)
       throw new IllegalArgumentException("arrays sizes are not equal");
 //      shuffle(a, linked); // to guard against worst-case
     parallelSort(a, linked, 0, a.length - 1);
   }
 
-  public static void parallelSort(double[] a, int[] linked) {
+  public static void parallelSort(final double[] a, final int[] linked) {
     if(a.length != linked.length)
       throw new IllegalArgumentException("arrays sizes are not equal");
     parallelSort(a, linked, 0, a.length);
   }
 
-  public static void parallelSort(long[] a, int[] linked) {
+  public static void parallelSort(final long[] a, final int[] linked) {
     if(a.length != linked.length)
       throw new IllegalArgumentException("arrays sizes are not equal");
 //      shuffle(a, linked); // to guard against worst-case
     parallelSort(a, linked, 0, a.length - 1);
   }
 
-  public static void parallelSort(int[] a, int[] linked, int left, int right) {
+  public static void parallelSort(final int[] a, final int[] linked, int left, int right) {
     if (right <= left) return;
     while (left < right) {
-      int i = partition(a, linked, left, right);
+      final int i = partition(a, linked, left, right);
       if (right - i > i - left) {
         parallelSort(a, linked, left, i - 1);
         left = i + 1;
@@ -109,10 +109,10 @@ public abstract class ArrayTools {
     }
   }
 
-  public static void parallelSort(int[] a, double[] linked, int left, int right) {
+  public static void parallelSort(final int[] a, final double[] linked, int left, int right) {
     if (right <= left) return;
     while (left < right) {
-      int i = partition(a, linked, left, right);
+      final int i = partition(a, linked, left, right);
       if (right - i > i - left) {
         parallelSort(a, linked, left, i - 1);
         left = i + 1;
@@ -123,10 +123,10 @@ public abstract class ArrayTools {
     }
   }
 
-  public static void parallelSort(double[] a, int[] linked, int left, int right) {
+  public static void parallelSort(final double[] a, final int[] linked, int left, int right) {
     if (right <= left) return;
     while (left < right) {
-      int i = partition(a, linked, left, right);
+      final int i = partition(a, linked, left, right);
       if (right - i > i - left) {
         parallelSort(a, linked, left, i);
         left = i + 1;
@@ -137,10 +137,10 @@ public abstract class ArrayTools {
     }
   }
 
-  public static void parallelSort(long[] a, int[] linked, int left, int right) {
+  public static void parallelSort(final long[] a, final int[] linked, int left, int right) {
     if (right <= left) return;
     while (left < right) {
-      int i = partition(a, linked, left, right);
+      final int i = partition(a, linked, left, right);
       if (right - i > i - left) {
         parallelSort(a, linked, left, i - 1);
         left = i + 1;
@@ -151,7 +151,7 @@ public abstract class ArrayTools {
     }
   }
 
-  private static int partition(int[] a, int[] linked, int left, int right) {
+  private static int partition(final int[] a, final int[] linked, final int left, final int right) {
     int i = left - 1;
     int j = right;
     while (true) {
@@ -166,7 +166,7 @@ public abstract class ArrayTools {
     return i;
   }
 
-  private static int partition(int[] a, double[] linked, int left, int right) {
+  private static int partition(final int[] a, final double[] linked, final int left, final int right) {
     int i = left - 1;
     int j = right;
     while (true) {
@@ -181,7 +181,7 @@ public abstract class ArrayTools {
     return i;
   }
 
-  private static int partition(double[] a, int[] linked, int left, int right) {
+  private static int partition(final double[] a, final int[] linked, final int left, final int right) {
     int i = left - 1;
     int j = right;
     final int partition = left + rng.nextInt(right - left);
@@ -204,7 +204,7 @@ public abstract class ArrayTools {
     return i;
   }
 
-  private static int partition(long[] a, int[] linked, int left, int right) {
+  private static int partition(final long[] a, final int[] linked, final int left, final int right) {
     int i = left - 1;
     int j = right;
     while (true) {
@@ -220,88 +220,88 @@ public abstract class ArrayTools {
   }
 
   // exchange a[i] and a[j]
-  private static void swap(int[] a, int[] linked, int i, int j) {
+  private static void swap(final int[] a, final int[] linked, final int i, final int j) {
     {
-      int swap = a[i];
+      final int swap = a[i];
       a[i] = a[j];
       a[j] = swap;
     }
     {
-      int swap = linked[i];
+      final int swap = linked[i];
       linked[i] = linked[j];
       linked[j] = swap;
     }
   }
 
   // exchange a[i] and a[j]
-  private static void swap(double[] a, int[] linked, int i, int j) {
+  private static void swap(final double[] a, final int[] linked, final int i, final int j) {
     {
-      double swap = a[i];
+      final double swap = a[i];
       a[i] = a[j];
       a[j] = swap;
     }
     {
-      int swap = linked[i];
+      final int swap = linked[i];
       linked[i] = linked[j];
       linked[j] = swap;
     }
   }
 
   // exchange a[i] and a[j]
-  private static void swap(int[] a, double[] linked, int i, int j) {
+  private static void swap(final int[] a, final double[] linked, final int i, final int j) {
     {
-      int swap = a[i];
+      final int swap = a[i];
       a[i] = a[j];
       a[j] = swap;
     }
     {
-      double swap = linked[i];
+      final double swap = linked[i];
       linked[i] = linked[j];
       linked[j] = swap;
     }
   }
 
   // exchange a[i] and a[j]
-  private static void swap(long[] a, int[] linked, int i, int j) {
+  private static void swap(final long[] a, final int[] linked, final int i, final int j) {
     {
-      long swap = a[i];
+      final long swap = a[i];
       a[i] = a[j];
       a[j] = swap;
     }
     {
-      int swap = linked[i];
+      final int swap = linked[i];
       linked[i] = linked[j];
       linked[j] = swap;
     }
   }
 
   // shuffle the array a[]
-  private static void shuffle(int[] a, double[] linked) {
-    int N = a.length;
+  private static void shuffle(final int[] a, final double[] linked) {
+    final int N = a.length;
     for (int i = 0; i < N; i++) {
-      int r = i + (int) (Math.random() * (N-i));   // between i and N-1
+      final int r = i + (int) (Math.random() * (N-i));   // between i and N-1
       swap(a, linked, i, r);
     }
   }
 
   // shuffle the array a[]
-  private static void shuffle(long[] a, int[] linked) {
-    int N = a.length;
+  private static void shuffle(final long[] a, final int[] linked) {
+    final int N = a.length;
     for (int i = 0; i < N; i++) {
-      int r = i + (int) (Math.random() * (N-i));   // between i and N-1
+      final int r = i + (int) (Math.random() * (N-i));   // between i and N-1
       swap(a, linked, i, r);
     }
   }
 
-  public static int[] sequence(int start, int end) {
-    int[] result = new int[end - start];
+  public static int[] sequence(final int start, final int end) {
+    final int[] result = new int[end - start];
     for (int i = 0; i < result.length; i++) {
       result[i] = i + start;
     }
     return result;
   }
 
-  public static int max(double[] arr) {
+  public static int max(final double[] arr) {
     int maxIndex = -1;
     double max = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < arr.length; i++) {
@@ -314,7 +314,7 @@ public abstract class ArrayTools {
     return maxIndex;
   }
 
-  public static int min(double[] arr) {
+  public static int min(final double[] arr) {
     int minIndex = -1;
     double min = Double.POSITIVE_INFINITY;
     for (int i = 0; i < arr.length; i++) {
@@ -327,7 +327,7 @@ public abstract class ArrayTools {
     return minIndex;
   }
 
-  public static <T> int max(T[] arr, Evaluator<T> evaluator) {
+  public static <T> int max(final T[] arr, final Evaluator<T> evaluator) {
     int maxIndex = -1;
     double max = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < arr.length; i++) {
@@ -341,22 +341,22 @@ public abstract class ArrayTools {
     return maxIndex;
   }
 
-  public static <F, T> T[] map(F[] models, Class<T> clazz, Computable<F, T> computable) {
-    T[] result = (T[]) Array.newInstance(clazz, models.length);
+  public static <F, T> T[] map(final F[] models, final Class<T> clazz, final Computable<F, T> computable) {
+    final T[] result = (T[]) Array.newInstance(clazz, models.length);
     for (int i = 0; i < models.length; i++)
       result[i] = computable.compute(models[i]);
     return result;
   }
 
-  public static <T> double[] score(T[] dirs, Evaluator<T> evaluator) {
-    double[] result = new double[dirs.length];
+  public static <T> double[] score(final T[] dirs, final Evaluator<T> evaluator) {
+    final double[] result = new double[dirs.length];
     for (int i = 0; i < result.length; i++) {
       result[i] = evaluator.value(dirs[i]);
     }
     return result;
   }
 
-  public static void add(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+  public static void add(final double[] larray, final int loffset, final double[] rarray, final int roffset, final int count) {
     final int alignedCount = (count / 4) * 4;
     for (int i = 0; i < alignedCount; i+=4) {
       larray[i + loffset] += rarray[i + roffset];
@@ -370,7 +370,7 @@ public abstract class ArrayTools {
     }
   }
 
-  public static void fill(double[] array, int offset, int length, double val) {
+  public static void fill(final double[] array, final int offset, final int length, final double val) {
     final int alignedCount = (length / 4) * 4 + offset;
     for (int i = offset; i < alignedCount; i+=4) {
       array[i] = val;
@@ -384,7 +384,7 @@ public abstract class ArrayTools {
     }
   }
 
-  public static void mul(double[] array, int offset, int length, double val) {
+  public static void mul(final double[] array, final int offset, final int length, final double val) {
     final int alignedCount = (length / 4) * 4 + offset;
     for (int i = offset; i < alignedCount; i+=4) {
       array[i] *= val;
@@ -398,7 +398,7 @@ public abstract class ArrayTools {
     }
   }
 
-  public static void scale(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+  public static void scale(final double[] larray, final int loffset, final double[] rarray, final int roffset, final int count) {
     final int alignedCount = (count / 4) * 4;
     for (int i = 0; i < alignedCount; i+=4) {
       larray[i + loffset] *= rarray[i + roffset];
@@ -412,7 +412,7 @@ public abstract class ArrayTools {
     }
   }
 
-  public static double mul(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+  public static double mul(final double[] larray, int loffset, final double[] rarray, int roffset, final int count) {
     final int alignedEndL = (count / 4) * 4 + loffset;
     final int endL = count + loffset;
     double result = 0;
@@ -430,7 +430,8 @@ public abstract class ArrayTools {
     return result;
   }
 
-  public static void incscale(double[] larray, int loffset, double[] result, int resultOffset, int count, double scale) {
+  public static void incscale(
+      final double[] larray, int loffset, final double[] result, int resultOffset, final int count, final double scale) {
     final int alignedEndL = (count / 4) * 4 + loffset;
     final int endL = count + loffset;
     for (; loffset < alignedEndL; loffset+=4, resultOffset+=4) {
@@ -445,7 +446,7 @@ public abstract class ArrayTools {
     }
   }
 
-  public static double l2(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+  public static double l2(final double[] larray, int loffset, final double[] rarray, int roffset, final int count) {
     final int alignedEndL = (count / 4) * 4 + loffset;
     final int endL = count + loffset;
     double result = 0;
@@ -464,7 +465,7 @@ public abstract class ArrayTools {
     return result;
   }
 
-  public static void assign(double[] larray, int loffset, double[] rarray, int roffset, int count) {
+  public static void assign(final double[] larray, final int loffset, final double[] rarray, final int roffset, final int count) {
     final int alignedCount = (count / 4) * 4;
     for (int i = 0; i < alignedCount; i+=4) {
       larray[i + loffset] = rarray[i + roffset];
@@ -478,7 +479,7 @@ public abstract class ArrayTools {
     }
   }
 
-  public static <F> F[] toArray(Collection<F> weakModels) {
+  public static <F> F[] toArray(final Collection<F> weakModels) {
     if (weakModels.size() == 0)
       throw new IllegalArgumentException("Can create array");
     //noinspection unchecked
@@ -515,7 +516,7 @@ public abstract class ArrayTools {
   }
 
   public static <I> List<I> cut(final List<I> data, final int[] indices) {
-    List<I> result = new ArrayList<>(indices.length);
+    final List<I> result = new ArrayList<>(indices.length);
     for (int i = 0; i < indices.length; i++) {
       result.add(data.get(indices[i]));
     }
@@ -577,13 +578,13 @@ public abstract class ArrayTools {
       seqBuilder = new ArraySeqBuilder(example.at(0).getClass());
     }
 
-    for (Seq<I> seq : seqs) {
+    for (final Seq<I> seq : seqs) {
       seqBuilder.addAll(seq);
     }
     return seqBuilder.build();
   }
 
-  public static int sum(int[] arr, int from, int end) {
+  public static int sum(final int[] arr, final int from, final int end) {
     int result = 0;
     for (int i = from; i < end; i++) {
       result += arr[i];
@@ -622,7 +623,7 @@ public abstract class ArrayTools {
     return true;
   }
 
-  public static <T> int indexOf(T instance, T[] array) {
+  public static <T> int indexOf(final T instance, final T[] array) {
     for(int i = 0; i < array.length; i++) {
       if (instance.equals(array[i]))
         return i;
@@ -630,7 +631,7 @@ public abstract class ArrayTools {
     return -1;
   }
 
-  public static <T> T[] concat(T[] left, T[] right) {
+  public static <T> T[] concat(final T[] left, final T[] right) {
     @SuppressWarnings("unchecked")
     final T[] result = (T[])Array.newInstance(left.getClass().getComponentType(), left.length + right.length);
     System.arraycopy(left, 0, result, 0, left.length);

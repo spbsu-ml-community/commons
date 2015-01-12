@@ -14,25 +14,25 @@ public class SparseVec2CharBufferSeqConversionPack  implements ConversionPack<Sp
   public static class SparseVec2CharBufferSeqConverter implements TypeConverter<SparseVec, CharBufferSeq> {
     private static final SparseVec2CharSequenceConversionPack.SparseVec2CharSequenceConverter sparseVec2CharSeqConverter = new SparseVec2CharSequenceConversionPack.SparseVec2CharSequenceConverter();
     @Override
-    public CharBufferSeq convert(SparseVec from) {
+    public CharBufferSeq convert(final SparseVec from) {
       return new CharBufferSeq(sparseVec2CharSeqConverter.convert(from));
     }
   }
 
   public static class CharBufferSeq2SparseVecConverter implements TypeConverter<CharBufferSeq, SparseVec> {
     @Override
-    public SparseVec convert(CharBufferSeq from) {
+    public SparseVec convert(final CharBufferSeq from) {
       final CharBufferSeq.Tokenizer tokenizer = from.getTokenizer(" ");
-      int dim;
-      int nzCount;
+      final int dim;
+      final int nzCount;
       final CharSequence[] split = new CharSequence[2];
       {
         CharSeqTools.split(tokenizer.nextToken(), ':', split);
         dim = CharSeqTools.parseInt(split[0]);
         nzCount = CharSeqTools.parseInt(split[1]);
       }
-      int[] indices = new int[nzCount];
-      double[] values = new double[nzCount];
+      final int[] indices = new int[nzCount];
+      final double[] values = new double[nzCount];
       int i = 0;
       while (tokenizer.hasMoreElements()) {
         CharSeqTools.split(tokenizer.nextToken(), ':', split);

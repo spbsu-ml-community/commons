@@ -21,7 +21,7 @@ public class ColsVecSeqMx extends Mx.Stub {
   private final int columns;
   private final int rows;
 
-  public ColsVecSeqMx(VecSeq[] vecSeqs) {
+  public ColsVecSeqMx(final VecSeq[] vecSeqs) {
     if (vecSeqs.length == 0)
       throw new IllegalArgumentException("Unable to create ColsVecArrayMx from empty array!");
 
@@ -48,7 +48,7 @@ public class ColsVecSeqMx extends Mx.Stub {
         this.vec.at(0).length();
   }
 
-  public double get(int i, int j) {
+  public double get(final int i, final int j) {
     final int idx = getIdx(j);
     if (vec.at(idx).length() == 1)
       return vec.at(idx).at(0).get(i);
@@ -57,7 +57,7 @@ public class ColsVecSeqMx extends Mx.Stub {
   }
 
   @Override
-  public Mx set(int i, int j, double val) {
+  public Mx set(final int i, final int j, final double val) {
     final int idx = getIdx(j);
     if (vec.at(idx).length() == 1)
       vec.at(idx).at(0).set(i, val);
@@ -67,7 +67,7 @@ public class ColsVecSeqMx extends Mx.Stub {
   }
 
   @Override
-  public Mx adjust(int i, int j, double increment) {
+  public Mx adjust(final int i, final int j, final double increment) {
     final int idx = getIdx(j);
     if (vec.at(idx).length() == 1)
       vec.at(idx).at(0).adjust(i, increment);
@@ -77,7 +77,7 @@ public class ColsVecSeqMx extends Mx.Stub {
   }
 
   @Override
-  public Mx sub(int i, int j, int height, int width) {
+  public Mx sub(final int i, final int j, final int height, final int width) {
     throw new NotImplementedException();
   }
 
@@ -111,7 +111,7 @@ public class ColsVecSeqMx extends Mx.Stub {
           @Override
           public boolean advance() {
             if (iter != null) {
-              int prev = iter.index();
+              final int prev = iter.index();
               if (iter.advance()) {
                 col += iter.index() - prev;
                 return true;
@@ -145,12 +145,12 @@ public class ColsVecSeqMx extends Mx.Stub {
           }
 
           @Override
-          public boolean seek(int pos) {
+          public boolean seek(final int pos) {
             throw new NotImplementedException();
           }
 
           @Override
-          public double setValue(double v) {
+          public double setValue(final double v) {
             if (iter != null)
               return iter.setValue(v);
             final int idx = getIdx(col);
@@ -181,17 +181,17 @@ public class ColsVecSeqMx extends Mx.Stub {
 
     return new Vec.Stub() {
       @Override
-      public double get(int i) {
+      public double get(final int i) {
         return vec.at(idx).at(i).get(j - indices[idx]);
       }
 
       @Override
-      public Vec set(int i, double val) {
+      public Vec set(final int i, final double val) {
         return vec.at(idx).at(i).set(j - indices[idx], val);
       }
 
       @Override
-      public Vec adjust(int i, double increment) {
+      public Vec adjust(final int i, final double increment) {
         return vec.at(idx).at(i).adjust(j - indices[idx], increment);
       }
 
@@ -206,7 +206,7 @@ public class ColsVecSeqMx extends Mx.Stub {
       }
 
       @Override
-      public Vec sub(int start, int len) {
+      public Vec sub(final int start, final int len) {
         throw new NotImplementedException();
       }
 
@@ -224,17 +224,17 @@ public class ColsVecSeqMx extends Mx.Stub {
   }
 
   @Override
-  public double get(int i) {
+  public double get(final int i) {
     return get(i / columns, i % columns);
   }
 
   @Override
-  public Vec set(int i, double val) {
+  public Vec set(final int i, final double val) {
     return set(i / columns, i % columns, val);
   }
 
   @Override
-  public Vec adjust(int i, double increment) {
+  public Vec adjust(final int i, final double increment) {
     return adjust(i / columns, i % columns, increment);
   }
 
@@ -258,14 +258,14 @@ public class ColsVecSeqMx extends Mx.Stub {
     return binaryLessOrEqSearch(indices, 0, Math.min(indices.length, j + 1), j);
   }
 
-  private static int binaryLessOrEqSearch(int[] a, int fromIndex, int toIndex,
-                                   int key) {
+  private static int binaryLessOrEqSearch(final int[] a, final int fromIndex, final int toIndex,
+                                   final int key) {
     int low = fromIndex;
     int high = toIndex - 1;
 
     while (low <= high) {
-      int mid = (low + high) >>> 1;
-      int midVal = a[mid];
+      final int mid = (low + high) >>> 1;
+      final int midVal = a[mid];
 
       if (midVal < key)
         low = mid + 1;

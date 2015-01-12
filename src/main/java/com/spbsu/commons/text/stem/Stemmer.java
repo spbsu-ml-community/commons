@@ -21,10 +21,10 @@ public class Stemmer {
     return STEMMER;
   }
 
-  public synchronized CharSequence stem(CharSequence forStem){
+  public synchronized CharSequence stem(final CharSequence forStem){
     final CharSequence word = CharSeqTools.toLowerCase(forStem);
     final CharSequence result;
-    char firstLetter = word.length() > 0 ? word.charAt(0) : 'a';
+    final char firstLetter = word.length() > 0 ? word.charAt(0) : 'a';
     if (firstLetter >= (int) 'a' && firstLetter <= (int) 'z' ||
         firstLetter >= (int) 'A' && firstLetter <= (int) 'Z'){
       english.setCurrent(word);

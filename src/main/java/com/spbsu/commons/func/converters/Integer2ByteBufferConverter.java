@@ -11,12 +11,12 @@ import java.nio.ByteBuffer;
  */
 public class Integer2ByteBufferConverter implements Converter<Integer, ByteBuffer> {
   @Override
-  public Integer convertFrom(ByteBuffer source) {
+  public Integer convertFrom(final ByteBuffer source) {
     return source.getInt();
   }
 
   @Override
-  public ByteBuffer convertTo(Integer object) {
+  public ByteBuffer convertTo(final Integer object) {
     final ByteBuffer buffer = ByteBuffer.allocate(4);
     buffer.putInt(object);
     buffer.rewind();

@@ -13,7 +13,7 @@ public class Frame<T extends Comparable<T>> {
   @NotNull private final T start;
   @NotNull private final T end;
 
-  public static <T extends Comparable<T>> Frame<T> create(@NotNull T start, @NotNull T end) {
+  public static <T extends Comparable<T>> Frame<T> create(@NotNull final T start, @NotNull final T end) {
     return new Frame<T>(start, end);
   }
   
@@ -35,12 +35,12 @@ public class Frame<T extends Comparable<T>> {
     return end;
   }  
 
-  public boolean contains(T point) {
+  public boolean contains(final T point) {
     return start.compareTo(point) <= 0 && end.compareTo(point) >= 0;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) return true;
     if (!(o instanceof Frame)) return false;
     final Frame frame = (Frame) o;

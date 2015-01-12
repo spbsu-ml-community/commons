@@ -48,7 +48,7 @@ public class FloatingDecimal {
   boolean     fromHex = false;
   int         roundDir = 0; // set by doubleValue
 
-  private     FloatingDecimal( boolean negSign, int decExponent, char []digits, int n,  boolean e )
+  private     FloatingDecimal( final boolean negSign, final int decExponent, final char []digits, final int n,  final boolean e )
   {
     isNegative = negSign;
     isExceptional = e;
@@ -131,12 +131,12 @@ public class FloatingDecimal {
   private static FDBigInt b5p[];
 
   private static synchronized FDBigInt
-  big5pow( int p ){
+  big5pow( final int p ){
     assert p >= 0 : p; // negative power of 5
     if ( b5p == null ){
       b5p = new FDBigInt[ p+1 ];
     }else if (b5p.length <= p ){
-      FDBigInt t[] = new FDBigInt[ p+1 ];
+      final FDBigInt[] t = new FDBigInt[ p+1 ];
       System.arraycopy( b5p, 0, t, 0, b5p.length );
       b5p = t;
     }
@@ -149,7 +149,8 @@ public class FloatingDecimal {
     else {
       // construct the value.
       // recursively.
-      int q, r;
+      final int q;
+      final int r;
       // in order to compute 5^p,
       // compute its square root, 5^(p/2) and square.
       // or, let q = p / 2, r = p -q, then
@@ -174,7 +175,7 @@ public class FloatingDecimal {
   // a common operation
   //
   private static FDBigInt
-  multPow52( FDBigInt v, int p5, int p2 ){
+  multPow52( FDBigInt v, final int p5, final int p2 ){
     if ( p5 != 0 ){
       if ( p5 < small5pow.length ){
         v = v.mult( small5pow[p5] );
@@ -192,8 +193,8 @@ public class FloatingDecimal {
   // another common operation
   //
   private static FDBigInt
-  constructPow52( int p5, int p2 ){
-    FDBigInt v = new FDBigInt( big5pow( p5 ) );
+  constructPow52( final int p5, final int p2 ){
+    final FDBigInt v = new FDBigInt( big5pow( p5 ) );
     if ( p2 != 0 ){
       v.lshiftMe( p2 );
     }
@@ -211,7 +212,7 @@ public class FloatingDecimal {
    *
    */
   private FDBigInt
-  doubleToBigInt( double dval ){
+  doubleToBigInt( final double dval ){
     long lbits = Double.doubleToLongBits( dval ) & ~signMask;
     int binexp = (int)(lbits >>> expShift);
     lbits &= fractMask;
@@ -226,12 +227,12 @@ public class FloatingDecimal {
       }
     }
     binexp -= expBias;
-    int nbits = countBits( lbits );
+    final int nbits = countBits( lbits );
         /*
          * We now know where the high-order 1 bit is,
          * and we know how many there are.
          */
-    int lowOrderZeros = expShift+1-nbits;
+    final int lowOrderZeros = expShift+1-nbits;
     lbits >>>= lowOrderZeros;
 
     bigIntExp = binexp+1-nbits;
@@ -246,8 +247,8 @@ public class FloatingDecimal {
    * is a normalized a power of 2, as the ULP changes at these points.
    */
   private static double
-  ulp( double dval, boolean subtracting ){
-    long lbits = Double.doubleToLongBits( dval ) & ~signMask;
+  ulp( final double dval, final boolean subtracting ){
+    final long lbits = Double.doubleToLongBits( dval ) & ~signMask;
     int binexp = (int)(lbits >>> expShift);
     double ulpval;
     if ( subtracting && ( binexp >= expShift ) && ((lbits&fractMask) == 0L) ){
@@ -277,9 +278,9 @@ public class FloatingDecimal {
    * of rounding is preferred.
    */
   float
-  stickyRound( double dval ){
+  stickyRound( final double dval ){
     long lbits = Double.doubleToLongBits( dval );
-    long binexp = lbits & expMask;
+    final long binexp = lbits & expMask;
     if ( binexp == 0L || binexp == expMask ){
       // what we have here is special.
       // don't worry, the right thing will happen.
@@ -307,7 +308,7 @@ public class FloatingDecimal {
    */
   private void
   developLongDigits( int decExponent, long lvalue, long insignificant ){
-    char digits[];
+    final char[] digits;
     int  ndigits;
     int  digitno;
     int  c;
@@ -318,8 +319,8 @@ public class FloatingDecimal {
     for ( i = 0; insignificant >= 10L; i++ )
       insignificant /= 10L;
     if ( i != 0 ){
-      long pow10 = long5pow[i] << i; // 10^i == 5^i * 2^i;
-      long residue = lvalue % pow10;
+      final long pow10 = long5pow[i] << i; // 10^i == 5^i * 2^i;
+      final long residue = lvalue % pow10;
       lvalue /= pow10;
       decExponent += i;
       if ( residue >= (pow10>>1) ){
@@ -370,7 +371,7 @@ public class FloatingDecimal {
       }
       digits[digitno] = (char)(c+'0');
     }
-    char result [];
+    final char[] result ;
     ndigits -= digitno;
     result = new char[ ndigits ];
     System.arraycopy( digits, digitno, result, 0, ndigits );
@@ -409,12 +410,12 @@ public class FloatingDecimal {
   /*
    * FIRST IMPORTANT CONSTRUCTOR: DOUBLE
    */
-  public FloatingDecimal( double d )
+  public FloatingDecimal( final double d )
   {
     long    dBits = Double.doubleToLongBits( d );
     long    fractBits;
     int     binExp;
-    int     nSignificantBits;
+    final int     nSignificantBits;
 
     // discover and delete sign
     if ( (dBits&signMask) != 0 ){
@@ -469,12 +470,12 @@ public class FloatingDecimal {
   /*
    * SECOND IMPORTANT CONSTRUCTOR: SINGLE
    */
-  public FloatingDecimal( float f )
+  public FloatingDecimal( final float f )
   {
     int     fBits = Float.floatToIntBits( f );
     int     fractBits;
     int     binExp;
-    int     nSignificantBits;
+    final int     nSignificantBits;
 
     // discover and delete sign
     if ( (fBits&singleSignMask) != 0 ){
@@ -527,10 +528,10 @@ public class FloatingDecimal {
   }
 
   private void
-  dtoa( int binExp, long fractBits, int nSignificantBits )
+  dtoa( final int binExp, long fractBits, final int nSignificantBits )
   {
-    int     nFractBits; // number of significant bits of fractBits;
-    int     nTinyBits;  // number of these to the right of the point.
+    final int     nFractBits; // number of significant bits of fractBits;
+    final int     nTinyBits;  // number of these to the right of the point.
     int     decExp;
 
     // Examine number. Determine if it is an easy case,
@@ -558,7 +559,7 @@ public class FloatingDecimal {
                  *     in the result. The integer you get from this can
                  *     then be converted to a string pretty easily.
                  */
-        long halfULP;
+        final long halfULP;
         if ( nTinyBits == 0 ) {
           if ( binExp > nSignificantBits ){
             halfULP = 1L << ( binExp-nSignificantBits-1);
@@ -622,16 +623,21 @@ public class FloatingDecimal {
          * take the floor and call it decExp.
          * FIXME -- use more precise constants here. It costs no more.
          */
-    double d2 = Double.longBitsToDouble(
+    final double d2 = Double.longBitsToDouble(
         expOne | ( fractBits &~ fractHOB ) );
     decExp = (int)Math.floor(
         (d2-1.5D)*0.289529654D + 0.176091259 + (double)binExp * 0.301029995663981 );
-    int B2, B5; // powers of 2 and powers of 5, respectively, in B
-    int S2, S5; // powers of 2 and powers of 5, respectively, in S
-    int M2, M5; // powers of 2 and powers of 5, respectively, in M
-    int Bbits; // binary digits needed to represent B, approx.
-    int tenSbits; // binary digits needed to represent 10*S, approx.
-    FDBigInt Sval, Bval, Mval;
+    int B2; // powers of 2 and powers of 5, respectively, in B
+    final int B5;
+    int S2; // powers of 2 and powers of 5, respectively, in S
+    final int S5;
+    int M2; // powers of 2 and powers of 5, respectively, in M
+    final int M5;
+    final int Bbits; // binary digits needed to represent B, approx.
+    final int tenSbits; // binary digits needed to represent 10*S, approx.
+    final FDBigInt Sval;
+    final FDBigInt Bval;
+    FDBigInt Mval;
 
     B5 = Math.max( 0, -decExp );
     B2 = B5 + nTinyBits + binExp;
@@ -652,7 +658,7 @@ public class FloatingDecimal {
          */
     fractBits >>>= (expShift+1-nFractBits);
     B2 -= nFractBits-1;
-    int common2factor = Math.min( B2, S2 );
+    final int common2factor = Math.min( B2, S2 );
     B2 -= common2factor;
     S2 -= common2factor;
     M2 -= common2factor;
@@ -682,10 +688,10 @@ public class FloatingDecimal {
          * 26 Sept 96 is not that day.
          * So we use a symmetric test.
          */
-    char digits[] = this.digits = new char[18];
+    final char[] digits = this.digits = new char[18];
     int  ndigit = 0;
     boolean low, high;
-    long lowDigitDifference;
+    final long lowDigitDifference;
     int  q;
 
         /*
@@ -709,9 +715,9 @@ public class FloatingDecimal {
       if ( Bbits < 32 && tenSbits < 32){
         // wa-hoo! They're all ints!
         int b = ((int)fractBits * small5pow[B5] ) << B2;
-        int s = small5pow[S5] << S2;
+        final int s = small5pow[S5] << S2;
         int m = small5pow[M5] << M2;
-        int tens = s * 10;
+        final int tens = s * 10;
                 /*
                  * Unroll the first iteration. If our decExp estimate
                  * was too high, our first quotient will be zero. In this
@@ -762,9 +768,9 @@ public class FloatingDecimal {
       } else {
         // still good! they're all longs!
         long b = (fractBits * long5pow[B5] ) << B2;
-        long s = long5pow[S5] << S2;
+        final long s = long5pow[S5] << S2;
         long m = long5pow[M5] << M2;
-        long tens = s * 10L;
+        final long tens = s * 10L;
                 /*
                  * Unroll the first iteration. If our decExp estimate
                  * was too high, our first quotient will be zero. In this
@@ -814,8 +820,8 @@ public class FloatingDecimal {
         lowDigitDifference = (b<<1) - tens;
       }
     } else {
-      FDBigInt tenSval;
-      int  shiftBias;
+      final FDBigInt tenSval;
+      final int  shiftBias;
 
             /*
              * We really must do FDBigInt arithmetic.
@@ -894,7 +900,7 @@ public class FloatingDecimal {
   public String
   toString(){
     // most brain-dead version
-    StringBuffer result = new StringBuffer( nDigits+8 );
+    final StringBuffer result = new StringBuffer( nDigits+8 );
     if ( isNegative ){ result.append( '-' ); }
     if ( isExceptional ){
       result.append( digits, 0, nDigits );
@@ -908,12 +914,12 @@ public class FloatingDecimal {
   }
 
   public String toJavaFormatString() {
-    char result[] = (char[])(perThreadBuffer.get());
-    int i = getChars(result);
+    final char[] result = (char[])(perThreadBuffer.get());
+    final int i = getChars(result);
     return new String(result, 0, i);
   }
 
-  private int getChars(char[] result) {
+  private int getChars(final char[] result) {
     assert nDigits <= 19 : nDigits; // generous bound on size of nDigits
     int i = 0;
     if (isNegative) { result[0] = '-'; i = 1; }
@@ -935,7 +941,7 @@ public class FloatingDecimal {
         } else {
           result[i++] = '.';
           if (charLength < nDigits) {
-            int t = nDigits - charLength;
+            final int t = nDigits - charLength;
             System.arraycopy(digits, charLength, result, i, t);
             i += t;
           } else {
@@ -986,15 +992,15 @@ public class FloatingDecimal {
   }
 
   // Per-thread buffer for string/stringbuffer conversion
-  private static ThreadLocal perThreadBuffer = new ThreadLocal() {
+  private static final ThreadLocal perThreadBuffer = new ThreadLocal() {
     protected synchronized Object initialValue() {
       return new char[26];
     }
   };
 
-  public void appendTo(Appendable buf) {
-    char result[] = (char[])(perThreadBuffer.get());
-    int i = getChars(result);
+  public void appendTo(final Appendable buf) {
+    final char[] result = (char[])(perThreadBuffer.get());
+    final int i = getChars(result);
     if (buf instanceof StringBuilder)
       ((StringBuilder) buf).append(result, 0, i);
     else if (buf instanceof StringBuffer)
@@ -1013,7 +1019,7 @@ public class FloatingDecimal {
     try{
       in = CharSeqTools.trim(in); // don't fool around with white space.
       // throws NullPointerException if null
-      int l = in.length();
+      final int l = in.length();
       if ( l == 0 ) throw new NumberFormatException("empty String");
       int i = 0;
       switch ( c = in.charAt( i ) ){
@@ -1064,7 +1070,7 @@ public class FloatingDecimal {
 
       } else if (c == '0')  { // check for hexadecimal floating-point number
         if (l > i+1 ) {
-          char ch = in.charAt(i+1);
+          final char ch = in.charAt(i+1);
           if (ch == 'x' || ch == 'X' ) // possible hex string
             return parseHexCharSequence(in);
         }
@@ -1164,7 +1170,7 @@ public class FloatingDecimal {
       if ( (i < l) &&  (((c = in.charAt(i) )=='e') || (c == 'E') ) ){
         int expSign = 1;
         int expVal  = 0;
-        int reallyBig = Integer.MAX_VALUE / 10;
+        final int reallyBig = Integer.MAX_VALUE / 10;
         boolean expOverflow = false;
         switch( in.charAt(++i) ){
           case '-':
@@ -1173,7 +1179,7 @@ public class FloatingDecimal {
           case '+':
             i++;
         }
-        int expAt = i;
+        final int expAt = i;
         expLoop:
         while ( i < l  ){
           if ( expVal >= reallyBig ){
@@ -1199,7 +1205,7 @@ public class FloatingDecimal {
               break expLoop; // stop parsing exponent.
           }
         }
-        int expLimit = bigDecimalExponent+nDigits+nTrailZero;
+        final int expLimit = bigDecimalExponent+nDigits+nTrailZero;
         if ( expOverflow || ( expVal > expLimit ) ){
           //
           // The intent here is to end up with
@@ -1258,10 +1264,11 @@ public class FloatingDecimal {
 
   public double
   doubleValue(){
-    int     kDigits = Math.min( nDigits, maxDecimalDigits+1 );
+    final int     kDigits = Math.min( nDigits, maxDecimalDigits+1 );
     long    lValue;
     double  dValue;
-    double  rValue, tValue;
+    final double  rValue;
+    final double tValue;
 
     // First, check for NaN and Infinity values
     if(digits == infinity || digits == notANumber) {
@@ -1279,7 +1286,7 @@ public class FloatingDecimal {
              */
       // (special performance hack: start to do it using int)
       int iValue = (int)digits[0]-(int)'0';
-      int iDigits = Math.min( kDigits, intDecimalDigits );
+      final int iDigits = Math.min( kDigits, intDecimalDigits );
       for ( int i=1; i < iDigits; i++ ){
         iValue = iValue*10 + (int)digits[i]-(int)'0';
       }
@@ -1323,7 +1330,7 @@ public class FloatingDecimal {
             }
             return (isNegative)? -rValue : rValue;
           }
-          int slop = maxDecimalDigits - kDigits;
+          final int slop = maxDecimalDigits - kDigits;
           if ( exp <= maxSmallTen+slop ){
                         /*
                          * We can multiply dValue by 10^(slop)
@@ -1475,7 +1482,7 @@ public class FloatingDecimal {
              * Formulate the EXACT big-number result as
              * bigD0 * 10^exp
              */
-      FDBigInt bigD0 = new FDBigInt( lValue, digits, kDigits, nDigits );
+      final FDBigInt bigD0 = new FDBigInt( lValue, digits, kDigits, nDigits );
       exp   = decExponent - nDigits;
 
       correctionLoop:
@@ -1494,8 +1501,10 @@ public class FloatingDecimal {
                  * powers of 2 we would use, then factor out
                  * common divisors before doing the work.
                  */
-        int B2, B5; // powers of 2, 5 in bigB
-        int     D2, D5; // powers of 2, 5 in bigD
+        int B2; // powers of 2, 5 in bigB
+        final int B5;
+        int     D2; // powers of 2, 5 in bigD
+        final int D5;
         int Ulp2;   // powers of 2 in halfUlp.
         if ( exp >= 0 ){
           B2 = B5 = 0;
@@ -1512,7 +1521,7 @@ public class FloatingDecimal {
         Ulp2 = B2;
         // shift bigB and bigD left by a number s. t.
         // halfUlp is still an integer.
-        int hulpbias;
+        final int hulpbias;
         if ( bigIntExp+bigIntNBits <= -expBias+1 ){
           // This is going to be a denormalized number
           // (if not actually zero).
@@ -1525,13 +1534,13 @@ public class FloatingDecimal {
         D2 += hulpbias;
         // if there are common factors of 2, we might just as well
         // factor them out, as they add nothing useful.
-        int common2 = Math.min( B2, Math.min( D2, Ulp2 ) );
+        final int common2 = Math.min( B2, Math.min( D2, Ulp2 ) );
         B2 -= common2;
         D2 -= common2;
         Ulp2 -= common2;
         // do multiplications by powers of 5 and 2
         bigB = multPow52( bigB, B5, B2 );
-        FDBigInt bigD = multPow52( new FDBigInt( bigD0 ), D5, D2 );
+        final FDBigInt bigD = multPow52( new FDBigInt( bigD0 ), D5, D2 );
         //
         // to recap:
         // bigB is the scaled-big-int version of our floating-point
@@ -1546,9 +1555,9 @@ public class FloatingDecimal {
         // use the ratio of difference to halfUlp to calculate a fudge
         // factor to add to the floating value, then go 'round again.
         //
-        FDBigInt diff;
+        final FDBigInt diff;
         int cmpResult;
-        boolean overvalue;
+        final boolean overvalue;
         if ( (cmpResult = bigB.cmp( bigD ) ) > 0 ){
           overvalue = true; // our candidate is too big.
           diff = bigB.sub( bigD );
@@ -1573,7 +1582,7 @@ public class FloatingDecimal {
           // this happens with surprising frequency
           break correctionLoop;
         }
-        FDBigInt halfUlp = constructPow52( B5, Ulp2 );
+        final FDBigInt halfUlp = constructPow52( B5, Ulp2 );
         if ( (cmpResult = diff.cmp( halfUlp ) ) < 0 ){
           // difference is small.
           // this is close enough
@@ -1618,7 +1627,7 @@ public class FloatingDecimal {
 
   public float
   floatValue(){
-    int     kDigits = Math.min( nDigits, singleMaxDecimalDigits+1 );
+    final int     kDigits = Math.min( nDigits, singleMaxDecimalDigits+1 );
     int     iValue;
     float   fValue;
 
@@ -1667,7 +1676,7 @@ public class FloatingDecimal {
             fValue *= singleSmall10pow[exp];
             return (isNegative)? -fValue : fValue;
           }
-          int slop = singleMaxDecimalDigits - kDigits;
+          final int slop = singleMaxDecimalDigits - kDigits;
           if ( exp <= singleMaxSmallTen+slop ){
                         /*
                          * We can multiply dValue by 10^(slop)
@@ -1751,7 +1760,7 @@ public class FloatingDecimal {
              * answer here.
              */
       mustSetRoundDir = !fromHex;
-      double dValue = doubleValue();
+      final double dValue = doubleValue();
       return stickyRound( dValue );
     }
   }
@@ -1872,7 +1881,7 @@ public class FloatingDecimal {
    * Grammar is compatible with hexadecimal floating-point constants
    * described in section 6.4.4.2 of the C99 specification.
    */
-  private static Pattern hexFloatPattern = Pattern.compile(
+  private static final Pattern hexFloatPattern = Pattern.compile(
       //1           234                   56                7                   8      9
       "([-+])?0[xX](((\\p{XDigit}+)\\.?)|((\\p{XDigit}*)\\.(\\p{XDigit}+)))[pP]([-+])?(\\p{Digit}+)[fFdD]?"
   );
@@ -1882,11 +1891,11 @@ public class FloatingDecimal {
    * double constructor and set the roundDir variable appropriately
    * in case the value is later converted to a float.
    */
-  static FloatingDecimal parseHexCharSequence(CharSequence s) {
+  static FloatingDecimal parseHexCharSequence(final CharSequence s) {
     // Verify string is a member of the hexadecimal floating-point
     // string language.
-    Matcher m = hexFloatPattern.matcher(s);
-    boolean validInput = m.matches();
+    final Matcher m = hexFloatPattern.matcher(s);
+    final boolean validInput = m.matches();
 
     if (!validInput) {
       // Input does not match pattern
@@ -1917,8 +1926,8 @@ public class FloatingDecimal {
              */
 
       //  Extract significand sign
-      String group1 = m.group(1);
-      double sign = (( group1 == null ) || group1.equals("+"))? 1.0 : -1.0;
+      final String group1 = m.group(1);
+      final double sign = (( group1 == null ) || group1.equals("+"))? 1.0 : -1.0;
 
 
       //  Extract Significand magnitude
@@ -1970,7 +1979,7 @@ public class FloatingDecimal {
                  * 2. the fractional portion from group 7 plus any
                  * (optional) integer portions from group 6.
                  */
-        String group4;
+        final String group4;
         if( (group4 = m.group(4)) != null) {  // Integer-only significand
           // Leading zeros never matter on the integer portion
           significandString = stripLeadingZeros(group4);
@@ -1979,11 +1988,11 @@ public class FloatingDecimal {
         else {
           // Group 6 is the optional integer; leading zeros
           // never matter on the integer portion
-          String group6 = stripLeadingZeros(m.group(6));
+          final String group6 = stripLeadingZeros(m.group(6));
           leftDigits = group6.length();
 
           // fraction
-          String group7 = m.group(7);
+          final String group7 = m.group(7);
           rightDigits = group7.length();
 
           // Turn "integer.fraction" into "integer"+"fraction"
@@ -2021,9 +2030,9 @@ public class FloatingDecimal {
              * overflow, examine the sign of the exponent and
              * significand to determine what to do.
              */
-      String group8 = m.group(8);
-      boolean positiveExponent = ( group8 == null ) || group8.equals("+");
-      long unsignedRawExponent;
+      final String group8 = m.group(8);
+      final boolean positiveExponent = ( group8 == null ) || group8.equals("+");
+      final long unsignedRawExponent;
       try {
         unsignedRawExponent = Integer.parseInt(m.group(9));
       }
@@ -2045,7 +2054,7 @@ public class FloatingDecimal {
                                            Double.POSITIVE_INFINITY : 0.0));
       }
 
-      long rawExponent =
+      final long rawExponent =
           (positiveExponent ? 1L : -1L) * // exponent sign
           unsignedRawExponent;            // exponent magnitude
 
@@ -2058,7 +2067,7 @@ public class FloatingDecimal {
 
       boolean round = false;
       boolean sticky = false;
-      int bitsCopied=0;
+      final int bitsCopied=0;
       int nextShift=0;
       long significand=0L;
       // First iteration is different, since we only copy
@@ -2067,7 +2076,7 @@ public class FloatingDecimal {
 
       // IMPORTANT: make leadingDigit a long to avoid
       // surprising shift semantics!
-      long leadingDigit = getHexDigit(significandString, 0);
+      final long leadingDigit = getHexDigit(significandString, 0);
 
             /*
              * Left shift the leading digit (53 - (bit position of
@@ -2123,7 +2132,7 @@ public class FloatingDecimal {
       for(i = 1;
           i < signifLength && nextShift >= 0;
           i++) {
-        long currentDigit = getHexDigit(significandString, i);
+        final long currentDigit = getHexDigit(significandString, i);
         significand |= (currentDigit << nextShift);
         nextShift-=4;
       }
@@ -2242,7 +2251,7 @@ public class FloatingDecimal {
             // -1075 +1074 + 1 = 0
             // -1023 +1074 + 1 = 52
 
-            int bitsDiscarded = 53 -
+            final int bitsDiscarded = 53 -
                                 ((int)exponent - DoubleConsts.MIN_SUB_EXPONENT + 1);
             assert bitsDiscarded >= 1 && bitsDiscarded <= 53;
 
@@ -2252,7 +2261,7 @@ public class FloatingDecimal {
             if (bitsDiscarded > 1) {
               // create mask to update sticky bits; low
               // order bitsDiscarded bits should be 1
-              long mask = ~((~0L) << (bitsDiscarded -1));
+              final long mask = ~((~0L) << (bitsDiscarded -1));
               sticky = sticky || ((significand & mask) != 0L ) ;
             }
 
@@ -2292,14 +2301,14 @@ public class FloatingDecimal {
                  * x1.11        x1. + 1
                  */
         boolean incremented = false;
-        boolean leastZero  = ((significand & 1L) == 0L);
+        final boolean leastZero  = ((significand & 1L) == 0L);
         if( (  leastZero  && round && sticky ) ||
             ((!leastZero) && round )) {
           incremented = true;
           significand++;
         }
 
-        FloatingDecimal fd = new FloatingDecimal(FpUtils.rawCopySign(
+        final FloatingDecimal fd = new FloatingDecimal(FpUtils.rawCopySign(
             Double.longBitsToDouble(significand),
             sign));
 
@@ -2392,7 +2401,7 @@ public class FloatingDecimal {
   /**
    * Return <code>s</code> with any leading zeros removed.
    */
-  static String stripLeadingZeros(String s) {
+  static String stripLeadingZeros(final String s) {
     return  s.replaceFirst("^0+", "");
   }
 
@@ -2400,8 +2409,8 @@ public class FloatingDecimal {
    * Extract a hexadecimal digit from position <code>position</code>
    * of string <code>s</code>.
    */
-  static int getHexDigit(String s, int position) {
-    int value = Character.digit(s.charAt(position), 16);
+  static int getHexDigit(final String s, final int position) {
+    final int value = Character.digit(s.charAt(position), 16);
     if (value <= -1 || value >= 16) {
       throw new AssertionError("Unexpected failure of digit conversion of " +
                                s.charAt(position));
@@ -2421,30 +2430,30 @@ class FDBigInt {
   int data[]; // value: data[0] is least significant
 
 
-  public FDBigInt( int v ){
+  public FDBigInt( final int v ){
     nWords = 1;
     data = new int[1];
     data[0] = v;
   }
 
-  public FDBigInt( long v ){
+  public FDBigInt( final long v ){
     data = new int[2];
     data[0] = (int)v;
     data[1] = (int)(v>>>32);
     nWords = (data[1]==0) ? 1 : 2;
   }
 
-  public FDBigInt( FDBigInt other ){
+  public FDBigInt( final FDBigInt other ){
     data = new int[nWords = other.nWords];
     System.arraycopy( other.data, 0, data, 0, nWords );
   }
 
-  private FDBigInt( int [] d, int n ){
+  private FDBigInt( final int [] d, final int n ){
     data = d;
     nWords = n;
   }
 
-  public FDBigInt( long seed, char digit[], int nd0, int nd ){
+  public FDBigInt( final long seed, final char[] digit, final int nd0, final int nd ){
     int n= (nd+8)/9;        // estimate size needed.
     if ( n < 2 ) n = 2;
     data = new int[n];      // allocate enough space
@@ -2452,10 +2461,10 @@ class FDBigInt {
     data[1] = (int)(seed>>>32);
     nWords = (data[1]==0) ? 1 : 2;
     int i = nd0;
-    int limit = nd-5;       // slurp digits 5 at a time.
+    final int limit = nd-5;       // slurp digits 5 at a time.
     int v;
     while ( i < limit ){
-      int ilim = i+5;
+      final int ilim = i+5;
       v = (int)digit[i++]-(int)'0';
       while( i <ilim ){
         v = 10*v + (int)digit[i++]-(int)'0';
@@ -2478,18 +2487,18 @@ class FDBigInt {
    * Shifts this in place.
    */
   public void
-  lshiftMe( int c )throws IllegalArgumentException {
+  lshiftMe( final int c )throws IllegalArgumentException {
     if ( c <= 0 ){
       if ( c == 0 )
         return; // silly.
       else
         throw new IllegalArgumentException("negative shift count");
     }
-    int wordcount = c>>5;
-    int bitcount  = c & 0x1f;
-    int anticount = 32-bitcount;
+    final int wordcount = c>>5;
+    final int bitcount  = c & 0x1f;
+    final int anticount = 32-bitcount;
     int t[] = data;
-    int s[] = data;
+    final int[] s = data;
     if ( nWords+wordcount+1 > t.length ){
       // reallocate.
       t = new int[ nWords+wordcount+1 ];
@@ -2580,9 +2589,9 @@ class FDBigInt {
    * Result is a new FDBigInt.
    */
   public FDBigInt
-  mult( int iv ) {
-    long v = iv;
-    int r[];
+  mult( final int iv ) {
+    final long v = iv;
+    final int[] r;
     long p;
 
     // guess adequate size of r.
@@ -2607,8 +2616,8 @@ class FDBigInt {
    * Hope it fits!
    */
   public void
-  multaddMe( int iv, int addend ) {
-    long v = iv;
+  multaddMe( final int iv, final int addend ) {
+    final long v = iv;
     long p;
 
     // unroll 0th iteration, doing addition.
@@ -2631,14 +2640,14 @@ class FDBigInt {
    * Result is a new FDBigInt.
    */
   public FDBigInt
-  mult( FDBigInt other ){
+  mult( final FDBigInt other ){
     // crudely guess adequate size for r
-    int r[] = new int[ nWords + other.nWords ];
+    final int[] r = new int[ nWords + other.nWords ];
     int i;
     // I think I am promised zeros...
 
     for( i = 0; i < this.nWords; i++ ){
-      long v = (long)this.data[i] & 0xffffffffL; // UNSIGNED CONVERSION
+      final long v = (long)this.data[i] & 0xffffffffL; // UNSIGNED CONVERSION
       long p = 0L;
       int j;
       for( j = 0; j < other.nWords; j++ ){
@@ -2659,10 +2668,12 @@ class FDBigInt {
    * Add one FDBigInt to another. Return a FDBigInt
    */
   public FDBigInt
-  add( FDBigInt other ){
+  add( final FDBigInt other ){
     int i;
-    int a[], b[];
-    int n, m;
+    final int[] a;
+    final int[] b;
+    final int n;
+    final int m;
     long c = 0L;
     // arrange such that a.nWords >= b.nWords;
     // n = a.nWords, m = b.nWords
@@ -2677,7 +2688,7 @@ class FDBigInt {
       b = this.data;
       m = this.nWords;
     }
-    int r[] = new int[ n ];
+    final int[] r = new int[ n ];
     for ( i = 0; i < n; i++ ){
       c += (long)a[i] & 0xffffffffL;
       if ( i < m ){
@@ -2688,7 +2699,7 @@ class FDBigInt {
     }
     if ( c != 0L ){
       // oops -- carry out -- need longer result.
-      int s[] = new int[ r.length+1 ];
+      final int[] s = new int[ r.length+1 ];
       System.arraycopy( r, 0, s, 0, r.length );
       s[i++] = (int)c;
       return new FDBigInt( s, i );
@@ -2701,11 +2712,11 @@ class FDBigInt {
    * Assert that the result is positive.
    */
   public FDBigInt
-  sub( FDBigInt other ){
-    int r[] = new int[ this.nWords ];
+  sub( final FDBigInt other ){
+    final int[] r = new int[ this.nWords ];
     int i;
-    int n = this.nWords;
-    int m = other.nWords;
+    final int n = this.nWords;
+    final int m = other.nWords;
     int nzeros = 0;
     long c = 0L;
     for ( i = 0; i < n; i++ ){
@@ -2724,7 +2735,7 @@ class FDBigInt {
     return new FDBigInt( r, n-nzeros );
   }
 
-  private static boolean dataInRangeIsZero(int i, int m, FDBigInt other) {
+  private static boolean dataInRangeIsZero(int i, final int m, final FDBigInt other) {
     while ( i < m )
       if (other.data[i++] != 0)
         return false;
@@ -2738,18 +2749,18 @@ class FDBigInt {
    * <0: this < other
    */
   public int
-  cmp( FDBigInt other ){
+  cmp( final FDBigInt other ){
     int i;
     if ( this.nWords > other.nWords ){
       // if any of my high-order words is non-zero,
       // then the answer is evident
-      int j = other.nWords-1;
+      final int j = other.nWords-1;
       for ( i = this.nWords-1; i > j ; i-- )
         if ( this.data[i] != 0 ) return 1;
     }else if ( this.nWords < other.nWords ){
       // if any of other's high-order words is non-zero,
       // then the answer is evident
-      int j = this.nWords-1;
+      final int j = this.nWords-1;
       for ( i = other.nWords-1; i > j ; i-- )
         if ( other.data[i] != 0 ) return -1;
     } else{
@@ -2760,8 +2771,8 @@ class FDBigInt {
         break;
     // careful! want unsigned compare!
     // use brute force here.
-    int a = this.data[i];
-    int b = other.data[i];
+    final int a = this.data[i];
+    final int b = other.data[i];
     if ( a < 0 ){
       // a is really big, unsigned
       if ( b < 0 ){
@@ -2792,7 +2803,7 @@ class FDBigInt {
    * as an integer, 0 <= q < 10.
    */
   public int
-  quoRemIteration( FDBigInt S )throws IllegalArgumentException {
+  quoRemIteration( final FDBigInt S )throws IllegalArgumentException {
     // ensure that this and S have the same number of
     // digits. If S is properly normalized and q < 10 then
     // this must be so.
@@ -2802,7 +2813,7 @@ class FDBigInt {
     // estimate q the obvious way. We will usually be
     // right. If not, then we're only off by a little and
     // will re-add.
-    int n = nWords-1;
+    final int n = nWords-1;
     long q = ((long)data[n]&0xffffffffL) / (long)S.data[n];
     long diff = 0L;
     for ( int i = 0; i <= n ; i++ ){
@@ -2863,7 +2874,7 @@ class FDBigInt {
 
   public String
   toString() {
-    StringBuffer r = new StringBuffer(30);
+    final StringBuffer r = new StringBuffer(30);
     r.append('[');
     int i = Math.min( nWords-1, data.length-1) ;
     if ( nWords > data.length ){

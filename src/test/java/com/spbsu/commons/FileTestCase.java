@@ -33,7 +33,7 @@ public abstract class FileTestCase extends TestCase {
   protected abstract String getResultFileExtension();
   protected abstract String getTestDataPath();
 
-  protected void checkResultByFile(CharSequence result) throws IOException {
+  protected void checkResultByFile(final CharSequence result) throws IOException {
     final String resultsFileName = getTestDataPath() + getTestName() + getResultFileExtension();
     final String resultString = result.toString();
     try{
@@ -65,14 +65,14 @@ public abstract class FileTestCase extends TestCase {
     return Character.toLowerCase(name.charAt(4)) + name.substring(5);
   }
 
-  public static byte[] readStream(InputStream inputStream) throws IOException {
+  public static byte[] readStream(final InputStream inputStream) throws IOException {
     byte[] result = new byte[512 * 1024];
     final byte[] buffer = new byte[256 * 1024];
     int read;
     int size = 0;
     while ((read = inputStream.read(buffer)) >= 0) {
       if(result.length < size + read) {
-        byte[] newResult = new byte[size + read];
+        final byte[] newResult = new byte[size + read];
         System.arraycopy(result, 0, newResult, 0, size);
         result = newResult;
       }
@@ -80,7 +80,7 @@ public abstract class FileTestCase extends TestCase {
       size += read;
     }
     if(result.length > size){
-      byte[] newResult = new byte[size];
+      final byte[] newResult = new byte[size];
       System.arraycopy(result, 0, newResult, 0, size);
       result = newResult;
     }

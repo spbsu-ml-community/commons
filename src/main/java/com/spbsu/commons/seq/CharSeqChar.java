@@ -14,7 +14,7 @@ public class CharSeqChar extends CharSeq {
     this.ch = ch;
   }
 
-  public char charAt(int offset) {
+  public char charAt(final int offset) {
     if (offset != 0)
       throw new ArrayIndexOutOfBoundsException();
     return ch;
@@ -39,7 +39,7 @@ public class CharSeqChar extends CharSeq {
     return chars;
   }
 
-  public void copyToArray(int start, char[] array, int offset, int length) {
+  public void copyToArray(final int start, final char[] array, final int offset, final int length) {
     if (length == 1 && start == 0)
       array[offset] = ch;
     else if (length > 0)

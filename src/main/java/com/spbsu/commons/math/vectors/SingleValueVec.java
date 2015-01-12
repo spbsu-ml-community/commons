@@ -11,7 +11,7 @@ import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
  * Date: 23.05.14
  */
 public class SingleValueVec extends Vec.Stub {
-  private double value;
+  private final double value;
   private final int dim;
 
   public SingleValueVec(final double value) {

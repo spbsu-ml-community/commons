@@ -28,11 +28,11 @@ public interface CacheStrategy {
     LRU(LRUStrategy.class),
     LFU(LFUStrategy.class);
     private final Class<? extends CacheStrategy> clazz;
-    private Type(Class<? extends CacheStrategy> clazz) {
+    private Type(final Class<? extends CacheStrategy> clazz) {
       this.clazz = clazz;
     }
 
-    public CacheStrategy newInstance(int size) {
+    public CacheStrategy newInstance(final int size) {
       try {
         return clazz.getConstructor(int.class).newInstance(size);
       } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

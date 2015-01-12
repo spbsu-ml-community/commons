@@ -11,7 +11,7 @@ public class CharSeqComposite extends CharSeq {
 
   protected int activeFragmentRangeStart = -1;
 
-  public CharSeqComposite(CharSequence... fragments) {
+  public CharSeqComposite(final CharSequence... fragments) {
     this.fragments = CharSeqTools.discloseComposites(Arrays.asList(fragments)).toArray(new CharSequence[fragments.length]);
   }
 
@@ -31,7 +31,7 @@ public class CharSeqComposite extends CharSeq {
     return this.length = length;
   }
 
-  public char charAt(int offset) {
+  public char charAt(final int offset) {
     if (fragmentsCount() == 1) {
       return fragment(0).charAt(offset);
     }
@@ -50,7 +50,7 @@ public class CharSeqComposite extends CharSeq {
     return activeFragment.charAt(offset - activeFragmentRangeStart);
   }
 
-  public CharSeq sub(int start, int end) {
+  public CharSeq sub(final int start, final int end) {
     if (start == end) {
       return EMPTY;
     }
@@ -96,12 +96,12 @@ public class CharSeqComposite extends CharSeq {
     return chars;
   }
 
-  public void copyToArray(int start, char[] array, int offset, int length) {
+  public void copyToArray(final int start, final char[] array, int offset, final int length) {
     if (length == 0) {
       return;
     }
     int fragmentEnd = 0;
-    int end = start + length;
+    final int end = start + length;
     int index = 0;
     while (fragmentEnd <= start) {
       fragmentEnd += fragment(index++).length();
@@ -130,7 +130,7 @@ public class CharSeqComposite extends CharSeq {
     copyToArray(fragment(index - 1), 0, array, offset, end - fragmentStart);
   }
 
-  private void copyToArray(CharSequence fragment, int startInFragment, char[] array, int startInArray, int length) {
+  private void copyToArray(final CharSequence fragment, int startInFragment, final char[] array, int startInArray, final int length) {
     if (fragment instanceof CharSeq) {
       ((CharSeq) fragment).copyToArray(startInFragment, array, startInArray, length);
     } else {

@@ -13,7 +13,7 @@ public class ObjectBasisVecIterator<T> implements BasisVecIterator<T> {
   GenericBasis<T> basis;
   final VecIterator iter;
 
-  public ObjectBasisVecIterator(VecIterator iter, GenericBasis<T> basis) {
+  public ObjectBasisVecIterator(final VecIterator iter, final GenericBasis<T> basis) {
     this.basis = basis;
     this.iter = iter;
   }
@@ -44,12 +44,12 @@ public class ObjectBasisVecIterator<T> implements BasisVecIterator<T> {
   }
 
   @Override
-  public boolean seek(int pos) {
+  public boolean seek(final int pos) {
     return iter.seek(pos);
   }
 
   @Override
-  public double setValue(double v) {
+  public double setValue(final double v) {
     return iter.setValue(v);
   }
 }
