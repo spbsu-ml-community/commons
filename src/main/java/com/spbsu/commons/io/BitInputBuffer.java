@@ -44,11 +44,13 @@ public class BitInputBuffer implements BitInput {
   }
 
   int mark = 0;
+  @Override
   public void mark() {
     mark = offset;
     buffer.mark();
   }
 
+  @Override
   public void reset() {
     offset = mark;
     buffer.reset();
