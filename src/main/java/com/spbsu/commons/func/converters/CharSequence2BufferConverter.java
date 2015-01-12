@@ -41,6 +41,7 @@ public class CharSequence2BufferConverter<T extends CharSequence> implements Con
     return ENCODER.encode(charBuffer);
   }
 
+  @Override
   public T convertFrom(final Buffer source) {
     if (source.remaining() < 1)
       throw new BufferUnderflowException();
@@ -60,6 +61,7 @@ public class CharSequence2BufferConverter<T extends CharSequence> implements Con
     }
   }
 
+  @Override
   public Buffer convertTo(final T cs) {
     try {
       final ByteBuffer contents = encode(CharBuffer.wrap(cs));

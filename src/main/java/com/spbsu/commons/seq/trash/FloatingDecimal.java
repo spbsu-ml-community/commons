@@ -993,6 +993,7 @@ public class FloatingDecimal {
 
   // Per-thread buffer for string/stringbuffer conversion
   private static final ThreadLocal perThreadBuffer = new ThreadLocal() {
+    @Override
     protected synchronized Object initialValue() {
       return new char[26];
     }

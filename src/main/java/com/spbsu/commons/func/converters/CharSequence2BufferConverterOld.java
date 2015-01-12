@@ -15,6 +15,7 @@ public abstract class CharSequence2BufferConverterOld implements Converter<CharS
 
   protected abstract CharSequence createCharsequence(char[] chars);
 
+  @Override
   public CharSequence convertFrom(final Buffer source) {
     if (source.remaining() < 1)
       throw new BufferUnderflowException();
@@ -28,6 +29,7 @@ public abstract class CharSequence2BufferConverterOld implements Converter<CharS
     return createCharsequence(chars);
   }
 
+  @Override
   public Buffer convertTo(final CharSequence cs) {
     final int length = cs.length();
     final Buffer buffer = NioConverterTools.storeSize(length);

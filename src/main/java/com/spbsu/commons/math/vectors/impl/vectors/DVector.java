@@ -48,6 +48,7 @@ public class DVector<A> extends CommonBasisVec<A> {
 
     axis2Projection.forEachEntry(new TObjectDoubleProcedure<A>() {
       int index;
+      @Override
       public boolean execute(final A a, final double v) {
         if(v != 0) {
           indeces[index] = basis().toIndex(a);

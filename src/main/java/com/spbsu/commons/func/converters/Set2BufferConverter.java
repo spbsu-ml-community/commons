@@ -19,6 +19,7 @@ public abstract class Set2BufferConverter<T> implements Converter<Set<T>, Buffer
 
   protected abstract Set<T> createSet();
 
+  @Override
   public Set<T> convertFrom(final Buffer source) {
     final T[] array = arrayConverter.convertFrom(source);
     final Set<T> set = createSet();
@@ -26,6 +27,7 @@ public abstract class Set2BufferConverter<T> implements Converter<Set<T>, Buffer
     return set;
   }
 
+  @Override
   public Buffer convertTo(final Set<T> set) {
     //noinspection unchecked
     return arrayConverter.convertTo((T[]) set.toArray());

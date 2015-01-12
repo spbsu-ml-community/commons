@@ -12,18 +12,22 @@ public class ArrayHistogram implements Histogram {
     this.bins = new long[binCount];
   }
 
+  @Override
   public int getBinCount() {
     return bins.length;
   }
 
+  @Override
   public long getValue(final int bin) {
     return bins[bin];
   }
 
+  @Override
   public void addToBin(final int bin, final long value) {
     bins[bin] += value;
   }
 
+  @Override
   public double getMean() {
     double sum = 0;
     for (final long bin : bins) {

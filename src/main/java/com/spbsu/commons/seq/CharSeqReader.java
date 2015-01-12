@@ -16,6 +16,7 @@ public class CharSeqReader extends Reader {
     this.seq = seq;
   }
 
+  @Override
   public int read(final char[] cbuf, final int off, final int len) throws IOException {
     int read;
     for(read = 0; read < len && currentOffset < seq.length(); read++){
@@ -34,6 +35,7 @@ public class CharSeqReader extends Reader {
     currentOffset = 0;
   }
 
+  @Override
   public void close() throws IOException {
   }
 }

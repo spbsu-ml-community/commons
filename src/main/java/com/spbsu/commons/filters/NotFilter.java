@@ -12,6 +12,7 @@ public class NotFilter<T> implements Filter<T> {
     this.filter = filter;
   }
 
+  @Override
   public boolean accept(final T t) {
     return !filter.accept(t);
   }

@@ -6,6 +6,7 @@ package com.spbsu.commons.func.types;
  * Time: 13:52
  */
 public abstract class ShatteredTypeConverter<F,T> implements TypeConverter<F,T> {
+  @Override
   public final T convert(final F from) {
     final T instance = createFrom(from);
     writeTo(from, instance);

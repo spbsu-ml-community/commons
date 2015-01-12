@@ -37,6 +37,7 @@ public class BufferFactory {
         int count;
         int totalLength;
         boolean isDirect;
+        @Override
         public void process(final Buffer arg) {
           totalLength += arg.remaining();
           count++;
@@ -50,6 +51,7 @@ public class BufferFactory {
         final byte[] buffer = new byte[analyzer.totalLength];
         class ContentsCopier implements Processor<Buffer> {
           int index;
+          @Override
           public void process(final Buffer arg) {
             final int old = arg.position();
             try {
@@ -67,6 +69,7 @@ public class BufferFactory {
         final Buffer[] compactedBuffers = new Buffer[analyzer.count];
         class BuffersCopier implements Processor<Buffer> {
           int index;
+          @Override
           public void process(final Buffer arg) {
             compactedBuffers[index++] = arg;
           }
@@ -82,6 +85,7 @@ public class BufferFactory {
     if (src instanceof CompositeBuffer) {
       final int toCopy = Math.min(dst.remaining(), src.remaining());
       ((CompositeBuffer) src).visitParts(new Processor<Buffer>() {
+        @Override
         public void process(final Buffer arg) {
           final int old = arg.position();
           try {

@@ -46,6 +46,7 @@ public class PNFA<T> implements Matcher<T> {
 //    pro_bab[coffset + statesCount * from - from * (from + 1) / 2 + to] = prob;
 //  }
 //
+  @Override
   public void match(final Seq<T> ts, final MatchVisitor visitor) {
     final int seqSize = ts.length();
     final int[] statesLocal = states;

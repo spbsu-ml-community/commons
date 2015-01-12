@@ -36,18 +36,22 @@ public class IndexTransVec extends Vec.Stub {
     }
   }
 
+  @Override
   public double get(final int i) {
     return base.get(transformation.forward(i));
   }
 
+  @Override
   public Vec set(final int i, final double val) {
     return base.set(transformation.forward(i), val);
   }
 
+  @Override
   public Vec adjust(final int i, final double increment) {
     return base.adjust(transformation.forward(i), increment);
   }
 
+  @Override
   public VecIterator nonZeroes() {
     Vec base = this.base;
     if (this.base instanceof VecBasedMx) {
@@ -88,6 +92,7 @@ public class IndexTransVec extends Vec.Stub {
     return this.base instanceof VecBasedMx ? new MxIteratorImpl(result, ((VecBasedMx) this.base).columns()) : result;
   }
 
+  @Override
   public int dim() {
     return transformation.newDim();
   }

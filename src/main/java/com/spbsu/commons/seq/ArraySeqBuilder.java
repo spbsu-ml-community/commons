@@ -15,11 +15,13 @@ public class ArraySeqBuilder<T> implements SeqBuilder<T>{
     this.clazz = clazz;
   }
 
+  @Override
   public ArraySeqBuilder<T> add(final T t) {
     objects.add(t);
     return this;
   }
 
+  @Override
   public ArraySeqBuilder<T> addAll(final Seq<T> values) {
     for (int i = 0; i < values.length(); i++) {
       objects.add(values.at(i));
@@ -27,6 +29,7 @@ public class ArraySeqBuilder<T> implements SeqBuilder<T>{
     return this;
   }
 
+  @Override
   public Seq<T> build() {
     if (Double.class.equals(clazz)) {
       final double[] arr = new double[objects.size()];

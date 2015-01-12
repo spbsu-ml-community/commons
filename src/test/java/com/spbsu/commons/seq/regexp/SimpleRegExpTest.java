@@ -24,6 +24,7 @@ public class SimpleRegExpTest extends TestCase {
 
   private class TestMatchVisitor implements SimpleRegExp.MatchVisitor {
     private final List<String> matches = new LinkedList<String>();
+    @Override
     public boolean found(final int start, final int end) {
       matches.add(string.substring(start, end));
       //System.out.println("-- Match found (" + start + "," + end + ") = " + matchBuilder.toString());

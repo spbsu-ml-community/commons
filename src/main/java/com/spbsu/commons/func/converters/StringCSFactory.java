@@ -8,6 +8,7 @@ import com.spbsu.commons.func.Computable;
  * Time: 18:39:55
  */
 public class StringCSFactory implements Computable<char[], String> {
+  @Override
   public String compute(final char[] argument) {
     return new String(argument);
   }

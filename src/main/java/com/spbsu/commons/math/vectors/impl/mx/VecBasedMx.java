@@ -34,6 +34,7 @@ public class VecBasedMx extends Mx.Stub {
     columns = mx.columns();
   }
 
+  @Override
   public double get(final int i, final int j) {
     return vec.get(columns * i + j);
   }

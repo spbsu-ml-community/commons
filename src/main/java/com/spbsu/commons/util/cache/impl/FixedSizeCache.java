@@ -29,6 +29,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
     cache = (Pair<K, V>[]) new Pair[size];
   }
 
+  @Override
   public V put(final K key, final V value) {
     if (value == null) return value;
     final CacheSlot<K, V> slot = accessMap.get(key);
@@ -62,12 +63,14 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
     return value;
   }
 
+  @Override
   public V get(final K key) {
     return get(key, null);
   }
 
   private int accessIndex = 0;
 
+  @Override
   public V get(final K key, final Computable<K, V> wayToGet) {
     try {
       V result = null;
@@ -100,6 +103,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
     }
   }
 
+  @Override
   public void flush() {
     for (int i = 0; i < cache.length; i++) {
       cache[i] = null;
@@ -128,6 +132,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
     return strategy;
   }
 
+  @Override
   public void clear(final K key) {
     final CacheSlot<K, V> slot = accessMap.remove(key);
     if (slot != null) {
@@ -145,6 +150,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
     return atPosition != null && (atPosition.getFirst() == key || atPosition.getFirst().equals(key));
   }
 
+  @Override
   public void clear() {
     accessMap.clear();
     flush();

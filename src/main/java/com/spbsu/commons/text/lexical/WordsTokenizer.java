@@ -12,6 +12,7 @@ public class WordsTokenizer extends BaseTokenizer {
     super(text);
   }
 
+  @Override
   protected CharSequence nextInner() {
     while (offset < text.length() && !Character.isLetterOrDigit(text.charAt(offset))) {
       offset++;

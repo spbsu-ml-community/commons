@@ -67,74 +67,92 @@ public class Logger implements Log {
 
   // common logging deleging methods
 
+  @Override
   public boolean isDebugEnabled() {
     return innerLog.isDebugEnabled();
   }
 
+  @Override
   public boolean isErrorEnabled() {
     return innerLog.isErrorEnabled();
   }
 
+  @Override
   public boolean isFatalEnabled() {
     return innerLog.isFatalEnabled();
   }
 
+  @Override
   public boolean isInfoEnabled() {
     return innerLog.isInfoEnabled();
   }
 
+  @Override
   public boolean isTraceEnabled() {
     return innerLog.isTraceEnabled();
   }
 
+  @Override
   public boolean isWarnEnabled() {
     return innerLog.isWarnEnabled();
   }
 
+  @Override
   public void trace(final Object o) {
     innerLog.trace(o);
   }
 
+  @Override
   public void trace(final Object o, final Throwable throwable) {
     innerLog.trace(o, throwable);
   }
 
+  @Override
   public void debug(final Object o) {
     innerLog.debug(o);
   }
 
+  @Override
   public void debug(final Object o, final Throwable throwable) {
     innerLog.debug(o, throwable);
   }
 
+  @Override
   public void info(final Object o) {
     innerLog.info(o);
   }
 
+  @Override
   public void info(final Object o, final Throwable throwable) {
     innerLog.info(o, throwable);
   }
 
+  @Override
   public void warn(final Object o) {
     innerLog.warn(o);
   }
 
+  @Override
   public void warn(final Object o, final Throwable throwable) {
     innerLog.warn(o, throwable);
   }
 
+  @Override
   public void error(final Object o) {
     innerLog.error(o);
   }
 
+  @Override
   public void error(final Object o, final Throwable throwable) {
     innerLog.error(o, throwable);
   }
 
+  @Override
   public void fatal(final Object o) {
     innerLog.fatal(o);
   }
 
+  @Override
   public void fatal(final Object o, final Throwable throwable) {
     innerLog.fatal(o, throwable);
   }

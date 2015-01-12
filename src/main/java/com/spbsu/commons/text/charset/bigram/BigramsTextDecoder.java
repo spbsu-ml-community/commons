@@ -43,6 +43,7 @@ public class BigramsTextDecoder implements TextDecoder {
     this.textAnalyzer = textAnalyzer;
   }
 
+  @Override
   public CharSequence decodeText(@NotNull final byte[] bytes) {
     if (bytes.length == 0) {
       return "";
@@ -63,6 +64,7 @@ public class BigramsTextDecoder implements TextDecoder {
     return charset2Text.get(mostProbableCharset);
   }
 
+  @Override
   public CharSequence decodeText(@NotNull final CharSequence input) {
     if (input.length() == 0) {
       return "";

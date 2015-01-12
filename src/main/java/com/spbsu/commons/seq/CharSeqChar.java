@@ -14,12 +14,14 @@ public class CharSeqChar extends CharSeq {
     this.ch = ch;
   }
 
+  @Override
   public char charAt(final int offset) {
     if (offset != 0)
       throw new ArrayIndexOutOfBoundsException();
     return ch;
   }
 
+  @Override
   public CharSeq sub(final int start, final int end){
     if (end - start == 0)
       return EMPTY;
@@ -33,12 +35,14 @@ public class CharSeqChar extends CharSeq {
     return 1;
   }
 
+  @Override
   public char[] toCharArray() {
     final char[] chars = new char[length()];
     copyToArray(0, chars, 0, length());
     return chars;
   }
 
+  @Override
   public void copyToArray(final int start, final char[] array, final int offset, final int length) {
     if (length == 1 && start == 0)
       array[offset] = ch;
@@ -46,6 +50,7 @@ public class CharSeqChar extends CharSeq {
       throw new ArrayIndexOutOfBoundsException();
   }
 
+  @Override
   public CharSequence trim() {
     return CharSeqTools.isWhitespace(ch) ? EMPTY : this;
   }

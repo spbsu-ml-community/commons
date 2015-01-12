@@ -15,6 +15,7 @@ public abstract class FileTestCase extends TestCase {
   public static final File TESTS_DIR = new File("./wd/tests");
   protected String fileText;
 
+  @Override
   protected void setUp() throws Exception {
     try{
       final String ext = getInputFileExtension();

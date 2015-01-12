@@ -19,6 +19,7 @@ public abstract class List2BufferConverter<T> implements Converter<List<T>, Buff
 
   protected abstract List<T> createList();
 
+  @Override
   public List<T> convertFrom(final Buffer source) {
     final T[] array = arrayConverter.convertFrom(source);
     final List<T> result = createList();
@@ -26,6 +27,7 @@ public abstract class List2BufferConverter<T> implements Converter<List<T>, Buff
     return result;
   }
 
+  @Override
   public Buffer convertTo(final List<T> list) {
     //noinspection unchecked
     return arrayConverter.convertTo((T[]) list.toArray());

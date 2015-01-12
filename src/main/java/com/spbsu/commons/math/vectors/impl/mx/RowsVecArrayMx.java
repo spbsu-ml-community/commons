@@ -28,6 +28,7 @@ public class RowsVecArrayMx extends Mx.Stub {
     columns = vec.at(0).dim();
   }
 
+  @Override
   public double get(final int i, final int j) {
     return vec.at(i).get(j);
   }

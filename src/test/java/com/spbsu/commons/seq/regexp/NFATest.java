@@ -27,6 +27,7 @@ public class NFATest extends TestCase {
   private class TestMatchVisitor implements SimpleRegExp.MatchVisitor {
     TLongArrayList matches = new TLongArrayList(100500);
     private List<String> matchesStr = null;
+    @Override
     public boolean found(final int start, final int end) {
       matches.add(((long)start << 32) | end);
       //System.out.println("-- Match found (" + start + "," + end + ") = " + matchBuilder.toString());
@@ -37,6 +38,7 @@ public class NFATest extends TestCase {
       if (matchesStr == null) {
         matchesStr = new ArrayList<String>(matches.size());
         matches.forEach(new TLongProcedure() {
+          @Override
           public boolean execute(final long l) {
             matchesStr.add(string.substring((int)(l >> 32), (int)l));
             return true;
@@ -349,6 +351,7 @@ public class NFATest extends TestCase {
 
       final Holder<Integer> counter = new Holder<Integer>(0);
       final Matcher.MatchVisitor visitor = new Matcher.MatchVisitor() {
+        @Override
         public boolean found(final int start, final int end) {
 //          System.out.println(start + " " + end);
 //          counter.setValue(counter.getValue() + 1);

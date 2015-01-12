@@ -57,14 +57,17 @@ public final class URLStatusImpl implements DownloadManager.URLStatus {
     this.lastModified = lastModified;
   }
 
+  @Override
   public int getStatusCode() {
     return statusCode;
   }
 
+  @Override
   public long getLastModified() {
     return lastModified;
   }
 
+  @Override
   public Pair<String, Integer>[] getRedirectPath() {
     if (redirects != null) {
       return redirects;
@@ -108,18 +111,22 @@ public final class URLStatusImpl implements DownloadManager.URLStatus {
     return redirects = found.toArray(new Pair[found.size()]);
   }
 
+  @Override
   public String getContentType() {
     return contentType;
   }
 
+  @Override
   public long getContentlength() {
     return contentLength;
   }
 
+  @Override
   public String getContentEncoding() {
     return encoding;
   }
 
+  @Override
   public IOException getException() {
     return exception;
   }

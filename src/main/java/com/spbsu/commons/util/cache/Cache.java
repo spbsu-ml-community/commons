@@ -17,6 +17,7 @@ public interface Cache<K, V> extends Flushable {
   @Nullable
   V get(K key);  
 
+  @Override
   void flush();
 
   void clear();

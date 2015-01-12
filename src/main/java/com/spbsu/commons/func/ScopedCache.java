@@ -33,6 +33,7 @@ public class ScopedCache {
   public <CH extends CacheHolder, R> R cache(final Class<? extends Computable<? super CH, R>> type, final Class<CH> scope) {
     final Holder<R> rHolder = new Holder<>();
     RuntimeUtils.processSupers(scope, new Filter<Class<?>>() {
+      @Override
       public boolean accept(final Class<?> arg) {
         if (!CacheHolder.class.isAssignableFrom(arg))
           return false;

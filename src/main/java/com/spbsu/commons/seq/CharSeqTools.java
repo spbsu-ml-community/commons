@@ -30,10 +30,12 @@ import javax.xml.bind.DatatypeConverter;
 public class CharSeqTools {
   public static final String EMPTY = "";
   public static final HashingStrategy<CharSequence> STRATEGY = new HashingStrategy<CharSequence>() {
+    @Override
     public int computeHashCode(final CharSequence cs) {
       return cs.hashCode();
     }
 
+    @Override
     public boolean equals(final CharSequence cs1, final CharSequence cs2) {
       return CharSeqTools.equals(cs1, cs2);
     }

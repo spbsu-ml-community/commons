@@ -26,22 +26,27 @@ public class NumericSampleDistribution<T extends Number> extends SampleDistribut
     maxValue = Math.max(maxValue, v);
   }
 
+  @Override
   public double getMean() {
     return valueSum / totalCount;
   }
 
+  @Override
   public double getVariance() {
     return totalCount <= 1 ? 0 : (valueSqSum - valueSum * valueSum / totalCount) / (totalCount - 1);
   }
 
+  @Override
   public double getStandardDeviation() {
     return Math.sqrt(getVariance());
   }
 
+  @Override
   public double getMax() {
     return maxValue;
   }
 
+  @Override
   public double getMin() {
     return minValue;
   }

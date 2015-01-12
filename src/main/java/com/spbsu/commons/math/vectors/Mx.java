@@ -20,6 +20,7 @@ public interface Mx extends Vec {
   Vec row(int i);
   Vec col(int j);
 
+  @Override
   MxIterator nonZeroes();
   MxBasis basis();
 

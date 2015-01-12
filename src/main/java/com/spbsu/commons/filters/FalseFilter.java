@@ -6,6 +6,7 @@ package com.spbsu.commons.filters;
  * Time: 14:18:51
  */
 public class FalseFilter<T> implements Filter<T> {
+  @Override
   public boolean accept(final T t) {
     return false;
   }

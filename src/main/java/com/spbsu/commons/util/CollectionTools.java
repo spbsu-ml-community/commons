@@ -137,6 +137,7 @@ public class CollectionTools {
     return new Iterator<T>() {
       T nextObject;
 
+      @Override
       public boolean hasNext() {
         if (nextObject != null) {
           return true;
@@ -151,6 +152,7 @@ public class CollectionTools {
         return false;
       }
 
+      @Override
       public T next() {
         if (!hasNext()) {
           throw new NoSuchElementException();
@@ -161,6 +163,7 @@ public class CollectionTools {
         }
       }
 
+      @Override
       public void remove() {
         throw new UnsupportedOperationException("not yet");
       }

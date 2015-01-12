@@ -23,6 +23,7 @@ public interface GenericBasis<T> extends Basis {
 
   int remove(T element);
 
+  @Override
   int size();
 
   int toIndex(T element);

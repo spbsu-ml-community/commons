@@ -19,6 +19,7 @@ public class Map2BufferConverter<K,V> implements Converter<Map<K,V>, Buffer> {
     this.keyConverter = keyConverter;
   }
 
+  @Override
   public Map<K,V> convertFrom(final Buffer source) {
     final Map<K,V> result = new HashMap<K,V>();
     final int size = NioConverterTools.restoreSize(source);
@@ -28,6 +29,7 @@ public class Map2BufferConverter<K,V> implements Converter<Map<K,V>, Buffer> {
     return result;
   }
 
+  @Override
   public Buffer convertTo(final Map<K, V> map) {
     final Buffer[] buffersArray = new Buffer[map.size() * 2 + 1];
     int i = 0;

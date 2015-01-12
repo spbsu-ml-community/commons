@@ -27,6 +27,7 @@ public class ColsVecArrayMx extends Mx.Stub {
     this.vec = vec;
   }
 
+  @Override
   public double get(final int i, final int j) {
     return vec.at(i).get(j);
   }

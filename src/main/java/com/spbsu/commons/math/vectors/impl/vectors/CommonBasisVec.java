@@ -49,6 +49,7 @@ public class CommonBasisVec<T> extends CustomBasisVec<GenericBasis<T>> {
     return new ObjectBasisVecIterator<T>(nonZeroes(), basis);
   }
 
+  @Override
   public GenericBasis<T> basis() {
     return basis;
   }

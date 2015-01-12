@@ -21,6 +21,7 @@ public class CharSeqComposite extends CharSeq {
     fragments = CharSeqTools.discloseComposites(Arrays.asList(parts).subList(start, end)).toArray(new CharSequence[end - start]);
   }
 
+  @Override
   public int length() {
     if (isImmutable() && length >= 0)
       return length;
@@ -31,6 +32,7 @@ public class CharSeqComposite extends CharSeq {
     return this.length = length;
   }
 
+  @Override
   public char charAt(final int offset) {
     if (fragmentsCount() == 1) {
       return fragment(0).charAt(offset);
@@ -50,6 +52,7 @@ public class CharSeqComposite extends CharSeq {
     return activeFragment.charAt(offset - activeFragmentRangeStart);
   }
 
+  @Override
   public CharSeq sub(final int start, final int end) {
     if (start == end) {
       return EMPTY;
@@ -87,6 +90,7 @@ public class CharSeqComposite extends CharSeq {
     return new CharSeqComposite(subSequenceFragments.toArray(new CharSequence[subSequenceFragments.size()]));
   }
 
+  @Override
   public char[] toCharArray() {
     final int length = length();
     final char[] chars = new char[length];
@@ -96,6 +100,7 @@ public class CharSeqComposite extends CharSeq {
     return chars;
   }
 
+  @Override
   public void copyToArray(final int start, final char[] array, int offset, final int length) {
     if (length == 0) {
       return;

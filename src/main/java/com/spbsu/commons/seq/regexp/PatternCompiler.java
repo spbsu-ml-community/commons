@@ -28,6 +28,7 @@ public class PatternCompiler {
       final int state = i + 1;
       final int conditionIndex = alphabet.getOrder(pattern.condition(state - 1));
       active.forEach(new TIntProcedure() {
+        @Override
         public boolean execute(final int a) {
           connect(a, state, conditionIndex);
           return true;

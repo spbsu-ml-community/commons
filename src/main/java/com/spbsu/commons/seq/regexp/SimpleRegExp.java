@@ -64,6 +64,7 @@ public class SimpleRegExp implements Matcher<Character> {
     statesStore = new int[2][processedExpression.size()];
   }
 
+  @Override
   public void match(final Seq<Character> sequence, final MatchVisitor visitor) {
     final CharSeq seq = (CharSeq) sequence;
     final Pattern<Character> expression = processedExpression;

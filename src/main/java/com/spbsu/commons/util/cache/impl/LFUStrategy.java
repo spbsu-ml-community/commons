@@ -23,33 +23,40 @@ public class LFUStrategy implements CacheStrategy {
     usages = new double[size];
   }
 
+  @Override
   public int getStorePosition() {
     final int min = ArrayTools.min(usages);
     usages[min] = 1;
     return min;
   }
 
+  @Override
   public void registerAccess(final int position) {
     usages[position] = usages[position] + 1;
     access++;
   }
 
+  @Override
   public void removePosition(final int position) {
     usages[position] = 0;
   }
 
+  @Override
   public void registerCacheMiss() {
     misses++;
   }
 
+  @Override
   public int getAccessCount() {
     return access;
   }
 
+  @Override
   public int getCacheMisses() {
     return misses;
   }
 
+  @Override
   public void clear() {
     Arrays.fill(usages, 0.);
     misses = 0;

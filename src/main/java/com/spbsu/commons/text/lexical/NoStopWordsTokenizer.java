@@ -17,6 +17,7 @@ public class NoStopWordsTokenizer extends BaseTokenizer {
     this.stopWords = new HashSet<CharSequence>(dictionary);
   }
 
+  @Override
   protected CharSequence nextInner() {
     while (tokenizer.hasNext()) {
       final CharSequence token = tokenizer.next();

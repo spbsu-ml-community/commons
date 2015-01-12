@@ -18,6 +18,7 @@ public interface Vec extends Seq<Double> {
 
   double[] toArray();
 
+  @Override
   Vec sub(int start, int len);
 
   abstract class Stub extends Seq.Stub<Double> implements Vec {

@@ -48,6 +48,7 @@ public class ColsVecSeqMx extends Mx.Stub {
         this.vec.at(0).length();
   }
 
+  @Override
   public double get(final int i, final int j) {
     final int idx = getIdx(j);
     if (vec.at(idx).length() == 1)

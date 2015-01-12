@@ -35,6 +35,7 @@ public interface Alphabet<T> {
         my = c;
       }
 
+      @Override
       public boolean is(final Character frag) {
         return frag == my;
       }
@@ -55,10 +56,12 @@ public interface Alphabet<T> {
       }
     }
 
+    @Override
     public int size() {
       return ALPHABET_SIZE;
     }
 
+    @Override
     public int getOrder(final Matcher.Condition<Character> c) {
       if (c instanceof CharCondition) {
         final CharCondition condition = (CharCondition) c;
@@ -68,6 +71,7 @@ public interface Alphabet<T> {
       throw new IllegalArgumentException("Not a char condition");
     }
 
+    @Override
     public SimpleRegExp.Condition<Character> get(final int i) {
       if (i < ALPHABET_SIZE)
         return new CharCondition((char) ('a' + i));
@@ -77,6 +81,7 @@ public interface Alphabet<T> {
       throw new IllegalArgumentException("Condition is not in range");
     }
 
+    @Override
     public SimpleRegExp.Condition<Character> getByT(final Character ch) {
       return get(ch - 'a');
     }

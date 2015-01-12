@@ -176,6 +176,7 @@ public class VectorsTest extends TestCase {
     );
     final HashSet<CharSequence> found = new HashSet<CharSequence>();
     v.forEach(new TObjectDoubleProcedure<CharSequence>() {
+      @Override
       public boolean execute(final CharSequence charSequence, final double v) {
         found.add(charSequence);
         return true;

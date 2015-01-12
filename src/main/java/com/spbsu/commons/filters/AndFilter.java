@@ -14,6 +14,7 @@ public class AndFilter<T> implements Filter<T> {
     this.filters = (Filter<T>[])filters;
   }
 
+  @Override
   public boolean accept(final T t) {
     for(int i = 0; i < filters.length; i++) {
       if (!filters[i].accept(t)) {

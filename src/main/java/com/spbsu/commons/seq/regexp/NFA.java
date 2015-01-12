@@ -29,6 +29,7 @@ public class NFA<T> implements Matcher<T>{
     states = new int[statesCount * 2];
     this.finalStates = new boolean[statesCount];
     finalStates.forEach(new TIntProcedure() {
+      @Override
       public boolean execute(final int i) {
         NFA.this.finalStates[i] = true;
         return true;
@@ -40,6 +41,7 @@ public class NFA<T> implements Matcher<T>{
       final int from = i;
       final TLongHashSet instructions = programs.get(from);
       instructions.forEach(new TLongProcedure() {
+        @Override
         public boolean execute(final long l) {
           final int condition = (int)l;
           final int to = (int)(l >> 32);
@@ -87,6 +89,7 @@ public class NFA<T> implements Matcher<T>{
     this.transitionsIndex = transitionsIndex.toArray();
   }
 
+  @Override
   public void match(final Seq<T> ts, final MatchVisitor visitor) {
     final int seqSize = ts.length();
     final int[] statesLocal = states;

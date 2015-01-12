@@ -867,6 +867,7 @@ public class RapidBitSet implements Cloneable, java.io.Serializable {
    * @return a clone of this bit set.
    * @see java.util.BitSet#size()
    */
+  @Override
   public Object clone() {
     if (!sizeIsSticky)
       trimToSize();

@@ -32,6 +32,7 @@ public class FastRandom extends Random {
     nextLong();
   }
 
+  @Override
   public synchronized long nextLong() {
     long localU = u;
     long localV = v;
@@ -52,6 +53,7 @@ public class FastRandom extends Random {
     return ret;
   }
 
+  @Override
   protected int next(final int bits) {
     return (int) (nextLong() >>> (64-bits));
   }

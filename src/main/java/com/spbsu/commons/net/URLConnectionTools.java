@@ -21,19 +21,23 @@ public class URLConnectionTools {
 
     private static final TrustManager[] TRUST_ALL_CERTS = new TrustManager[]{
             new X509TrustManager() {
+                @Override
                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                     return null;
                 }
 
+                @Override
                 public void checkClientTrusted(final java.security.cert.X509Certificate[] certs, final String authType) {
                 }
 
+                @Override
                 public void checkServerTrusted(final java.security.cert.X509Certificate[] certs, final String authType) {
                 }
             }
     };
 
     private static final HostnameVerifier hostnameVerifier = new HostnameVerifier() {
+        @Override
         public boolean verify(final String string, final SSLSession sslSession) {
             return true;
         }
@@ -129,6 +133,7 @@ public class URLConnectionTools {
             password = pass;
         }
 
+        @Override
         protected PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication(username, password.toCharArray());
         }

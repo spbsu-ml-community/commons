@@ -14,6 +14,7 @@ public class OrFilter<T> implements Filter<T> {
     this.secondFilter = secondFilter;
   }
 
+  @Override
   public boolean accept(final T t) {
     return firstFilter.accept(t) || secondFilter.accept(t);
   }

@@ -90,6 +90,7 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
     hashCode = 0;
   }
 
+  @Override
   public final int fragmentsCount() {
     return fragments.size();
   }

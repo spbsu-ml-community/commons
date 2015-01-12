@@ -19,6 +19,7 @@ public class PatternVecConverter<T> implements Converter<Pattern<T>, Vec> {
     this.alphabet = a;
   }
 
+  @Override
   public Pattern<T> convertFrom(final Vec vec) {
     final int size = vec.dim();
     final Pattern<T> p = new Pattern<T>(alphabet);
@@ -30,6 +31,7 @@ public class PatternVecConverter<T> implements Converter<Pattern<T>, Vec> {
     return p;
   }
 
+  @Override
   public Vec convertTo(final Pattern<T> pattern) {
     final int size = pattern.size();
     final double[] patternVec = new double[2 * size];

@@ -30,10 +30,12 @@ public class LRUStrategy implements CacheStrategy {
     tail = usages[0];
   }
 
+  @Override
   public int getStorePosition() {
     return tail.value;
   }
 
+  @Override
   public void registerAccess(final int position) {
     final LRUStrategy.ListNode node = usages[position];
 
@@ -53,6 +55,7 @@ public class LRUStrategy implements CacheStrategy {
     access++;
   }
 
+  @Override
   public void removePosition(final int position) {
     final LRUStrategy.ListNode node = usages[position];
 
@@ -71,18 +74,22 @@ public class LRUStrategy implements CacheStrategy {
     }
   }
 
+  @Override
   public void registerCacheMiss() {
     misses++;
   }
 
+  @Override
   public int getAccessCount() {
     return access;
   }
 
+  @Override
   public int getCacheMisses() {
     return misses;
   }
 
+  @Override
   public void clear() {
     init(usages.length);
     misses = 0;

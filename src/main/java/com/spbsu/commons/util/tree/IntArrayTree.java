@@ -158,6 +158,7 @@ public class IntArrayTree implements IntTree {
     return result.toArray();
   }
 
+  @Override
   public int[] leaves(final TRAVERSE_STRATEGY strategy) {
     switch (strategy) {
       case BREADTH_FIRST: return breadthFirstLeaves();

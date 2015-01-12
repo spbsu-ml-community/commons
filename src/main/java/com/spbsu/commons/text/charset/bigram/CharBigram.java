@@ -38,6 +38,7 @@ public class CharBigram implements Comparable<CharBigram> {
     return c2;
   }
 
+  @Override
   public int compareTo(@NotNull final CharBigram o) {
     if (c1 < o.c1) {
       return -1;

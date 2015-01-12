@@ -28,6 +28,7 @@ public class DownloadManagerImpl implements DownloadManager {
   private static final Log LOG = LogFactory.getLog(DownloadManagerImpl.class);
   private final ExecutorService executor = new ThreadPoolExecutor(10, 20, 100, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
 
+    @Override
     public Thread newThread(final Runnable r) {
       final Thread newThread = Executors.defaultThreadFactory().newThread(r);
       newThread.setDaemon(true);
@@ -165,10 +166,12 @@ public class DownloadManagerImpl implements DownloadManager {
     downloadQueue.start();
   }
 
+  @Override
   public void setCustomPolicy(final String host, final Policy policy) {
     host2customPolicy.put(host, policy);
   }
 
+  @Override
   public void setProxy(final String host, final Proxy proxy) {
     host2proxy.put(host, proxy);
   }
@@ -189,23 +192,29 @@ public class DownloadManagerImpl implements DownloadManager {
     return candidate == null ? null : Pair.create(candidate, host2customPolicy.get(candidate));
   }
 
+  @Override
   public void request(final String url, final Task<CharSequence> resultHandler) {
     requestCharData(url, new Task<Pair<URLStatus, CharSequence>>() {
+      @Override
       public void start(final Pair<URLStatus, CharSequence> param) {
         resultHandler.start(param.getSecond());
       }
 
+      @Override
       public void setCompleted() {
         resultHandler.setCompleted();
       }
 
+      @Override
       public boolean isCompleted() {
         return resultHandler.isCompleted();
       }
 
+      @Override
       public void setRequestProperty(final String key, final String value) {
       }
 
+      @Override
       public Iterator<Pair<String, String>> getPropertiesIterator() {
         return Collections.<Pair<String, String>>emptySet().iterator();
       }
@@ -220,6 +229,7 @@ public class DownloadManagerImpl implements DownloadManager {
     });
   }
 
+  @Override
   public void requestCharData(final String url, final Task<Pair<URLStatus, CharSequence>> resultHandler) {
     synchronized (tasksQueue) {
       tasksQueue.add(Pair.create(url, Pair.create(Type.TEXT, (Task) resultHandler)));
@@ -227,6 +237,7 @@ public class DownloadManagerImpl implements DownloadManager {
     }
   }
 
+  @Override
   public void requestBinaryData(final String url, final Task<Pair<URLStatus, byte[]>> resultHandler) {
     synchronized (tasksQueue) {
       tasksQueue.add(Pair.create(url, Pair.create(Type.BINARY, (Task) resultHandler)));
@@ -234,6 +245,7 @@ public class DownloadManagerImpl implements DownloadManager {
     }
   }
 
+  @Override
   public void requestStatus(final String url, final Task<URLStatus> resultHandler) {
     synchronized (tasksQueue) {
       tasksQueue.add(Pair.create(url, Pair.create(Type.HEAD, (Task) resultHandler)));
@@ -241,6 +253,7 @@ public class DownloadManagerImpl implements DownloadManager {
     }
   }
 
+  @Override
   public void requestCharDataWithPost(final String url, final String msg, final Task<Pair<URLStatus, CharSequence>> resultHandler) {
     synchronized (tasksQueue) {
       resultHandler.setRequestProperty(MAGIC_POST_REQUEST, msg);
@@ -249,6 +262,7 @@ public class DownloadManagerImpl implements DownloadManager {
     }
   }
 
+  @Override
   public void cancelRequest(final Task<?> resultHandler) {
     synchronized (tasksQueue) {
       final Iterator<Pair<String, Pair<Type, Task>>> iterator = tasksQueue.iterator();
@@ -265,6 +279,7 @@ public class DownloadManagerImpl implements DownloadManager {
     }
   }
 
+  @Override
   public void waitFor(final Task<?>... resultHandler) {
     for (final Task<?> task : resultHandler) {
       //noinspection SynchronizationOnLocalVariableOrMethodParameter
@@ -294,6 +309,7 @@ public class DownloadManagerImpl implements DownloadManager {
       this.task = task;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void run() {
       URLConnection urlConnection = null;

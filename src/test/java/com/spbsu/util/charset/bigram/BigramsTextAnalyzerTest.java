@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 public class BigramsTextAnalyzerTest extends TestCase {
   private BigramsTextAnalyzer textAnalyzer;
 
+  @Override
   public void setUp() throws Exception {
     super.setUp();
     textAnalyzer = new BigramsTextAnalyzer();

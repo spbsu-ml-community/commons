@@ -17,9 +17,11 @@ public class CharSeqArray extends CharSeq {
     this(chars, 0, chars.length);
   }
 
+  @Override
   public int length() {
     return end - start;
   }
+  @Override
   public char charAt(final int offset) {
     return array[start + offset];
   }
@@ -34,6 +36,7 @@ public class CharSeqArray extends CharSeq {
     return new String(array, start, end - start);
   }
 
+  @Override
   public char[] toCharArray() {
     if(start == 0 && end == array.length) {
       return array;
@@ -41,6 +44,7 @@ public class CharSeqArray extends CharSeq {
     return super.toCharArray();
   }
 
+  @Override
   public void copyToArray(final int start, final char[] array, final int offset, final int length) {
     System.arraycopy(this.array, this.start + start, array, offset, length);
   }

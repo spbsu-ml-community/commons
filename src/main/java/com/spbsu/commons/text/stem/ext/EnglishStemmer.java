@@ -1133,6 +1133,7 @@ public class EnglishStemmer extends AbstractStemmer {
     return true;
   }
 
+  @Override
   public boolean stem() {
     final int v_1;
     final int v_2;

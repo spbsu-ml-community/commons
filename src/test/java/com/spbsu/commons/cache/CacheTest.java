@@ -192,6 +192,7 @@ public class CacheTest extends TestCase {
     for (int i = 0; i < 1000000; i++) {
       final int key = (int) (Math.random() * 10000);
       cache.get(key, new Computable<Integer, Integer>() {
+        @Override
         public Integer compute(final Integer argument) {
           missCount.setValue(missCount.getValue() + 1);
           return 1;
@@ -215,6 +216,7 @@ public class CacheTest extends TestCase {
       final int key = (int) (r * r * 10000);
       maxKey = Math.max(maxKey, key);
       cache.get(key, new Computable<Integer, Integer>() {
+        @Override
         public Integer compute(final Integer argument) {
           missCount.setValue(missCount.getValue() + 1);
           return 1;

@@ -10,7 +10,9 @@ import org.jetbrains.annotations.NotNull;
 public abstract class CharSeq implements Seq<Character>, CharSequence {
   public static final CharSeq EMPTY = new CharSeqArray(new char[]{}, 0, 0);
 
+  @Override
   public abstract char charAt(int offset);
+  @Override
   public abstract CharSeq sub(final int start, final int end);
 
   @Override
@@ -18,6 +20,7 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
     return true;
   }
 
+  @Override
   public final CharSeq subSequence(final int start, final int end) {
     return sub(start, end);
   }

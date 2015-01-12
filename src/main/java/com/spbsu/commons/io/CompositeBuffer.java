@@ -51,23 +51,28 @@ public class CompositeBuffer implements Buffer {
     localPos = 0;
   }
 
+  @Override
   public int capacity() {
     return capacity;
   }
 
+  @Override
   public int remaining() {
     return limit - position;
   }
 
+  @Override
   public int limit() {
     return limit;
   }
 
+  @Override
   public Buffer limit(final int pos) {
     limit = pos;
     return this;
   }
 
+  @Override
   public Buffer position(int pos) {
     final int newLocalPosition = localPos - position - pos;
     position = pos;
@@ -93,6 +98,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
+  @Override
   public int position() {
     return position;
   }
@@ -101,6 +107,7 @@ public class CompositeBuffer implements Buffer {
     return new CompositeBuffer(buffers);
   }
 
+  @Override
   public Buffer putByte(final byte b) {
     if (active.remaining() < localPos + 1) {
       if (activeNo >= buffers.length)
@@ -114,6 +121,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
+  @Override
   public Buffer putByte(final int pos, final byte b) {
     final int oldPosition = position;
     try {
@@ -126,6 +134,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public Buffer putChar(final char c) {
     if (active.remaining() < localPos + 2)
       return putByte((byte)((c >> 8) & 0xFF)).putByte((byte)(c & 0xFF));
@@ -135,6 +144,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
+  @Override
   public Buffer putChar(final int pos, final char c) {
     final int oldPosition = position;
     try {
@@ -147,6 +157,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public Buffer putShort(final short i) {
     if (active.remaining() < localPos + 2)
       return putByte((byte)((i >> 8) & 0xFF)).putByte((byte)(i & 0xFF));
@@ -156,6 +167,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
+  @Override
   public Buffer putShort(final int pos, final short i) {
     final int oldPosition = position;
     try {
@@ -168,6 +180,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public Buffer putInt(final int i) {
     if (active.remaining() < localPos + 4)
       return putByte((byte)((i >> 24) & 0xFF))
@@ -180,6 +193,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
+  @Override
   public Buffer putInt(final int pos, final int i) {
     final int oldPosition = position;
     try {
@@ -192,6 +206,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public Buffer putLong(final long l) {
     if (active.remaining() < localPos + 8)
       return putByte((byte)((l >> 56) & 0xFF))
@@ -208,6 +223,7 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
+  @Override
   public Buffer putLong(final int pos, final long l) {
     final int oldPosition = position;
     try {
@@ -220,22 +236,27 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public Buffer putFloat(final float f) {
     return putInt(Float.floatToIntBits(f));
   }
 
+  @Override
   public Buffer putFloat(final int pos, final float f) {
     return putInt(pos, Float.floatToIntBits(f));
   }
 
+  @Override
   public Buffer putDouble(final double d) {
     return putLong(Double.doubleToLongBits(d));
   }
 
+  @Override
   public Buffer putDouble(final int pos, final double d) {
     return putLong(pos, Double.doubleToLongBits(d));
   }
 
+  @Override
   public byte getByte() {
     if (active.remaining() < localPos + 1) {
       if (activeNo >= buffers.length)
@@ -248,6 +269,7 @@ public class CompositeBuffer implements Buffer {
     return active.getByte(active.position() + localPos++);
   }
 
+  @Override
   public byte getByte(final int pos) {
     final int oldPosition = position;
     try {
@@ -259,6 +281,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public char getChar() {
     if (active.remaining() < localPos + 2)
       return (char)((((char)getByte() & 0xFF) << 8) | ((char)getByte()) & 0xFF);
@@ -266,6 +289,7 @@ public class CompositeBuffer implements Buffer {
     return active.getChar(active.position() + (localPos += 2) - 2);
   }
 
+  @Override
   public char getChar(final int pos) {
     final int oldPosition = position;
     try {
@@ -277,6 +301,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public short getShort() {
     if (active.remaining() < localPos + 2)
       return (short)((((short)getByte() & 0xFF) << 8) | ((short)getByte()) & 0xFF);
@@ -284,6 +309,7 @@ public class CompositeBuffer implements Buffer {
     return active.getShort((localPos += 2) - 2 + active.position());
   }
 
+  @Override
   public short getShort(final int pos) {
     final int oldPosition = position;
     try {
@@ -295,6 +321,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public int getInt() {
     if (active.remaining() < localPos + 4)
       return (((int)getByte() & 0xFF) << 24) |
@@ -305,6 +332,7 @@ public class CompositeBuffer implements Buffer {
     return active.getInt((localPos += 4) - 4 + active.position());
   }
 
+  @Override
   public int getInt(final int pos) {
     final int oldPosition = position;
     try {
@@ -316,6 +344,7 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public long getLong() {
     if (active.remaining() < localPos + 8)
       return ((long)getByte() << 56) +
@@ -330,6 +359,7 @@ public class CompositeBuffer implements Buffer {
     return active.getLong((localPos += 8) - 8 + active.position());
   }
 
+  @Override
   public long getLong(final int pos) {
     final int oldPosition = position;
     try {
@@ -341,26 +371,32 @@ public class CompositeBuffer implements Buffer {
     }
   }
 
+  @Override
   public float getFloat() {
     return Float.intBitsToFloat(getInt());
   }
 
+  @Override
   public float getFloat(final int pos) {
     return Float.intBitsToFloat(getInt(pos));
   }
 
+  @Override
   public double getDouble() {
     return Double.longBitsToDouble(getLong());
   }
 
+  @Override
   public double getDouble(final int pos) {
     return Double.longBitsToDouble(getLong(pos));
   }
 
+  @Override
   public Buffer put(final byte[] array) {
     return put(array, 0, array.length);
   }
 
+  @Override
   public Buffer put(final byte[] array, final int off, final int len) {
     if (len > remaining())
       throw new BufferUnderflowException();
@@ -384,10 +420,12 @@ public class CompositeBuffer implements Buffer {
     return this;
   }
 
+  @Override
   public int get(final byte[] array) {
     return get(array, 0, array.length);
   }
 
+  @Override
   public int get(final byte[] array, final int off, final int len) {
     int index = 0;
     while (len > index) {

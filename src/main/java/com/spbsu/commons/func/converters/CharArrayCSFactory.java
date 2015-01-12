@@ -9,6 +9,7 @@ import com.spbsu.commons.seq.CharSeqArray;
  * Time: 18:39:55
  */
 public class CharArrayCSFactory implements Computable<char[], CharSeqArray> {
+  @Override
   public CharSeqArray compute(final char[] argument) {
     return new CharSeqArray(argument, 0, argument.length);
   }
