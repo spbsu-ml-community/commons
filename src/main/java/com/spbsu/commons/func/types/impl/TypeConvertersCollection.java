@@ -1,6 +1,7 @@
 package com.spbsu.commons.func.types.impl;
 
 import com.spbsu.commons.filters.AndFilter;
+import com.spbsu.commons.filters.ClassFilter;
 import com.spbsu.commons.filters.Filter;
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.func.Factory;
@@ -41,7 +42,14 @@ public class TypeConvertersCollection implements ConversionRepository {
    */
 
   public TypeConvertersCollection(final ConversionRepository base, final Object... converters) {
-    this.base = base;
+    this.base = base != null ? base.customize(new Filter<TypeConverter>() {
+      @Override
+      public boolean accept(TypeConverter typeConverter) {
+        if (typeConverter instanceof ConversionDependant)
+          ((ConversionDependant) typeConverter).setConversionRepository(TypeConvertersCollection.this);
+        return true;
+      }
+    }) : null;
     this.customize = base instanceof TypeConvertersCollection ? ((TypeConvertersCollection)base).customize : null;
     for (final Object convId : converters) {
       try {
@@ -75,7 +83,14 @@ public class TypeConvertersCollection implements ConversionRepository {
   }
 
   private TypeConvertersCollection(final ConversionRepository base, final Map<Pair<Class, Class>, Factory<TypeConverter>> factories, final Filter<TypeConverter> filter){
-    this.base = base;
+    this.base = base != null ? base.customize(new Filter<TypeConverter>() {
+      @Override
+      public boolean accept(TypeConverter typeConverter) {
+        if (typeConverter instanceof ConversionDependant)
+          ((ConversionDependant) typeConverter).setConversionRepository(TypeConvertersCollection.this);
+        return true;
+      }
+    }) : null;
     this.factories = factories;
     this.customize = filter;
 
