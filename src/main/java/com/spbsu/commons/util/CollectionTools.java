@@ -71,7 +71,7 @@ public class CollectionTools {
   }
 
 
-  public static <T, U extends Collection<T>> U filter(final Collection<? extends T> col, final U accum, final Filter<T> filter) {
+  public static <T, U extends Collection<T>> U filter(final Collection<? extends T> col, final U accum, final Filter<? super T> filter) {
     for (final T el : col) {
       if (filter.accept(el)) {
         accum.add(el);
