@@ -1,9 +1,7 @@
 package com.spbsu.commons.math.vectors.impl.mx;
 
-import com.spbsu.commons.math.vectors.*;
-import com.spbsu.commons.math.vectors.impl.basis.MxBasisImpl;
-import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
-import com.spbsu.commons.math.vectors.impl.vectors.IndexTransVec;
+import com.spbsu.commons.math.vectors.Mx;
+import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.seq.ArraySeq;
 import com.spbsu.commons.seq.Seq;
 
@@ -29,7 +27,7 @@ public class ColsVecArrayMx extends Mx.Stub {
 
   @Override
   public double get(final int i, final int j) {
-    return vec.at(i).get(j);
+    return vec.at(j).get(i);
   }
   @Override
   public Mx set(final int i, final int j, final double val) {
