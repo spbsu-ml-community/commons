@@ -27,7 +27,7 @@ import static java.lang.Math.sqrt;
  */
 @SuppressWarnings("UnusedDeclaration")
 public class VecTools {
-  private static final double EPSILON = 1e-5;
+  private static final double EPSILON = 1e-6;
 
   public static int hashCode(final Vec v) {
     int hashCode = 0;
@@ -60,7 +60,7 @@ public class VecTools {
     }
 
     for (int i = 0; i < left.dim(); i++) {
-      if (left.get(i) != right.get(i))
+      if (Math.abs(left.get(i) - right.get(i)) > EPSILON )
         return false;
     }
 
