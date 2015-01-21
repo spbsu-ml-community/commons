@@ -136,6 +136,8 @@ public class CharSeqComposite extends CharSeq {
   }
 
   private void copyToArray(final CharSequence fragment, int startInFragment, final char[] array, int startInArray, final int length) {
+    if (array.length < startInArray + length)
+      throw new ArrayIndexOutOfBoundsException(startInArray + length);
     if (fragment instanceof CharSeq) {
       ((CharSeq) fragment).copyToArray(startInFragment, array, startInArray, length);
     } else {
