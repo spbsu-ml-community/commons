@@ -113,13 +113,14 @@ public class CharSeqComposite extends CharSeq {
     }
     int fragmentLength = fragment(index - 1).length();
     int fragmentStart = fragmentEnd - fragmentLength;
+    final int copyStartInFragment = start - fragmentStart;
     if (end <= fragmentEnd) {
-      copyToArray(fragment(index - 1), start - fragmentStart, array, offset, end - fragmentStart);
+      copyToArray(fragment(index - 1), copyStartInFragment, array, offset, length);
       return;
     }
 
-    final int toCopy = fragmentLength - (start - fragmentStart);
-    copyToArray(fragment(index - 1), start - fragmentStart, array, offset, toCopy);
+    final int toCopy = fragmentLength - copyStartInFragment;
+    copyToArray(fragment(index - 1), copyStartInFragment, array, offset, toCopy);
     offset += toCopy;
     while (true) {
       final CharSequence fragment = fragment(index++);
