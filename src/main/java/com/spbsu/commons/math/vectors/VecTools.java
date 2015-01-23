@@ -719,6 +719,14 @@ public class VecTools {
     return new IntSeq(ints);
   }
 
+  public static Vec fromIntSeq(final IntSeq seq) {
+    final Vec result = new ArrayVec(seq.length());
+    for (int i = 0; i < seq.length(); i++) {
+      result.set(i, seq.intAt(i));
+    }
+    return result;
+  }
+
   //it's assuming that idxs is sorted
   public static SparseVec cutSparseVec(final SparseVec sourceVec, final int[] idxs) {
     final TIntList sourceIdxs = sourceVec.indices;
