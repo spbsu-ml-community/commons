@@ -85,7 +85,7 @@ public abstract class ArrayTools {
   public static void parallelSort(final double[] a, final int[] linked) {
     if(a.length != linked.length)
       throw new IllegalArgumentException("arrays sizes are not equal");
-    parallelSort(a, linked, 0, a.length);
+    parallelSort(a, linked, 0, a.length - 1);
   }
 
   public static void parallelSort(final long[] a, final int[] linked) {
