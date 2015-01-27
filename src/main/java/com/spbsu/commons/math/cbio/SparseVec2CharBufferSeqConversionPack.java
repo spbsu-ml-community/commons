@@ -7,8 +7,6 @@ import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.seq.CharBufferSeq;
 import com.spbsu.commons.seq.CharSeqTools;
 
-import java.util.StringTokenizer;
-
 /**
  * Created by vkokarev on 07.10.14.
  */
@@ -24,24 +22,23 @@ public class SparseVec2CharBufferSeqConversionPack  implements ConversionPack<Sp
   public static class CharBufferSeq2SparseVecConverter implements TypeConverter<CharBufferSeq, SparseVec> {
     @Override
     public SparseVec convert(final CharBufferSeq from) {
-      final StringTokenizer tokenizer = new StringTokenizer(from.toString(), " ");
-
-      String token = tokenizer.nextToken();
-      int pos = token.indexOf(':');
-      String index = token.substring(0, pos);
-      String value = token.substring(pos + 1);
-
-      final int dim = Integer.parseInt(index);
-      final int nzCount = Integer.parseInt(value);
+      final CharBufferSeq.Tokenizer tokenizer = from.getTokenizer(" ");
+      final int dim;
+      final int nzCount;
+      final CharSequence[] split = new CharSequence[2];
+      {
+        CharSeqTools.split(tokenizer.nextToken(), ':', split);
+        dim = CharSeqTools.parseInt(split[0]);
+        nzCount = CharSeqTools.parseInt(split[1]);
+      }
       final int[] indices = new int[nzCount];
       final double[] values = new double[nzCount];
-      for (int i = 0; tokenizer.hasMoreTokens(); i++) {
-        token = tokenizer.nextToken();
-        pos = token.indexOf(':');
-        index = token.substring(0, pos);
-        value = token.substring(pos + 1);
-        indices[i] = Integer.parseInt(index);
-        values[i] = Double.parseDouble(value);
+      int i = 0;
+      while (tokenizer.hasMoreElements()) {
+        CharSeqTools.split(tokenizer.nextToken(), ':', split);
+        indices[i] = CharSeqTools.parseInt(split[0]);
+        values[i] = CharSeqTools.parseDouble(split[1]);
+        ++i;
       }
       return new SparseVec(dim, indices, values);
     }

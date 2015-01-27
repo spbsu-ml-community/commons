@@ -18,7 +18,6 @@ import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.trash.FloatingDecimal;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
-import sun.misc.BASE64Decoder;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -379,6 +378,7 @@ public class CharSeqTools {
         }
       }
   }
+
   public static void processAndSplitLines(@NotNull final Reader in, @NotNull final Processor<CharSequence[]> seqProcessor, @Nullable final String delimeters, final boolean trim) throws IOException {
     final char[] buffer = new char[4096*4];
     final List<CharSequence> parts = new ArrayList<>();

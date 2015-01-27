@@ -10,7 +10,6 @@ import com.spbsu.commons.seq.CharSeqBuilder;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.StringTokenizer;
 
 /**
  * Created by vkokarev on 06.10.14.
@@ -36,12 +35,11 @@ public class Vec2CharBuffSeqConversionPack implements ConversionPack<Vec,CharBuf
   public static class CharBuffSeq2VecConverter implements TypeConverter<CharBufferSeq, Vec> {
     @Override
     public Vec convert(final CharBufferSeq from) {
-      final StringTokenizer tokenizer = new StringTokenizer(from.toString(), " ");
-      final int size = Integer.parseInt(tokenizer.nextToken());
-      final Vec result = new ArrayVec(size);
-      for (int i = 0; tokenizer.hasMoreTokens(); i++) {
-        final String token = tokenizer.nextToken();
-        result.set(i, Double.parseDouble(token));
+      final CharBufferSeq.Tokenizer tokenizer = from.getTokenizer(" ");
+      final Vec result = new ArrayVec(Integer.parseInt(tokenizer.nextToken().toString()));
+      int i = 0;
+      while (tokenizer.hasMoreElements()) {
+        result.set(i++, Double.parseDouble(tokenizer.nextToken().toString()));
       }
       return result;
     }
