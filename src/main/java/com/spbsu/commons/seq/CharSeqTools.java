@@ -1,6 +1,7 @@
 package com.spbsu.commons.seq;
 
 
+import com.spbsu.commons.func.Action;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -431,6 +432,15 @@ public class CharSeqTools {
       @Override
       public void process(final CharSequence[] arg) {
         seqProcessor.process(arg[0]);
+      }
+    }, null, false);
+  }
+
+  public static void processLines(final Reader input, final Action<CharSequence> seqProcessor) throws IOException {
+    processAndSplitLines(input, new Processor<CharSequence[]>() {
+      @Override
+      public void process(final CharSequence[] arg) {
+        seqProcessor.invoke(arg[0]);
       }
     }, null, false);
   }
