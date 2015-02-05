@@ -769,4 +769,14 @@ public class CharSeqTools {
   public static CharSequence toBase64(final byte[] bytes) {
     return DatatypeConverter.printBase64Binary(bytes);
   }
+
+  public static int count(CharSequence sequence, int off, int len, char ch) {
+    if (len > sequence.length())
+      throw new ArrayIndexOutOfBoundsException();
+    int result = 0;
+    while (off < len) {
+      result += (sequence.charAt(off) == ch ? 1 : 0);
+    }
+    return result;
+  }
 }
