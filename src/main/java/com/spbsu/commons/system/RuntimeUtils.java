@@ -82,7 +82,6 @@ public class RuntimeUtils {
     }
   }
 
-  @Deprecated
   public static String[] packageResourcesList(String path) throws URISyntaxException, IOException {
     path = path.replace('.', '/') + "/";
     final ClassLoader loader = RuntimeUtils.class.getClassLoader();

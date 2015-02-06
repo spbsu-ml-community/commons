@@ -1,7 +1,6 @@
 package com.spbsu.commons.func.types.impl;
 
 import com.spbsu.commons.filters.AndFilter;
-import com.spbsu.commons.filters.ClassFilter;
 import com.spbsu.commons.filters.Filter;
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.func.Factory;
@@ -25,13 +24,14 @@ import java.util.Set;
  * Date: 24.06.13
  * Time: 12:15
  */
+@SuppressWarnings("unchecked")
 public class TypeConvertersCollection implements ConversionRepository {
   private static final Log LOG = LogFactory.getLog(TypeConvertersCollection.class);
   private final ConversionRepository base;
   private final Filter<TypeConverter> customize;
-  private Map<Pair<Class, Class>, Factory<TypeConverter>> factories = new HashMap<Pair<Class, Class>, Factory<TypeConverter>>();
-  private final Map<Pair<Class, Class>, TypeConverter> instances = new HashMap<Pair<Class, Class>, TypeConverter>();
-  private final Map<Pair<Class, Class>, TypeConverter> cache = new HashMap<Pair<Class, Class>, TypeConverter>();
+  private Map<Pair<Class, Class>, Factory<TypeConverter>> factories = new HashMap<>();
+  private final Map<Pair<Class, Class>, TypeConverter> instances = new HashMap<>();
+  private final Map<Pair<Class, Class>, TypeConverter> cache = new HashMap<>();
 
   public TypeConvertersCollection(final Object... converters) {
     this(null, converters);
@@ -56,7 +56,7 @@ public class TypeConvertersCollection implements ConversionRepository {
         if (convId instanceof String) {
           final String pack = (String) convId;
           final String[] resources = RuntimeUtils.packageResourcesList(pack);
-          final Set<Class> registered = new HashSet<Class>();
+          final Set<Class> registered = new HashSet<>();
           for (final String resource : resources) {
             if (resource.endsWith(".class")) {
               final Class<?> converterClass = Class.forName(resource.substring(0, resource.length() - ".class".length()).replace('/', '.'));
@@ -126,9 +126,9 @@ public class TypeConvertersCollection implements ConversionRepository {
     final Pair<Class, Class> key = Pair.create((Class)from, (Class)to);
     TypeConverter<U, V> converter = (TypeConverter<U, V>)cache.get(key);
     if (converter == null) { // trying to fall back by inheritance
-      Pair<Class<?>, Class<?>> bestMatch = null;
+      Pair<Class, Class> bestMatch = null;
       for (final Pair p : instances.keySet()) {
-        final Pair<Class<?>, Class<?>> candidate = (Pair<Class<?>, Class<?>>)p;
+        final Pair<Class, Class> candidate = (Pair<Class, Class>)p;
         if (candidate.first.isAssignableFrom(key.first) && key.second.isAssignableFrom(candidate.second)) { // match!
           if (bestMatch == null
               || (bestMatch.first.isAssignableFrom(candidate.first)
@@ -176,6 +176,7 @@ public class TypeConvertersCollection implements ConversionRepository {
       return false;
     if (TypeConverter.class.isAssignableFrom(converterClass)) {
       final Class[] params = RuntimeUtils.findTypeParameters(converterClass, TypeConverter.class);
+      //noinspection SimplifiableIfStatement
       if (params.length != 2 || params[0] == null || params[1] == null)
         return false;
       return registerInner(Pair.create(params[0], params[1]), new Factory<TypeConverter>() {
@@ -194,46 +195,11 @@ public class TypeConvertersCollection implements ConversionRepository {
     }
     if (Converter.class.isAssignableFrom(converterClass)) {
       final Class[] params = RuntimeUtils.findTypeParameters(converterClass, Converter.class);
+      //noinspection SimplifiableIfStatement
       if (params.length != 2 || params[0] == null || params[1] == null)
         return false;
-      return registerInner(Pair.create(params[0], params[1]), new Factory<TypeConverter>() {
-               @Override
-               public TypeConverter create() {
-                 try {
-                   final Converter converter = (Converter) converterClass.newInstance();
-                   return new TypeConverter() {
-                     @Override
-                     public Object convert(final Object from) {
-                       return converter.convertTo(from);
-                     }
-                   };
-                 } catch (InstantiationException e) {
-                   LOG.warn("Unable to create converter ", e);
-                   return null;
-                 } catch (IllegalAccessException e) {
-                   throw new RuntimeException("Should never happen!", e);
-                 }
-               }
-             }) &&
-             registerInner(Pair.create(params[1], params[0]), new Factory<TypeConverter>() {
-               @Override
-               public TypeConverter create() {
-                 try {
-                   final Converter converter = (Converter) converterClass.newInstance();
-                   return new TypeConverter() {
-                     @Override
-                     public Object convert(final Object from) {
-                       return converter.convertFrom(from);
-                     }
-                   };
-                 } catch (InstantiationException e) {
-                   LOG.warn("Unable to create converter ", e);
-                   return null;
-                 } catch (IllegalAccessException e) {
-                   throw new RuntimeException("Should never happen!", e);
-                 }
-               }
-             });
+      return registerInner(Pair.create(params[0], params[1]), new MyTypeConverterFactory(converterClass, false)) &&
+             registerInner(Pair.create(params[1], params[0]), new MyTypeConverterFactory(converterClass, true));
     }
     if (ConversionPack.class.isAssignableFrom(converterClass)) {
       try {
@@ -257,6 +223,57 @@ public class TypeConvertersCollection implements ConversionRepository {
     else {
       factories.put(key, converter);
       return true;
+    }
+  }
+
+  private static class MyTypeConverterFactory implements Factory<TypeConverter> {
+    private static class MyTypeConverter<From,To> implements TypeConverter<From,To>, ConversionDependant {
+      private final Converter converter;
+      private boolean from;
+
+      public MyTypeConverter(Converter converter, boolean from) {
+        this.converter = converter;
+        this.from = from;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public To convert(final From from) {
+        if (this.from)
+          return (To)converter.convertFrom(from);
+        return (To)converter.convertTo(from);
+      }
+
+      @Override
+      public void setConversionRepository(ConversionRepository repository) {
+        if (converter instanceof ConversionDependant)
+          ((ConversionDependant) converter).setConversionRepository(repository);
+      }
+
+      @Override
+      public String toString() {
+        return converter.toString() + " " + (from ? "from" : "to");
+      }
+    }
+    private final Class<?> converterClass;
+    private final boolean from;
+
+    public MyTypeConverterFactory(Class<?> converterClass, boolean from) {
+      this.converterClass = converterClass;
+      this.from = from;
+    }
+
+    @Override
+    public TypeConverter create() {
+      try {
+        final Converter converter = (Converter) converterClass.newInstance();
+        return new MyTypeConverter(converter, from);
+      } catch (InstantiationException e) {
+        LOG.warn("Unable to create converter ", e);
+        return null;
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException("Should never happen!", e);
+      }
     }
   }
 }
