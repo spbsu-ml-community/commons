@@ -3,7 +3,6 @@ package com.spbsu.commons.func.converters;
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.func.types.ConversionDependant;
 import com.spbsu.commons.func.types.ConversionRepository;
-import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.util.Pair;
 
 import java.util.ArrayList;
@@ -25,10 +24,10 @@ public class Map2CharSequenceConverter implements Converter<Map, CharSequence>, 
   @SuppressWarnings("unchecked")
   @Override
   public Map convertFrom(final CharSequence source) {
-    Map result = new HashMap();
+    final Map result = new HashMap();
     final List<Pair> convert = repository.convert(source, List.class);
     for (int i = 0; i < convert.size(); i++) {
-      Pair pair = convert.get(i);
+      final Pair pair = convert.get(i);
       result.put(pair.first, pair.second);
     }
     return result;
@@ -36,10 +35,10 @@ public class Map2CharSequenceConverter implements Converter<Map, CharSequence>, 
 
   @Override
   public CharSequence convertTo(final Map data) {
-    List<Pair> temp = new ArrayList<>(data.size());
+    final List<Pair> temp = new ArrayList<>(data.size());
 
     for (Object o : data.entrySet()) {
-      Map.Entry entry = (Map.Entry)o;
+      final Map.Entry entry = (Map.Entry)o;
       temp.add(Pair.create(entry.getKey(), entry.getValue()));
     }
     return repository.convert(temp, CharSequence.class);
