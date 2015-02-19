@@ -49,12 +49,18 @@ public class RuntimeUtils {
     final Class[] infered = new Class[parameters.length];
     for (int i = 0; i < infered.length; i++) {
       Type current = parameters[i];
-
+      int arraysCount = 0;
       while(current instanceof TypeVariable) {
         current = mapping.get(current);
+        while (current instanceof GenericArrayType) {
+          arraysCount++;
+          current = ((GenericArrayType) current).getGenericComponentType();
+        }
       }
       if (current instanceof Class) {
         infered[i] = (Class) current;
+        while(arraysCount-- > 0)
+          infered[i] = Array.newInstance(infered[i], 0).getClass();
       }
     }
     return infered;
