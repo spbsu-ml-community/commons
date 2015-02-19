@@ -51,10 +51,10 @@ public class ArrayConverters  {
         final Class componentClass = Class.forName(split[0].toString());
         @SuppressWarnings("unchecked")
         final T[] result = (T[])Array.newInstance(componentClass, CharSeqTools.parseInt(split[1]));
-        split[3] = split[3].subSequence(1, split[3].length()); // remove opening [
+        split[2] = split[2].subSequence(1, split[2].length()); // remove opening [
         split[split.length - 1] = split[split.length - 1].subSequence(0, split[split.length - 1].length() - 1); // remove closing ]
         for (int i = 0; i < result.length; i++) {
-          CharSequence elementFrom = split[i + 3];
+          CharSequence elementFrom = split[i + 2];
           elementFrom = CharSeqTools.replace(elementFrom, "\\ ", " ");
           elementFrom = CharSeqTools.replace(elementFrom, "\\\\", "\\");
           //noinspection unchecked
