@@ -1,16 +1,15 @@
 package com.spbsu.commons.math.io;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
-
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.VecSeq;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 
 /**
@@ -46,8 +45,9 @@ public class VecSeq2CharSequenceConversionPack implements ConversionPack<VecSeq,
       }
 
       sb.append(isSimilar)
-          .append(false)
-          .append(VEC_DELIMETER);
+              .append(VEC_DELIMETER)
+              .append(false)
+              .append(VEC_DELIMETER);
       if (isSimilar) {
         sb.append(tag.getName())
             .append(VEC_DELIMETER)
