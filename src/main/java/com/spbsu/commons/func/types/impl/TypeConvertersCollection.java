@@ -4,6 +4,7 @@ import com.spbsu.commons.filters.AndFilter;
 import com.spbsu.commons.filters.Filter;
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.func.Factory;
+import com.spbsu.commons.func.converters.ArrayConverters;
 import com.spbsu.commons.func.types.ConversionDependant;
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.ConversionRepository;
@@ -13,6 +14,7 @@ import com.spbsu.commons.util.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -140,8 +142,15 @@ public class TypeConvertersCollection implements ConversionRepository {
         converter = (TypeConverter<U, V>)instances.get(bestMatch);
       else if (base != null)
         converter = base.converter(from, to);
-      if (converter == null)
+      if (converter == null) {
+        if (from.isArray() && from.getComponentType() != Object.class) {
+          return (TypeConverter<U, V>)converter(Object[].class, to);
+        }
+        else if (to.isArray() && to.getComponentType() != Object.class) {
+          return (TypeConverter<U, V>)converter(from, Object[].class);
+        }
         throw new RuntimeException("Unable to find proper converter from " + from + " to " + to);
+      }
     }
     cache.put(key, converter);
     return converter;

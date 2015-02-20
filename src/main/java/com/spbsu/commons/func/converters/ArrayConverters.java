@@ -2,6 +2,7 @@ package com.spbsu.commons.func.converters;
 
 
 import com.spbsu.commons.func.types.ConversionDependant;
+import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.ConversionRepository;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.seq.CharSeqTools;
@@ -14,7 +15,19 @@ import java.lang.reflect.Array;
  * Time: 17:10
  */
 @SuppressWarnings("UnusedDeclaration")
-public class ArrayConverters  {
+public class ArrayConverters implements ConversionPack<Object[], CharSequence> {
+  public static class ToObject extends To<Object> {}
+  public static class FromObject extends From<Object> {}
+  @Override
+  public Class<? extends TypeConverter<Object[], CharSequence>> to() {
+    return ToObject.class;
+  }
+
+  @Override
+  public Class<? extends TypeConverter<CharSequence, Object[]>> from() {
+    return FromObject.class;
+  }
+
   public static class To<T> implements TypeConverter<T[], CharSequence>, ConversionDependant {
     private ConversionRepository repository;
 
