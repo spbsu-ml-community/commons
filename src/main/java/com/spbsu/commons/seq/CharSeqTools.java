@@ -776,6 +776,7 @@ public class CharSeqTools {
     int result = 0;
     while (off < len) {
       result += (sequence.charAt(off) == ch ? 1 : 0);
+      off++;
     }
     return result;
   }
