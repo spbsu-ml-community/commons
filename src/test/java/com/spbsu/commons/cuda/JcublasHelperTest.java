@@ -5,7 +5,15 @@ import com.spbsu.commons.cuda.data.impl.FArrayMatrix;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * jmll
@@ -14,5 +22,9 @@ import java.util.Arrays;
  */
 public class JcublasHelperTest extends Assert {
 
+  @Test
+  public void testName() throws Exception {
+
+  }
 
 }

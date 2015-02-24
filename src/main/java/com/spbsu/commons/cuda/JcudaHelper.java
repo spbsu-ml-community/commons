@@ -10,9 +10,11 @@ import jcuda.Sizeof;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 import static jcuda.driver.JCudaDriver.*;
@@ -128,25 +130,33 @@ public class JcudaHelper {  //todo(ksen): ~85ms latency on custom kernel call
   private static File extractCuFiles(final ClassLoader classLoader, final File tempDirectory)
       throws URISyntaxException, IOException
   {
-    final URL cuFilesPath = classLoader.getResource(JcudaConstants.CU_CLASS_PATH);
-    final File cuFilesDirectory = new File(cuFilesPath.toURI());
-    final File[] cuFiles = cuFilesDirectory.listFiles();
-    if (cuFiles == null) {
-      LOG.error("Can't find directory with a *.cu " + JcudaConstants.CU_CLASS_PATH);
-      throw new RuntimeException();
-    }
     final File localCuDirectory = new File(tempDirectory, JcudaConstants.CU_CLASS_PATH);
     if (!localCuDirectory.mkdirs()) {
       LOG.error("Can't create local directory for a *.cu " + localCuDirectory.getAbsolutePath());
       throw new RuntimeException();
     }
-    for (final File cuFile : cuFiles) {
-      try (
-          final InputStream input = new FileInputStream(cuFile);
-          final OutputStream output = new FileOutputStream(new File(localCuDirectory, cuFile.getName()))
-      ) {
-        StreamTools.transferData(input, output);
-      }
+    final URL resource = classLoader.getResource(JcudaConstants.CU_CLASS_PATH.substring(1));
+    if (resource == null) {
+      LOG.error("Can't find *.cu directory.");
+      throw new RuntimeException();
+    }
+    final URI cuFilesUri = resource.toURI();
+    final Map<String, String> environment = new HashMap<>();
+    environment.put("create", "true");
+
+    try (final FileSystem jarFileSystem = FileSystems.newFileSystem(cuFilesUri, environment)) {
+      final Path path = jarFileSystem.getPath(JcudaConstants.CU_CLASS_PATH);
+      Files.walkFileTree(path, new SimpleFileVisitor<Path>(){
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          Files.copy(
+              file,
+              new File(localCuDirectory, file.getFileName().toString()).toPath(),
+              StandardCopyOption.REPLACE_EXISTING
+          );
+          return FileVisitResult.CONTINUE;
+        }
+      });
     }
     return localCuDirectory;
   }

@@ -19,7 +19,7 @@ public class JcudaConstants {
 
   public static final String JCUDA_TMP_DIRECTORY_NAME = "jcuda_working_directory";
 
-  public static final String JCUDA_CLASS_PATH = "com/spbsu/commons/cuda/";
+  public static final String JCUDA_CLASS_PATH = "/com/spbsu/commons/cuda/";
   public static final String CU_CLASS_PATH = JCUDA_CLASS_PATH + "cu/";
   public static final String PTX_CLASS_PATH = JCUDA_CLASS_PATH + "ptx/";
 
