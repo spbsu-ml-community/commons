@@ -159,7 +159,13 @@ public class TypeConvertersCollection implements ConversionRepository {
   @Override
   public <F, T> Class<? super F> conversionType(final Class<F> fromC, final Class<T> toC) {
     final TypeConverter<F, T> converter = converter(fromC, toC);
-    final Class[] parameters = RuntimeUtils.findTypeParameters(converter.getClass(), TypeConverter.class);
+    final Class[] parameters;
+    if (converter instanceof MyTypeConverterFactory.MyTypeConverter) {
+      final Converter realConverter = ((MyTypeConverterFactory.MyTypeConverter) converter).converter;
+      parameters = RuntimeUtils.findTypeParameters(realConverter.getClass(), Converter.class);
+    }
+    else
+      parameters = RuntimeUtils.findTypeParameters(converter.getClass(), TypeConverter.class);
     return ((Class<? super F>)(parameters[0] != null ? parameters[0] : fromC));
   }
 
