@@ -254,6 +254,14 @@ constructor_next:
     return System.getProperty("java.class.path");
   }
 
+  public static String getArchDataModel() {
+    return System.getProperty("sun.arch.data.model");
+  }
+
+  public static String getSysTmpDir() {
+    return System.getProperty("java.io.tmpdir");
+  }
+
   private RuntimeUtils() {}
 
   public static CharSequence bashEscape(CharSequence command) {

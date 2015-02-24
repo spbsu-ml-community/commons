@@ -63,6 +63,31 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>org.nd4j</groupId>
+        <artifactId>jcuda</artifactId>
+        <version>6.5</version>
+    </dependency>
+    <dependency>
+        <groupId>org.nd4j</groupId>
+        <artifactId>jcublas2</artifactId>
+        <version>6.5</version>
+    </dependency>
+    <dependency>
+        <groupId>org.nd4j</groupId>
+        <artifactId>jcurand</artifactId>
+        <version>6.5</version>
+    </dependency>
+    <dependency>
+        <groupId>org.nd4j</groupId>
+        <artifactId>jcufft</artifactId>
+        <version>6.5</version>
+    </dependency>
+    <dependency>
+        <groupId>org.nd4j</groupId>
+        <artifactId>jcusparse</artifactId>
+        <version>6.5</version>
+    </dependency>
   </dependencies>
 
   <build>
