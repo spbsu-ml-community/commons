@@ -193,46 +193,73 @@ public class VecTools {
     }
   }
 
-  public static double distance(Vec left, Vec right) {
-    if (left instanceof VecBasedMx)
-      left = ((VecBasedMx)left).vec;
-    if (right instanceof VecBasedMx)
-      right = ((VecBasedMx)right).vec;
-
+  public static double distanceL1(final Vec left, final Vec right) {
     checkBasisesEquals(left, right);
+
+    final VecIterator lIter = left.nonZeroes();
+    final VecIterator rIter = right.nonZeroes();
+    lIter.advance();
+    rIter.advance();
+
+    double result = 0.0;
+
+    while (lIter.isValid() || rIter.isValid()) {
+      if (lIter.index() == rIter.index()) {
+        result += Math.abs(lIter.value() - rIter.value());
+        lIter.advance();
+        rIter.advance();
+      }
+      else if (lIter.index() < rIter.index()) {
+        result += Math.abs(lIter.value());
+        lIter.advance();
+      }
+      else if (lIter.index() > rIter.index()) {
+        result += Math.abs(rIter.value());
+        rIter.advance();
+      }
+    }
+
+    return result;
+  }
+
+  public static double distance(Vec left, Vec right) {
+    checkBasisesEquals(left, right);
+    if (left instanceof VecBasedMx) {
+      left = ((VecBasedMx)left).vec;
+    }
+    if (right instanceof VecBasedMx) {
+      right = ((VecBasedMx)right).vec;
+    }
     if (left instanceof ArrayVec && right instanceof ArrayVec) {
       final ArrayVec larray = (ArrayVec) left;
       final ArrayVec rarray = (ArrayVec) right;
       return sqrt(larray.l2(rarray));
     }
-    final VecIterator liter = left.nonZeroes();
-    final VecIterator riter = right.nonZeroes();
-    double result = 0;
-    final boolean lStart = liter.advance();
-    final boolean rStart = riter.advance();
-    if (!lStart && !rStart)
-      return 0;
-    int lindex = lStart ? liter.index() : Integer.MAX_VALUE, rindex = rStart ? riter.index() : Integer.MAX_VALUE;
-    while (liter.isValid() && riter.isValid()) {
-      if (rindex == lindex && liter.isValid() && riter.isValid()) {
-        result += (liter.value() - riter.value()) * (liter.value() - riter.value());
-        if (liter.advance())
-          lindex = liter.index();
-        if (riter.advance())
-          rindex = riter.index();
+
+    final VecIterator lIter = left.nonZeroes();
+    final VecIterator rIter = right.nonZeroes();
+    lIter.advance();
+    rIter.advance();
+
+    double result = 0.0;
+
+    while (lIter.isValid() || rIter.isValid()) {
+      if (lIter.index() == rIter.index()) {
+        result += (lIter.value() - rIter.value()) * (lIter.value() - rIter.value());
+        lIter.advance();
+        rIter.advance();
       }
-      else if (lindex > rindex && riter.isValid()) {
-        result += riter.value() * riter.value();
-        if(riter.advance())
-          rindex = riter.index();
+      else if (lIter.index() < rIter.index()) {
+        result += lIter.value() * lIter.value();
+        lIter.advance();
       }
-      else if (liter.isValid()) {
-        result += liter.value() * liter.value();
-        if(liter.advance())
-          lindex = liter.index();
+      else if (lIter.index() > rIter.index()) {
+        result += rIter.value() * rIter.value();
+        rIter.advance();
       }
     }
-    return sqrt(result);
+
+    return Math.sqrt(result);
   }
 
   public static double distanceJS12(final Vec left, final Vec right) {
