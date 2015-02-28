@@ -188,19 +188,18 @@ public class CharSeqTools {
 
   public static CharSequence[] split(final CharSequence sequence, final CharSequence separator) {
     final List<CharSequence> result = new ArrayList<>(10);
-    int last = 0;
-    for (int i = 0; i < sequence.length(); i++) {
-      boolean accept = separator.length() <= sequence.length() - i;
-      for (int j = 0; j < separator.length() && accept; j++) { // need to change to something faster
-        if (sequence.charAt(i + j) != separator.charAt(j))
-          accept = false;
+    int prev = 0;
+    while (true) {
+      final int next = indexOf(sequence, prev, separator);
+      if (next >= 0) {
+        result.add(sequence.subSequence(prev, next));
+        prev = next + separator.length();
       }
-      if (accept) {
-        result.add(sequence.subSequence(last, i));
-        last = i + separator.length();
+      else {
+        result.add(sequence.subSequence(prev, sequence.length()));
+        break;
       }
     }
-    result.add(sequence.subSequence(last, sequence.length()));
     return result.toArray(new CharSequence[result.size()]);
   }
 
