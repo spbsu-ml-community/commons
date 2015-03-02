@@ -27,6 +27,7 @@ import javax.xml.bind.DatatypeConverter;
  * Date: 10.10.2009
  * Time: 23:26:28
  */
+@SuppressWarnings("UnusedDeclaration")
 public class CharSeqTools {
   public static final String EMPTY = "";
   public static final HashingStrategy<CharSequence> STRATEGY = new HashingStrategy<CharSequence>() {
@@ -144,6 +145,7 @@ public class CharSeqTools {
       throw new IllegalArgumentException();
     final Seq<X> first = texts[0];
     if (char.class.isAssignableFrom(first.elementType()) || Character.class.isAssignableFrom(first.elementType())) {
+      //noinspection unchecked
       return (Seq<X>)new CharSeqComposite((CharSequence[])ArrayTools.repack(texts, CharSequence.class));
     }
     int size = 0;
@@ -166,7 +168,7 @@ public class CharSeqTools {
   }
 
   public static CharSequence[] split(final CharSequence sequence, final char separator) {
-    final List<CharSequence> result = new ArrayList<CharSequence>(10);
+    final List<CharSequence> result = new ArrayList<>(10);
     int last = 0;
     final int length = sequence.length();
     for (int i = 0; i < length; i++) {
@@ -266,11 +268,7 @@ public class CharSeqTools {
   }
 
   public static boolean isImmutable(final CharSequence next) {
-    if(next instanceof String)
-      return true;
-    if (next instanceof CharSeq)
-      return ((CharSeq)next).isImmutable();
-    return false;
+    return next instanceof String || next instanceof CharSeq && ((CharSeq) next).isImmutable();
   }
 
   public static List<CharSequence> discloseComposites(final List<CharSequence> fragments) {
@@ -285,7 +283,7 @@ public class CharSeqTools {
       return fragments;
     }
 
-    final List<CharSequence> compacted = new ArrayList<CharSequence>(fragmentsCount);
+    final List<CharSequence> compacted = new ArrayList<>(fragmentsCount);
     for (final CharSequence fragment : fragments) {
       if (fragment instanceof CharSeqComposite) {
         final CharSeqComposite charSeqComposite = (CharSeqComposite) fragment;
@@ -379,7 +377,8 @@ public class CharSeqTools {
       }
   }
 
-  public static void processAndSplitLines(@NotNull final Reader in, @NotNull final Processor<CharSequence[]> seqProcessor, @Nullable final String delimeters, final boolean trim) throws IOException {
+  public static int processAndSplitLines(@NotNull final Reader in, @NotNull final Processor<CharSequence[]> seqProcessor, @Nullable final String delimeters, final boolean trim) throws IOException {
+    int count = 0;
     final char[] buffer = new char[4096*4];
     final List<CharSequence> parts = new ArrayList<>();
     CharSeqBuilder line = new CharSeqBuilder();
@@ -409,6 +408,7 @@ public class CharSeqTools {
           if (index < read) {
             line.append(buffer, offset, index);
             parts.add((trim ? trim(line) : line).toString());
+            count++;
             seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
             line.clear();
             parts.clear();
@@ -421,13 +421,15 @@ public class CharSeqTools {
       }
       if (line.length() > 0) {
         parts.add((trim ? trim(line) : line).toString());
+        count++;
         seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
       }
     }
+    return count;
   }
 
-  public static void processLines(final Reader input, final Processor<CharSequence> seqProcessor) throws IOException {
-    processAndSplitLines(input, new Processor<CharSequence[]>() {
+  public static int processLines(final Reader input, final Processor<CharSequence> seqProcessor) throws IOException {
+    return processAndSplitLines(input, new Processor<CharSequence[]>() {
       @Override
       public void process(final CharSequence[] arg) {
         seqProcessor.process(arg[0]);
@@ -435,8 +437,8 @@ public class CharSeqTools {
     }, null, false);
   }
 
-  public static void processLines(final Reader input, final Action<CharSequence> seqProcessor) throws IOException {
-    processAndSplitLines(input, new Processor<CharSequence[]>() {
+  public static int processLines(final Reader input, final Action<CharSequence> seqProcessor) throws IOException {
+    return processAndSplitLines(input, new Processor<CharSequence[]>() {
       @Override
       public void process(final CharSequence[] arg) {
         seqProcessor.invoke(arg[0]);
