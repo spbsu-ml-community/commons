@@ -115,6 +115,17 @@ public class MxTools {
     return inverse;
   }
 
+  public static Vec solveSystemLq(final Mx a, final Vec b) {
+    final int dim = a.rows();
+    if (a.columns() != dim)
+      throw new IllegalArgumentException("Matrix must be square for inverse!");
+
+    final Mx l = new VecBasedMx(dim, dim);
+    final Mx q = new VecBasedMx(dim, dim);
+    householderLQ(a, l, q);
+    return multiply(multiply(MxTools.transposeIt(q), inverseLTriangle(l)), b);
+  }
+
   public static Mx E(final int dim) {
     final Mx result = new VecBasedMx(dim, dim);
     for (int i = 0; i < dim; i++)
