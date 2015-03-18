@@ -10,9 +10,9 @@ import com.spbsu.commons.math.vectors.VecIterator;
  * Created by vkokarev on 10.12.14.
  */
 public class ConcatVec extends Vec.Stub {
-  private final Vec[] origin;
-  private final int[] offsets;
-  final int dim;
+  protected final Vec[] origin;
+  protected final int[] offsets;
+  protected int dim;
   public ConcatVec(final Vec ... origin) {
     this.origin = origin;
     this.offsets = new int[origin.length];
