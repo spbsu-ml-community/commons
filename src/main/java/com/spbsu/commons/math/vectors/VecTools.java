@@ -30,7 +30,7 @@ public class VecTools {
   private static final double EPSILON = 1e-6;
 
   public static int hashCode(final Vec v) {
-    int hashCode = 0;
+    int hashCode = v.dim();
     final VecIterator iter = v.nonZeroes();
     while (iter.advance()) {
       hashCode <<= 1;
