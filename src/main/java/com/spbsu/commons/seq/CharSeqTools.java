@@ -6,8 +6,6 @@ import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.trash.FloatingDecimal;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;

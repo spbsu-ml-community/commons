@@ -54,9 +54,10 @@ public class CharSeqComposite extends CharSeq {
 
   @Override
   public CharSeq sub(final int start, final int end) {
-    if (start == end) {
+    if (start == end)
       return EMPTY;
-    }
+    if (end - start < length() / fragments.length)
+      return new CharSeqAdapter(this, start, end);
     final List<CharSequence> subSequenceFragments = new ArrayList<CharSequence>();
     int i = 0;
     int fragmentEndOffset = 0;

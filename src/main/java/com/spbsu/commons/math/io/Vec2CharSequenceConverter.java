@@ -18,7 +18,7 @@ import com.spbsu.commons.seq.CharSeqTools;
 public class Vec2CharSequenceConverter implements Converter<Vec, CharSequence> {
   @Override
   public Vec convertFrom(final CharSequence source) {
-    final CharSequence[] parts = CharSeqTools.split(source, "\t");
+    final CharSequence[] parts = CharSeqTools.indexOf(source, "\t") >= 0 ? CharSeqTools.split(source, "\t") : CharSeqTools.split(source, " ");
     final Vec result;
     if (CharSeqTools.indexOf(source, ":") >= 0) {
       result = new SparseVec(CharSeqTools.parseInt(parts[0]));
