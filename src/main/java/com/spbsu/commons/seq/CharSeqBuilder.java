@@ -76,12 +76,14 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
   }
 
   public CharSeqBuilder append(final char[] text) {
-    add(copy(text));
+    if (text.length > 0)
+      add(copy(text));
     return this;
   }
 
   public CharSeqBuilder append(final char[] text, final int start, final int end) {
-    add(copy(text, start, end));
+    if (start != end)
+      add(copy(text, start, end));
     return this;
   }
 

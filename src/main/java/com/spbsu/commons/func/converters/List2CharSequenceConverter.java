@@ -49,7 +49,7 @@ public class List2CharSequenceConverter implements Converter<List, CharSequence>
       CharSequence convert = repository.convert(element, CharSequence.class);
       convert = CharSeqTools.replace(convert, "\\", "\\\\");
       convert = CharSeqTools.replace(convert, " ", "\\ ");
-      stringBuilder.append(element.getClass().getName()).append(" ").append(convert);
+      stringBuilder.append(repository.conversionType(element.getClass(), CharSequence.class).getName()).append(" ").append(convert);
     }
     return stringBuilder;
   }

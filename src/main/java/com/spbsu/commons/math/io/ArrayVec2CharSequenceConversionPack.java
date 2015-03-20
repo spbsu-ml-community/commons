@@ -31,7 +31,7 @@ public class ArrayVec2CharSequenceConversionPack implements ConversionPack<Array
       for (int i = 0; i < from.dim(); i++) {
         builder.append(" ").append(prettyPrint.format(from.get(i)));
       }
-      return builder;
+      return builder.build();
     }
   }
 
