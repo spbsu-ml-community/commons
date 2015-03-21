@@ -21,7 +21,7 @@ public class CharSeqAdapter extends CharSeq {
   }
 
   @Override
-  public char charAt(final int offset) {
+  public final char charAt(final int offset) {
     return delegate.charAt(start + offset);
   }
 

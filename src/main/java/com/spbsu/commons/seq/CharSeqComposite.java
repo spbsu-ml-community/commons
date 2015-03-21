@@ -10,6 +10,7 @@ public class CharSeqComposite extends CharSeq {
   protected CharSequence activeFragment = null;
 
   protected int activeFragmentRangeStart = -1;
+  protected int activeFragmentRangeEnd = -1;
 
   public CharSeqComposite(final CharSequence... fragments) {
     this.fragments = CharSeqTools.discloseComposites(Arrays.asList(fragments)).toArray(new CharSequence[fragments.length]);
@@ -34,20 +35,20 @@ public class CharSeqComposite extends CharSeq {
 
   @Override
   public char charAt(final int offset) {
-    if (fragmentsCount() == 1) {
-      return fragment(0).charAt(offset);
-    }
-    final int offsetInActiveFragment = offset - activeFragmentRangeStart;
-    if (activeFragment != null && offsetInActiveFragment >= 0 && offsetInActiveFragment < activeFragment.length()) {
-      return activeFragment.charAt(offsetInActiveFragment);
-    }
+    if (offset >= activeFragmentRangeStart && offset < activeFragmentRangeEnd)
+      return activeFragment.charAt(offset - activeFragmentRangeStart);
 
+    return heavyAt(offset);
+  }
+
+  private char heavyAt(int offset) {
     int i = 0, fragmentEndOffset = 0;
     while (offset >= fragmentEndOffset) {
       fragmentEndOffset += fragment(i++).length();
     }
 
     activeFragmentRangeStart = fragmentEndOffset - fragment(i - 1).length();
+    activeFragmentRangeEnd = fragmentEndOffset;
     activeFragment = fragment(i - 1);
     return activeFragment.charAt(offset - activeFragmentRangeStart);
   }
@@ -98,6 +99,7 @@ public class CharSeqComposite extends CharSeq {
     copyToArray(0, chars, 0, length);
     fragments = new CharSequence[]{activeFragment = create(chars)};
     activeFragmentRangeStart = 0;
+    activeFragmentRangeStart = activeFragment.length();
     return chars;
   }
 

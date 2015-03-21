@@ -112,6 +112,7 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
     hashCode = 0;
     activeFragment = null;
     activeFragmentRangeStart = -1;
+    activeFragmentRangeEnd = -1;
   }
 
   @Override
