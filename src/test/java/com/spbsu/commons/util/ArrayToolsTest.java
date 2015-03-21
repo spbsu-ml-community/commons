@@ -8,7 +8,7 @@ import junit.framework.TestCase;
  */
 public class ArrayToolsTest extends TestCase {
   FastRandom rand = new FastRandom(42);
-  static int sizes[] = {2, 3, 5, 7,11, 15, 100,971};
+  static int sizes[] = {2, 3, 5, 7, 11, 15, 100, 971};
   static int tries = 10000;
 
   public static double[] dsequence(final int start, final int end) {
@@ -18,20 +18,21 @@ public class ArrayToolsTest extends TestCase {
     }
     return result;
   }
+
   public void testParallelSortIntInt() {
     for (int tr = 0; tr < tries; ++tr)
       for (int size : sizes) {
         int[] arr = new int[size];
         int[] linked;
         for (int i = 0; i < arr.length; ++i) {
-          arr[i] = rand.nextInt(5*(tries+1));
+          arr[i] = rand.nextInt(5 * (tr + 1));
         }
         linked = ArrayTools.sequence(0, arr.length);
         int[] arrCopy = arr.clone();
         ArrayTools.parallelSort(arr, linked);
         for (int i = 1; i < arr.length; ++i) {
           assertTrue(arr[i - 1] <= arr[i]);
-          assertTrue(arr[i]   == arrCopy[linked[i]]);
+          assertTrue(arr[i] == arrCopy[linked[i]]);
         }
       }
   }
@@ -42,14 +43,14 @@ public class ArrayToolsTest extends TestCase {
         int[] arr = new int[size];
         double[] linked;
         for (int i = 0; i < arr.length; ++i) {
-          arr[i] = rand.nextInt(10 * (tries + 1));
+          arr[i] = rand.nextInt(5 * (tr + 1));
         }
         linked = dsequence(0, arr.length);
         int[] arrCopy = arr.clone();
         ArrayTools.parallelSort(arr, linked);
         for (int i = 1; i < arr.length; ++i) {
           assertTrue(arr[i - 1] <= arr[i]);
-          assertTrue(arr[i]   == arrCopy[((int) linked[i])]);
+          assertTrue(arr[i] == arrCopy[((int) linked[i])]);
         }
       }
   }
@@ -68,7 +69,7 @@ public class ArrayToolsTest extends TestCase {
         ArrayTools.parallelSort(arr, linked);
         for (int i = 1; i < arr.length; ++i) {
           assertTrue(arr[i - 1] <= arr[i]);
-          assertTrue(arr[i]   == arrCopy[(linked[i])]);
+          assertTrue(arr[i] == arrCopy[(linked[i])]);
         }
       }
   }
@@ -79,14 +80,14 @@ public class ArrayToolsTest extends TestCase {
         long[] arr = new long[size];
         int[] linked;
         for (int i = 0; i < arr.length; ++i) {
-          arr[i] = rand.nextInt(5 * (tries + 1));
+          arr[i] = rand.nextInt(5 * (tr + 1));
         }
         linked = ArrayTools.sequence(0, arr.length);
         long[] arrCopy = arr.clone();
         ArrayTools.parallelSort(arr, linked);
         for (int i = 1; i < arr.length; ++i) {
           assertTrue(arr[i - 1] <= arr[i]);
-          assertTrue(arr[i]   == arrCopy[linked[i]]);
+          assertTrue(arr[i] == arrCopy[linked[i]]);
         }
       }
   }
@@ -102,19 +103,18 @@ public class ArrayToolsTest extends TestCase {
         }
         linked = dsequence(0, arr.length);
         linked2 = new double[linked.length];
-        for (int j=0; j < linked.length;++j) {
-          linked2[j] = linked.length-j-1;
+        for (int j = 0; j < linked.length; ++j) {
+          linked2[j] = linked.length - j - 1;
         }
         double[] arrCopy = arr.clone();
-        ArrayTools.parallelSort(arr, linked,linked2);
+        ArrayTools.parallelSort(arr, linked, linked2);
         for (int i = 1; i < arr.length; ++i) {
           assertTrue(arr[i - 1] <= arr[i]);
-          assertTrue(arr[i]   == arrCopy[((int) linked[i])]);
-          assertTrue(arr[i]   == arrCopy[((int) (arr.length - linked2[i] - 1))]);
+          assertTrue(arr[i] == arrCopy[((int) linked[i])]);
+          assertTrue(arr[i] == arrCopy[((int) (arr.length - linked2[i] - 1))]);
         }
       }
   }
-
 
 
 }
