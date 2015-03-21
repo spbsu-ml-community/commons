@@ -296,13 +296,16 @@ public class CharSeqTools {
     }
   }
 
-  public static void processLines(final Reader input, final Action<CharSequence> seqProcessor) throws IOException {
+  public static long processLines(final Reader input, final Action<CharSequence> seqProcessor) throws IOException {
+    long size = 0;
     final ReaderChopper chopper = new ReaderChopper(input);
     CharSequence next;
     while ((next = chopper.chop('\n')) != null) {
       seqProcessor.invoke(next);
       chopper.eat('\r');
+      size += next.length();
     }
+    return size;
   }
 
 
