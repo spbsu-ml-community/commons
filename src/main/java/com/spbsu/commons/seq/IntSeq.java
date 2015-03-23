@@ -12,7 +12,7 @@ public class IntSeq extends Seq.Stub<Integer> {
   public final int start;
   public final int end;
 
-  public IntSeq(final int[] arr) {
+  public IntSeq(final int... arr) {
     this(arr, 0, arr.length);
   }
 
