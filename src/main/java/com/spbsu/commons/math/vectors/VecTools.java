@@ -684,9 +684,17 @@ public class VecTools {
   }
 
   public static <T extends Vec> T toBinary(final T vector) {
+    return toBinary(vector, 0.0);
+  }
+
+  public static <T extends Vec> T toBinary(final T vector, final double threshold) {
     final VecIterator iter = vector.nonZeroes();
     while (iter.advance()) {
-      iter.setValue(1);
+      if (iter.value() > threshold) {
+        iter.setValue(1);
+      } else {
+        iter.setValue(0);
+      }
     }
     return vector;
   }
