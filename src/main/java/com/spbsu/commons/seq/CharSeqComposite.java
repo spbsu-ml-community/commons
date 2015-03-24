@@ -55,6 +55,8 @@ public class CharSeqComposite extends CharSeq {
 
   @Override
   public CharSeq sub(final int start, final int end) {
+    if (end > length())
+      throw new ArrayIndexOutOfBoundsException();
     if (start == end)
       return EMPTY;
     if (end - start < length() / fragments.length)
