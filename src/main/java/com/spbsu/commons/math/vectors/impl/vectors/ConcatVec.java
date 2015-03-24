@@ -40,6 +40,20 @@ public class ConcatVec extends Vec.Stub {
   }
 
   @Override
+  public void toArray(final double[] array, final int originOffset) {
+    for (int i = 0; i < origin.length; ++i) {
+      origin[i].toArray(array, offsets[i]);
+    }
+  }
+
+  @Override
+  public double[] toArray() {
+    final double[] data = new double[dim()];
+    toArray(data, 0);
+    return data;
+  }
+
+  @Override
   public VecIterator nonZeroes() {
     return new VecIterator() {
       int originIdx = 0;
@@ -87,6 +101,8 @@ public class ConcatVec extends Vec.Stub {
       }
     };
   }
+
+
 
   @Override
   public int dim() {

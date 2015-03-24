@@ -1,5 +1,8 @@
 package com.spbsu.commons.math.vectors;
 
+import java.util.Arrays;
+
+
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.seq.Seq;
 
@@ -17,6 +20,8 @@ public interface Vec extends Seq<Double> {
   int dim();
 
   double[] toArray();
+
+  void toArray(final double[] src, final int offset);
 
   @Override
   Vec sub(int start, int len);
@@ -62,6 +67,15 @@ public interface Vec extends Seq<Double> {
       while (nz.advance())
         result[nz.index()] = nz.value();
       return result;
+    }
+
+    @Override
+    public void toArray(final double[] src, final int offset) {
+      final VecIterator nz = nonZeroes();
+      final int dim = dim();
+      Arrays.fill(src, offset, offset + dim, 0.);
+      while (nz.advance())
+        src[offset + nz.index()] = nz.value();
     }
 
     @Override
