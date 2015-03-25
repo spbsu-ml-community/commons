@@ -14,7 +14,7 @@ import java.util.List;
  * Time: 19:37
  */
 public class WeakListenerHolderImpl<Event> implements WeakListenerHolder<Event> {
-  final List<WeakReference<Action<? super Event>>> listeners = new ArrayList<WeakReference<Action<? super Event>>>();
+  protected final List<WeakReference<Action<? super Event>>> listeners = new ArrayList<WeakReference<Action<? super Event>>>();
   @Override
   public void addListener(final Action<? super Event> lst) {
     listeners.add(new WeakReference<Action<? super Event>>(lst));
