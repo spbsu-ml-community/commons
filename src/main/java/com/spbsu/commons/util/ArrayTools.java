@@ -742,6 +742,10 @@ public abstract class ArrayTools {
     return result;
   }
 
+  public static int sum(final int[] arr) {
+    return sum(arr, 0, arr.length);
+  }
+
   public static int[] fill(final int[] arr, final int val) {
     final int alignedCount = (arr.length / 4) * 4;
     for (int i = 0; i < alignedCount; i+=4) {
