@@ -1,11 +1,5 @@
 package com.spbsu.commons.util;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Evaluator;
 import com.spbsu.commons.math.vectors.Vec;
@@ -15,6 +9,11 @@ import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.math.vectors.impl.vectors.VecBuilder;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.*;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author lawless
@@ -643,6 +642,10 @@ public abstract class ArrayTools {
       result += arr[i];
     }
     return result;
+  }
+
+  public static int sum(final int[] arr) {
+    return sum(arr, 0, arr.length);
   }
 
   public static int[] fill(final int[] arr, final int val) {
