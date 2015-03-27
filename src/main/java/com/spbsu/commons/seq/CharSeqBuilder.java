@@ -89,6 +89,7 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
 
   protected void add(final CharSequence copy) {
     fragments.add(copy);
+    length = -1;
     hashCode = 0;
   }
 
