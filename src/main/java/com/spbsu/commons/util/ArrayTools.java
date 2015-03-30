@@ -1,5 +1,6 @@
 package com.spbsu.commons.util;
 
+import com.spbsu.commons.filters.Filter;
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Evaluator;
 import com.spbsu.commons.math.vectors.Vec;
@@ -815,5 +816,21 @@ public abstract class ArrayTools {
     System.arraycopy(left, 0, result, 0, left.length);
     System.arraycopy(right, 0, result, left.length, right.length);
     return result;
+  }
+
+  public static <T> boolean and(T[] input, Filter<? super T> filter) {
+    for(int i = 0; i < input.length; i++) {
+      if (!filter.accept(input[i]))
+        return false;
+    }
+    return true;
+  }
+
+  public static <T> boolean or(T[] input, Filter<? super T> filter) {
+    for(int i = 0; i < input.length; i++) {
+      if (!filter.accept(input[i]))
+        return true;
+    }
+    return false;
   }
 }
