@@ -34,7 +34,8 @@ public class ArrayConverters implements ConversionPack<Object[], CharSequence> {
     @Override
     public CharSequence convert(final T[] from) {
       final StringBuilder builder = new StringBuilder();
-      builder.append(from.getClass().getComponentType().getName()).append(", ").append(from.length).append(", ");
+      final Class<?> componentType = repository.conversionType(from.getClass().getComponentType(), CharSequence.class);
+      builder.append(componentType.getName()).append(", ").append(from.length).append(", ");
       builder.append("[");
       for(int i = 0; i < from.length; i++) {
         CharSequence convert = repository.convert(from[i], CharSequence.class);
