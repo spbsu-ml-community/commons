@@ -2,12 +2,13 @@ package com.spbsu.commons.xml;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Content;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -94,9 +95,9 @@ public class JDOMUtil {
   }
 
   @NotNull
-  public static List<Element> getContent(@NotNull final Element element) {
-    @SuppressWarnings({"unchecked"}) final List<Element> content = element.getContent();
-    return content != null ? Collections.unmodifiableList(content) : Collections.<Element>emptyList();
+  public static List<Content> getContent(@NotNull final Element element) {
+    @SuppressWarnings({"unchecked"}) final List<Content> content = element.getContent();
+    return content != null ? Collections.unmodifiableList(content) : Collections.<Content>emptyList();
   }
 
   public static String toString(final Element el) {
