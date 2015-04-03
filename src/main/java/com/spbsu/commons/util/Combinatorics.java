@@ -2,7 +2,6 @@ package com.spbsu.commons.util;
 
 import com.spbsu.commons.math.MathTools;
 
-
 import java.util.Arrays;
 
 /**
@@ -15,6 +14,44 @@ public class Combinatorics {
     int[] next();
     void skipN(long n);
     long totalCount();
+  }
+
+  public static class PartialPermutationsCheap {
+    private final int base;
+    private final int positions;
+    private final int[] bitVec;
+    private boolean isExhausted;
+
+    //permutation will contain elements from {0, ... , base-1}
+    public PartialPermutationsCheap(final int base, final int positions) {
+      this.positions = positions;
+      this.bitVec = new int[positions];
+      this.bitVec[positions - 1] = -1;
+      this.base = base;
+    }
+
+    public boolean advance() {
+      gotoNext();
+      return !isExhausted;
+    }
+
+    public int[] get() {
+      return bitVec;
+    }
+
+    private void gotoNext() {
+      int end = positions - 1;
+      while (++bitVec[end] == base) {
+        end--;
+        if (end == -1) {
+          isExhausted = true;
+          break;
+        }
+        for (int j = end + 1; j < positions; j++) {
+          bitVec[j] = 0;
+        }
+      }
+    }
   }
 
   public static class PartialPermutations implements Enumeration {
