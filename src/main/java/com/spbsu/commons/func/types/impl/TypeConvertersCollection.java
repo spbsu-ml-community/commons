@@ -1,10 +1,12 @@
 package com.spbsu.commons.func.types.impl;
 
+import org.jetbrains.annotations.NotNull;
+
+
 import com.spbsu.commons.filters.AndFilter;
 import com.spbsu.commons.filters.Filter;
 import com.spbsu.commons.func.Converter;
 import com.spbsu.commons.func.Factory;
-import com.spbsu.commons.func.converters.ArrayConverters;
 import com.spbsu.commons.func.types.ConversionDependant;
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.ConversionRepository;
@@ -14,7 +16,6 @@ import com.spbsu.commons.util.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,9 +63,16 @@ public class TypeConvertersCollection implements ConversionRepository {
           for (final String resource : resources) {
             if (resource.endsWith(".class")) {
               final Class<?> converterClass = Class.forName(resource.substring(0, resource.length() - ".class".length()).replace('/', '.'));
-              if (!registered.contains(converterClass) && converterClass.getEnclosingClass() == null) // only top level classes
-                register(converterClass);
-              registered.add(converterClass);
+              if (!registered.contains(converterClass) && converterClass.getEnclosingClass() == null) {
+                // only top level classes
+                if (register(converterClass)) {
+                  registered.add(converterClass);
+                } else {
+                  LOG.warn("Cant register converter " + converterClass);
+                }
+              } else {
+                registered.add(converterClass);
+              }
             }
           }
         }
@@ -116,6 +124,7 @@ public class TypeConvertersCollection implements ConversionRepository {
     return ((TypeConverter<F,T>)converter(instance.getClass(), destClass)).convert(instance);
   }
 
+  @NotNull
   @Override
   public synchronized <U,V> TypeConverter<U,V> converter(final Class<U> from, final Class<V> to) {
     if (to.isAssignableFrom(from))

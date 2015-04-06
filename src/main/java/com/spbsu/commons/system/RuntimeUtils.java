@@ -1,5 +1,6 @@
 package com.spbsu.commons.system;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -42,6 +43,7 @@ public class RuntimeUtils {
     }
   }
 
+  @NotNull
   public static Class[] findTypeParameters(final Class<?> clazz, final Class<?> interfaceClass) {
     final HashMap<TypeVariable, Type> mapping = new HashMap<>();
     populateTypeParametersMapping(clazz, mapping);
@@ -57,10 +59,17 @@ public class RuntimeUtils {
           current = ((GenericArrayType) current).getGenericComponentType();
         }
       }
+      //noinspection ChainOfInstanceofChecks
+      if (current instanceof ParameterizedType) {
+        current = ((ParameterizedType) current).getRawType();
+      }
       if (current instanceof Class) {
         infered[i] = (Class) current;
         while(arraysCount-- > 0)
           infered[i] = Array.newInstance(infered[i], 0).getClass();
+      }
+      if (infered[i] == null) {
+        LOG.warn("Cant find type for parameter " + parameters[i] + ": " + clazz + ", " + interfaceClass);
       }
     }
     return infered;
