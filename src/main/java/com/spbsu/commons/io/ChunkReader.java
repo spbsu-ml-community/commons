@@ -15,16 +15,18 @@ import java.io.IOException;
  * Time: 1:47
  */
 public final class ChunkReader {
-  private ChunkReader() {
-  }
+  @Nullable
+  private byte[] chunk;
 
   @Nullable
-  public static byte[] readChunk(@NotNull final DataInputStream in) throws IOException {
+  public byte[] readChunk(@NotNull final DataInputStream in) throws IOException {
     final int chunkSize = in.readInt();
     if (chunkSize < 0) {
       return null;
     }
-    final byte[] chunk = new byte[chunkSize];
+    if (chunk == null || chunk.length != chunkSize) {
+      chunk = new byte[chunkSize];
+    }
     in.readFully(chunk);
     if (in.read() != ChunkedOutputStream.MAGIC) {
       throw new IllegalStateException();
@@ -33,10 +35,9 @@ public final class ChunkReader {
   }
   
   @NotNull
-  public static byte[] readChunks(@NotNull final DataInputStream in) throws IOException {
+  public byte[] readChunks(@NotNull final DataInputStream in) throws IOException {
     final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-    byte[] chunk;
-    while ((chunk = readChunk(in)) != null) {
+    while (readChunk(in) != null) {
       bout.write(chunk);
     }
     return bout.toByteArray();
