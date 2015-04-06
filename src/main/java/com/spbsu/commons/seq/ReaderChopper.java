@@ -31,7 +31,7 @@ public class ReaderChopper {
         builder.append(buffer, start, read);
         readNext();
         if (read < 0)
-          return builder.build();
+          return builder.length() > 0 ? builder.build() : null;
         start = 0;
       }
       if (buffer[offset++] == delimiter) {
