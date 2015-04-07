@@ -87,6 +87,11 @@ public class ArrayVec extends Vec.Stub {
   }
 
   @Override
+  public void toArray(final double[] src, final int offset) {
+    System.arraycopy(this.data.array, data.start, src, offset, data.length);
+  }
+
+  @Override
   public double get(final int i) {
     return data.array[i + data.start];
   }

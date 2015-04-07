@@ -1,9 +1,9 @@
 package com.spbsu.commons.random;
 
-import java.util.Random;
-
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
+
+import java.util.Random;
 
 import static java.lang.Math.exp;
 
@@ -100,4 +100,28 @@ public class FastRandom extends Random {
     }
     return it.isValid() ? it.index() : -1;
   }
+
+  private final byte[] randomBytes = new byte[8];
+  private byte pos = 8;
+  //don't use it in parallel
+  public final byte nextByte() {
+    if (pos == 8) {
+      final long value = nextLong();
+      randomBytes[0] = (byte) (value >> 56);
+      randomBytes[1] = (byte) (value >> 48);
+      randomBytes[2] = (byte) (value >> 40);
+      randomBytes[3] = (byte) (value >> 32);
+      randomBytes[4] = (byte) (value >> 24);
+      randomBytes[5] = (byte) (value >> 18);
+      randomBytes[6] = (byte) (value >> 8);
+      randomBytes[7] = (byte) (value);
+      pos = 0;
+    }
+    return randomBytes[pos++];
+  }
+  private final byte mask = 127;
+  public final int nextByte(int k) {
+    return (mask & nextByte()) % k;
+  }
+
 }

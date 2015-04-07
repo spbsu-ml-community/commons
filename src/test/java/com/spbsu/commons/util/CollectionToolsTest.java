@@ -62,7 +62,7 @@ public class CollectionToolsTest extends TestCase {
     }
     ArrayTools.parallelSort(array, ArrayTools.sequence(0, array.length));
     for (int i = 1; i < array.length; i++) {
-      assertTrue(array[i] > array[i - 1]);
+      assertTrue(array[i] >= array[i - 1]);
     }
   }
 }

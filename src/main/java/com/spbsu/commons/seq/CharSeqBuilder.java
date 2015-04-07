@@ -76,17 +76,20 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
   }
 
   public CharSeqBuilder append(final char[] text) {
-    add(copy(text));
+    if (text.length > 0)
+      add(copy(text));
     return this;
   }
 
   public CharSeqBuilder append(final char[] text, final int start, final int end) {
-    add(copy(text, start, end));
+    if (start != end)
+      add(copy(text, start, end));
     return this;
   }
 
   protected void add(final CharSequence copy) {
     fragments.add(copy);
+    length = -1;
     hashCode = 0;
   }
 
@@ -110,6 +113,7 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
     hashCode = 0;
     activeFragment = null;
     activeFragmentRangeStart = -1;
+    activeFragmentRangeEnd = -1;
   }
 
   @Override

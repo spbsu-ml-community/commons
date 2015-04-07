@@ -10,7 +10,7 @@ import com.spbsu.commons.math.vectors.VecIterator;
 */
 public class SkipVecNZIterator implements VecIterator {
   protected final Vec vec;
-  int index;
+  protected int index;
 
   public SkipVecNZIterator(final Vec arrayVec) {
     this.vec = arrayVec;

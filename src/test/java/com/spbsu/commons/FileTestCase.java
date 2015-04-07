@@ -34,8 +34,16 @@ public abstract class FileTestCase extends TestCase {
   protected abstract String getResultFileExtension();
   protected abstract String getTestDataPath();
 
+  protected boolean isJDK8DependResult() {
+    return false;
+  }
+
   protected void checkResultByFile(final CharSequence result) throws IOException {
-    final String resultsFileName = getTestDataPath() + getTestName() + getResultFileExtension();
+    String resultsFileName = getTestDataPath() + getTestName();
+    if (isJDK8DependResult() && getJavaVersion() >= 1.8) {
+      resultsFileName += ".1_8";
+    }
+    resultsFileName += getResultFileExtension();
     final String resultString = result.toString();
     try{
       final String expectedString;
@@ -48,7 +56,7 @@ public abstract class FileTestCase extends TestCase {
       assertEquals(expectedString, resultString);
     }
     catch(FileNotFoundException ioe) {
-      System.out.println("Results file not found, created");
+      System.out.println("Results file not found, created " + resultsFileName);
 
       final OutputStream os;
       if (result.length() > 1000000)
@@ -87,5 +95,12 @@ public abstract class FileTestCase extends TestCase {
     }
 
     return result;
+  }
+
+  private static double getJavaVersion() {
+    final String version = System.getProperty("java.version");
+    int pos = version.indexOf('.');
+    pos = version.indexOf('.', pos+1);
+    return Double.parseDouble(version.substring (0, pos));
   }
 }

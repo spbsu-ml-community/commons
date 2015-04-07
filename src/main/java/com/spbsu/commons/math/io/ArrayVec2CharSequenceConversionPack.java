@@ -31,17 +31,17 @@ public class ArrayVec2CharSequenceConversionPack implements ConversionPack<Array
       for (int i = 0; i < from.dim(); i++) {
         builder.append(" ").append(prettyPrint.format(from.get(i)));
       }
-      return builder;
+      return builder.build();
     }
   }
 
   public static class ArrayCharSequence2VecConverter implements TypeConverter<CharSequence, ArrayVec> {
     @Override
     public ArrayVec convert(final CharSequence from) {
-      final CharSequence[] parts = CharSeqTools.split(from.toString().trim(), ' ');
-      final ArrayVec result = new ArrayVec(Integer.parseInt(parts[0].toString()));
+      final CharSequence[] parts = CharSeqTools.split(CharSeqTools.trim(from), ' ');
+      final ArrayVec result = new ArrayVec(CharSeqTools.parseInt(parts[0]));
       for (int i = 1; i < parts.length; i++) {
-        result.set(i - 1, Double.parseDouble(parts[i].toString()));
+        result.set(i - 1, CharSeqTools.parseDouble(parts[i]));
       }
       return result;
     }

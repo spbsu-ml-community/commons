@@ -111,9 +111,9 @@ public class CompositeTextCodingTest extends TestCase {
     final ByteBuffer buffer = ByteBuffer.allocate(bytes);
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
     final ListDictionary result = coding.expansion().result();
-//    for (CharSequence sequence : result.alphabet()) {
-//      System.out.println(sequence);
-//    }
+    for (Object sequence : result.alphabet()) {
+      System.out.println(sequence);
+    }
     for (int i = 0; i < queries.length; i++) {
       final CharSequence query = queries[i];
       encode.write(query);
@@ -215,10 +215,10 @@ public class CompositeTextCodingTest extends TestCase {
     final double rate = codeLength1 / textLength;
     System.out.println("Expected code length true: " + codeLength1 / 1024. + "kb. Expected rate true: " + rate);
 
-//    final ListDictionary result = coding.expansion().result();
-//    for (CharSequence sequence : result.alphabet()) {
-//      System.out.println(sequence);
-//    }
+    final ListDictionary result = coding.expansion().result();
+    for (Object sequence : result.alphabet()) {
+      System.out.println(sequence);
+    }
     encode.output = new ArithmeticCoding.Encoder(buffer, symbolFreqs);
     for (int i = 0; i < urls.length; i++) {
       final CharSequence query = urls[i];

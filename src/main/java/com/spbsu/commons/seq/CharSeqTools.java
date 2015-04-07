@@ -2,31 +2,23 @@ package com.spbsu.commons.seq;
 
 
 import com.spbsu.commons.func.Action;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.lang.reflect.Array;
-import java.nio.CharBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.util.*;
-
-
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.trash.FloatingDecimal;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * User: terry
  * Date: 10.10.2009
  * Time: 23:26:28
  */
+@SuppressWarnings("UnusedDeclaration")
 public class CharSeqTools {
   public static final String EMPTY = "";
   public static final HashingStrategy<CharSequence> STRATEGY = new HashingStrategy<CharSequence>() {
@@ -144,6 +136,7 @@ public class CharSeqTools {
       throw new IllegalArgumentException();
     final Seq<X> first = texts[0];
     if (char.class.isAssignableFrom(first.elementType()) || Character.class.isAssignableFrom(first.elementType())) {
+      //noinspection unchecked
       return (Seq<X>)new CharSeqComposite((CharSequence[])ArrayTools.repack(texts, CharSequence.class));
     }
     int size = 0;
@@ -166,7 +159,7 @@ public class CharSeqTools {
   }
 
   public static CharSequence[] split(final CharSequence sequence, final char separator) {
-    final List<CharSequence> result = new ArrayList<CharSequence>(10);
+    final List<CharSequence> result = new ArrayList<>(10);
     int last = 0;
     final int length = sequence.length();
     for (int i = 0; i < length; i++) {
@@ -188,19 +181,18 @@ public class CharSeqTools {
 
   public static CharSequence[] split(final CharSequence sequence, final CharSequence separator) {
     final List<CharSequence> result = new ArrayList<>(10);
-    int last = 0;
-    for (int i = 0; i < sequence.length(); i++) {
-      boolean accept = separator.length() <= sequence.length() - i;
-      for (int j = 0; j < separator.length() && accept; j++) { // need to change to something faster
-        if (sequence.charAt(i + j) != separator.charAt(j))
-          accept = false;
+    int prev = 0;
+    while (true) {
+      final int next = indexOf(sequence, prev, separator);
+      if (next >= 0) {
+        result.add(sequence.subSequence(prev, next));
+        prev = next + separator.length();
       }
-      if (accept) {
-        result.add(sequence.subSequence(last, i));
-        last = i + separator.length();
+      else {
+        result.add(sequence.subSequence(prev, sequence.length()));
+        break;
       }
     }
-    result.add(sequence.subSequence(last, sequence.length()));
     return result.toArray(new CharSequence[result.size()]);
   }
 
@@ -267,11 +259,7 @@ public class CharSeqTools {
   }
 
   public static boolean isImmutable(final CharSequence next) {
-    if(next instanceof String)
-      return true;
-    if (next instanceof CharSeq)
-      return ((CharSeq)next).isImmutable();
-    return false;
+    return next instanceof String || next instanceof CharSeq && ((CharSeq) next).isImmutable();
   }
 
   public static List<CharSequence> discloseComposites(final List<CharSequence> fragments) {
@@ -286,7 +274,7 @@ public class CharSeqTools {
       return fragments;
     }
 
-    final List<CharSequence> compacted = new ArrayList<CharSequence>(fragmentsCount);
+    final List<CharSequence> compacted = new ArrayList<>(fragmentsCount);
     for (final CharSequence fragment : fragments) {
       if (fragment instanceof CharSeqComposite) {
         final CharSeqComposite charSeqComposite = (CharSeqComposite) fragment;
@@ -299,150 +287,25 @@ public class CharSeqTools {
     return compacted;
   }
 
-  private static long mapNextLine(final Reader reader, final List<CharBuffer> buffers, final int bufferSize) throws IOException {
-    char[] buffer = new char[bufferSize];
-    int letter;
-    long read = 0;
-    int position = -1;
-    while ((letter = reader.read()) >= 0) {
-      ++read;
-      ++position;
-      if (letter == '\n') {
-        buffers.add(CharBuffer.wrap(buffer, 0, position));
-        return read;
-      } else if (read % bufferSize == 0) {
-        buffers.add(CharBuffer.wrap(buffer, 0, position));
-        buffer = new char[bufferSize];
-        position = 0;
-      }
-      buffer[position] = (char) letter;
-    }
-    if (position >= 0)
-      buffers.add(CharBuffer.wrap(buffer, 0, position));
-    return read;
-  }
-
-  private static long mapNextLine(final FileChannel fc, final List<CharBuffer> buffers, final Charset charset, final long startOffset, final long bufferSize) throws IOException {
-    final long channelSize = fc.size();
-    if (startOffset >= channelSize)
-      return -1;
-    long totalOffset = startOffset;
-    long currentOffset = 0;
-    MappedByteBuffer lastMappedMem = null;
-    for(;;) {
-      if (lastMappedMem != null) {
-        lastMappedMem.clear();
-        buffers.add(charset.decode(lastMappedMem.asReadOnlyBuffer()));
-        totalOffset += currentOffset;
-        currentOffset = 0;
-      }
-      if (totalOffset < channelSize) {
-        lastMappedMem = fc.map(FileChannel.MapMode.READ_ONLY, totalOffset, (bufferSize < channelSize - totalOffset) ? bufferSize : channelSize - totalOffset);
-        totalOffset += currentOffset;
-        currentOffset = 0;
-        while (lastMappedMem.hasRemaining()) {
-          if (lastMappedMem.get() == '\n') {
-            buffers.add(charset.decode(fc.map(FileChannel.MapMode.READ_ONLY, totalOffset, currentOffset)));
-            return totalOffset + currentOffset - startOffset + 1;
-          }
-          ++currentOffset;
-        }
-      } else {
-        return totalOffset - startOffset;
-      }
-    }
-  }
-
-  public static void processAndSplitLinesNIO(@NotNull final Reader in, @NotNull final Processor<CharBufferSeq[]> seqProcessor, @Nullable final String delimeters, final int splitDepth) throws IOException {
-      for (;;) {
-        final List<CharBuffer> buffers = new ArrayList<>();
-        final long read = mapNextLine(in, buffers, 1 << 10);
-        if (read > 0) {
-          final CharBufferSeq cbs = new CharBufferSeq(buffers);
-          final CharBufferSeq.Tokenizer tokenizer = cbs.getTokenizer(delimeters);
-          final List<CharBufferSeq> result = new ArrayList<>();
-          long len = 0;
-          for (int i = 0; i < splitDepth; ++i) {
-            if (tokenizer.hasMoreElements()) {
-              final CharSequence value = tokenizer.nextElement();
-              len += value.length();
-              result.add(new CharBufferSeq(value));
-            }
-          }
-          final CharBufferSeq value = new CharBufferSeq(cbs, (int) len + result.size());
-          if (value.commonSize() > 0) {
-            result.add(value);
-          }
-          seqProcessor.process(result.toArray(new CharBufferSeq[result.size()]));
-        } else {
-          return;
-        }
-      }
-  }
-
-  public static void processAndSplitLines(@NotNull final Reader in, @NotNull final Processor<CharSequence[]> seqProcessor, @Nullable final String delimeters, final boolean trim) throws IOException {
-    final char[] buffer = new char[4096*4];
-    final List<CharSequence> parts = new ArrayList<>();
-    CharSeqBuilder line = new CharSeqBuilder();
-    int read;
-    try (Reader input = in) {
-      boolean skipCaretReturn = false;
-      while ((read = input.read(buffer)) >= 0) {
-        int offset = 0;
-        int index = 0;
-
-        while (index < read) {
-          if (skipCaretReturn && buffer[offset] == '\r') { // skip '\r'
-            offset = ++index;
-            skipCaretReturn = false;
-          }
-
-          while (index < read && buffer[index] != '\n') {
-            if (delimeters != null && delimeters.indexOf(buffer[index]) >= 0) {
-              line.append(buffer, offset, index++);
-              offset = index;
-              parts.add((trim ? trim(line) : line).toString());
-              line = new CharSeqBuilder();
-            }
-            index++;
-          }
-
-          if (index < read) {
-            line.append(buffer, offset, index);
-            parts.add((trim ? trim(line) : line).toString());
-            seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
-            line.clear();
-            parts.clear();
-            offset = ++index; // skip '\n'
-            skipCaretReturn = true;
-          }
-        }
-        if (offset < read)
-          line.append(buffer, offset, read);
-      }
-      if (line.length() > 0) {
-        parts.add((trim ? trim(line) : line).toString());
-        seqProcessor.process(parts.toArray(new CharSequence[parts.size()]));
-      }
-    }
-  }
-
   public static void processLines(final Reader input, final Processor<CharSequence> seqProcessor) throws IOException {
-    processAndSplitLines(input, new Processor<CharSequence[]>() {
-      @Override
-      public void process(final CharSequence[] arg) {
-        seqProcessor.process(arg[0]);
-      }
-    }, null, false);
+    final ReaderChopper chopper = new ReaderChopper(input);
+    CharSequence next;
+    while ((next = chopper.chop('\n')) != null) {
+      seqProcessor.process(next);
+      chopper.eat('\r');
+    }
   }
 
-  public static void processLines(final Reader input, final Action<CharSequence> seqProcessor) throws IOException {
-    processAndSplitLines(input, new Processor<CharSequence[]>() {
-      @Override
-      public void process(final CharSequence[] arg) {
-        seqProcessor.invoke(arg[0]);
-      }
-    }, null, false);
+  public static int processLines(final Reader input, final Action<CharSequence> seqProcessor) throws IOException {
+    int count = 0;
+    final ReaderChopper chopper = new ReaderChopper(input);
+    CharSequence next;
+    while ((next = chopper.chop('\n')) != null) {
+      seqProcessor.invoke(next);
+      chopper.eat('\r');
+      count++;
+    }
+    return count;
   }
 
 

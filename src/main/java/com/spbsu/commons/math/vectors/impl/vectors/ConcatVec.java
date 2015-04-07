@@ -10,9 +10,9 @@ import com.spbsu.commons.math.vectors.VecIterator;
  * Created by vkokarev on 10.12.14.
  */
 public class ConcatVec extends Vec.Stub {
-  private final Vec[] origin;
-  private final int[] offsets;
-  final int dim;
+  protected final Vec[] origin;
+  protected final int[] offsets;
+  protected int dim;
   public ConcatVec(final Vec ... origin) {
     this.origin = origin;
     this.offsets = new int[origin.length];
@@ -37,6 +37,20 @@ public class ConcatVec extends Vec.Stub {
   @Override
   public Vec adjust(final int i, final double increment) {
     throw new UnsupportedOperationException("you are not allowed to change this vec");
+  }
+
+  @Override
+  public void toArray(final double[] array, final int originOffset) {
+    for (int i = 0; i < origin.length; ++i) {
+      origin[i].toArray(array, offsets[i]);
+    }
+  }
+
+  @Override
+  public double[] toArray() {
+    final double[] data = new double[dim()];
+    toArray(data, 0);
+    return data;
   }
 
   @Override
@@ -87,6 +101,8 @@ public class ConcatVec extends Vec.Stub {
       }
     };
   }
+
+
 
   @Override
   public int dim() {

@@ -21,13 +21,24 @@ public class CharSeqAdapter extends CharSeq {
   }
 
   @Override
-  public char charAt(final int offset) {
+  public final char charAt(final int offset) {
     return delegate.charAt(start + offset);
   }
 
   @Override
   public CharSeq sub(final int start, final int end) {
     return new CharSeqAdapter(delegate, start + this.start, end + this.start);
+  }
+
+  @Override
+  public void copyToArray(int start, char[] array, int offset, int length) {
+    start += this.start;
+    if (delegate instanceof String)
+      ((String) delegate).getChars(start, start + length, array, offset);
+    else if (delegate instanceof CharSeq)
+      ((CharSeq) delegate).copyToArray(start, array, offset, length);
+    else
+      super.copyToArray(start, array, offset, length);
   }
 
   @Override

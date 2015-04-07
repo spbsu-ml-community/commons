@@ -1,5 +1,8 @@
 package com.spbsu.commons.math.vectors.impl.vectors;
 
+import java.util.Arrays;
+
+
 import com.spbsu.commons.math.vectors.Basis;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
@@ -116,10 +119,18 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
   @Override
   public synchronized double[] toArray() {
     final double[] result = new double[basis.size()];
-    final VecIterator iter = nonZeroes();
-    while (iter.advance())
-      result[iter.index()] = iter.value();
+    toArray(result, 0);
     return result;
+  }
+
+  @Override
+  public void toArray(final double[] src, final int offset) {
+    Arrays.fill(src, offset, offset + dim(), 0);
+    final int indicesLen = indices.size();
+    for (int i = 0; i < indicesLen; ++i) {
+      src[offset + indices.getQuick(i)] = values.getQuick(i);
+    }
+
   }
 
   @Override
