@@ -122,48 +122,54 @@ public class ColMajorArrayMx extends Mx.Stub {
   @Override
   public MxIterator nonZeroes() {
     return new MxIterator() {
-      private int index;
+      private int row;
+      private int column;
+
+      private int colMax = dim() / rows;
 
       @Override
       public int column() {
-        return index / rows;
+        return column;
       }
 
       @Override
       public int row() {
-        return index % rows;
+        return row;
       }
 
       @Override
       public int index() {
-        return index;
+        return (row + 1) * (column + 1) - 1;
       }
 
       @Override
       public double value() {
-        return data[index];
+        return data[index()];
       }
 
       @Override
       public boolean isValid() {
-        return true;
+        return -1 < index() && index() < dim();
       }
 
       @Override
       public boolean advance() {
-        index++;
-        return true;
+        for (; row < rows; row++) {
+          for (; column < colMax && data[index()] == 0; column++);
+        }
+        return isValid();
       }
 
       @Override
       public boolean seek(final int position) {
-        index = position;
-        return true;
+        row = position % rows;
+        column = position / rows;
+        return isValid();
       }
 
       @Override
-      public double setValue(double value) {
-        data[index] = value;
+      public double setValue(final double value) {
+        data[index()] = value;
         return value;
       }
     };
