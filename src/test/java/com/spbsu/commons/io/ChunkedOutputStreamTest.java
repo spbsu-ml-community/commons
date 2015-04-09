@@ -38,6 +38,6 @@ public final class ChunkedOutputStreamTest {
     }
     out.endChunks();
     final DataInputStream in = new DataInputStream(new ByteArrayInputStream(bout.toByteArray()));
-    Assert.assertArrayEquals(expected.toByteArray(), new ChunkReader().readChunks(in));
+    Assert.assertArrayEquals(expected.toByteArray(), new ChunkReader().readChunks(in, 32));
   }
 }

@@ -35,8 +35,8 @@ public final class ChunkReader {
   }
   
   @NotNull
-  public byte[] readChunks(@NotNull final DataInputStream in) throws IOException {
-    final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+  public byte[] readChunks(@NotNull final DataInputStream in, final int capacity) throws IOException {
+    final ByteArrayOutputStream bout = new ByteArrayOutputStream(capacity);
     while (readChunk(in) != null) {
       bout.write(chunk);
     }
