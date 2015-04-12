@@ -828,7 +828,7 @@ public abstract class ArrayTools {
 
   public static <T> boolean or(T[] input, Filter<? super T> filter) {
     for(int i = 0; i < input.length; i++) {
-      if (!filter.accept(input[i]))
+      if (filter.accept(input[i]))
         return true;
     }
     return false;
