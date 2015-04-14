@@ -267,10 +267,6 @@ constructor_next:
     return System.getProperty("sun.arch.data.model");
   }
 
-  public static String getSysTmpDir() {
-    return System.getProperty("java.io.tmpdir");
-  }
-
   private RuntimeUtils() {}
 
   public static CharSequence bashEscape(CharSequence command) {

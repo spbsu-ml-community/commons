@@ -16,6 +16,12 @@ import com.spbsu.commons.math.vectors.Vec;
  */
 public class ColMajorArrayMx extends Mx.Stub {
 
+  /*
+  *  | 1 4 7 10 |
+  *  | 2 5 8 11 | = Mx ~ data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  *  | 3 6 9 12 |
+  *
+  * */
   private double[] data;
   private int rows;
 
@@ -50,7 +56,7 @@ public class ColMajorArrayMx extends Mx.Stub {
   public Mx sub(final int i, final int j, final int height, final int width) {
     final double[] subData = new double[height * width];
     for (int column = j; column < j + width; column++) {
-      System.arraycopy(data, i + j * rows, subData, column - j, height);
+      System.arraycopy(data, i + column * rows, subData, (column - j) * height, height);
     }
     return new ColMajorArrayMx(height, subData);
   }
@@ -100,7 +106,7 @@ public class ColMajorArrayMx extends Mx.Stub {
   @Override
   public Vec col(final int j) {
     final double[] column = new double[rows];
-    System.arraycopy(data, 0, column, j * rows, rows);
+    System.arraycopy(data, j * rows, column, 0, rows);
     return new ArrayVec(column);
   }
 
@@ -122,24 +128,22 @@ public class ColMajorArrayMx extends Mx.Stub {
   @Override
   public MxIterator nonZeroes() {
     return new MxIterator() {
-      private int row;
-      private int column;
-
-      private int colMax = dim() / rows;
+      private int pointer = -rows;
+      private int counter = -1;
 
       @Override
       public int column() {
-        return column;
+        return pointer / rows;
       }
 
       @Override
       public int row() {
-        return row;
+        return pointer % rows;
       }
 
       @Override
       public int index() {
-        return (row + 1) * (column + 1) - 1;
+        return pointer;
       }
 
       @Override
@@ -149,21 +153,24 @@ public class ColMajorArrayMx extends Mx.Stub {
 
       @Override
       public boolean isValid() {
-        return -1 < index() && index() < dim();
+        return -1 < counter && counter < dim();
       }
 
       @Override
       public boolean advance() {
-        for (; row < rows; row++) {
-          for (; column < colMax && data[index()] == 0; column++);
-        }
+        do {
+          if ((pointer += rows) > dim() - 1) {
+            pointer++;
+            pointer %= dim();
+          }
+          counter++;
+        } while(counter < dim() && data[pointer] == 0);
         return isValid();
       }
 
       @Override
       public boolean seek(final int position) {
-        row = position % rows;
-        column = position / rows;
+        pointer = position;
         return isValid();
       }
 
@@ -175,4 +182,8 @@ public class ColMajorArrayMx extends Mx.Stub {
     };
   }
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> JCUDA
