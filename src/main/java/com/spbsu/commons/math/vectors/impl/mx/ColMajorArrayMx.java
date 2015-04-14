@@ -164,7 +164,7 @@ public class ColMajorArrayMx extends Mx.Stub {
             pointer %= dim();
           }
           counter++;
-        } while(counter < dim() && data[pointer] == 0);
+        } while (counter < dim() && data[pointer] == 0);
         return isValid();
       }
 
@@ -181,9 +181,4 @@ public class ColMajorArrayMx extends Mx.Stub {
       }
     };
   }
-
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> JCUDA

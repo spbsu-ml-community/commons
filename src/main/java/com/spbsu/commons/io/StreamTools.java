@@ -1,9 +1,13 @@
 package com.spbsu.commons.io;
 
+
 import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.seq.CharSeqArray;
 import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.util.logging.Logger;
 import gnu.trove.list.array.TByteArrayList;
+import gnu.trove.list.array.TCharArrayList;
+
 
 import java.io.*;
 import java.net.URL;
@@ -11,6 +15,7 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 
 /**
  * User: terry
