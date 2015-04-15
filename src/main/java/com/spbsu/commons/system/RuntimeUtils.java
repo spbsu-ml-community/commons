@@ -263,6 +263,14 @@ constructor_next:
     return System.getProperty("java.class.path");
   }
 
+  public static String getArchDataModel() {
+    return System.getProperty("sun.arch.data.model");
+  }
+
+  public static String getOsName() {
+    return System.getProperty("os.name");
+  }
+
   private RuntimeUtils() {}
 
   public static CharSequence bashEscape(CharSequence command) {
