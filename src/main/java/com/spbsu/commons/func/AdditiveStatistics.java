@@ -14,7 +14,7 @@ public interface AdditiveStatistics {
 
   AdditiveStatistics remove(AdditiveStatistics other);
 
-  AdditiveStatistics append(int index, double weight);
+   AdditiveStatistics append(int index, double weight);
 
   AdditiveStatistics remove(int index, double weight);
 }
