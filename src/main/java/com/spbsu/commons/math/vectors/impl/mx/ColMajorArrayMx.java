@@ -2,6 +2,8 @@ package com.spbsu.commons.math.vectors.impl.mx;
 
 import org.jetbrains.annotations.NotNull;
 
+import gnu.trove.list.TIntList;
+
 import com.spbsu.commons.math.vectors.MxBasis;
 import com.spbsu.commons.math.vectors.MxIterator;
 import com.spbsu.commons.math.vectors.impl.basis.MxBasisImpl;
@@ -22,7 +24,8 @@ public class ColMajorArrayMx extends Mx.Stub {
   *  | 3 6 9 12 |
   *
   * */
-  private double[] data;
+  public double[] data;
+
   private int rows;
 
   public ColMajorArrayMx(final int rows, final int columns) {
@@ -41,19 +44,19 @@ public class ColMajorArrayMx extends Mx.Stub {
   }
 
   @Override
-  public Mx set(final int i, final int j, final double value) {
+  public ColMajorArrayMx set(final int i, final int j, final double value) {
     data[i + j * rows] = value;
     return this;
   }
 
   @Override
-  public Mx adjust(final int i, final int j, final double increment) {
+  public ColMajorArrayMx adjust(final int i, final int j, final double increment) {
     data[i + j * rows] += increment;
     return this;
   }
 
   @Override
-  public Mx sub(final int i, final int j, final int height, final int width) {
+  public ColMajorArrayMx sub(final int i, final int j, final int height, final int width) {
     final double[] subData = new double[height * width];
     for (int column = j; column < j + width; column++) {
       System.arraycopy(data, i + column * rows, subData, (column - j) * height, height);
@@ -74,7 +77,9 @@ public class ColMajorArrayMx extends Mx.Stub {
   @NotNull
   @Override
   public double[] toArray() {
-    return data;
+    final double[] array = new double[data.length];
+    System.arraycopy(data, 0, array, 0, data.length);
+    return array;
   }
 
   @Override
@@ -104,7 +109,7 @@ public class ColMajorArrayMx extends Mx.Stub {
   }
 
   @Override
-  public Vec col(final int j) {
+  public ArrayVec col(final int j) {
     final double[] column = new double[rows];
     System.arraycopy(data, j * rows, column, 0, rows);
     return new ArrayVec(column);
@@ -181,4 +186,36 @@ public class ColMajorArrayMx extends Mx.Stub {
       }
     };
   }
+
+  public ColMajorArrayMx getColumnsRange(final int begin, final int length) {
+    final double[] destination = new double[rows * length];
+    System.arraycopy(data, rows * begin, destination, 0, rows * length);
+    return new ColMajorArrayMx(rows, destination);
+  }
+
+  public ColMajorArrayMx getColumnsRange(final @NotNull TIntList indexes) {
+    final int size = indexes.size();
+    final double[] destination = new double[rows * size];
+    for (int i = 0; i < size; i++) {
+      System.arraycopy(data, rows * indexes.get(i), destination, rows * i, rows);
+    }
+    return new ColMajorArrayMx(rows, destination);
+  }
+
+  public void setColumn(final int j, final @NotNull ArrayVec column) {
+    setColumn(j, column.data.array);
+  }
+
+  public void setColumn(final int j, final double[] column) {
+    System.arraycopy(column, 0, data, rows * j, rows);
+  }
+
+  public void setPieceOfColumn(final int j, final int begin, final @NotNull ArrayVec piece) {
+    setPieceOfColumn(j, begin, piece.dim(), piece);
+  }
+
+  public void setPieceOfColumn(final int j, final int begin, final int length, final @NotNull ArrayVec piece) {
+    System.arraycopy(piece.toArray(), 0, data, rows * j, length);
+  }
+
 }
