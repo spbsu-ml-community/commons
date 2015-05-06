@@ -1,17 +1,18 @@
 package com.spbsu.commons.seq;
 
 
-import com.spbsu.commons.func.Action;
-import com.spbsu.commons.func.Processor;
-import com.spbsu.commons.seq.trash.FloatingDecimal;
-import com.spbsu.commons.util.ArrayTools;
-import gnu.trove.strategy.HashingStrategy;
-
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Array;
 import java.util.*;
+
+
+import com.spbsu.commons.func.Action;
+import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.seq.trash.FloatingDecimal;
+import com.spbsu.commons.util.ArrayTools;
+import gnu.trove.strategy.HashingStrategy;
 
 /**
  * User: terry
@@ -514,7 +515,7 @@ public class CharSeqTools {
       return false;
     int index = 0;
     while(index < sLength) {
-      if(suffix.charAt(sLength - index - 1) != seq.charAt(sLength - index - 1))
+      if(suffix.charAt(sLength - index - 1) != seq.charAt(length - index - 1))
         return false;
       index++;
     }
