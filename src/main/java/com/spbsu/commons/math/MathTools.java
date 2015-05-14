@@ -235,5 +235,15 @@ public abstract class MathTools {
     prettyPrint.setGroupingUsed(false);
     return prettyPrint;
   }
+
+  public static int combinationsWithRepetition(int n, int k) {
+    return combinationsNumber(n + k - 1, k);
+  }
+
+  public static int combinationsNumber(int n, int k)
+  {
+    return factorial(n) / factorial(n - k) / factorial(k);
+  }
+
 }
 
