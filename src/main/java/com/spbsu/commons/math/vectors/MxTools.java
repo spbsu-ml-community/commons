@@ -309,6 +309,10 @@ public class MxTools {
     return multiply(transpose(inverseL), inverseL);
   }
 
+  public static Vec solveCholesky(final Mx a, Vec b)
+  {
+    return multiply(inverseCholesky(a), b);
+  }
   public static String prettyPrint(final Mx mx) {
     final StringBuilder builder = new StringBuilder();
     for (int i = 0; i < mx.rows(); i++) {
