@@ -1,12 +1,11 @@
 package com.spbsu.commons.math.io;
 
-import java.math.RoundingMode;
 import java.text.NumberFormat;
-import java.util.Locale;
 
 
 import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
+import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.Mx;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.seq.CharSeqTools;
@@ -16,23 +15,20 @@ import com.spbsu.commons.seq.CharSeqTools;
  * Date: 25.02.14
  * Time: 10:38
  */
-public class Mx2CharSequenceConversionPack implements ConversionPack<Mx,CharSequence> {
+public class Mx2CharSequenceConversionPack implements ConversionPack<Mx, CharSequence> {
   public static class Mx2CharSequenceConverter implements TypeConverter<Mx, CharSequence> {
     @Override
     public CharSequence convert(final Mx from) {
-      final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
-      prettyPrint.setMaximumFractionDigits(5);
-      prettyPrint.setMinimumFractionDigits(0);
-      prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
-      prettyPrint.setGroupingUsed(false);
+      final NumberFormat prettyPrint = MathTools.numberFormatter();
 
       final StringBuilder builder = new StringBuilder();
       builder.append(from.rows()).append(" ").append(from.columns());
       for (int i = 0; i < from.rows(); i++) {
         builder.append("\n");
         for (int j = 0; j < from.columns(); j++) {
-          if (j > 0)
+          if (j > 0) {
             builder.append(" ");
+          }
           builder.append(prettyPrint.format(from.get(i, j)));
         }
       }
