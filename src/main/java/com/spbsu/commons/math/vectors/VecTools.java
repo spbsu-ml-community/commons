@@ -414,23 +414,23 @@ public class VecTools {
       return (T)result;
   }
 
-  public static void assign(final Vec a, final Vec vec) {
-    if (a.length() != vec.length()) {
+  public static void assign(final Vec target, final Vec source) {
+    if (target.length() != source.length()) {
       throw new IllegalArgumentException("Vector dimensions differ");
     }
-    if (a instanceof VecBasedMx) {
-      assign(((VecBasedMx) a).vec, vec);
+    if (target instanceof VecBasedMx) {
+      assign(((VecBasedMx) target).vec, source);
     }
-    else if (vec instanceof VecBasedMx) {
-      assign(a, ((VecBasedMx) vec).vec);
+    else if (source instanceof VecBasedMx) {
+      assign(target, ((VecBasedMx) source).vec);
     }
-    else if (vec instanceof ArrayVec && a instanceof ArrayVec)
-      ((ArrayVec)a).assign((ArrayVec)vec);
+    else if (source instanceof ArrayVec && target instanceof ArrayVec)
+      ((ArrayVec)target).assign((ArrayVec)source);
     else {
-      final VecIterator aiter = a.nonZeroes();
+      final VecIterator aiter = target.nonZeroes();
       while (aiter.advance())
         aiter.setValue(0.);
-      append(a, vec);
+      append(target, source);
     }
   }
 
