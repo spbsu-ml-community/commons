@@ -1,10 +1,12 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Locale;
 
@@ -389,6 +391,43 @@ public class MxTools {
     }
 
     return Math.sqrt(lower + upper);
+  }
+
+  //Converge if a is symmetric positive-definite or
+  //a is strictly or irreducibly diagonally dominant
+  public static Vec solveGaussZeildel(Mx a, Vec b) {
+    final int N = b.dim();
+    Vec x0 = new ArrayVec(N);
+    Vec x1 = new ArrayVec(N);
+    int iterations = 0;
+    do {
+      iterations++;
+      for (int i = 0; i < N; i++) {
+        double value = b.get(i);
+        final VecIterator iterator = a.row(i).nonZeroes();
+        while (iterator.advance()) {
+          final int index = iterator.index();
+          if (index < i) {
+            value -= iterator.value() * x1.get(index);
+          }
+          if (index > i) {
+            value -= iterator.value() * x0.get(index);
+          }
+        }
+        if (Math.abs(a.get(i, i)) > MathTools.EPSILON) {
+          x1.set(i, value / a.get(i, i));
+        } else {
+          throw new InvalidParameterException("Matrix must have non-zero diagonal elements");
+        }
+      }
+
+      {
+        Vec temp = x0;
+        x0 = x1;
+        x1 = temp;
+      }
+    } while (VecTools.distance(x0, x1) / x0.dim() > MathTools.EPSILON);
+    return x1;
   }
 
   public enum NormalizationType {
