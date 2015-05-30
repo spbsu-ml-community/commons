@@ -125,7 +125,7 @@ public class MxTools {
     final Mx l = new VecBasedMx(dim, dim);
     final Mx q = new VecBasedMx(dim, dim);
     householderLQ(a, l, q);
-    return multiply(multiply(MxTools.transposeIt(q), inverseLTriangle(l)), b);
+    return multiply(multiply(q, inverseLTriangle(l)), b);
   }
 
   public static Mx E(final int dim) {
@@ -311,7 +311,7 @@ public class MxTools {
     return multiply(transpose(inverseL), inverseL);
   }
 
-  public static Vec solveCholesky(final Mx a, Vec b)
+  public static Vec solveSystemCholesky(final Mx a, Vec b)
   {
     return multiply(inverseCholesky(a), b);
   }
@@ -393,9 +393,12 @@ public class MxTools {
     return Math.sqrt(lower + upper);
   }
 
+  public static Vec solveSystemGaussZeildel(Mx a, Vec b) {
+    return solveGaussZeildel(a, b, MathTools.EPSILON);
+  }
   //Converge if a is symmetric positive-definite or
   //a is strictly or irreducibly diagonally dominant
-  public static Vec solveGaussZeildel(Mx a, Vec b) {
+  public static Vec solveGaussZeildel(Mx a, Vec b, double stopCondition) {
     final int N = b.dim();
     Vec x0 = new ArrayVec(N);
     Vec x1 = new ArrayVec(N);
@@ -416,7 +419,10 @@ public class MxTools {
         }
         if (Math.abs(a.get(i, i)) > MathTools.EPSILON) {
           x1.set(i, value / a.get(i, i));
-        } else {
+        } else if (Math.abs(value) < MathTools.EPSILON) {
+          x1.set(i, 0);
+        }
+        else {
           throw new InvalidParameterException("Matrix must have non-zero diagonal elements");
         }
       }
@@ -426,7 +432,7 @@ public class MxTools {
         x0 = x1;
         x1 = temp;
       }
-    } while (VecTools.distance(x0, x1) / x0.dim() > MathTools.EPSILON);
+    } while (VecTools.distance(x0, x1) / x0.dim() > stopCondition);
     return x1;
   }
 

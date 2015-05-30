@@ -15,55 +15,44 @@ public class MxToolsTest extends TestCase {
     final Vec x = MxTools.solveSystemLq(A, b);
     assertTrue(VecTools.distance(MxTools.multiply(A, x), b) < 1e-4);
   }
-  //Todo: find bug in LQ. Test below
-  public void FailedtestHouseHolderLQ()
+
+  private final Mx matrix = new VecBasedMx(4, new ArrayVec(
+      2, 0.25, 0, 0,
+      0.25, 0.0625, 0, 0,
+      0, 0, 2, 1.25,
+      0, 0, 1.25, 0.8125
+  ));
+
+  private final Vec vector = new ArrayVec(2, 0.5, 402, 251.5);
+
+  public void testHouseHolderLQ()
   {
-    final Mx a = new VecBasedMx(4, new ArrayVec(
-        2, 0.25, 0, 0,
-        0.25, 0.0625, 0, 0,
-        0, 0, 2, 1.25,
-        0, 0, 1.25, 0.8125
-    ));
     Mx l = new VecBasedMx(4, 4);
     Mx q = new VecBasedMx(4, 4);
-    MxTools.householderLQ(a, l, q);
-    assertEquals(0, VecTools.distance(a, MxTools.multiply(l, q)), 1e-3);
+    MxTools.householderLQ(matrix, l, q);
+    assertEquals(0, VecTools.distance(matrix, MxTools.multiply(l, MxTools.transpose(q))), 1e-3);
   }
 
   public void testCholesky()
   {
-    final Mx a = new VecBasedMx(4, new ArrayVec(
-        2, 0.25, 0, 0,
-        0.25, 0.0625, 0, 0,
-        0, 0, 2, 1.25,
-        0, 0, 1.25, 0.8125
-    ));
-    Mx l = MxTools.choleskyDecomposition(a);
-    assertEquals(0, VecTools.distance(a, MxTools.multiply(l, MxTools.transpose(l))), 1e-3);
+    Mx l = MxTools.choleskyDecomposition(matrix);
+    assertEquals(0, VecTools.distance(matrix, MxTools.multiply(l, MxTools.transpose(l))), 1e-3);
   }
 
   public void testCholeskySolve()
   {
-    final Mx a = new VecBasedMx(4, new ArrayVec(
-        2, 0.25, 0, 0,
-        0.25, 0.0625, 0, 0,
-        0, 0, 2, 1.25,
-        0, 0, 1.25, 0.8125
-    ));
-    final Vec b = new ArrayVec(2, 0.5, 402, 251.5);
-    Vec answer = MxTools.solveCholesky(a, b);
-    assertEquals(0, VecTools.distance(b, MxTools.multiply(a, answer)), 1e-3);
+    Vec answer = MxTools.solveSystemCholesky(matrix, vector);
+    assertEquals(0, VecTools.distance(vector, MxTools.multiply(matrix, answer)), 1e-3);
   }
 
+  public void testLQSolve()
+  {
+    Vec answer = MxTools.solveSystemLq(matrix, vector);
+    assertEquals(0, VecTools.distance(vector, MxTools.multiply(matrix, answer)), 1e-3);
+
+  }
   public void testIterativeSolve() {
-    final Mx a = new VecBasedMx(4, new ArrayVec(
-        2, 0.25, 0, 0,
-        0.25, 0.0625, 0, 0,
-        0, 0, 2, 1.25,
-        0, 0, 1.25, 0.8125
-    ));
-    final Vec b = new ArrayVec(2, 0.5, 402, 251.5);
-    Vec answer = MxTools.solveGaussZeildel(a, b);
-    assertEquals(0, VecTools.distance(b, MxTools.multiply(a, answer)), 1e-3);
+    Vec answer = MxTools.solveSystemGaussZeildel(matrix, vector);
+    assertEquals(0, VecTools.distance(vector, MxTools.multiply(matrix, answer)), 1e-3);
   }
 }
