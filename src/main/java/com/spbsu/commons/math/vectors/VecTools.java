@@ -223,43 +223,7 @@ public class VecTools {
   }
 
   public static double distance(Vec left, Vec right) {
-    checkBasisesEquals(left, right);
-    if (left instanceof VecBasedMx) {
-      left = ((VecBasedMx)left).vec;
-    }
-    if (right instanceof VecBasedMx) {
-      right = ((VecBasedMx)right).vec;
-    }
-    if (left instanceof ArrayVec && right instanceof ArrayVec) {
-      final ArrayVec larray = (ArrayVec) left;
-      final ArrayVec rarray = (ArrayVec) right;
-      return sqrt(larray.l2(rarray));
-    }
-
-    final VecIterator lIter = left.nonZeroes();
-    final VecIterator rIter = right.nonZeroes();
-    lIter.advance();
-    rIter.advance();
-
-    double result = 0.0;
-
-    while (lIter.isValid() || rIter.isValid()) {
-      if (lIter.index() == rIter.index()) {
-        result += (lIter.value() - rIter.value()) * (lIter.value() - rIter.value());
-        lIter.advance();
-        rIter.advance();
-      }
-      else if (lIter.index() < rIter.index()) {
-        result += lIter.value() * lIter.value();
-        lIter.advance();
-      }
-      else if (lIter.index() > rIter.index()) {
-        result += rIter.value() * rIter.value();
-        rIter.advance();
-      }
-    }
-
-    return Math.sqrt(result);
+     return Math.sqrt(l2(left,right));
   }
 
   public static double distanceJS12(final Vec left, final Vec right) {
@@ -414,6 +378,12 @@ public class VecTools {
       return (T)result;
   }
 
+  public static Vec adjust(final Vec a, double inc) {
+    for (int i=0; i < a.dim();++i)
+      a.adjust(i,inc);
+    return a;
+  }
+
   public static void assign(final Vec target, final Vec source) {
     if (target.length() != source.length()) {
       throw new IllegalArgumentException("Vector dimensions differ");
@@ -543,6 +513,45 @@ public class VecTools {
     }
 
     return count;
+  }
+
+  public static double l2(Vec left, Vec right) {
+    checkBasisesEquals(left, right);
+    if (left instanceof VecBasedMx) {
+      left = ((VecBasedMx)left).vec;
+    }
+    if (right instanceof VecBasedMx) {
+      right = ((VecBasedMx)right).vec;
+    }
+    if (left instanceof ArrayVec && right instanceof ArrayVec) {
+      final ArrayVec larray = (ArrayVec) left;
+      final ArrayVec rarray = (ArrayVec) right;
+      return larray.l2(rarray);
+    }
+
+    final VecIterator lIter = left.nonZeroes();
+    final VecIterator rIter = right.nonZeroes();
+    lIter.advance();
+    rIter.advance();
+
+    double result = 0.0;
+
+    while (lIter.isValid() || rIter.isValid()) {
+      if (lIter.index() == rIter.index()) {
+        result += (lIter.value() - rIter.value()) * (lIter.value() - rIter.value());
+        lIter.advance();
+        rIter.advance();
+      }
+      else if (lIter.index() < rIter.index()) {
+        result += lIter.value() * lIter.value();
+        lIter.advance();
+      }
+      else if (lIter.index() > rIter.index()) {
+        result += rIter.value() * rIter.value();
+        rIter.advance();
+      }
+    }
+    return result;
   }
 
   private static class IndexedVecIter {

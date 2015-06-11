@@ -14,7 +14,6 @@ public interface Vec extends Seq<Double> {
   double get(int i);
   Vec set(int i, double val);
   Vec adjust(int i, double increment);
-  Vec adjust(double increment);
   VecIterator nonZeroes();
 
   int dim();
@@ -30,13 +29,6 @@ public interface Vec extends Seq<Double> {
     @Override
     public final Double at(final int i) {
       return get(i);
-    }
-
-    @Override
-    public Vec adjust(double inc) {
-      for (int i=0; i < dim();++i)
-        adjust(i,inc);
-      return this;
     }
 
     @Override
