@@ -128,7 +128,7 @@ public class CharSeqTools {
       result.append(texts.get(i));
     }
 
-    return result.toString();
+    return result.build();
   }
 
   @SafeVarargs
