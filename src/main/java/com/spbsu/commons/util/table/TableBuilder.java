@@ -29,6 +29,15 @@ public class TableBuilder {
     return this;
   }
 
+  public TableBuilder setHeader(final String description, final String... values) {
+    header = new String[values.length + 1];
+    header[0] = description;
+    for (int i = 0; i < values.length; i++) {
+      header[1 + i] = values[i];
+    }
+    return this;
+  }
+
   public TableBuilder addRow(final String description, final double... values) {
     final String[] row = new String[values.length + 1];
     row[0] = description;
