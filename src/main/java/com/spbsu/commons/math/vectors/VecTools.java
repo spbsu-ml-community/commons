@@ -13,7 +13,10 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static java.lang.Math.log;
 import static java.lang.Math.sqrt;
@@ -702,7 +705,7 @@ public class VecTools {
   }
 
   public static <T extends Vec> T scale(final T vector, final double factor) {
-    if (factor < EPSILON)
+    if (Math.abs(factor) < EPSILON)
       return fill(vector, 0.);
     if (vector instanceof VecBasedMx) {
       scale(((VecBasedMx) vector).vec, factor);
