@@ -136,12 +136,6 @@ public class MxTools {
     return multiply(multiply(q, inverseLTriangle(l)), b);
   }
 
-  public static Vec solveSystemCholesky(final Mx a, final Vec b) {
-    final Mx mx = choleskyDecomposition(a);
-    final Mx reverseL = inverseLTriangle(mx);
-    return multiply(reverseL, multiply(transpose(reverseL), b));
-  }
-
   public static Mx E(final int dim) {
     final Mx result = new VecBasedMx(dim, dim);
     for (int i = 0; i < dim; i++)
@@ -327,6 +321,11 @@ public class MxTools {
     final Mx l = choleskyDecomposition(a);
     final Mx inverseL = inverseLTriangle(l);
     return multiply(transpose(inverseL), inverseL);
+  }
+
+  public static Vec solveSystemCholesky(final Mx a, Vec b)
+  {
+    return multiply(inverseCholesky(a), b);
   }
 
   public static String prettyPrint(final Mx mx) {
