@@ -3,6 +3,7 @@ package com.spbsu.commons.math.vectors;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.*;
+import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.IntSeq;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.list.TDoubleList;
@@ -12,10 +13,7 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.lang.Math.log;
 import static java.lang.Math.sqrt;
@@ -41,6 +39,10 @@ public class VecTools {
   }
 
   public static boolean equals(final Vec left, final Vec right) {
+    return equals(left, right, MathTools.EPSILON);
+  }
+
+  public static boolean equals(final Vec left, final Vec right, double epsilon) {
     if (left.dim() != right.dim())
       return false;
     if (left instanceof Mx && right instanceof Mx)
@@ -60,7 +62,7 @@ public class VecTools {
     }
 
     for (int i = 0; i < left.dim(); i++) {
-      if (Math.abs(left.get(i) - right.get(i)) > EPSILON )
+      if (Math.abs(left.get(i) - right.get(i)) > epsilon )
         return false;
     }
 
@@ -324,6 +326,17 @@ public class VecTools {
   }
 
   public static <T extends Vec> T fill(final T x, final double val) {
+    if (Math.abs(val) < MathTools.EPSILON) {
+      if (x instanceof SparseVec) {
+        ((SparseVec) x).clear();
+        return x;
+      }
+    }
+    if (x instanceof ArrayVec) {
+      ((ArrayVec) x).fill(val);
+      return x;
+    }
+
     for (int i = 0; i < x.dim(); i++) {
       x.set(i, val);
     }
@@ -331,6 +344,8 @@ public class VecTools {
   }
 
   public static void incscale(final Vec result, final Vec left, final double scale) {
+    if (Double.isNaN(scale))
+      throw new IllegalArgumentException();
     if (left instanceof ArrayVec && left.getClass().equals(result.getClass())) {
       final ArrayVec larr = (ArrayVec) left;
       final ArrayVec resarr = (ArrayVec) result;
@@ -554,6 +569,24 @@ public class VecTools {
     return result;
   }
 
+  public static <T extends Vec> T fillGaussian(T vec, FastRandom rng) {
+    for (int i = 0; i < vec.length(); i++) {
+      vec.set(i, rng.nextGaussian());
+    }
+    return vec;
+  }
+
+  public static <T extends Vec> T fillUniform(T vec, FastRandom rng) {
+    return fillUniform(vec, rng, 1.);
+  }
+
+  public static <T extends Vec> T fillUniform(T vec, FastRandom rng, double scale) {
+    for (int i = 0; i < vec.length(); i++) {
+      vec.set(i, (rng.nextBoolean() ? 1 : -1) * rng.nextDouble() * scale);
+    }
+    return vec;
+  }
+
   private static class IndexedVecIter {
     VecIterator iter;
     int index;
@@ -669,21 +702,15 @@ public class VecTools {
   }
 
   public static <T extends Vec> T scale(final T vector, final double factor) {
+    if (factor < EPSILON)
+      return fill(vector, 0.);
     if (vector instanceof VecBasedMx) {
       scale(((VecBasedMx) vector).vec, factor);
       return vector;
     }
-    if (Math.abs(factor) < EPSILON) {
-      if (vector instanceof CustomBasisVec) {
-        final CustomBasisVec sparseVec = (CustomBasisVec) vector;
-        sparseVec.values.resetQuick();
-        sparseVec.indices.resetQuick();
-        return vector;
-      }
-      else if (vector instanceof ArrayVec) {
-        ((ArrayVec)vector).scale(factor);
-        return vector;
-      }
+    else if (vector instanceof ArrayVec) {
+      ((ArrayVec)vector).scale(factor);
+      return vector;
     }
     final VecIterator iter = vector.nonZeroes();
     while (iter.advance()) {

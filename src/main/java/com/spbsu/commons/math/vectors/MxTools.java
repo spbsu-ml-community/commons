@@ -10,6 +10,8 @@ import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Locale;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.signum;
 import static java.lang.Math.sqrt;
 
 /**
@@ -25,7 +27,7 @@ public class MxTools {
     final int dim = a.columns();
     for (int i = 0; i < dim; i++)
       for (int j = 0; j < dim; j++)
-        if (Math.abs(a.get(i, j) - a.get(j, i)) > EPSILON)
+        if (abs(a.get(i, j) - a.get(j, i)) > EPSILON)
           return false;
     return true;
   }
@@ -82,13 +84,19 @@ public class MxTools {
         for (int k = 0; k < j; k++) {
           val -= l.get(i, k) * l.get(j, k);
         }
-        val /= val != 0 ? l.get(j, j) : 1;
-        l.set(i, j, val != 0 ? val : 0);
+        final double diagonal = l.get(j, j);
+        if (abs(diagonal) > MathTools.EPSILON)
+          val /= diagonal;
+        else
+          val = abs(val) < EPSILON ? 0 : (val * diagonal > 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY);
+        l.set(i, j, val);
         sum2 += val * val;
       }
-      final double diagonal = a.get(i, i) - sum2;
+      double diagonal = a.get(i, i) - sum2;
       if (diagonal < 0)
         throw new IllegalArgumentException("Matrix must be positive definite!");
+      if (abs(diagonal) < EPSILON)
+        diagonal = 0.;
       l.set(i, i, sqrt(diagonal));
     }
     return l;
@@ -128,6 +136,12 @@ public class MxTools {
     return multiply(multiply(q, inverseLTriangle(l)), b);
   }
 
+  public static Vec solveSystemCholesky(final Mx a, final Vec b) {
+    final Mx mx = choleskyDecomposition(a);
+    final Mx reverseL = inverseLTriangle(mx);
+    return multiply(reverseL, multiply(transpose(reverseL), b));
+  }
+
   public static Mx E(final int dim) {
     final Mx result = new VecBasedMx(dim, dim);
     for (int i = 0; i < dim; i++)
@@ -146,15 +160,19 @@ public class MxTools {
     final int dim = a.columns();
     if (dim != b.rows())
       throw new IllegalArgumentException("Matrices must have a.columns == b.rows!");
+    final VecBasedMx result = new VecBasedMx(a.rows(), b.columns());
+    return multiplyTo(a, b, result);
+  }
+
+  public static Mx multiplyTo(Mx a, Mx b, Mx result) {
+    final int dim = a.columns();
     final int rows = a.rows();
-    final int columns = b.columns();
-    final VecBasedMx result = new VecBasedMx(rows, columns);
     for (int i = 0; i < rows; i++) {
       final Vec arow = a.row(i);
       final Vec resultRow = result.row(i);
       for (int t = 0; t < dim; t++) {
         final double scale = arow.get(t);
-        if (Math.abs(scale) > EPSILON)
+        if (abs(scale) > EPSILON)
           VecTools.incscale(resultRow, b.row(t), scale);
       }
     }

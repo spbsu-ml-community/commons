@@ -13,15 +13,23 @@ import com.spbsu.commons.util.ArrayTools;
 public class ArrayVec extends Vec.Stub {
   public final ArrayPart<double[]> data;
   public ArrayVec(final double... values) {
-    data = new ArrayPart<double[]>(values);
+    data = new ArrayPart<>(values);
   }
 
   public ArrayVec(final int dim) {
-    data = new ArrayPart<double[]>(new double[dim]);
+    if (dim < 0)
+      throw new NegativeArraySizeException();
+    data = new ArrayPart<>(new double[dim]);
   }
 
   public ArrayVec(final double[] values, final int offset, final int length) {
-    data = new ArrayPart<double[]>(values, offset, length);
+    if (offset < 0 || offset + length > values.length)
+      throw new ArrayIndexOutOfBoundsException();
+//    for (int i = offset; i < offset + length; i++) {
+//      if (Double.isNaN(values[i]))
+//        throw new IllegalArgumentException();
+//    }
+    data = new ArrayPart<>(values, offset, length);
   }
 
   @Override
@@ -34,10 +42,14 @@ public class ArrayVec extends Vec.Stub {
   }
 
   public void fill(final double v) {
+//    if (Double.isNaN(v))
+//      throw new IllegalArgumentException();
     ArrayTools.fill(data.array, data.start, data.length, v);
   }
 
   public void scale(final double s) {
+//    if (Double.isNaN(s))
+//      throw new IllegalArgumentException();
     ArrayTools.mul(data.array, data.start, data.length, s);
   }
 
@@ -98,12 +110,16 @@ public class ArrayVec extends Vec.Stub {
 
   @Override
   public Vec set(final int i, final double val) {
+//    if (Double.isNaN(val))
+//      throw new IllegalArgumentException();
     data.array[data.start + i] = val;
     return this;
   }
 
   @Override
   public Vec adjust(final int i, final double increment) {
+//    if (Double.isNaN(increment))
+//      throw new IllegalArgumentException();
     data.array[data.start + i] += increment;
     return this;
   }

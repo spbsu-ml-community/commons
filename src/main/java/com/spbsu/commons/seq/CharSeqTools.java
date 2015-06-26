@@ -5,6 +5,8 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Array;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.*;
 
 
@@ -33,7 +35,16 @@ public class CharSeqTools {
       return CharSeqTools.equals(cs1, cs2);
     }
   };
-  
+
+  public static final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
+  static {
+    CharSeqTools.prettyPrint.setMaximumFractionDigits(4);
+    CharSeqTools.prettyPrint.setMinimumFractionDigits(0);
+    CharSeqTools.prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
+    CharSeqTools.prettyPrint.setGroupingUsed(false);
+  }
+
+
   public static boolean isWhitespace(final char ch) {
     return ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r';
   }

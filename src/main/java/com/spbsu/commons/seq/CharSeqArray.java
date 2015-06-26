@@ -13,8 +13,15 @@ public class CharSeqArray extends CharSeq {
     this.end = end;
   }
 
-  public CharSeqArray(final char[] chars) {
+  public CharSeqArray(final char... chars) {
     this(chars, 0, chars.length);
+  }
+
+  public CharSeqArray(final Character[] chars) {
+    this(new char[chars.length], 0, chars.length);
+    for(int i = 0; i < chars.length; i++) {
+      this.array[i]  = chars[i];
+    }
   }
 
   @Override

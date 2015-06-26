@@ -1,6 +1,7 @@
 package com.spbsu.commons.math.vectors.impl.idxtrans;
 
 import com.spbsu.commons.math.vectors.IndexTransformation;
+import com.spbsu.commons.seq.IntSeq;
 
 import java.util.Arrays;
 
@@ -21,6 +22,19 @@ public class ArrayPermutation implements IndexTransformation {
   public ArrayPermutation(final int[] perm) {
     this.perm = perm;
     for (int i = 0; i < perm.length; i++) {
+      maxBack = max(perm[i], maxBack);
+      minBack = min(perm[i], minBack);
+    }
+    backPerm = new int[maxBack + 1];
+    Arrays.fill(backPerm, -1);
+    for (int i = 0; i < perm.length; i++)
+      backPerm[perm[i]] = i;
+  }
+
+  public ArrayPermutation(final IntSeq permSeq) {
+    this.perm = new int[permSeq.length()];
+    for (int i = 0; i < perm.length; i++) {
+      perm[i] = permSeq.at(i);
       maxBack = max(perm[i], maxBack);
       minBack = min(perm[i], minBack);
     }

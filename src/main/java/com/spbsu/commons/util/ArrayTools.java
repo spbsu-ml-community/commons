@@ -833,4 +833,23 @@ public abstract class ArrayTools {
     }
     return false;
   }
+
+  public static <T> int indexOf(T v, Seq<T> seq) {
+    if (seq instanceof CharSeq) {
+      return CharSeqTools.indexOf((CharSeq) seq, new CharSeqChar((Character) v));
+    }
+    if (v != null) {
+      for(int i = 0; i < seq.length(); i++) {
+        if (v.equals(seq.at(i)))
+          return i;
+      }
+    }
+    else {
+      for(int i = 0; i < seq.length(); i++) {
+        if (seq.at(i) == null)
+          return i;
+      }
+    }
+    return -1;
+  }
 }

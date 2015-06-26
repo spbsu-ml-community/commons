@@ -7,6 +7,7 @@ import com.spbsu.commons.math.vectors.Basis;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
 import com.spbsu.commons.math.vectors.impl.basis.IntBasis;
+import com.spbsu.commons.math.vectors.impl.idxtrans.SubVecTransformation;
 import com.spbsu.commons.math.vectors.impl.iterators.SparseVecNZIterator;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -52,6 +53,8 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
 
   @Override
   public Vec set(final int i, final double val) {
+    if (Double.isNaN(val))
+      throw new IllegalArgumentException();
     final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       if (val == 0) {
@@ -85,6 +88,8 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
 
   @Override
   public Vec adjust(final int i, final double increment) {
+    if (Double.isNaN(increment))
+      throw new IllegalArgumentException();
     final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       final double newValue = values.getQuick(realIndex) + increment;
@@ -149,7 +154,7 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
       indices[i] = this.indices.get(i + sindex) - start;
       values[i] = this.values.get(i + sindex);
     }
-    return new CustomBasisVec<IntBasis>(new IntBasis(len), indices, values);
+    return new IndexTransVec(this, new SubVecTransformation(start, len));
   }
 
 
@@ -164,5 +169,10 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
       this.indices.add(index);
       this.values.add(v);
     }
+  }
+
+  public void clear() {
+    this.indices.clear();
+    this.values.clear();
   }
 }

@@ -68,7 +68,7 @@ public class TypeConvertersCollection implements ConversionRepository {
                 if (register(converterClass)) {
                   registered.add(converterClass);
                 } else {
-                  LOG.warn("Cant register converter " + converterClass);
+//                  LOG.warn("Cant register converter " + converterClass);
                 }
               } else {
                 registered.add(converterClass);
@@ -228,8 +228,8 @@ public class TypeConvertersCollection implements ConversionRepository {
     if (ConversionPack.class.isAssignableFrom(converterClass)) {
       try {
         final ConversionPack instance =(ConversionPack) converterClass.newInstance();
-        register(instance.to());
-        register(instance.from());
+        return register(instance.to())
+                && register(instance.from());
       } catch (InstantiationException | IllegalAccessException e) {
         LOG.warn("Unable to init conversion pack", e);
       }

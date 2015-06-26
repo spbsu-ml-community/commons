@@ -1,11 +1,15 @@
 package com.spbsu.commons.random;
 
+import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
 
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static java.lang.Math.exp;
+import static java.lang.Math.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,42 +19,30 @@ import static java.lang.Math.exp;
  * To change this template use File | Settings | File Templates.
  */
 public class FastRandom extends Random {
-  private long u;
-  private long v = 4101842887655102017L;
-  private long w = 1;
+  private final long seed;
+  private final ThreadLocal<RandState> state = new ThreadLocal<RandState>() {
+    @Override
+    protected RandState initialValue() {
+      return new RandState(seed);
+    }
+  };
 
   public FastRandom() {
     this(System.nanoTime());
   }
 
   public FastRandom(final long seed) {
-    u = seed ^ v;
-    nextLong();
-    v = u;
-    nextLong();
-    w = v;
-    nextLong();
+    this.seed = seed;
   }
 
   @Override
-  public synchronized long nextLong() {
-    long localU = u;
-    long localV = v;
-    long localW = w;
+  public long nextLong() {
+    return state.get().advance();
+  }
 
-    localU = localU * 2862933555777941757L + 7046029254386353087L;
-    localV ^= localV >>> 17;
-    localV ^= localV << 31;
-    localV ^= localV >>> 8;
-    localW = 4294957665L * (localW & 0xffffffff) + (localW >>> 32);
-    long x = localU ^ (localU << 21);
-    x ^= x >>> 35;
-    x ^= x << 4;
-    final long ret = (x + localV) ^ localW;
-    u = localU;
-    v = localV;
-    w = localW;
-    return ret;
+  @Override
+  public double nextGaussian() {
+    return sqrt(-2. * log(nextDouble())) * cos(2 * Math.PI * nextDouble());
   }
 
   @Override
@@ -58,7 +50,6 @@ public class FastRandom extends Random {
     return (int) (nextLong() >>> (64-bits));
   }
 
-  /** Standard Knuth implementation. Use normal approximation for frequencies > 25 */
   public int nextPoisson(final double meanFreq) {
     if (meanFreq > 25) {
       final double val = nextNormal(meanFreq, Math.sqrt(meanFreq));
@@ -66,15 +57,16 @@ public class FastRandom extends Random {
         return nextPoisson(meanFreq);
       return (int) val + (val - (int)val >= 0.5 ? 1 : 0);
     }
-    final double L = exp(-meanFreq);
-    int k = 0;
-    double p = 1;
-    do {
-      k++;
-      p *= nextDouble();
+    int x = 0;
+    double p = exp(-meanFreq);
+    double s = p;
+    final double u = nextDouble();
+    while (u > s) {
+      x++;
+      p *= meanFreq / x;
+      s += p;
     }
-    while(p > L);
-    return k - 1;
+    return x;
   }
 
   private double nextNormal(final double meanFreq, final double stddev) {
@@ -124,4 +116,68 @@ public class FastRandom extends Random {
     return (mask & nextByte()) % k;
   }
 
+  public double nextGamma(double shape, double scale) {
+    if (shape < 1)
+      throw new IllegalArgumentException("Theta parameter must be positive");
+    final double delta = shape - (int)shape;
+    double ksi = 0;
+    if (delta > MathTools.EPSILON) {
+      double eta;
+      do {
+        final double a = nextDouble();
+        final double b = nextDouble();
+        final double c = nextDouble();
+
+        if (a <= E / (E + delta)) {
+          ksi = pow(b, 1 / delta);
+          eta = c * pow(ksi, delta - 1);
+        } else {
+          ksi = 1 - log(b);
+          eta = c * exp(-ksi);
+        }
+      }
+      while (eta > pow(ksi, delta - 1) * exp(-ksi));
+    }
+
+    double result = 0;
+    for (int i = 0; i < (int)shape; i++) {
+      result += log(nextDouble());
+    }
+    return scale * (ksi - result);
+  }
+
+  private static class RandState {
+    private long u;
+    private long v = 4101842887655102017L;
+    private long w = 1;
+
+    public RandState(long seed) {
+      u = seed ^ v;
+      advance();
+      v = u;
+      advance();
+      w = v;
+      advance();
+    }
+
+    private long advance() {
+      long localU = u;
+      long localV = v;
+      long localW = w;
+
+      localU = localU * 2862933555777941757L + 7046029254386353087L;
+      localV ^= localV >>> 17;
+      localV ^= localV << 31;
+      localV ^= localV >>> 8;
+      localW = 4294957665L * (localW & 0xffffffffl) + (localW >>> 32);
+      long x = localU ^ (localU << 21);
+      x ^= x >>> 35;
+      x ^= x << 4;
+      final long ret = (x + localV) ^ localW;
+      u = localU;
+      v = localV;
+      w = localW;
+      return ret;
+    }
+  }
 }

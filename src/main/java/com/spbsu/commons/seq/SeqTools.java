@@ -6,4 +6,11 @@ package com.spbsu.commons.seq;
  * Time: 12:36
  */
 public class SeqTools {
+  public static <T> int indexOf(Seq<T> alpha, T s) {
+    for (int i = 0; i < alpha.length(); i++) {
+      if (s.equals(alpha.at(i)))
+        return i;
+    }
+    return -1;
+  }
 }

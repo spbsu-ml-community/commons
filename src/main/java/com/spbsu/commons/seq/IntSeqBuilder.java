@@ -19,6 +19,11 @@ public class IntSeqBuilder implements SeqBuilder<Integer> {
     return this;
   }
 
+  public SeqBuilder<Integer> append(final int... value) {
+    data.add(value);
+    return this;
+  }
+
   @Override
   public SeqBuilder<Integer> add(final Integer integer) {
     append(integer);
@@ -34,7 +39,7 @@ public class IntSeqBuilder implements SeqBuilder<Integer> {
   }
 
   @Override
-  public Seq<Integer> build() {
+  public IntSeq build() {
     return new IntSeq(data.toArray());
   }
 }

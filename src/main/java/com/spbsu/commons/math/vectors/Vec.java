@@ -1,6 +1,7 @@
 package com.spbsu.commons.math.vectors;
 
 import com.spbsu.commons.math.MathTools;
+import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.seq.Seq;
 
 import java.util.Arrays;
@@ -11,6 +12,8 @@ import java.util.Arrays;
  * Time: 13:10:48
  */
 public interface Vec extends Seq<Double> {
+  Vec EMPTY = new ArrayVec();
+
   double get(int i);
   Vec set(int i, double val);
   Vec adjust(int i, double increment);
