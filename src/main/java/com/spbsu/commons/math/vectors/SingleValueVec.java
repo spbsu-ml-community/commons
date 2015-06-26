@@ -11,7 +11,7 @@ import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
  * Date: 23.05.14
  */
 public class SingleValueVec extends Vec.Stub {
-  private final double value;
+  private double value;
   private final int dim;
 
   public SingleValueVec(final double value) {
@@ -37,7 +37,9 @@ public class SingleValueVec extends Vec.Stub {
 
   @Override
   public Vec set(final int i, final double v) {
-    throw new UnsupportedOperationException();
+    checkIndex(i);
+    this.value = v;
+    return this;
   }
 
   @Override
