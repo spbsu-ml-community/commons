@@ -74,8 +74,10 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
 
   private int index(final int n) {
     final TIntArrayList indicesLocal = indices;
-    if (n < 16) {
-      final int size = indicesLocal.size();
+    final int size = indicesLocal.size();
+    if (size == 0 || n > indicesLocal.getQuick(size - 1))
+      return -size-1;
+    if (size < 16) {
       for (int i = 0; i < size; i++) { // jit just suck to insert SSE here
         final int idx = indicesLocal.getQuick(i);
         if (n <= idx)

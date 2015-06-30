@@ -402,15 +402,15 @@ public class VecTools {
     return a;
   }
 
-  public static void assign(final Vec target, final Vec source) {
+  public static Vec assign(final Vec target, final Vec source) {
     if (target.length() != source.length()) {
       throw new IllegalArgumentException("Vector dimensions differ");
     }
     if (target instanceof VecBasedMx) {
-      assign(((VecBasedMx) target).vec, source);
+      return assign(((VecBasedMx) target).vec, source);
     }
     else if (source instanceof VecBasedMx) {
-      assign(target, ((VecBasedMx) source).vec);
+      return assign(target, ((VecBasedMx) source).vec);
     }
     else if (source instanceof ArrayVec && target instanceof ArrayVec)
       ((ArrayVec)target).assign((ArrayVec)source);
@@ -418,8 +418,9 @@ public class VecTools {
       final VecIterator aiter = target.nonZeroes();
       while (aiter.advance())
         aiter.setValue(0.);
-      append(target, source);
+      return append(target, source);
     }
+    return target;
   }
 
   public static double sum(final Vec target) {

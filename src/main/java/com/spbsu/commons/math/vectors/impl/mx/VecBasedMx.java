@@ -19,6 +19,8 @@ public class VecBasedMx extends Mx.Stub {
   public final int columns;
 
   public VecBasedMx(final int columns, final Vec vec) {
+    if (vec instanceof Mx)
+      throw new IllegalArgumentException();
     this.columns = columns;
     this.vec = vec;
   }
