@@ -259,6 +259,10 @@ constructor_next:
     return System.getProperty("java.home") + "/bin/java";
   }
 
+  public static String getJavaLibraryPath() {
+    return System.getProperty("java.library.path");
+  }
+
   public static String getJavaClassPath() {
     return System.getProperty("java.class.path");
   }
