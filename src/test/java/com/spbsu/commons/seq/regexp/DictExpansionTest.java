@@ -2,17 +2,24 @@ package com.spbsu.commons.seq.regexp;
 
 
 import com.spbsu.commons.func.Computable;
+import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.io.codec.seq.DictExpansion;
+import com.spbsu.commons.io.codec.seq.ListDictionary;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecTools;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.random.FastRandom;
-import com.spbsu.commons.io.codec.seq.DictExpansion;
-import com.spbsu.commons.io.codec.seq.ListDictionary;
-import com.spbsu.commons.seq.CharSeq;
-import com.spbsu.commons.seq.CharSeqAdapter;
+import com.spbsu.commons.seq.*;
 import com.spbsu.commons.util.ArrayTools;
 import junit.framework.TestCase;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -22,6 +29,9 @@ import java.util.*;
  * Time: 15:31
  */
 public class DictExpansionTest extends TestCase {
+
+  public static final String ROOT_WIKI_FILE = System.getenv("HOME") + "/data/wiki/ru/" + "ruwiki-latest-pages-articles.xml";
+
   public void testIndependent() throws Exception {
     final List<Character> alpha = new ArrayList<Character>();
     for (char a = 'a'; a <= 'z'; a++)
@@ -98,5 +108,127 @@ public class DictExpansionTest extends TestCase {
       equalsAtLeastOnce = reference.alphabet().toString().equals(de.result().alphabet().toString());
     }
     assertTrue(equalsAtLeastOnce);
+  }
+
+  public void testEnWikiConvert() throws Exception {
+    final SAXParserFactory factory = SAXParserFactory.newInstance();
+    factory.setValidating(false);
+    final SAXParser parser = factory.newSAXParser();
+    final File toParse = new File(ROOT_WIKI_FILE);
+    final File output = new File(ROOT_WIKI_FILE + ".sentences");
+    final PrintStream out = new PrintStream(new FileOutputStream(output));
+//    final DictExpansion<Character> expansion = new DictExpansion<>(new HashSet<>(Arrays.asList('a')), 1000, System.out);
+//    for (int i = 0; i < 1000; i++)
+    parser.parse(new InputSource(new FileInputStream(toParse)), new DefaultHandler() {
+      final StringBuilder path = new StringBuilder();
+      final CharSeqBuilder builder = new CharSeqBuilder();
+      @Override
+      public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        super.startElement(uri, localName, qName, attributes);
+        path.append("/").append(qName);
+        builder.clear();
+      }
+
+      @Override
+      public void characters(char[] ch, int start, int length) throws SAXException {
+        super.characters(ch, start, length);
+        if ("/mediawiki/page/revision/text".equals(path.toString())) {
+          builder.append(ch, start, start + length);
+        }
+      }
+
+      @Override
+      public void endElement(String uri, String localName, String qName) throws SAXException {
+        String text = builder.build().toString();
+        if (!text.startsWith("#REDIRECT") && !text.isEmpty()) {
+          text = text.replaceAll("<!--[^>]*-->", "");
+          text = text.replaceAll("<(?<tag>\\w+)[^>]*/>", "");
+          String replaceAll = text;
+          do {
+            text = replaceAll;
+            //noinspection MalformedRegex
+            replaceAll = text.replaceAll("<(?<tag>\\w+)[^>]*>[^<]*</\\k<tag>>", "");
+          }
+          while(!text.equals(replaceAll));
+          do {
+            text = replaceAll;
+            replaceAll = text.replaceAll("\\{\\{[^\\}^\\{]*\\}\\}", "");
+          }
+          while(!text.equals(replaceAll));
+          do {
+            text = replaceAll;
+            replaceAll = text.replaceAll("\\{[^\\}\\{]*\\}", "");
+          }
+          while(!text.equals(replaceAll));
+
+          do {
+            text = replaceAll;
+            replaceAll = text.replaceAll("\\[\\[[^\\]\\[]*\\]\\]", "");
+          }
+          while(!text.equals(replaceAll));
+          do {
+            text = replaceAll;
+            replaceAll = text.replaceAll("\\[[^\\]\\[]*\\]", "");
+          }
+          while(!text.equals(replaceAll));
+          text = text.replaceAll("\\([^)]*\\)", "");
+          text = text.replaceAll("\\W\\w\\.", "");
+          text = text.replace("===", "");
+          text = text.replace("==", "");
+          text = text.replace("=", " ");
+          text = text.replace("&nbsp;", "");
+          text = text.replace("'", "");
+          text = text.replace("\"", "");
+          text = text.replace("/", " ");
+          text = text.replaceAll("\\s+,", ",");
+          text = text.replaceAll(",+", "");
+          text = text.replace(";", " ");
+          text = text.replace("*", " ");
+          text = text.replace(":", " ");
+          text = text.replaceAll("\\s+", " ");
+          final int references = text.lastIndexOf("References");
+          if (references >= 0)
+            text = text.substring(0, references);
+          text = text.trim();
+          final ReaderChopper chopper = new ReaderChopper(new StringReader(text));
+          CharSequence next;
+          while ((next = chopper.chopQuiet('.', '?', '!')) != null) {
+            final String trim = next.toString().replaceAll("\\s+", " ").trim();
+            if (trim.length() < 10)
+              continue;
+            out.println(trim);
+//            expansion.accept(new CharSeqAdapter(trim));
+          }
+        }
+        super.endElement(uri, localName, qName);
+        path.delete(path.length() - qName.length() - 1, path.length());
+      }
+    });
+  }
+
+  public void testWiki() throws Exception {
+    final File toParse = new File(ROOT_WIKI_FILE + ".sentences");
+    final DictExpansion<Character> expansion = new DictExpansion<>(new HashSet<>(Arrays.asList('a')), 1000, System.out);
+
+    for (int i = 0; i < 1; i++) {
+      CharSeqTools.processLines(new FileReader(toParse), new Processor<CharSequence>() {
+        int index = 0;
+        @Override
+        public void process(CharSequence arg) {
+          if (arg.length() < 150)
+            return;
+          expansion.accept(new CharSeqAdapter(arg));
+          if (++index % 10000 == 0)
+            try {
+              expansion.print(new FileWriter(new File(ROOT_WIKI_FILE + ".dict")));
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+        }
+      });
+    }
+    expansion.print(new FileWriter(new File(ROOT_WIKI_FILE + ".dict")));
+    System.out.println();
+//    final DictExpansion<Character> expansion = new DictExpansion<>(new HashSet<>(Arrays.asList('a')), 1000, System.out);
   }
 }

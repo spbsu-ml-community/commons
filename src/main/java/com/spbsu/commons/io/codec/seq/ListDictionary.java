@@ -8,10 +8,10 @@ import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.Pair;
 
 /**
-* User: solar
-* Date: 22.05.14
-* Time: 16:18
-*/
+ * User: solar
+ * Date: 22.05.14
+ * Time: 16:18
+ */
 public class ListDictionary<T extends Comparable<T>> {
   private final Seq<T>[] sex;
   private final int[] parents;
@@ -44,7 +44,7 @@ public class ListDictionary<T extends Comparable<T>> {
     this(convertToSeqs(chars));
   }
 
-  private static <T> Seq<T>[] convertToSeqs(final T[] chars) {
+  public static <T> Seq<T>[] convertToSeqs(final T[] chars) {
     final List<Seq<T>> initalDict = new ArrayList<>(chars.length);
     for (final T character : chars) {
       //noinspection unchecked
@@ -59,12 +59,11 @@ public class ListDictionary<T extends Comparable<T>> {
     if (index >= 0)
       return index;
     index = -index-2;
-    do {
+    while (index >= 0) {
       if (CharSeqTools.startsWith(seq, sex[index]))
         return index;
       index = parents[index];
     }
-    while(index >= 0);
     throw new RuntimeException("Dictionary index is corrupted!");
   }
 
@@ -76,7 +75,7 @@ public class ListDictionary<T extends Comparable<T>> {
     return sex.length;
   }
 
-  public Collection<? extends Seq<T>> alphabet() {
+  public List<? extends Seq<T>> alphabet() {
     return Arrays.asList(sex);
   }
 

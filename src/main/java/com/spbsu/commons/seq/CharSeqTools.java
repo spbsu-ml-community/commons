@@ -1,6 +1,12 @@
 package com.spbsu.commons.seq;
 
 
+import com.spbsu.commons.func.Action;
+import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.seq.trash.FloatingDecimal;
+import com.spbsu.commons.util.ArrayTools;
+import gnu.trove.strategy.HashingStrategy;
+
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.Reader;
@@ -8,13 +14,6 @@ import java.lang.reflect.Array;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.*;
-
-
-import com.spbsu.commons.func.Action;
-import com.spbsu.commons.func.Processor;
-import com.spbsu.commons.seq.trash.FloatingDecimal;
-import com.spbsu.commons.util.ArrayTools;
-import gnu.trove.strategy.HashingStrategy;
 
 /**
  * User: terry
@@ -654,5 +653,9 @@ public class CharSeqTools {
       off++;
     }
     return result;
+  }
+
+  public static CharSequence ppDouble(double v) {
+    return prettyPrint.format(v);
   }
 }

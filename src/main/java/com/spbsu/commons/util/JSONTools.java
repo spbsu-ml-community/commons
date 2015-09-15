@@ -1,13 +1,12 @@
 package com.spbsu.commons.util;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spbsu.commons.seq.CharSeqReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spbsu.commons.seq.CharSeqReader;
 
 /**
  * User: solar
@@ -16,6 +15,14 @@ import com.spbsu.commons.seq.CharSeqReader;
  */
 public final class JSONTools {
   private static final ObjectMapper OBJECT_MAPPER;
+
+  public static String escape(String symbol) {
+    try {
+      return OBJECT_MAPPER.writeValueAsString(symbol);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   static {
     OBJECT_MAPPER = new ObjectMapper();

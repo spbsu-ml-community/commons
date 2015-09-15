@@ -41,6 +41,52 @@ public class ReaderChopper {
     }
   }
 
+  public CharSequence chopQuiet(char... delimiters) {
+    try {
+      return chop(delimiters);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private final ThreadLocal<boolean[]> filter = new ThreadLocal<boolean[]>() {
+    @Override
+    protected boolean[] initialValue() {
+      return new boolean[Character.MAX_VALUE];
+    }
+  };
+  @Nullable
+  public CharSequence chop(char... delimiters) throws IOException {
+    final boolean[] filter = this.filter.get();
+    for(int i = 0; i < delimiters.length; i++) {
+      filter[delimiters[i]] = true;
+    }
+    try {
+      if (read < 0)
+        return null;
+      final CharSeqBuilder builder = new CharSeqBuilder();
+      int start = offset;
+      while (true) {
+        if (offset >= read) {
+          builder.append(buffer, start, read);
+          readNext();
+          if (read < 0)
+            return builder.length() > 0 ? builder.build() : null;
+          start = 0;
+        }
+        if (filter[buffer[offset++]]) {
+          builder.append(buffer, start, offset - 1);
+          return builder.build();
+        }
+      }
+    }
+    finally {
+      for(int i = 0; i < delimiters.length; i++) {
+        filter[delimiters[i]] = false;
+      }
+    }
+  }
+
   public void skip(int count) throws IOException {
     if (read < 0)
       return;
