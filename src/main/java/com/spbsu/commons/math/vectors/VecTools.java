@@ -13,10 +13,7 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.lang.Math.log;
 import static java.lang.Math.sqrt;
@@ -756,6 +753,10 @@ public class VecTools {
     return result;
   }
 
+  public static Vec join(final Vec... vectors) {
+    return join(Arrays.asList(vectors));
+  }
+
   public static Vec join(final List<Vec> vectors) {
     int dim = 0;
     for (final Vec vec : vectors)
@@ -764,8 +765,9 @@ public class VecTools {
     final Vec result = new ArrayVec(dim);
     int offset = 0;
     for (final Vec vec : vectors) {
-      for (int j = 0; j < vec.dim(); j++) {
-        result.set(offset + j, vec.get(j));
+      final VecIterator vecIter = vec.nonZeroes();
+      while (vecIter.advance()) {
+        result.set(offset + vecIter.index(), vecIter.value());
       }
       offset += vec.dim();
     }

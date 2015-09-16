@@ -29,4 +29,9 @@ public class VecToolsTest extends TestCase {
     final double v3 = VecTools.distance(new ArrayVec(0, 0), new ArrayVec(0, 0));
     assertEquals(0, v3, VectorsTest.EPSILON);
   }
+
+  public void testJoin() throws Exception {
+    final Vec expected = new ArrayVec(1, 2, 3, 4);
+    assertEquals(expected, VecTools.join(expected.sub(0, 2), expected.sub(2, 2)));
+  }
 }
