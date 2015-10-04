@@ -248,7 +248,7 @@ public class CharSeqTools {
       return false;
     int index = 0;
     while(index < prefix.length()) {
-      if(!prefix.at(index).equals(seq.at(index)))
+      if (!prefix.at(index).equals(seq.at(index)))
         return false;
       index++;
     }
@@ -499,6 +499,8 @@ public class CharSeqTools {
   }
 
   public static Object toArray(final Seq values) {
+    if (values instanceof CharSeq)
+      return ((CharSeq) values).toCharArray();
     final Object result;
     if (Integer.class.isAssignableFrom(values.elementType()))
       result = new int[values.length()];
@@ -507,7 +509,7 @@ public class CharSeqTools {
     else if (Byte.class.isAssignableFrom(values.elementType()))
       result = new byte[values.length()];
     else
-      result = Array.newInstance(values.elementType());
+      result = Array.newInstance(values.elementType(), values.length());
     for (int i = 0; i < values.length(); i++) {
       Array.set(result, i, values.at(i));
     }

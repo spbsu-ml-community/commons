@@ -1,11 +1,10 @@
 package com.spbsu.commons.io.codec;
 
+import com.spbsu.commons.io.codec.seq.Dictionary;
+import com.spbsu.commons.seq.ByteSeq;
+
 import java.io.IOException;
 import java.io.InputStream;
-
-
-import com.spbsu.commons.io.codec.seq.ListDictionary;
-import com.spbsu.commons.seq.ByteSeq;
 
 /**
  * User: solar
@@ -14,11 +13,11 @@ import com.spbsu.commons.seq.ByteSeq;
  */
 public class CSCInputStream extends InputStream {
   private final ArithmeticCoding.Decoder base;
-  private final ListDictionary<Byte> dict;
+  private final Dictionary<Byte> dict;
   private final int EOF;
   private boolean EOFReached = false;
 
-  public CSCInputStream(final InputStream base, final ListDictionary<Byte> dict, final int[] freqs) {
+  public CSCInputStream(final InputStream base, final Dictionary<Byte> dict, final int[] freqs) {
     EOF = freqs.length;
     final int[] freqsWithEOF = new int[freqs.length + 1];
     System.arraycopy(freqs, 0, freqsWithEOF, 0, freqs.length);

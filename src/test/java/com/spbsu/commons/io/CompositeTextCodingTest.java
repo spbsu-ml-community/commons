@@ -1,5 +1,20 @@
 package com.spbsu.commons.io;
 
+import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.io.codec.ArithmeticCoding;
+import com.spbsu.commons.io.codec.CSCInputStream;
+import com.spbsu.commons.io.codec.CSCOutputStream;
+import com.spbsu.commons.io.codec.CompositeStatTextCoding;
+import com.spbsu.commons.io.codec.seq.DictExpansion;
+import com.spbsu.commons.io.codec.seq.Dictionary;
+import com.spbsu.commons.io.codec.seq.DynamicDictionary;
+import com.spbsu.commons.random.FastRandom;
+import com.spbsu.commons.seq.ByteSeq;
+import com.spbsu.commons.seq.CharSeqAdapter;
+import com.spbsu.commons.seq.CharSeqTools;
+import com.spbsu.commons.seq.Seq;
+import junit.framework.TestCase;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -7,21 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-
-
-import com.spbsu.commons.func.Processor;
-import com.spbsu.commons.io.codec.ArithmeticCoding;
-import com.spbsu.commons.io.codec.CSCInputStream;
-import com.spbsu.commons.io.codec.CSCOutputStream;
-import com.spbsu.commons.io.codec.CompositeStatTextCoding;
-import com.spbsu.commons.io.codec.seq.DictExpansion;
-import com.spbsu.commons.io.codec.seq.ListDictionary;
-import com.spbsu.commons.random.FastRandom;
-import com.spbsu.commons.seq.ByteSeq;
-import com.spbsu.commons.seq.CharSeqAdapter;
-import com.spbsu.commons.seq.CharSeqTools;
-import com.spbsu.commons.seq.Seq;
-import junit.framework.TestCase;
 
 /**
  * User: solar
@@ -37,18 +37,18 @@ public class CompositeTextCodingTest extends TestCase {
   private static synchronized void loadDataSet() {
     try {
       if (queries == null) {
-        final List<CharSequence> queries = new ArrayList<CharSequence>();
+        final List<CharSequence> queries = new ArrayList<>();
         try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/queries.txt.gz"))))) {
           String line;
           while ((line = lnr.readLine()) != null) {
-            queries.add(line + "\n");
+            queries.add(line);
           }
           CompositeTextCodingTest.queries = queries.toArray(new CharSequence[queries.size()]);
         }
       }
 
       if (urls == null) {
-        final List<CharSequence> urls = new ArrayList<CharSequence>();
+        final List<CharSequence> urls = new ArrayList<>();
         try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream("./commons/src/test/data/text/urls.txt.gz"))))) {
           String line;
           while ((line = lnr.readLine()) != null) {
@@ -93,7 +93,7 @@ public class CompositeTextCodingTest extends TestCase {
   public void testSimpleCodingQuery() {
     final FastRandom rng = new FastRandom(0);
     int bytes = 0;
-    final HashSet<Character> alpha = new HashSet<Character>();
+    final HashSet<Character> alpha = new HashSet<>();
     for (int i = 0; i < queries.length; i++) {
       final CharSequence query = queries[i];
       bytes += 2 * query.length();
@@ -110,9 +110,38 @@ public class CompositeTextCodingTest extends TestCase {
 
     final ByteBuffer buffer = ByteBuffer.allocate(bytes);
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
-    final ListDictionary result = coding.expansion().result();
+    final Dictionary<Character> result = coding.expansion().result();
     for (Object sequence : result.alphabet()) {
       System.out.println(sequence);
+    }
+    for (int i = 0; i < queries.length; i++) {
+      final CharSequence query = queries[i];
+      encode.write(query);
+    }
+    System.out.println(result.alphabet().size() + " " + buffer.position());
+    assertTrue(buffer.position() < 140000);
+  }
+
+  public void testSimpleCodingQueryDynamic() {
+    final FastRandom rng = new FastRandom(0);
+    int bytes = 0;
+    for (int i = 0; i < queries.length; i++) {
+      final CharSequence query = queries[i];
+      bytes += 2 * query.length();
+    }
+
+    final CompositeStatTextCoding coding = new CompositeStatTextCoding(1000, System.out);
+
+    for (int i = 0; i < 300000; i++) {
+      final CharSequence query = queries[rng.nextInt(queries.length)];
+      coding.accept(query);
+    }
+
+    final ByteBuffer buffer = ByteBuffer.allocate(bytes);
+    final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
+    final DynamicDictionary<Character> result = (DynamicDictionary<Character>)coding.expansion().result();
+    for (Object sequence : result.composite()) {
+      System.out.println("[" + sequence + "]");
     }
     for (int i = 0; i < queries.length; i++) {
       final CharSequence query = queries[i];
@@ -162,7 +191,7 @@ public class CompositeTextCodingTest extends TestCase {
   public void testSimpleCodingURL() {
     final FastRandom rng = new FastRandom(0);
     int bytes = 0;
-    final HashSet<Character> alpha = new HashSet<Character>();
+    final HashSet<Character> alpha = new HashSet<>();
     for (int i = 0; i < urls.length; i++) {
       final CharSequence query = urls[i];
       bytes += 2 * query.length();
@@ -179,7 +208,7 @@ public class CompositeTextCodingTest extends TestCase {
 
     final ByteBuffer buffer = ByteBuffer.allocate(bytes);
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
-    final ListDictionary dict = coding.expansion().result();
+    final Dictionary<Character> dict = coding.expansion().result();
 
     final int[] symbolFreqs = new int[dict.size()];
     for (int i = 0; i < urls.length; i++) {
@@ -215,7 +244,7 @@ public class CompositeTextCodingTest extends TestCase {
     final double rate = codeLength1 / textLength;
     System.out.println("Expected code length true: " + codeLength1 / 1024. + "kb. Expected rate true: " + rate);
 
-    final ListDictionary result = coding.expansion().result();
+    final Dictionary result = coding.expansion().result();
     for (Object sequence : result.alphabet()) {
       System.out.println(sequence);
     }
@@ -247,7 +276,7 @@ public class CompositeTextCodingTest extends TestCase {
       expansion.accept(query);
     }
 
-    final ListDictionary dict = expansion.result();
+    final Dictionary<Byte> dict = expansion.result();
 
     final int[] symbolFreqs = new int[dict.size()];
     for (int i = 0; i < urls.length; i++) {
@@ -301,7 +330,7 @@ public class CompositeTextCodingTest extends TestCase {
       return;
     final FastRandom rng = new FastRandom(0);
     long bytes = 0;
-    final HashSet<Character> alpha = new HashSet<Character>();
+    final HashSet<Character> alpha = new HashSet<>();
     for (int i = 0; i < packages.length; i++) {
       final CharSequence query = packages[i];
       bytes += 2 * query.length();
@@ -318,7 +347,7 @@ public class CompositeTextCodingTest extends TestCase {
 
     final ByteBuffer buffer = ByteBuffer.allocate((int)Math.min(1000000000l, bytes/10));
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
-    final ListDictionary<Character> result = coding.expansion().result();
+    final Dictionary<Character> result = coding.expansion().result();
     final FileWriter output = new FileWriter("./out.dict");
     for (final Seq<Character> sequence : result.alphabet()) {
       output.append(sequence.toString()).append("\n");
@@ -354,7 +383,7 @@ public class CompositeTextCodingTest extends TestCase {
 
     final ByteBuffer buffer = ByteBuffer.allocate((int)Math.min(1000000000l, bytes/10));
     final CompositeStatTextCoding.Encode encode = coding.new Encode(buffer);
-    final ListDictionary<Character> result = coding.expansion().result();
+    final Dictionary<Character> result = coding.expansion().result();
     final FileWriter output = new FileWriter("./out.dict");
     for (final Seq<Character> sequence : result.alphabet()) {
       output.append(sequence.toString()).append("\n");

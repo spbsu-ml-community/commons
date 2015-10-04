@@ -1,10 +1,10 @@
 package com.spbsu.commons.io.codec;
 
 import com.spbsu.commons.io.codec.seq.DictExpansion;
-import com.spbsu.commons.io.codec.seq.ListDictionary;
+import com.spbsu.commons.io.codec.seq.Dictionary;
 import com.spbsu.commons.seq.CharSeqAdapter;
 
-
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
@@ -21,6 +21,14 @@ public class CompositeStatTextCoding {
     this.expansion = new DictExpansion<>(alphabet, dictSize, true);
   }
 
+  public CompositeStatTextCoding(int slots) {
+    this.expansion = new DictExpansion<Character>(slots);
+  }
+
+  public CompositeStatTextCoding(int size, PrintStream trace) {
+    this.expansion = new DictExpansion<Character>(size, trace);
+  }
+
   public void accept(final CharSequence seq) {
     if (!stop)
       expansion.accept(new CharSeqAdapter(seq));
@@ -33,7 +41,7 @@ public class CompositeStatTextCoding {
 
   public class Encode {
     public ArithmeticCoding.Encoder output;
-    private final ListDictionary<Character> dict;
+    private final Dictionary<Character> dict;
 
     public Encode(final ByteBuffer output) {
       this.output = new ArithmeticCoding.Encoder(output, expansion.resultFreqs());
@@ -57,7 +65,7 @@ public class CompositeStatTextCoding {
 
   public class Decode {
     private final ArithmeticCoding.Decoder input;
-    private final ListDictionary dict;
+    private final Dictionary dict;
 
     public Decode(final ByteBuffer input) {
       this.input = new ArithmeticCoding.Decoder(input, expansion.resultFreqs());

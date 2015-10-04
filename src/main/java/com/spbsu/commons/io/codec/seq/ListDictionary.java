@@ -1,28 +1,30 @@
 package com.spbsu.commons.io.codec.seq;
 
-import java.util.*;
-
-
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.Pair;
+
+import java.util.*;
 
 /**
  * User: solar
  * Date: 22.05.14
  * Time: 16:18
  */
-public class ListDictionary<T extends Comparable<T>> {
+public class ListDictionary<T extends Comparable<T>> implements Dictionary<T> {
   private final Seq<T>[] sex;
   private final int[] parents;
   private final Comparator<Seq<T>> cmp;
 
   @SafeVarargs
   public ListDictionary(final Seq<T>... sex) {
-    this.sex = sex;
+    this.sex = new Seq[sex.length];
     this.parents = new int[sex.length];
     final Stack<Pair<Seq<T>,Integer>> parents = new Stack<>();
     cmp = CharSeqTools.lexicographicalComparator(sex[0].elementType());
+    for (int i = 0; i < sex.length; i++) {
+      this.sex[i] = CharSeqTools.create(CharSeqTools.toArray(sex[i]));
+    }
     Arrays.sort(this.sex, cmp);
 
     for (int i = 0; i < sex.length; i++) {
@@ -54,6 +56,7 @@ public class ListDictionary<T extends Comparable<T>> {
     return initalDict.toArray(new Seq[initalDict.size()]);
   }
 
+  @Override
   public int search(final Seq<T> seq) {
     int index = Arrays.binarySearch(sex, seq, cmp);
     if (index >= 0)
@@ -67,18 +70,22 @@ public class ListDictionary<T extends Comparable<T>> {
     throw new RuntimeException("Dictionary index is corrupted!");
   }
 
+  @Override
   public Seq<T> get(final int index) {
     return sex[index];
   }
 
+  @Override
   public int size() {
     return sex.length;
   }
 
+  @Override
   public List<? extends Seq<T>> alphabet() {
-    return Arrays.asList(sex);
+    return new ArrayList<>(Arrays.asList(sex));
   }
 
+  @Override
   public int parent(final int second) {
     return parents[second];
   }

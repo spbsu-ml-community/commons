@@ -1,16 +1,15 @@
 package com.spbsu.commons.io.codec;
 
+import com.spbsu.commons.io.codec.seq.DictExpansion;
+import com.spbsu.commons.io.codec.seq.Dictionary;
+import com.spbsu.commons.io.codec.seq.ListDictionary;
+import com.spbsu.commons.seq.ByteSeq;
+import com.spbsu.commons.seq.Seq;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
-
-import com.spbsu.commons.io.codec.seq.DictExpansion;
-import com.spbsu.commons.io.codec.seq.ListDictionary;
-import com.spbsu.commons.seq.ByteSeq;
-import com.spbsu.commons.seq.Seq;
 
 /**
  * User: amosov-f
@@ -21,7 +20,7 @@ public final class CSCDictionary {
   private static final String ID = "cscd";
 
   @NotNull
-  private final ListDictionary<Byte> dict;
+  private final Dictionary<Byte> dict;
   @NotNull
   private final int[] freqs;
 
@@ -29,7 +28,7 @@ public final class CSCDictionary {
     this(expansion.result(), expansion.resultFreqs());
   }
 
-  public CSCDictionary(@NotNull final ListDictionary<Byte> dict, @NotNull final int[] freqs) {
+  public CSCDictionary(@NotNull final Dictionary<Byte> dict, @NotNull final int[] freqs) {
     this.dict = dict;
     this.freqs = freqs;
   }
@@ -68,7 +67,7 @@ public final class CSCDictionary {
   }
 
   @NotNull
-  public ListDictionary<Byte> getDict() {
+  public Dictionary<Byte> getDict() {
     return dict;
   }
 
