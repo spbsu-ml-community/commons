@@ -30,8 +30,20 @@ public class Holder<T> {
     return value;
   }
 
-  public void setValue(final T value) {
+  public synchronized void setValue(final T value) {
+    if (value != null)
+      notifyAll();
     this.value = value;
+  }
+
+  public synchronized void fill() {
+    while (!filled()) {
+      try {
+        wait(0);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   @Override

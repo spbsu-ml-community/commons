@@ -8,4 +8,5 @@ package com.spbsu.commons.func;
 public interface WeakListenerHolder<Event> {
   /** listener will be referenced by WEAK reference due to leaks resistance */
   void addListener(Action<? super Event> lst);
+  void removeListener(Action<? super Event> action);
 }
