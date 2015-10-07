@@ -39,8 +39,9 @@ public class WeakListenerHolderImpl<Event> implements WeakListenerHolder<Event> 
       final Action<? super Event> action = next.get();
       if (action != null)
         action.invoke(e);
-      else
-        it.remove();
+      else {
+        listeners.remove(next);
+      }
     }
   }
 }
