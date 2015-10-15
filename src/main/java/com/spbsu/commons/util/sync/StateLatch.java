@@ -34,6 +34,8 @@ public class StateLatch {
     return sync.state();
   }
   public void state(int state) {
+    if (state <= 0 || Integer.bitCount(state) > 1)
+      throw new IllegalArgumentException("State must be degree of two");
     sync.releaseShared(state);
   }
   public void advance() {

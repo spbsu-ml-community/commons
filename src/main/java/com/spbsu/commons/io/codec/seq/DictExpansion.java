@@ -192,6 +192,8 @@ public class DictExpansion<T extends Comparable<T>> {
   }
 
   public int[] resultFreqs() {
+    if (result.size() > result.symbolFreqs.size())
+      result.symbolFreqs.fill(result.symbolFreqs.size(), result.size(), 0);
     return result.symbolFreqs.toArray();
   }
 

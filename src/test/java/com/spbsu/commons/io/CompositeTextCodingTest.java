@@ -143,11 +143,6 @@ public class CompositeTextCodingTest extends TestCase {
     for (Object sequence : result.composite()) {
       System.out.println("[" + sequence + "]");
     }
-    for (int i = 0; i < queries.length; i++) {
-      final CharSequence query = queries[i];
-      encode.write(query);
-    }
-    System.out.println(result.alphabet().size() + " " + buffer.position());
     assertTrue(buffer.position() < 140000);
   }
 
@@ -162,7 +157,7 @@ public class CompositeTextCodingTest extends TestCase {
 
     for (int i = 0; i < 100000; i++) {
       final CharSequence query = dataSet[rng.nextInt(dataSet.length)];
-      expansion.accept(new ByteSeq(query.toString().getBytes()));
+      expansion.accept(new ByteSeq((query + "\n").getBytes()));
     }
 
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -170,7 +165,7 @@ public class CompositeTextCodingTest extends TestCase {
 
     for (int i = 0; i < dataSet.length; i++) {
       final CharSequence query = dataSet[i];
-      stream.write(query.toString().getBytes());
+      stream.write((query + "\n").getBytes());
       stream.flush();
     }
     stream.close();
@@ -180,7 +175,7 @@ public class CompositeTextCodingTest extends TestCase {
       @Override
       public void process(final CharSequence arg) {
         if (index < dataSet.length)
-          assertEquals(dataSet[index++], arg + "\n");
+          assertEquals(dataSet[index++], arg.toString());
         else
           assertEquals(0, arg.length());
       }

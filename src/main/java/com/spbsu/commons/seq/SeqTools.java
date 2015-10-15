@@ -18,6 +18,7 @@ public class SeqTools {
     if (a instanceof CharSeq)
       return new CharSeqArray(((CharSeq)a).toCharArray());
 
-    throw new UnsupportedOperationException();
+//    throw new UnsupportedOperationException();
+    return a;
   }
 }
