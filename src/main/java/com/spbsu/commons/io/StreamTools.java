@@ -2,12 +2,9 @@ package com.spbsu.commons.io;
 
 
 import com.spbsu.commons.func.Processor;
-import com.spbsu.commons.seq.CharSeqArray;
 import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.util.logging.Logger;
 import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.list.array.TCharArrayList;
-
 
 import java.io.*;
 import java.net.URL;
@@ -318,5 +315,12 @@ public class StreamTools {
         visitFiles(new File(file, next), processor, prefix);
       }
     }
+  }
+
+  public static String stripExtension(String fileName) {
+    final int index = fileName.lastIndexOf('.');
+    if (fileName.substring(index).equals(".gz") || fileName.substring(index).equals(".bz2"))
+      return stripExtension(fileName.substring(0, index));
+    return fileName.substring(0, index);
   }
 }

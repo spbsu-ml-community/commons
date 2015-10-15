@@ -62,6 +62,9 @@ public class CharSeqTools {
     if (text == other) {
       return true;
     }
+    if (text == null || other == null)
+      return false;
+
     final int length = text.length();
     if (length != other.length()) {
       return false;
@@ -244,6 +247,8 @@ public class CharSeqTools {
   }
 
   public static <T> boolean startsWith(final Seq<T> seq, final Seq<T> prefix) {
+    if (seq instanceof CharSeq && prefix instanceof CharSeq)
+      return startsWith((CharSequence) seq, (CharSequence) prefix);
     if (seq.length() < prefix.length())
       return false;
     int index = 0;

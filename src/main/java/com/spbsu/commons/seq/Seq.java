@@ -12,7 +12,7 @@ public interface Seq<T> {
   boolean isImmutable();
   Class<T> elementType();
 
-  abstract static class Stub<T> implements Seq<T>{
+  abstract class Stub<T> implements Seq<T>{
     @Override
     public Seq<T> sub(final int start, final int end) {
       if (end > length())
@@ -40,6 +40,20 @@ public interface Seq<T> {
           return Stub.this.elementType();
         }
       };
+    }
+
+    @Override
+    public String toString() {
+      final StringBuilder builder = new StringBuilder();
+      final int length = length();
+      builder.append('[');
+      for (int i = 0; i < length; i++) {
+        if (i != 0)
+          builder.append(", ");
+        builder.append(at(i).toString());
+      }
+      builder.append(']');
+      return builder.toString();
     }
   }
 }

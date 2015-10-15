@@ -2,13 +2,16 @@ package com.spbsu.commons.seq;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Comparator;
+
 /**
  * User: Igor Kuralenok
  * Date: 10.05.2006
  * Time: 17:55:23
  */
-public abstract class CharSeq implements Seq<Character>, CharSequence {
+public abstract class CharSeq implements Seq<Character>, CharSequence, Comparable<CharSeq> {
   public static final CharSeq EMPTY = new CharSeqArray(new char[]{}, 0, 0);
+  public static final Comparator<Seq<Character>> SEQ_COMPARATOR = CharSeqTools.lexicographicalComparator(Character.class);
 
   @Override
   public abstract char charAt(int offset);
@@ -162,5 +165,10 @@ public abstract class CharSeq implements Seq<Character>, CharSequence {
     while (index < length() && at(index) != ch)
       index++;
     return index;
+  }
+
+  @Override
+  public int compareTo(CharSeq o) {
+    return SEQ_COMPARATOR.compare(this, o);
   }
 }

@@ -1,19 +1,25 @@
 package com.spbsu.commons.io.codec.seq;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.ArrayTools;
+import com.spbsu.commons.util.Holder;
 import com.spbsu.commons.util.JSONTools;
+import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.TLongIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.procedure.TIntDoubleProcedure;
 import gnu.trove.procedure.TIntIntProcedure;
 import gnu.trove.procedure.TLongIntProcedure;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -36,6 +42,7 @@ public class DictExpansion<T extends Comparable<T>> {
   public static final double EXTENSION_FACTOR = 1.33;
   public static final double MAX_POWER = 100000000;
   public static final double MAX_MIN_PROBABILITY = 0.0001;
+  public static final int AGG_POWER = 1000000;
   private final boolean isDynamic;
   private int size;
   private final PrintStream trace;
@@ -94,7 +101,7 @@ public class DictExpansion<T extends Comparable<T>> {
   }
 
   public Dictionary<T> result() {
-    return result.dict;
+    return result != null ? result.dict : null;
   }
 
   public Dictionary<T> alpha() {
@@ -121,22 +128,42 @@ public class DictExpansion<T extends Comparable<T>> {
     }
   });
 
+  final ThreadLocal<Holder<Integer>> power = ThreadLocal.withInitial(new Supplier<Holder<Integer>>() {
+    @Override
+    public Holder<Integer> get() {
+      return new Holder<Integer>(0);
+    }
+  });
+
+  final ThreadLocal<Holder<DictionaryWithStat<T>>> statOwner = ThreadLocal.withInitial(new Supplier<Holder<DictionaryWithStat<T>>>() {
+    @Override
+    public Holder<DictionaryWithStat<T>> get() {
+      return new Holder<DictionaryWithStat<T>>();
+    }
+  });
+
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
   public void accept(final Seq<T> seq) {
     final TIntIntMap symbolFreqsCurrent;
     final TIntIntMap symbolFreqsSuggest;
     final TLongIntMap pairsFreqsCurrent;
     lock.readLock().lock();
-    final DictionaryWithStat<T> current = this.current;
     try {
       int prev = -1;
       symbolFreqsCurrent = this.symbolFreqsCurrent.get();
       symbolFreqsSuggest = this.symbolFreqsSuggest.get();
       pairsFreqsCurrent = this.pairsFreqsCurrent.get();
-      symbolFreqsCurrent.clear();
-      symbolFreqsSuggest.clear();
-      pairsFreqsCurrent.clear();
+
+      if (statOwner.get().getValue() != current) {
+        symbolFreqsCurrent.clear();
+        symbolFreqsSuggest.clear();
+        pairsFreqsCurrent.clear();
+        power.get().setValue(0);
+        statOwner.get().setValue(current);
+      }
+
       Seq<T> suffix = seq;
+      int count = 0;
       { // parsing with current
         while (suffix.length() > 0) {
           final int symbol = current.search(suffix);
@@ -146,6 +173,7 @@ public class DictExpansion<T extends Comparable<T>> {
           }
           prev = symbol;
           suffix = suffix.sub(current.get(symbol).length(), suffix.length());
+          count++;
         }
       }
 
@@ -157,27 +185,31 @@ public class DictExpansion<T extends Comparable<T>> {
           suffix = suffix.sub(suggest.get(symbol).length(), suffix.length());
         }
       }
+      final int totalPower = this.power.get().getValue() + count;
+      this.power.get().setValue(totalPower);
     }
     finally {
       lock.readLock().unlock();
     }
 
+    if (power.get().getValue() < AGG_POWER)
+      return;
     lock.writeLock().lock();
     try {
-      if (current != this.current)
+      if (statOwner.get().getValue() != this.current)
         return;
       { // current update
         symbolFreqsCurrent.forEachEntry(new TIntIntProcedure() {
           @Override
           public boolean execute(final int symbol, final int freq) {
-            DictExpansion.this.current.updateSymbol(symbol, freq);
+            current.updateSymbol(symbol, freq);
             return true;
           }
         });
         pairsFreqsCurrent.forEachEntry(new TLongIntProcedure() {
           @Override
           public boolean execute(long pair, int count) {
-            DictExpansion.this.current.updatePair(pair, count);
+            current.updatePair(pair, count);
             return true;
           }
         });
@@ -187,7 +219,7 @@ public class DictExpansion<T extends Comparable<T>> {
         symbolFreqsSuggest.forEachEntry(new TIntIntProcedure() {
           @Override
           public boolean execute(final int symbol, final int freq) {
-            DictExpansion.this.suggest.updateSymbol(symbol, freq);
+            suggest.updateSymbol(symbol, freq);
             return true;
           }
         });
@@ -196,6 +228,7 @@ public class DictExpansion<T extends Comparable<T>> {
     }
     finally {
       lock.writeLock().unlock();
+      statOwner.get().setValue(null);
     }
   }
 
@@ -236,42 +269,81 @@ public class DictExpansion<T extends Comparable<T>> {
     return result.symbolFreqs.toArray();
   }
 
-  public void print(Writer ps) throws IOException {
+  public void printPairs(Writer ps) throws IOException {
+    lock.readLock().lock();
     final List<? extends Seq<T>> alphabet = result.alphabet();
-    final double[] weights = new double[result.size()];
-    ps.append("{\n");
-    for (int i = 0; i < alphabet.size(); i++) {
-      final Seq<T> tSeq = alphabet.get(i);
-      for(int j = 0; j < weights.length; j++) {
-        weights[j] = result.pairFreq((long) i << 32 | j);
-      }
-      final int[] order = ArrayTools.sequence(0, weights.length);
-      ArrayTools.parallelSort(weights, order);
+    final TIntArrayList indices = new TIntArrayList();
+    final TDoubleArrayList weights = new TDoubleArrayList();
+    final int[] indicesArr = new int[result().size()];
+    final double[] weightsArr = new double[result().size()];
+    final ObjectMapper mapper = new ObjectMapper();
+    final ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
 
-      final String symbol = tSeq.toString();
-      ps.append(JSONTools.escape(symbol)).append(": {");
-      for(int j = order.length - 1; j >= 0 && weights[j] > 0.001; j--) {
-        if (j != order.length - 1)
-          ps.append(",");
-        final String expansion = alphabet.get(order[j]).toString();
-        ps.append("\n").append(JSONTools.escape(expansion)).append(": ").append(CharSeqTools.ppDouble(weights[j] / (double) result.freq(i)));
+    ps.append("{\n");
+    try {
+
+      for (int i = 0; i < alphabet.size(); i++) {
+        final Seq<T> tSeq = alphabet.get(i);
+        indices.clear();
+        weights.clear();
+        result.visitAssociations(i, new TIntDoubleProcedure() {
+          @Override
+          public boolean execute(int j, double val) {
+            indices.add(j);
+            weights.add(val);
+            return false;
+          }
+        });
+        weights.toArray(weightsArr, 0, weights.size());
+        indices.toArray(indicesArr, 0, indices.size());
+        ArrayTools.parallelSort(weightsArr, indicesArr, 0, indices.size());
+
+        final String symbol = tSeq.toString();
+        ps.append(JSONTools.escape(symbol)).append(": {");
+        for (int j = indices.size() - 1; j >= 0 && weightsArr[j] > 0.001; j--) {
+          if (j != indices.size() - 1)
+            ps.append(",");
+          final String expansion = alphabet.get(indicesArr[j]).toString();
+          ps.append("\n").append(JSONTools.escape(expansion)).append(": ").append(CharSeqTools.ppDouble(weightsArr[j] / (double) result.freq(i)));
+        }
+        ps.append("\n},\n");
       }
-      ps.append("\n},\n");
+    }
+    finally {
+      lock.readLock().unlock();
     }
     ps.append("}\n");
+  }
+
+  public void print(FileWriter fileWriter) throws IOException {
+    lock.readLock().lock();
+
+    try {
+      for (int i = 0; i < result.size(); i++) {
+        final Seq<T> seq = result.get(i);
+        fileWriter.append(seq.toString());
+        fileWriter.append('\t');
+        fileWriter.append(Integer.toString(result.freq(i)));
+        fileWriter.append('\n');
+      }
+    }
+    finally {
+      lock.readLock().unlock();
+    }
   }
 
   private static class DictionaryWithStat<T extends Comparable<T>> implements Dictionary<T> {
     private final Dictionary<T> dict;
     private final TIntArrayList symbolFreqs;
     private int power = 0;
-    private final TLongIntMap pairsFreqs = new TLongIntHashMap();
+    private final TLongIntMap pairsFreqs;
     private int pairsPower = 0;
     private final double minProbability;
 
     public DictionaryWithStat(Dictionary<T> dict, double minProbResult) {
       this.dict = dict;
       symbolFreqs = new TIntArrayList(dict.size());
+      pairsFreqs = new TLongIntHashMap(dict.size() * 100);
       minProbability = minProbResult;
     }
 
@@ -413,6 +485,29 @@ public class DictExpansion<T extends Comparable<T>> {
 
     public boolean enough(double probFound) {
       return power > -log(probFound) / minProbability;
+    }
+
+    private long[] keysCache;
+    private int[] valuesCache;
+    private int cachePower;
+
+    public void visitAssociations(int start, TIntDoubleProcedure procedure) {
+      if (cachePower != power) {
+        keysCache = pairsFreqs.keys();
+        valuesCache = pairsFreqs.values();
+        ArrayTools.parallelSort(keysCache, valuesCache);
+        cachePower = power;
+      }
+      int index = Arrays.binarySearch(keysCache, ((long) start) << 32);
+      if (index < 0)
+        index = -index - 1;
+      final long last = ((long) start + 1) << 32;
+      while (keysCache.length > index && keysCache[index] < last) {
+        final long key = keysCache[index];
+        if ((key >> 32) == start)
+          procedure.execute((int)(key & 0xFFFFFFFFl), valuesCache[index]);
+        index++;
+      }
     }
 
     private final class StatItem {

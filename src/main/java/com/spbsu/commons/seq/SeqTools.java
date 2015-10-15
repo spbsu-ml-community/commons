@@ -13,4 +13,11 @@ public class SeqTools {
     }
     return -1;
   }
+
+  public static <T> Object copy(T a) {
+    if (a instanceof CharSeq)
+      return new CharSeqArray(((CharSeq)a).toCharArray());
+
+    throw new UnsupportedOperationException();
+  }
 }

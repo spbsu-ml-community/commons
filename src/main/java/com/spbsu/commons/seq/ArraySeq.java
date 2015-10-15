@@ -56,15 +56,6 @@ public class ArraySeq<T> extends Seq.Stub<T> {
   }
 
   @Override
-  public String toString() {
-    final StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < this.length(); i++) {
-      builder.append(this.at(i).toString());
-    }
-    return builder.toString();
-  }
-
-  @Override
   public boolean equals(final Object obj) {
     if (obj == this)
       return true;

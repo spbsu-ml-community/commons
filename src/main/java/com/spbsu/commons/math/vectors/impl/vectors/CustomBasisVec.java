@@ -1,17 +1,15 @@
 package com.spbsu.commons.math.vectors.impl.vectors;
 
-import java.util.Arrays;
-
-
 import com.spbsu.commons.math.vectors.Basis;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
-import com.spbsu.commons.math.vectors.impl.basis.IntBasis;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubVecTransformation;
 import com.spbsu.commons.math.vectors.impl.iterators.SparseVecNZIterator;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+
+import java.util.Arrays;
 
 /**
  * User: solar
@@ -176,5 +174,9 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
   public void clear() {
     this.indices.clear();
     this.values.clear();
+  }
+
+  public int size() {
+    return indices.size();
   }
 }

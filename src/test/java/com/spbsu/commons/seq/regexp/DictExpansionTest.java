@@ -77,7 +77,7 @@ public class DictExpansionTest extends TestCase {
   public void testRestoreLong() throws Exception {
     boolean equalsAtLeastOnce = false;
     for (int i = 0; i < 10 && !equalsAtLeastOnce; i++) {
-      final ListDictionary<Character> reference = new ListDictionary<>(ArrayTools.map(
+      final ListDictionary<Character> reference = new ListDictionary<Character>(ArrayTools.map(
           new CharSequence[]{"a", "b", "c", "r", "d", "cc", "aa", "bb", "rabracadabra"},
           CharSeq.class, new Computable<CharSequence, CharSeq>() {
             @Override
@@ -85,7 +85,7 @@ public class DictExpansionTest extends TestCase {
               return new CharSeqAdapter(argument);
             }
           }));
-      final ListDictionary<Character> start = new ListDictionary<>(ArrayTools.map(
+      final ListDictionary<Character> start = new ListDictionary<Character>(ArrayTools.map(
           new CharSequence[]{"a", "b", "c", "r", "d"},
           CharSeq.class, new Computable<CharSequence, CharSeq>() {
             @Override
@@ -220,14 +220,14 @@ public class DictExpansionTest extends TestCase {
           expansion.accept(new CharSeqAdapter(arg));
           if (++index % 10000 == 0)
             try {
-              expansion.print(new FileWriter(new File(ROOT_WIKI_FILE + ".dict")));
+              expansion.printPairs(new FileWriter(new File(ROOT_WIKI_FILE + ".dict")));
             } catch (IOException e) {
               throw new RuntimeException(e);
             }
         }
       });
     }
-    expansion.print(new FileWriter(new File(ROOT_WIKI_FILE + ".dict")));
+    expansion.printPairs(new FileWriter(new File(ROOT_WIKI_FILE + ".dict")));
     System.out.println();
 //    final DictExpansion<Character> expansion = new DictExpansion<>(new HashSet<>(Arrays.asList('a')), 1000, System.out);
   }

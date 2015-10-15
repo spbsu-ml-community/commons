@@ -3,6 +3,7 @@ package com.spbsu.commons.io.codec.seq;
 import com.spbsu.commons.seq.ArraySeq;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.Seq;
+import com.spbsu.commons.seq.SeqTools;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
@@ -69,7 +70,7 @@ public class DynamicDictionary<T extends Comparable<T>> implements Dictionary<T>
     lock.writeLock().lock();
     try {
       index = increment.size() + composites.size();
-      increment.add(CharSeqTools.<T>create(new Object[]{first}));
+      increment.add(CharSeqTools.<T>create(new Object[]{SeqTools.copy(first)}));
       singles.put(first, index);
       return index;
     }
