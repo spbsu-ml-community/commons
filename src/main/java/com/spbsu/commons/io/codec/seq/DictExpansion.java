@@ -2,6 +2,7 @@ package com.spbsu.commons.io.codec.seq;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.spbsu.commons.func.Action;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.Seq;
@@ -42,7 +43,7 @@ public class DictExpansion<T extends Comparable<T>> {
   public static final double EXTENSION_FACTOR = 1.33;
   public static final double MAX_POWER = 100000000;
   public static final double MAX_MIN_PROBABILITY = 0.0001;
-  public static final int AGG_POWER = 1000000;
+  public static final int AGG_POWER = 100000;
   private final boolean isDynamic;
   private int size;
   private final PrintStream trace;
@@ -108,40 +109,6 @@ public class DictExpansion<T extends Comparable<T>> {
     return initial;
   }
 
-  final ThreadLocal<TIntIntMap> symbolFreqsCurrent = ThreadLocal.withInitial(new Supplier<TIntIntMap>() {
-    @Override
-    public TIntIntMap get() {
-      return new TIntIntHashMap();
-    }
-  });
-  final ThreadLocal<TIntIntMap> symbolFreqsSuggest = ThreadLocal.withInitial(new Supplier<TIntIntMap>() {
-    @Override
-    public TIntIntMap get() {
-      return new TIntIntHashMap();
-    }
-  });
-
-  final ThreadLocal<TLongIntMap> pairsFreqsCurrent = ThreadLocal.withInitial(new Supplier<TLongIntMap>() {
-    @Override
-    public TLongIntMap get() {
-      return new TLongIntHashMap();
-    }
-  });
-
-  final ThreadLocal<Holder<Integer>> power = ThreadLocal.withInitial(new Supplier<Holder<Integer>>() {
-    @Override
-    public Holder<Integer> get() {
-      return new Holder<Integer>(0);
-    }
-  });
-
-  final ThreadLocal<Holder<DictionaryWithStat<T>>> statOwner = ThreadLocal.withInitial(new Supplier<Holder<DictionaryWithStat<T>>>() {
-    @Override
-    public Holder<DictionaryWithStat<T>> get() {
-      return new Holder<DictionaryWithStat<T>>();
-    }
-  });
-
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
   public void accept(final Seq<T> seq) {
     final TIntIntMap symbolFreqsCurrent;
@@ -150,119 +117,78 @@ public class DictExpansion<T extends Comparable<T>> {
     lock.readLock().lock();
     try {
       int prev = -1;
-      symbolFreqsCurrent = this.symbolFreqsCurrent.get();
-      symbolFreqsSuggest = this.symbolFreqsSuggest.get();
-      pairsFreqsCurrent = this.pairsFreqsCurrent.get();
 
-      if (statOwner.get().getValue() != current) {
-        symbolFreqsCurrent.clear();
-        symbolFreqsSuggest.clear();
-        pairsFreqsCurrent.clear();
-        power.get().setValue(0);
-        statOwner.get().setValue(current);
-      }
-
-      Seq<T> suffix = seq;
-      int count = 0;
-      { // parsing with current
-        while (suffix.length() > 0) {
-          final int symbol = current.search(suffix);
-          symbolFreqsCurrent.adjustOrPutValue(symbol, 1, 1);
-          if (prev >= 0) {
-            pairsFreqsCurrent.adjustOrPutValue((long) prev << 32 | symbol, 1, 1);
+      current.pairsFreqs.populate(new Action<TLongIntMap>() {
+        @Override
+        public void invoke(TLongIntMap pairsFreq) {
+          int prev = -1;
+          Seq<T> suffix = seq;
+          int count = 0;
+          while (suffix.length() > 0) {
+            final int symbol = current.search(suffix);
+            current.updateSymbol(symbol, 1);
+            if (prev >= 0) {
+              pairsFreq.adjustOrPutValue((long) prev << 32 | symbol, 1, 1);
+            }
+            prev = symbol;
+            suffix = suffix.sub(current.get(symbol).length(), suffix.length());
+            count++;
           }
-          prev = symbol;
-          suffix = suffix.sub(current.get(symbol).length(), suffix.length());
-          count++;
         }
-      }
-
+      });
       { // parsing with suggest
-        suffix = seq;
+        Seq<T> suffix = seq;
         while (suffix.length() > 0) {
           final int symbol = suggest.search(suffix);
-          symbolFreqsSuggest.adjustOrPutValue(symbol, 1, 1);
+          suggest.updateSymbol(symbol, 1);
           suffix = suffix.sub(suggest.get(symbol).length(), suffix.length());
         }
       }
-      final int totalPower = this.power.get().getValue() + count;
-      this.power.get().setValue(totalPower);
     }
     finally {
       lock.readLock().unlock();
     }
 
-    if (power.get().getValue() < AGG_POWER)
-      return;
-    lock.writeLock().lock();
-    try {
-      if (statOwner.get().getValue() != this.current)
-        return;
-      { // current update
-        symbolFreqsCurrent.forEachEntry(new TIntIntProcedure() {
-          @Override
-          public boolean execute(final int symbol, final int freq) {
-            current.updateSymbol(symbol, freq);
-            return true;
-          }
-        });
-        pairsFreqsCurrent.forEachEntry(new TLongIntProcedure() {
-          @Override
-          public boolean execute(long pair, int count) {
-            current.updatePair(pair, count);
-            return true;
-          }
-        });
-      }
-
-      { // suggest update
-        symbolFreqsSuggest.forEachEntry(new TIntIntProcedure() {
-          @Override
-          public boolean execute(final int symbol, final int freq) {
-            suggest.updateSymbol(symbol, freq);
-            return true;
-          }
-        });
-      }
-      update();
-    }
-    finally {
-      lock.writeLock().unlock();
-      statOwner.get().setValue(null);
-    }
+    update();
   }
 
   private boolean update() {
-    if ((!current.enough(probFound) || !current.enough(probFound)) && suggest.power < MAX_POWER)
-      return false;
-    double sum = 0;
-    double textLength = 0;
-    for (int i = 0; i < current.size(); i++) {
-      final int freq = current.freq(i);
-      textLength += current.get(i).length() * freq;
-      if (freq > 0)
-        sum -= freq * log(freq) / log(2);
-    }
-    final double codeLength = (sum + current.power * log(current.power) / log(2)) / 8.;
-    final double compressionRate = codeLength / textLength;
-    if (compressionRate < bestCompressionRate) {
-      bestCompressionRate = compressionRate;
-      noRateIncreaseTurns = 0;
-    } else if (++noRateIncreaseTurns > 3) {
-      probFound *= 0.8;
-    }
+    lock.writeLock().lock();
+    try {
+      if ((!current.enough(probFound) || !current.enough(probFound)) && suggest.power < MAX_POWER)
+        return false;
+      double sum = 0;
+      double textLength = 0;
+      for (int i = 0; i < current.size(); i++) {
+        final int freq = current.freq(i);
+        textLength += current.get(i).length() * freq;
+        if (freq > 0)
+          sum -= freq * log(freq) / log(2);
+      }
+      final double codeLength = (sum + current.power * log(current.power) / log(2)) / 8.;
+      final double compressionRate = codeLength / textLength;
+      if (compressionRate < bestCompressionRate) {
+        bestCompressionRate = compressionRate;
+        noRateIncreaseTurns = 0;
+      } else if (++noRateIncreaseTurns > 3) {
+        probFound *= 0.8;
+      }
 
-    result = current;
+      result = current;
 
-    if (trace != null) {
-      final String message = "Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + suggest.minProbability;
-      trace.println(message);
+      if (trace != null) {
+        final String message = "Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + suggest.minProbability;
+        trace.println(message);
+      }
+      final DictionaryWithStat<T> currentLocal = current;
+      current = suggest.reduce(size - alphabetSize, isDynamic);
+      suggest = currentLocal.expand(min(size - alphabetSize, (int) (currentLocal.size() * (EXTENSION_FACTOR - 1))), isDynamic);
+
+      return true;
     }
-    final DictionaryWithStat<T> currentLocal = current;
-    current = suggest.reduce(size - alphabetSize, isDynamic);
-    suggest = currentLocal.expand(min(size - alphabetSize, (int) (currentLocal.size() * (EXTENSION_FACTOR - 1))), isDynamic);
-
-    return true;
+    finally {
+      lock.writeLock().unlock();
+    }
   }
 
   public int[] resultFreqs() {
@@ -329,6 +255,7 @@ public class DictExpansion<T extends Comparable<T>> {
     }
     finally {
       lock.readLock().unlock();
+      fileWriter.close();
     }
   }
 
@@ -336,14 +263,13 @@ public class DictExpansion<T extends Comparable<T>> {
     private final Dictionary<T> dict;
     private final TIntArrayList symbolFreqs;
     private int power = 0;
-    private final TLongIntMap pairsFreqs;
-    private int pairsPower = 0;
+    private final LongIntMappingAsyncBuilder pairsFreqs;
     private final double minProbability;
 
     public DictionaryWithStat(Dictionary<T> dict, double minProbResult) {
       this.dict = dict;
       symbolFreqs = new TIntArrayList(dict.size());
-      pairsFreqs = new TLongIntHashMap(dict.size() * 100);
+      pairsFreqs = new LongIntMappingAsyncBuilder(AGG_POWER);
       minProbability = minProbResult;
     }
 
@@ -353,11 +279,6 @@ public class DictExpansion<T extends Comparable<T>> {
       final int val = symbolFreqs.getQuick(index);
       symbolFreqs.setQuick(index, val + freq);
       power += freq;
-    }
-
-    public void updatePair(long pairIdx, int freq) {
-      pairsFreqs.adjustOrPutValue(pairIdx, freq, freq);
-      pairsPower += freq;
     }
 
     @Override
@@ -387,10 +308,6 @@ public class DictExpansion<T extends Comparable<T>> {
 
     public int freq(int index) {
       return index < symbolFreqs.size() ? symbolFreqs.getQuick(index) : 0;
-    }
-
-    public int pairFreq(long pairCode) {
-      return pairsFreqs.get(pairCode);
     }
 
     public double codeLength() {
@@ -452,13 +369,13 @@ public class DictExpansion<T extends Comparable<T>> {
 
     private DictionaryWithStat<T> expand(int slots, boolean isDynamic) {
       final List<StatItem> items = new ArrayList<>();
-      pairsFreqs.forEachEntry(new TLongIntProcedure() {
+      pairsFreqs.visit(new TLongIntProcedure() {
         @Override
         public boolean execute(final long code, final int count) {
           final int first = (int) (code >>> 32);
           final int second = (int) (code & 0xFFFFFFFFl);
           final double pairProbIndependentDirichlet = freq(first) * freq(second) / (double) power / (double) power;
-          final double lambda = pairsPower * pairProbIndependentDirichlet;
+          final double lambda = pairsFreqs.accumulatedValuesTotal() * pairProbIndependentDirichlet;
           final double logProb = MathTools.logPoissonProbability(lambda, count);
           items.add(new StatItem(code, first, second, count > lambda ? logProb : 0, count));
           return true;
@@ -477,7 +394,7 @@ public class DictExpansion<T extends Comparable<T>> {
         if (item.score >= Math.log(POISSON_SIGNIFICANCE) || --slots < 0)
           break;
         newDict.add(CharSeqTools.concat(get(item.first), get(item.second)));
-        minProbResult = min(minProbResult, item.count / (double)pairsPower);
+        minProbResult = min(minProbResult, item.count / (double)pairsFreqs.accumulatedValuesTotal());
       }
       //noinspection unchecked
       return createDict(newDict, isDynamic, minProbResult);
@@ -492,22 +409,12 @@ public class DictExpansion<T extends Comparable<T>> {
     private int cachePower;
 
     public void visitAssociations(int start, TIntDoubleProcedure procedure) {
-      if (cachePower != power) {
-        keysCache = pairsFreqs.keys();
-        valuesCache = pairsFreqs.values();
-        ArrayTools.parallelSort(keysCache, valuesCache);
-        cachePower = power;
-      }
-      int index = Arrays.binarySearch(keysCache, ((long) start) << 32);
-      if (index < 0)
-        index = -index - 1;
-      final long last = ((long) start + 1) << 32;
-      while (keysCache.length > index && keysCache[index] < last) {
-        final long key = keysCache[index];
-        if ((key >> 32) == start)
-          procedure.execute((int)(key & 0xFFFFFFFFl), valuesCache[index]);
-        index++;
-      }
+      pairsFreqs.visitRange(((long) start) << 32, ((long) start + 1l) << 32, new TLongIntProcedure() {
+        @Override
+        public boolean execute(long a, int b) {
+          return procedure.execute((int)(a & 0x7FFFFFFFl), b);
+        }
+      });
     }
 
     private final class StatItem {
