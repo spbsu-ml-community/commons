@@ -28,6 +28,7 @@ import java.util.*;
  * Date: 05.06.12
  * Time: 15:31
  */
+
 public class DictExpansionTest extends TestCase {
 
   public static final String ROOT_WIKI_FILE = System.getenv("HOME") + "/data/wiki/ru/" + "ruwiki-latest-pages-articles.xml";
@@ -49,7 +50,13 @@ public class DictExpansionTest extends TestCase {
   }
 
   public void testRestore() throws Exception {
-    final ListDictionary reference = new ListDictionary("a", "b", "c", "cc", "aa", "bb");
+    final ListDictionary<Character> reference = new ListDictionary<Character>(
+            new CharSeqAdapter("a"),
+            new CharSeqAdapter("b"),
+            new CharSeqAdapter("c"),
+            new CharSeqAdapter("cc"),
+            new CharSeqAdapter("aa"),
+            new CharSeqAdapter("bb"));
     boolean equalsAtLeastOnce = false;
     for (int i = 0; i < 10 && !equalsAtLeastOnce; i++) {
         final List<Character> alpha = new ArrayList<Character>();
@@ -69,7 +76,9 @@ public class DictExpansionTest extends TestCase {
         de.accept(new CharSeqAdapter(builder));
   //      System.out.println(builder);
       }
-      equalsAtLeastOnce = reference.alphabet().toString().equals(de.result().alphabet().toString());
+      String resultAlpha = de.result().alphabet().toString();
+      System.out.println(resultAlpha);
+      equalsAtLeastOnce = reference.alphabet().toString().equals(resultAlpha);
     }
     assertTrue(equalsAtLeastOnce);
   }
@@ -110,7 +119,7 @@ public class DictExpansionTest extends TestCase {
     assertTrue(equalsAtLeastOnce);
   }
 
-  public void testEnWikiConvert() throws Exception {
+  public void notestEnWikiConvert() throws Exception {
     final SAXParserFactory factory = SAXParserFactory.newInstance();
     factory.setValidating(false);
     final SAXParser parser = factory.newSAXParser();
@@ -206,7 +215,7 @@ public class DictExpansionTest extends TestCase {
     });
   }
 
-  public void testWiki() throws Exception {
+  public void notestWiki() throws Exception {
     final File toParse = new File(ROOT_WIKI_FILE + ".sentences");
     final DictExpansion<Character> expansion = new DictExpansion<>(new HashSet<>(Arrays.asList('a')), 1000, System.out);
 

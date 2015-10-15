@@ -182,7 +182,12 @@ public class DictExpansion<T extends Comparable<T>> {
       }
       final DictionaryWithStat<T> currentLocal = current;
       current = suggest.reduce(size - alphabetSize, isDynamic);
-      suggest = currentLocal.expand(min(size - alphabetSize, (int) (currentLocal.size() * (EXTENSION_FACTOR - 1))), isDynamic);
+      int slots;
+      if ((int) (currentLocal.size() * (EXTENSION_FACTOR - 1)) < 10)
+        slots = size - alphabetSize;
+      else
+        slots = min(size - alphabetSize, (int) (currentLocal.size() * (EXTENSION_FACTOR - 1)));
+      suggest = currentLocal.expand(slots, isDynamic);
 
       return true;
     }
