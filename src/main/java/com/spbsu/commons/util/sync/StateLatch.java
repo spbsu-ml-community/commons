@@ -20,7 +20,8 @@ public class StateLatch {
     public int state() { return super.getState(); }
 
     protected int tryAcquireShared(int mask) {
-      return (getState() & mask) != 0 ? 1 : -1;
+      final int state = getState();
+      return (state & mask) != 0 ? 1 : -1;
     }
 
     protected boolean tryReleaseShared(int mask) {
@@ -43,5 +44,15 @@ public class StateLatch {
   }
   public void await(int state) throws InterruptedException {
     sync.acquireSharedInterruptibly(state);
+  }
+
+  public void state(int from, int to) {
+    try {
+      await(from);
+      state(to);
+    }
+    catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
