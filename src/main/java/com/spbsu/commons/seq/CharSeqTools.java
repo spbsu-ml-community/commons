@@ -274,6 +274,17 @@ public class CharSeqTools {
     return true;
   }
 
+  private static final String[] itoaCache = new String[1000];
+  static {
+    for (int i = 0; i < itoaCache.length; i++)
+      itoaCache[i] = Integer.toString(i);
+  }
+  public static String itoa(int i) {
+    if (i < itoaCache.length)
+      return itoaCache[i];
+    return Integer.toString(i);
+  }
+
   public static boolean isImmutable(final CharSequence next) {
     return next instanceof String || next instanceof CharSeq && ((CharSeq) next).isImmutable();
   }

@@ -256,7 +256,7 @@ public class DictExpansion<T extends Comparable<T>> {
         final Seq<T> seq = result.get(i);
         fileWriter.append(seq.toString());
         fileWriter.append('\t');
-        fileWriter.append(Integer.toString(result.freq(i)));
+        fileWriter.append(CharSeqTools.itoa(result.freq(i)));
         fileWriter.append('\n');
       }
     }
