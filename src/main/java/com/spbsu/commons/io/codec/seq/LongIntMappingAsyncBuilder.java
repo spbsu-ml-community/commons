@@ -131,7 +131,6 @@ public class LongIntMappingAsyncBuilder {
         index++;
       }
     }
-
   }
 
   private void flush() {

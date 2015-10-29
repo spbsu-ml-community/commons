@@ -20,14 +20,15 @@ public class Vec2CharSequenceConverter implements Converter<Vec, CharSequence> {
     final CharSequence[] parts =
         CharSeqTools.indexOf(source, "\t") >= 0 ? CharSeqTools.split(source, "\t") : CharSeqTools.split(source, " ");
     final Vec result;
-    if (CharSeqTools.indexOf(source, ":") >= 0) {
+    if (CharSeqTools.indexOf(source, ":") >= 0 || parts.length == 1) {
       result = new SparseVec(CharSeqTools.parseInt(parts[0]));
       final CharSequence[] idx2val = new CharSequence[2];
       for (int i = 1; i < parts.length; i++) {
         CharSeqTools.split(parts[i], ':', idx2val);
         result.set(CharSeqTools.parseInt(idx2val[0]), CharSeqTools.parseDouble(idx2val[1]));
       }
-    } else {
+    }
+    else {
       result = new ArrayVec(CharSeqTools.parseInt(parts[0]));
       for (int i = 1; i < parts.length; i++) {
         result.set(i - 1, CharSeqTools.parseDouble(parts[i]));

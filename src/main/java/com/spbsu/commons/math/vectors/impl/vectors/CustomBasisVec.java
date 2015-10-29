@@ -30,6 +30,12 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
     this.basis = basis;
   }
 
+  public CustomBasisVec(final B basis, int capacityHint) {
+    indices = new TIntArrayList(capacityHint);
+    values = new TDoubleArrayList(capacityHint);
+    this.basis = basis;
+  }
+
   protected CustomBasisVec() {
   }
 

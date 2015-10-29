@@ -42,4 +42,8 @@ public class IntSeqBuilder implements SeqBuilder<Integer> {
   public IntSeq build() {
     return new IntSeq(data.toArray());
   }
+
+  public int length() {
+    return data.size();
+  }
 }

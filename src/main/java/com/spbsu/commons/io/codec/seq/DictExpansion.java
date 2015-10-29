@@ -39,7 +39,7 @@ import static java.lang.Math.min;
  * Time: 18:23
  */
 public class DictExpansion<T extends Comparable<T>> {
-  public static final double POISSON_SIGNIFICANCE = 0.01;
+  public static final double POISSON_SIGNIFICANCE = 0.05;
   public static final double EXTENSION_FACTOR = 1.33;
   public static final double MAX_POWER = 100000000;
   public static final double MAX_MIN_PROBABILITY = 0.0001;
@@ -111,29 +111,21 @@ public class DictExpansion<T extends Comparable<T>> {
 
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
   public void accept(final Seq<T> seq) {
-    final TIntIntMap symbolFreqsCurrent;
-    final TIntIntMap symbolFreqsSuggest;
-    final TLongIntMap pairsFreqsCurrent;
     lock.readLock().lock();
     try {
-      int prev = -1;
-
-      current.pairsFreqs.populate(new Action<TLongIntMap>() {
-        @Override
-        public void invoke(TLongIntMap pairsFreq) {
-          int prev = -1;
-          Seq<T> suffix = seq;
-          int count = 0;
-          while (suffix.length() > 0) {
-            final int symbol = current.search(suffix);
-            current.updateSymbol(symbol, 1);
-            if (prev >= 0) {
-              pairsFreq.adjustOrPutValue((long) prev << 32 | symbol, 1, 1);
-            }
-            prev = symbol;
-            suffix = suffix.sub(current.get(symbol).length(), suffix.length());
-            count++;
+      current.pairsFreqs.populate(pairsFreq -> {
+        int prev = -1;
+        Seq<T> suffix = seq;
+        int count = 0;
+        while (suffix.length() > 0) {
+          final int symbol = current.search(suffix);
+          current.updateSymbol(symbol, 1);
+          if (prev >= 0) {
+            pairsFreq.adjustOrPutValue((long) prev << 32 | symbol, 1, 1);
           }
+          prev = symbol;
+          suffix = suffix.sub(current.get(symbol).length(), suffix.length());
+          count++;
         }
       });
       { // parsing with suggest
@@ -219,13 +211,10 @@ public class DictExpansion<T extends Comparable<T>> {
         final Seq<T> tSeq = alphabet.get(i);
         indices.clear();
         weights.clear();
-        result.visitAssociations(i, new TIntDoubleProcedure() {
-          @Override
-          public boolean execute(int j, double val) {
-            indices.add(j);
-            weights.add(val);
-            return false;
-          }
+        result.visitAssociations(i, (j, val) -> {
+          indices.add(j);
+          weights.add(val);
+          return false;
         });
         weights.toArray(weightsArr, 0, weights.size());
         indices.toArray(indicesArr, 0, indices.size());
@@ -376,17 +365,14 @@ public class DictExpansion<T extends Comparable<T>> {
 
     private DictionaryWithStat<T> expand(int slots, boolean isDynamic) {
       final List<StatItem> items = new ArrayList<>();
-      pairsFreqs.visit(new TLongIntProcedure() {
-        @Override
-        public boolean execute(final long code, final int count) {
-          final int first = (int) (code >>> 32);
-          final int second = (int) (code & 0xFFFFFFFFl);
-          final double pairProbIndependentDirichlet = freq(first) * freq(second) / (double) power / (double) power;
-          final double lambda = pairsFreqs.accumulatedValuesTotal() * pairProbIndependentDirichlet;
-          final double logProb = MathTools.logPoissonProbability(lambda, count);
-          items.add(new StatItem(code, first, second, count > lambda ? logProb : 0, count));
-          return true;
-        }
+      pairsFreqs.visit((code, count) -> {
+        final int first = (int) (code >>> 32);
+        final int second = (int) (code & 0xFFFFFFFFl);
+        final double pairProbIndependentDirichlet = freq(first) * freq(second) / (double) power / (double) power;
+        final double lambda = pairsFreqs.accumulatedValuesTotal() * pairProbIndependentDirichlet;
+        final double logProb = MathTools.logPoissonProbability(lambda, count);
+        items.add(new StatItem(code, first, second, count > lambda ? logProb : 0, count));
+        return true;
       });
 
       Collections.sort(items, new Comparator<StatItem>() {
@@ -410,10 +396,6 @@ public class DictExpansion<T extends Comparable<T>> {
     public boolean enough(double probFound) {
       return power > -log(probFound) / minProbability;
     }
-
-    private long[] keysCache;
-    private int[] valuesCache;
-    private int cachePower;
 
     public void visitAssociations(int start, TIntDoubleProcedure procedure) {
       pairsFreqs.visitRange(((long) start) << 32, ((long) start + 1l) << 32, new TLongIntProcedure() {

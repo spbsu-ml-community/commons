@@ -1,6 +1,8 @@
 package com.spbsu.commons.io.codec.seq;
 
 import com.spbsu.commons.seq.CharSeqTools;
+import com.spbsu.commons.seq.IntSeq;
+import com.spbsu.commons.seq.IntSeqBuilder;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.Pair;
 
@@ -12,6 +14,7 @@ import java.util.*;
  * Time: 16:18
  */
 public class ListDictionary<T extends Comparable<T>> implements Dictionary<T> {
+  public static final String DICTIONARY_INDEX_IS_CORRUPTED = "Dictionary index is corrupted!";
   private final Seq<T>[] sex;
   private final int[] parents;
   private final Comparator<Seq<T>> cmp;
@@ -67,7 +70,28 @@ public class ListDictionary<T extends Comparable<T>> implements Dictionary<T> {
         return index;
       index = parents[index];
     }
-    throw new RuntimeException("Dictionary index is corrupted!");
+    throw new RuntimeException(DICTIONARY_INDEX_IS_CORRUPTED);
+  }
+
+  public IntSeq parse(Seq<T> seq) {
+    final IntSeqBuilder builder = new IntSeqBuilder();
+    Seq<T> suffix = seq;
+    while (suffix.length() > 0) {
+      int symbol;
+      try {
+        symbol = search(suffix);
+        suffix = suffix.sub(get(symbol).length(), suffix.length());
+      }
+      catch (RuntimeException e) {
+        if (DICTIONARY_INDEX_IS_CORRUPTED.equals(e.getMessage())) {
+          symbol = -1;
+          suffix = suffix.sub(1, suffix.length());
+        }
+        else throw e;
+      }
+      builder.add(symbol);
+    }
+    return builder.build();
   }
 
   @Override

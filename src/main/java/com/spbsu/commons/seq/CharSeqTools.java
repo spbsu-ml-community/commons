@@ -189,7 +189,7 @@ public class CharSeqTools {
   public static CharSequence[] split(final CharSequence sequence, final char separator, final CharSequence[] result) {
     final int index = trySplit(sequence, separator, result);
     if (index < result.length)
-      throw new IllegalArgumentException("Too little parts found in input");
+      throw new IllegalArgumentException("Too little parts found in input: " + sequence);
     return result;
   }
 

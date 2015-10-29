@@ -22,6 +22,10 @@ public class SparseVec extends CustomBasisVec<IntBasis> {
     super(new IntBasis(dim));
   }
 
+  public SparseVec(final int dim, int capacityHint) {
+    super(new IntBasis(dim), capacityHint);
+  }
+
   protected SparseVec() {
   }
 }

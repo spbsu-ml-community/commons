@@ -108,6 +108,10 @@ public class VecTools {
             iterRight.advance();
           }
         }
+        if (maxSize > newIndeces.size() * 1.3) {
+          newIndeces.trimToSize();
+          newValues.trimToSize();
+        }
         ((CustomBasisVec) left).indices = newIndeces;
         ((CustomBasisVec) left).values = newValues;
       }
@@ -263,10 +267,13 @@ public class VecTools {
   @SuppressWarnings("unchecked")
   public static SparseVec copySparse(final Vec vec) {
     final SparseVec copy;
-    if (vec instanceof SparseVec)
-      copy = new SparseVec(((SparseVec)vec).basis().size());
-    else
+    if (vec instanceof SparseVec) {
+      final SparseVec original = (SparseVec) vec;
+      copy = new SparseVec(original.basis().size(), original.size());
+    }
+    else {
       copy = new SparseVec(vec.dim());
+    }
     append(copy, vec);
     return copy;
   }
@@ -699,7 +706,14 @@ public class VecTools {
     if (v instanceof CustomBasisVec) {
       return ((CustomBasisVec) v).indices.size();
     }
-    return v.dim();
+    else {
+      int nzCount = 0;
+      for (int i = 0; i < v.dim(); i++) {
+        if (v.get(i) != 0)
+          nzCount++;
+      }
+      return nzCount;
+    }
   }
 
   public static <T extends Vec> T scale(final T vector, final double factor) {
