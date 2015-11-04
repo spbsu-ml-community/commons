@@ -78,6 +78,7 @@
         <configuration>
           <workingDirectory>${basedir}/../</workingDirectory>
           <argLine>-Dfile.encoding=UTF-8</argLine>
+          <argLine>-Xmx1024m</argLine>
         </configuration>
       </plugin>
       <plugin>
