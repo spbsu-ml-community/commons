@@ -440,60 +440,51 @@ public class CharSeqTools {
 
   public static <T extends Comparable<T>> Comparator<Seq<T>> lexicographicalComparator(final Class<T> clazz){
     if (char.class.isAssignableFrom(clazz) || Character.class.isAssignableFrom(clazz)) {
-      return new Comparator<Seq<T>>() {
-        @Override
-        public int compare(final Seq<T> aa, final Seq<T> bb) {
-          final CharSeq a = (CharSeq)(Seq)aa;
-          final CharSeq b = (CharSeq)(Seq)bb;
-          final int minLength = Math.min(a.length(), b.length());
-          int index = 0;
-          while (minLength > index) {
-            final char aCh = a.charAt(index);
-            final char bCh = b.charAt(index);
-            if (aCh != bCh)
-              return aCh - bCh;
-            index++;
-          }
-          return Integer.compare(a.length(), b.length());
+      return (aa, bb) -> {
+        final CharSeq a = (CharSeq)(Seq)aa;
+        final CharSeq b = (CharSeq)(Seq)bb;
+        final int minLength = Math.min(a.length(), b.length());
+        int index = 0;
+        while (minLength > index) {
+          final char aCh = a.charAt(index);
+          final char bCh = b.charAt(index);
+          if (aCh != bCh)
+            return aCh - bCh;
+          index++;
         }
+        return Integer.compare(a.length(), b.length());
       };
     }
     else if (byte.class.isAssignableFrom(clazz) || Byte.class.isAssignableFrom(clazz)) {
-      return new Comparator<Seq<T>>() {
-        @Override
-        public int compare(final Seq<T> aa, final Seq<T> bb) {
-          final ByteSeq a = (ByteSeq)(Seq)aa;
-          final ByteSeq b = (ByteSeq)(Seq)bb;
-          final int minLength = Math.min(a.length(), b.length());
-          int index = 0;
-          while (minLength > index) {
-            final byte aCh = a.byteAt(index);
-            final byte bCh = b.byteAt(index);
-            if (aCh != bCh)
-              return aCh - bCh;
-            index++;
-          }
-          return Integer.compare(a.length(), b.length());
+      return (aa, bb) -> {
+        final ByteSeq a = (ByteSeq)(Seq)aa;
+        final ByteSeq b = (ByteSeq)(Seq)bb;
+        final int minLength = Math.min(a.length(), b.length());
+        int index = 0;
+        while (minLength > index) {
+          final byte aCh = a.byteAt(index);
+          final byte bCh = b.byteAt(index);
+          if (aCh != bCh)
+            return aCh - bCh;
+          index++;
         }
+        return Integer.compare(a.length(), b.length());
       };
     }
     else if (int.class.isAssignableFrom(clazz) || Integer.class.isAssignableFrom(clazz)) {
-      return new Comparator<Seq<T>>() {
-        @Override
-        public int compare(final Seq<T> aa, final Seq<T> bb) {
-          final IntSeq a = (IntSeq)(Seq)aa;
-          final IntSeq b = (IntSeq)(Seq)bb;
-          final int minLength = Math.min(a.length(), b.length());
-          int index = 0;
-          while (minLength > index) {
-            final int aCh = a.intAt(index);
-            final int bCh = b.intAt(index);
-            if (aCh != bCh)
-              return aCh - bCh;
-            index++;
-          }
-          return Integer.compare(a.length(), b.length());
+      return (aa, bb) -> {
+        final IntSeq a = (IntSeq)(Seq)aa;
+        final IntSeq b = (IntSeq)(Seq)bb;
+        final int minLength = Math.min(a.length(), b.length());
+        int index = 0;
+        while (minLength > index) {
+          final int aCh = a.intAt(index);
+          final int bCh = b.intAt(index);
+          if (aCh != bCh)
+            return aCh - bCh;
+          index++;
         }
+        return Integer.compare(a.length(), b.length());
       };
     }
     return new Comparator<Seq<T>>() {

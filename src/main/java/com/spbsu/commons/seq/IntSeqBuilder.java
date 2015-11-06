@@ -40,10 +40,40 @@ public class IntSeqBuilder implements SeqBuilder<Integer> {
 
   @Override
   public IntSeq build() {
-    return new IntSeq(data.toArray());
+    final int mark = mark();
+    final int[] resultArr = new int[data.size() - mark];
+    data.toArray(resultArr, mark, resultArr.length);
+    reset();
+    return new IntSeq(resultArr);
+  }
+
+  private int mark() {
+    if (marks == null || marks.isEmpty())
+      return 0;
+    return marks.get(marks.size() - 1);
   }
 
   public int length() {
     return data.size();
+  }
+
+
+  private TIntList marks;
+  public void pushMark() {
+    if (marks == null)
+      marks = new TIntArrayList();
+    marks.add(length());
+  }
+
+  public void popMark() {
+    marks.removeAt(marks.size() - 1);
+  }
+
+  public void reset() {
+    if (marks != null && !marks.isEmpty()) {
+      final int mark = marks.get(marks.size() - 1);
+      data.remove(mark, data.size() - mark);
+    }
+    else data.clear();
   }
 }

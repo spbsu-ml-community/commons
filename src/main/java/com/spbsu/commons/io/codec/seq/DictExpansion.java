@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.spbsu.commons.func.Action;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.seq.CharSeqTools;
+import com.spbsu.commons.seq.IntSeq;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.ArrayTools;
 import com.spbsu.commons.util.Holder;
@@ -114,26 +115,21 @@ public class DictExpansion<T extends Comparable<T>> {
     lock.readLock().lock();
     try {
       current.pairsFreqs.populate(pairsFreq -> {
+        final IntSeq parseResult = current.parse(seq);
+        final int length = parseResult.length();
         int prev = -1;
-        Seq<T> suffix = seq;
-        int count = 0;
-        while (suffix.length() > 0) {
-          final int symbol = current.search(suffix);
+        for(int i = 0; i < length; i++) {
+          final int symbol = parseResult.intAt(i);
           current.updateSymbol(symbol, 1);
-          if (prev >= 0) {
+          if (prev >= 0)
             pairsFreq.adjustOrPutValue((long) prev << 32 | symbol, 1, 1);
-          }
           prev = symbol;
-          suffix = suffix.sub(current.get(symbol).length(), suffix.length());
-          count++;
         }
       });
       { // parsing with suggest
-        Seq<T> suffix = seq;
-        while (suffix.length() > 0) {
-          final int symbol = suggest.search(suffix);
-          suggest.updateSymbol(symbol, 1);
-          suffix = suffix.sub(suggest.get(symbol).length(), suffix.length());
+        final IntSeq parse = suggest.parse(seq);
+        for (int i = 0; i < parse.length(); i++) {
+          suggest.updateSymbol(parse.intAt(i), 1);
         }
       }
     }
@@ -255,10 +251,10 @@ public class DictExpansion<T extends Comparable<T>> {
     }
   }
 
-  private static class DictionaryWithStat<T extends Comparable<T>> implements Dictionary<T> {
+  private static class DictionaryWithStat<T extends Comparable<T>> extends DictionaryBase<T> {
     private final Dictionary<T> dict;
     private final TIntArrayList symbolFreqs;
-    private int power = 0;
+    private double power = 0;
     private final LongIntMappingAsyncBuilder pairsFreqs;
     private final double minProbability;
 
@@ -329,7 +325,7 @@ public class DictExpansion<T extends Comparable<T>> {
           newDict.add(seq);
         else if (count > 0) {
           double codeLengthWOSymbol = codeLength + count * log(count);
-          int newStatPower = power - count;
+          double newStatPower = power - count;
           int next = parent;
           do {
             seq = seq.sub(get(next).length(), seq.length());
@@ -343,18 +339,13 @@ public class DictExpansion<T extends Comparable<T>> {
           items.add(new StatItem(s, -1, s, codeLengthWOSymbol - codeLength, count));
         }
       }
-      Collections.sort(items, new Comparator<StatItem>() {
-        @Override
-        public int compare(final StatItem o1, final StatItem o2) {
-          return Double.compare(o2.score, o1.score);
-        }
-      });
+      Collections.sort(items, (o1, o2) -> Double.compare(o2.score, o1.score));
 
       double minProbResult = min(1. / size(), MAX_MIN_PROBABILITY);
       for (final StatItem item : items) {
         if (item.score < 0. || --slots < 0)
           break;
-        final double p = (item.count + 1) / ((double) power + size());
+        final double p = (item.count + 1) / (power + size());
         minProbResult = min(p, minProbResult);
         final Seq<T> symbol = get(item.second);
         newDict.add(symbol);
@@ -368,19 +359,14 @@ public class DictExpansion<T extends Comparable<T>> {
       pairsFreqs.visit((code, count) -> {
         final int first = (int) (code >>> 32);
         final int second = (int) (code & 0xFFFFFFFFl);
-        final double pairProbIndependentDirichlet = freq(first) * freq(second) / (double) power / (double) power;
+        final double pairProbIndependentDirichlet = freq(first) * freq(second) / power / power;
         final double lambda = pairsFreqs.accumulatedValuesTotal() * pairProbIndependentDirichlet;
         final double logProb = MathTools.logPoissonProbability(lambda, count);
         items.add(new StatItem(code, first, second, count > lambda ? logProb : 0, count));
         return true;
       });
 
-      Collections.sort(items, new Comparator<StatItem>() {
-        @Override
-        public int compare(final StatItem o1, final StatItem o2) {
-          return Double.compare(o1.score, o2.score);
-        }
-      });
+      Collections.sort(items, (o1, o2) -> Double.compare(o1.score, o2.score));
       final List<Seq<T>> newDict = new ArrayList<>(alphabet());
       double minProbResult = minProbability;
       for (final StatItem item : items) {
@@ -404,6 +390,12 @@ public class DictExpansion<T extends Comparable<T>> {
           return procedure.execute((int)(a & 0x7FFFFFFFl), b);
         }
       });
+    }
+
+    public IntSeq parse(Seq<T> seq) {
+//      if (symbolFreqs.size() < dict.size())
+//        symbolFreqs.fill(symbolFreqs.size(), dict.size(), 0);
+      return parse(seq, symbolFreqs, power);
     }
 
     private final class StatItem {

@@ -1,8 +1,6 @@
 package com.spbsu.commons.io.codec.seq;
 
 import com.spbsu.commons.seq.CharSeqTools;
-import com.spbsu.commons.seq.IntSeq;
-import com.spbsu.commons.seq.IntSeqBuilder;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.Pair;
 
@@ -13,7 +11,7 @@ import java.util.*;
  * Date: 22.05.14
  * Time: 16:18
  */
-public class ListDictionary<T extends Comparable<T>> implements Dictionary<T> {
+public class ListDictionary<T extends Comparable<T>> extends DictionaryBase<T> {
   public static final String DICTIONARY_INDEX_IS_CORRUPTED = "Dictionary index is corrupted!";
   private final Seq<T>[] sex;
   private final int[] parents;
@@ -21,6 +19,7 @@ public class ListDictionary<T extends Comparable<T>> implements Dictionary<T> {
 
   @SafeVarargs
   public ListDictionary(final Seq<T>... sex) {
+    //noinspection unchecked
     this.sex = new Seq[sex.length];
     this.parents = new int[sex.length];
     final Stack<Pair<Seq<T>,Integer>> parents = new Stack<>();
@@ -53,7 +52,7 @@ public class ListDictionary<T extends Comparable<T>> implements Dictionary<T> {
     final List<Seq<T>> initalDict = new ArrayList<>(chars.length);
     for (final T character : chars) {
       //noinspection unchecked
-      initalDict.add((Seq<T>)CharSeqTools.create(new Object[]{character}));
+      initalDict.add(CharSeqTools.create(new Object[]{character}));
     }
     //noinspection unchecked
     return initalDict.toArray(new Seq[initalDict.size()]);
@@ -71,27 +70,6 @@ public class ListDictionary<T extends Comparable<T>> implements Dictionary<T> {
       index = parents[index];
     }
     throw new RuntimeException(DICTIONARY_INDEX_IS_CORRUPTED);
-  }
-
-  public IntSeq parse(Seq<T> seq) {
-    final IntSeqBuilder builder = new IntSeqBuilder();
-    Seq<T> suffix = seq;
-    while (suffix.length() > 0) {
-      int symbol;
-      try {
-        symbol = search(suffix);
-        suffix = suffix.sub(get(symbol).length(), suffix.length());
-      }
-      catch (RuntimeException e) {
-        if (DICTIONARY_INDEX_IS_CORRUPTED.equals(e.getMessage())) {
-          symbol = -1;
-          suffix = suffix.sub(1, suffix.length());
-        }
-        else throw e;
-      }
-      builder.add(symbol);
-    }
-    return builder.build();
   }
 
   @Override

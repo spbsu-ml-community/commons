@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Date: 30.09.15
  * Time: 18:37
  */
-public class DynamicDictionary<T extends Comparable<T>> implements Dictionary<T> {
+public class DynamicDictionary<T extends Comparable<T>> extends DictionaryBase<T> {
   private final Dictionary<T> composites;
   private final TObjectIntHashMap<T> singles = new TObjectIntHashMap<>();
   private final List<Seq<T>> increment = new ArrayList<>();
@@ -83,14 +83,7 @@ public class DynamicDictionary<T extends Comparable<T>> implements Dictionary<T>
   public Seq<T> get(int index) {
     lock.readLock().lock();
     try {
-      try {
-        return index < composites.size() ? composites.get(index) : increment.get(index - composites.size());
-      }
-      catch (IndexOutOfBoundsException ioob) {
-        ioob.printStackTrace();
-        System.out.println();
-        return null;
-      }
+      return index < composites.size() ? composites.get(index) : increment.get(index - composites.size());
     }
     finally {
       lock.readLock().unlock();

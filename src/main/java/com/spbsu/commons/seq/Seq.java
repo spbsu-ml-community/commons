@@ -55,5 +55,37 @@ public interface Seq<T> {
       builder.append(']');
       return builder.toString();
     }
+
+    private int hash = -1;
+    @Override
+    public int hashCode() {
+      if (hash != -1)
+        return hash;
+      int result = length();
+      result <<= 1;
+      for (int i = 0; i < length(); i++) {
+        result += at(i).hashCode();
+        result <<= 2;
+      }
+      if (result == -1)
+        result = 0;
+      return hash = result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this)
+        return true;
+      if (!(obj instanceof Seq))
+        return false;
+      final Seq other = (Seq)obj;
+      if (other.length() != length())
+        return false;
+      for (int i = 0; i < length(); i++) {
+        if (!at(i).equals(other.at(i)))
+          return false;
+      }
+      return true;
+    }
   }
 }
