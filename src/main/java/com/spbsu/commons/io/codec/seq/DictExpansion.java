@@ -1,35 +1,29 @@
 package com.spbsu.commons.io.codec.seq;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.spbsu.commons.func.Action;
+import com.spbsu.commons.func.impl.WeakListenerHolderImpl;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.IntSeq;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.util.ArrayTools;
-import com.spbsu.commons.util.Holder;
 import com.spbsu.commons.util.JSONTools;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.TIntIntMap;
-import gnu.trove.map.TLongIntMap;
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.map.hash.TLongIntHashMap;
 import gnu.trove.procedure.TIntDoubleProcedure;
-import gnu.trove.procedure.TIntIntProcedure;
-import gnu.trove.procedure.TLongIntProcedure;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Supplier;
 
+import static java.lang.Integer.max;
 import static java.lang.Math.log;
 import static java.lang.Math.min;
 
@@ -39,7 +33,7 @@ import static java.lang.Math.min;
  * Date: 04.06.12
  * Time: 18:23
  */
-public class DictExpansion<T extends Comparable<T>> {
+public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderImpl<DictExpansion<T>> {
   public static final double POISSON_SIGNIFICANCE = 0.05;
   public static final double EXTENSION_FACTOR = 1.33;
   public static final double MAX_POWER = 100000000;
@@ -93,13 +87,14 @@ public class DictExpansion<T extends Comparable<T>> {
   }
 
   public DictExpansion(int size, PrintStream trace) {
+    //noinspection unchecked
     this(Dictionary.EMPTY, size, trace);
   }
 
   @NotNull
   private static <T extends Comparable<T>> DictionaryWithStat<T> createDict(Collection<Seq<T>> alphabet, boolean isDynamic, double minProbResult) {
-    //noinspection unchecked
-    return new DictionaryWithStat<>(isDynamic ? new DynamicDictionary<>(alphabet) : new ListDictionary<>(alphabet.toArray(new Seq[alphabet.size()])), minProbResult);
+    //noinspection unchecked,Convert2Diamond
+    return new DictionaryWithStat<T>(isDynamic ? new DynamicDictionary<>(alphabet) : new ListDictionary<T>(alphabet.toArray(new Seq[alphabet.size()])), minProbResult);
   }
 
   public Dictionary<T> result() {
@@ -163,6 +158,7 @@ public class DictExpansion<T extends Comparable<T>> {
       }
 
       result = current;
+      invoke(this);
 
       if (trace != null) {
         final String message = "Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + suggest.minProbability;
@@ -185,9 +181,15 @@ public class DictExpansion<T extends Comparable<T>> {
   }
 
   public int[] resultFreqs() {
-    if (result.size() > result.symbolFreqs.size())
-      result.symbolFreqs.fill(result.symbolFreqs.size(), result.size(), 0);
-    return result.symbolFreqs.toArray();
+    lock.writeLock().lock();
+    try {
+      if (result.size() > result.symbolFreqs.size())
+        result.symbolFreqs.fill(result.symbolFreqs.size(), result.size(), 0);
+      return result.symbolFreqs.toArray();
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
   }
 
   public void printPairs(Writer ps) throws IOException {
@@ -197,8 +199,6 @@ public class DictExpansion<T extends Comparable<T>> {
     final TDoubleArrayList weights = new TDoubleArrayList();
     final int[] indicesArr = new int[result().size()];
     final double[] weightsArr = new double[result().size()];
-    final ObjectMapper mapper = new ObjectMapper();
-    final ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
 
     ps.append("{\n");
     try {
@@ -251,7 +251,7 @@ public class DictExpansion<T extends Comparable<T>> {
     }
   }
 
-  private static class DictionaryWithStat<T extends Comparable<T>> extends DictionaryBase<T> {
+  public static class DictionaryWithStat<T extends Comparable<T>> extends DictionaryBase<T> {
     private final Dictionary<T> dict;
     private final TIntArrayList symbolFreqs;
     private double power = 0;
@@ -260,14 +260,23 @@ public class DictExpansion<T extends Comparable<T>> {
 
     public DictionaryWithStat(Dictionary<T> dict, double minProbResult) {
       this.dict = dict;
-      symbolFreqs = new TIntArrayList(dict.size());
+      symbolFreqs = new TIntArrayList(max(dict.size(), 1_000_000));
       pairsFreqs = new LongIntMappingAsyncBuilder(AGG_POWER);
       minProbability = minProbResult;
     }
 
     public void updateSymbol(int index, int freq) {
-      if (index >= symbolFreqs.size())
-        symbolFreqs.fill(symbolFreqs.size(), index + 1, 0);
+      // trash double-locking, _pos in symbolFreq is not volatile, won't work in some cases, never ever do like this!
+      // in this code I trade performance to certainty of symbolFreqs values.
+      // In case it will update the same symbol from different thread the value update will be result of race condition.
+      // So, the code is total garbage, but it works fast :)
+      // No idea how to rewrite this correctly without dramatic loss of performance
+      if (index >= symbolFreqs.size()) {
+        synchronized (this) {
+          if (index >= symbolFreqs.size())
+            symbolFreqs.fill(symbolFreqs.size(), index + 1, 0);
+        }
+      }
       final int val = symbolFreqs.getQuick(index);
       symbolFreqs.setQuick(index, val + freq);
       power += freq;
@@ -358,7 +367,7 @@ public class DictExpansion<T extends Comparable<T>> {
       final List<StatItem> items = new ArrayList<>();
       pairsFreqs.visit((code, count) -> {
         final int first = (int) (code >>> 32);
-        final int second = (int) (code & 0xFFFFFFFFl);
+        final int second = (int) (code & 0xFFFFFFFFL);
         final double pairProbIndependentDirichlet = freq(first) * freq(second) / power / power;
         final double lambda = pairsFreqs.accumulatedValuesTotal() * pairProbIndependentDirichlet;
         final double logProb = MathTools.logPoissonProbability(lambda, count);
@@ -384,12 +393,7 @@ public class DictExpansion<T extends Comparable<T>> {
     }
 
     public void visitAssociations(int start, TIntDoubleProcedure procedure) {
-      pairsFreqs.visitRange(((long) start) << 32, ((long) start + 1l) << 32, new TLongIntProcedure() {
-        @Override
-        public boolean execute(long a, int b) {
-          return procedure.execute((int)(a & 0x7FFFFFFFl), b);
-        }
-      });
+      pairsFreqs.visitRange(((long) start) << 32, ((long) start + 1L) << 32, (a, b) -> procedure.execute((int)(a & 0x7FFFFFFFL), b));
     }
 
     public IntSeq parse(Seq<T> seq) {

@@ -5,11 +5,13 @@ import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.util.logging.Logger;
 import gnu.trove.list.array.TByteArrayList;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -322,5 +324,14 @@ public class StreamTools {
     if (fileName.substring(index).equals(".gz") || fileName.substring(index).equals(".bz2"))
       return stripExtension(fileName.substring(0, index));
     return fileName.substring(0, index);
+  }
+
+  public static Reader openTextFile(String file) throws IOException {
+    InputStream stream = new FileInputStream(file);
+    if (file.endsWith(".gz"))
+      stream = new GZIPInputStream(stream);
+    else if (file.endsWith(".bz2"))
+      throw new NotImplementedException();
+    return new InputStreamReader(stream, UTF);
   }
 }
