@@ -1,5 +1,7 @@
 package com.spbsu.commons.seq;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.Reader;
 
@@ -17,13 +19,13 @@ public class CharSequenceReader extends Reader {
   }
 
   @Override
-  public int read(final char[] cbuf, int off, final int len) throws IOException {
+  public int read(@NotNull final char[] cbuf, int off, final int len) throws IOException {
     int count = 0;
     while(count < len && offset < sequence.length()) {
       cbuf[off++] = sequence.charAt(offset++);
       count++;
     }
-    return count;
+    return count > 0 ? count : (offset >= sequence.length() ? -1 : 0);
   }
 
   @Override
