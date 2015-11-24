@@ -36,13 +36,13 @@ public class CharSeqTools {
   };
 
   public static final NumberFormat prettyPrint = NumberFormat.getInstance(Locale.US);
+
   static {
     CharSeqTools.prettyPrint.setMaximumFractionDigits(4);
     CharSeqTools.prettyPrint.setMinimumFractionDigits(0);
     CharSeqTools.prettyPrint.setRoundingMode(RoundingMode.HALF_UP);
     CharSeqTools.prettyPrint.setGroupingUsed(false);
   }
-
 
   public static boolean isWhitespace(final char ch) {
     return ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r';
@@ -291,13 +291,15 @@ public class CharSeqTools {
 
   public static List<CharSequence> discloseComposites(final List<CharSequence> fragments) {
     int fragmentsCount = fragments.size();
+    boolean hasComposited = false;
     for (final CharSequence fragment : fragments) {
       if (fragment instanceof CharSeqComposite) {
         final CharSeqComposite charSeqComposite = (CharSeqComposite) fragment;
         fragmentsCount += charSeqComposite.fragmentsCount() - 1;
+        hasComposited = true;
       }
     }
-    if (fragmentsCount == fragments.size()) {
+    if (!hasComposited) {
       return fragments;
     }
 

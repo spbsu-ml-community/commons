@@ -1,7 +1,6 @@
 package com.spbsu.commons.seq.regexp;
 
 
-import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.io.codec.seq.DictExpansion;
 import com.spbsu.commons.io.codec.seq.ListDictionary;
@@ -9,7 +8,10 @@ import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecTools;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.random.FastRandom;
-import com.spbsu.commons.seq.*;
+import com.spbsu.commons.seq.CharSeq;
+import com.spbsu.commons.seq.CharSeqBuilder;
+import com.spbsu.commons.seq.CharSeqTools;
+import com.spbsu.commons.seq.ReaderChopper;
 import com.spbsu.commons.util.ArrayTools;
 import junit.framework.TestCase;
 import org.xml.sax.Attributes;
@@ -34,32 +36,32 @@ public class DictExpansionTest extends TestCase {
   public static final String ROOT_WIKI_FILE = System.getenv("HOME") + "/data/wiki/ru/" + "ruwiki-latest-pages-articles.xml";
 
   public void testIndependent() throws Exception {
-    final List<Character> alpha = new ArrayList<Character>();
+    final List<Character> alpha = new ArrayList<>();
     for (char a = 'a'; a <= 'z'; a++)
       alpha.add(a);
     final Random rnd = new FastRandom();
-    final DictExpansion de = new DictExpansion(alpha, alpha.size() + 100);
+    final DictExpansion<Character> de = new DictExpansion<>(alpha, alpha.size() + 100);
     for (int i = 0; i < 10000; i++) {
       final int len = rnd.nextInt(300);
       final StringBuilder builder = new StringBuilder(len);
       for (int c = 0; c < len; c++)
         builder.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
-      de.accept(new CharSeqAdapter(builder));
+      de.accept(CharSeq.adapt(builder));
     }
     assertEquals('z' - 'a' + 1, de.result().size());
   }
 
   public void testRestore() throws Exception {
     final ListDictionary<Character> reference = new ListDictionary<Character>(
-            new CharSeqAdapter("a"),
-            new CharSeqAdapter("b"),
-            new CharSeqAdapter("c"),
-            new CharSeqAdapter("cc"),
-            new CharSeqAdapter("aa"),
-            new CharSeqAdapter("bb"));
+            CharSeq.adapt("a"),
+            CharSeq.adapt("b"),
+            CharSeq.adapt("c"),
+            CharSeq.adapt("cc"),
+            CharSeq.adapt("aa"),
+            CharSeq.adapt("bb"));
     boolean equalsAtLeastOnce = false;
     for (int i = 0; i < 10 && !equalsAtLeastOnce; i++) {
-        final List<Character> alpha = new ArrayList<Character>();
+        final List<Character> alpha = new ArrayList<>();
       for (char a = 'a'; a <= 'c'; a++) {
         alpha.add(a);
       }
@@ -73,7 +75,7 @@ public class DictExpansionTest extends TestCase {
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
           builder.append(reference.get(rnd.nextSimple(probabs)));
-        de.accept(new CharSeqAdapter(builder));
+        de.accept(CharSeq.adapt(builder));
   //      System.out.println(builder);
       }
       String resultAlpha = de.result().alphabet().toString();
@@ -88,20 +90,10 @@ public class DictExpansionTest extends TestCase {
     for (int i = 0; i < 10 && !equalsAtLeastOnce; i++) {
       final ListDictionary<Character> reference = new ListDictionary<Character>(ArrayTools.map(
           new CharSequence[]{"a", "b", "c", "r", "d", "cc", "aa", "bb", "rabracadabra"},
-          CharSeq.class, new Computable<CharSequence, CharSeq>() {
-            @Override
-            public CharSeq compute(final CharSequence argument) {
-              return new CharSeqAdapter(argument);
-            }
-          }));
+          CharSeq.class, CharSeq::adapt));
       final ListDictionary<Character> start = new ListDictionary<Character>(ArrayTools.map(
           new CharSequence[]{"a", "b", "c", "r", "d"},
-          CharSeq.class, new Computable<CharSequence, CharSeq>() {
-            @Override
-            public CharSeq compute(final CharSequence argument) {
-              return new CharSeqAdapter(argument);
-            }
-          }));
+          CharSeq.class, CharSeq::adapt));
       final DictExpansion<Character> de = new DictExpansion<>(start, reference.size());
       final FastRandom rng = new FastRandom();
       final Vec probabs = new ArrayVec(reference.size());
@@ -112,13 +104,14 @@ public class DictExpansionTest extends TestCase {
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
           builder.append(reference.get(rng.nextSimple(probabs)));
-        de.accept(new CharSeqAdapter(builder));
+        de.accept(CharSeq.adapt(builder));
       }
       equalsAtLeastOnce = reference.alphabet().toString().equals(de.result().alphabet().toString());
     }
     assertTrue(equalsAtLeastOnce);
   }
 
+  @SuppressWarnings("unused")
   public void notestEnWikiConvert() throws Exception {
     final SAXParserFactory factory = SAXParserFactory.newInstance();
     factory.setValidating(false);
@@ -215,9 +208,10 @@ public class DictExpansionTest extends TestCase {
     });
   }
 
+  @SuppressWarnings("unused")
   public void notestWiki() throws Exception {
     final File toParse = new File(ROOT_WIKI_FILE + ".sentences");
-    final DictExpansion<Character> expansion = new DictExpansion<>(new HashSet<>(Arrays.asList('a')), 1000, System.out);
+    final DictExpansion<Character> expansion = new DictExpansion<>(new HashSet<>(Collections.singletonList('a')), 1000, System.out);
 
     for (int i = 0; i < 1; i++) {
       CharSeqTools.processLines(new FileReader(toParse), new Processor<CharSequence>() {
@@ -226,7 +220,7 @@ public class DictExpansionTest extends TestCase {
         public void process(CharSequence arg) {
           if (arg.length() < 150)
             return;
-          expansion.accept(new CharSeqAdapter(arg));
+          expansion.accept(CharSeq.adapt(arg));
           if (++index % 10000 == 0)
             try {
               expansion.printPairs(new FileWriter(new File(ROOT_WIKI_FILE + ".dict")));

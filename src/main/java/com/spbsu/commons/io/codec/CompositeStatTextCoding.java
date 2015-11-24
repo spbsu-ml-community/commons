@@ -2,7 +2,7 @@ package com.spbsu.commons.io.codec;
 
 import com.spbsu.commons.io.codec.seq.DictExpansion;
 import com.spbsu.commons.io.codec.seq.Dictionary;
-import com.spbsu.commons.seq.CharSeqAdapter;
+import com.spbsu.commons.seq.CharSeq;
 
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
@@ -31,7 +31,7 @@ public class CompositeStatTextCoding {
 
   public void accept(final CharSequence seq) {
     if (!stop)
-      expansion.accept(new CharSeqAdapter(seq));
+      expansion.accept(CharSeq.adapt(seq));
     else throw new RuntimeException("Expansion is not supported after encode/decode routine called");
   }
 
@@ -51,7 +51,7 @@ public class CompositeStatTextCoding {
 
     public void write(CharSequence suffix) {
       while(suffix.length() > 0) {
-        final int symbol = dict.search(new CharSeqAdapter(suffix));
+        final int symbol = dict.search(CharSeq.adapt(suffix));
         suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
         output.write(symbol);
       }

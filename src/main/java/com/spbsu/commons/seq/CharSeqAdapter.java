@@ -9,10 +9,12 @@ public class CharSeqAdapter extends CharSeq {
   private final int start, end;
   private final CharSequence delegate;
 
-  public CharSeqAdapter(final CharSequence delegate) {
+  CharSeqAdapter(final CharSequence delegate) {
     this(delegate, 0, delegate.length());
   }
-  public CharSeqAdapter(final CharSequence delegate, final int start, final int end) {
+  CharSeqAdapter(final CharSequence delegate, final int start, final int end) {
+    if (delegate instanceof CharSeq)
+      throw new IllegalArgumentException();
     if (start < 0 || start > end || end > delegate.length())
       throw new ArrayIndexOutOfBoundsException();
     this.start = start;
@@ -44,5 +46,30 @@ public class CharSeqAdapter extends CharSeq {
   @Override
   public int length() {
     return end - start;
+  }
+
+  @Override
+  public boolean isImmutable() {
+    if (delegate instanceof String)
+      return true;
+    else if (delegate instanceof CharSeq)
+      return ((CharSeq) delegate).isImmutable();
+    return false;
+  }
+
+  public CharSequence original() {
+    return delegate;
+  }
+
+  public static CharSeq create(CharSequence seq) {
+    if (seq instanceof CharSeq)
+      return (CharSeq)seq;
+    return new CharSeqAdapter(seq);
+  }
+
+  public static CharSeq create(CharSequence seq, int start, int end) {
+    if (seq instanceof CharSeq)
+      return ((CharSeq)seq).sub(start, end);
+    return new CharSeqAdapter(seq, start, end);
   }
 }

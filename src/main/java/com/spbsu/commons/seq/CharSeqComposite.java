@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@SuppressWarnings("EqualsAndHashcode")
 public class CharSeqComposite extends CharSeq {
+  public static final int MAXIMUM_COPY_FRAGMENT_LENGTH = 100;
   private CharSequence[] fragments;
   protected CharSequence activeFragment = null;
 
@@ -17,10 +17,6 @@ public class CharSeqComposite extends CharSeq {
   }
 
   int length = -1;
-
-  public CharSeqComposite(final CharSequence[] parts, final int start, final int end) {
-    fragments = CharSeqTools.discloseComposites(Arrays.asList(parts).subList(start, end)).toArray(new CharSequence[end - start]);
-  }
 
   @Override
   public int length() {
@@ -42,6 +38,11 @@ public class CharSeqComposite extends CharSeq {
   }
 
   private char heavyAt(int offset) {
+    seek(offset);
+    return activeFragment.charAt(offset - activeFragmentRangeStart);
+  }
+
+  private void seek(int offset) {
     int i = 0, fragmentEndOffset = 0;
     while (offset >= fragmentEndOffset) {
       fragmentEndOffset += fragment(i++).length();
@@ -50,7 +51,6 @@ public class CharSeqComposite extends CharSeq {
     activeFragmentRangeStart = fragmentEndOffset - fragment(i - 1).length();
     activeFragmentRangeEnd = fragmentEndOffset;
     activeFragment = fragment(i - 1);
-    return activeFragment.charAt(offset - activeFragmentRangeStart);
   }
 
   @Override
@@ -59,37 +59,34 @@ public class CharSeqComposite extends CharSeq {
       throw new ArrayIndexOutOfBoundsException();
     if (start == end)
       return EMPTY;
-    if (end - start < length() / fragments.length)
-      return new CharSeqAdapter(this, start, end);
-    final List<CharSequence> subSequenceFragments = new ArrayList<CharSequence>();
-    int i = 0;
+    seek(start);
+    if (activeFragmentRangeStart <= start && activeFragmentRangeEnd >= end) // fragment contains full range
+      return CharSeq.adapt(activeFragment.subSequence(start - activeFragmentRangeStart, end - activeFragmentRangeStart));
+    if (isImmutable() && end - start < MAXIMUM_COPY_FRAGMENT_LENGTH) { // fragment is small and it is easier to copy it
+      final char[] copy = new char[end - start];
+      copyToArray(start, copy, 0, end - start);
+      return CharSeq.adapt(copy);
+    }
+    int index = 0;
     int fragmentEndOffset = 0;
-
+    final List<CharSequence> subSequenceFragments = new ArrayList<>(fragmentsCount());
     while (start >= fragmentEndOffset) {
-      fragmentEndOffset += fragment(i++).length();
+      fragmentEndOffset += fragment(index++).length();
     }
-    int fragmentStartOffset = fragmentEndOffset - fragment(i - 1).length();
+    final CharSequence firstNotEmpty = fragment(index - 1);
+    int fragmentStartOffset = fragmentEndOffset - firstNotEmpty.length();
+    subSequenceFragments.add(firstNotEmpty.subSequence(start - fragmentStartOffset, firstNotEmpty.length()));
 
-    if (fragmentEndOffset >= end) {
-      final CharSequence result = fragment(i - 1).subSequence(start - fragmentStartOffset, end - fragmentStartOffset);
-      if (result instanceof CharSeq)
-        return (CharSeq) result;
-      return new CharSeqAdapter(result);
-    }
-
-    final CharSequence startFragment = fragment(i - 1);
-    subSequenceFragments.add(startFragment.subSequence(start - fragmentStartOffset, startFragment.length()));
-
+    CharSequence current;
     while (true) {
-      final CharSequence fragment = fragment(i++);
-      fragmentEndOffset += fragment.length();
-      if (end <= fragmentEndOffset) {
+      current = fragment(index++);
+      fragmentEndOffset += current.length();
+      if (end <= fragmentEndOffset)
         break;
-      }
-      subSequenceFragments.add(fragment);
+      subSequenceFragments.add(current);
     }
-    fragmentStartOffset = (fragmentEndOffset - fragment(i - 1).length());
-    subSequenceFragments.add(fragment(i - 1).subSequence(0, end - fragmentStartOffset));
+    fragmentStartOffset = (fragmentEndOffset - current.length());
+    subSequenceFragments.add(end - fragmentStartOffset < current.length() ? current.subSequence(0, end - fragmentStartOffset) : current);
 
     return new CharSeqComposite(subSequenceFragments.toArray(new CharSequence[subSequenceFragments.size()]));
   }
@@ -99,9 +96,11 @@ public class CharSeqComposite extends CharSeq {
     final int length = length();
     final char[] chars = new char[length];
     copyToArray(0, chars, 0, length);
-    fragments = new CharSequence[]{activeFragment = create(chars)};
-    activeFragmentRangeStart = 0;
-    activeFragmentRangeStart = activeFragment.length();
+    if (isImmutable()) {
+      fragments = new CharSequence[]{activeFragment = adapt(chars)};
+      activeFragmentRangeStart = 0;
+      activeFragmentRangeStart = activeFragment.length();
+    }
     return chars;
   }
 

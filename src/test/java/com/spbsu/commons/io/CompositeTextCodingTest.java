@@ -1,5 +1,6 @@
 package com.spbsu.commons.io;
 
+import com.spbsu.commons.JUnitIOCapture;
 import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.io.codec.ArithmeticCoding;
 import com.spbsu.commons.io.codec.CSCInputStream;
@@ -10,10 +11,12 @@ import com.spbsu.commons.io.codec.seq.Dictionary;
 import com.spbsu.commons.io.codec.seq.DynamicDictionary;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.ByteSeq;
-import com.spbsu.commons.seq.CharSeqAdapter;
+import com.spbsu.commons.seq.CharSeq;
 import com.spbsu.commons.seq.CharSeqTools;
 import com.spbsu.commons.seq.Seq;
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -28,7 +31,7 @@ import java.util.zip.GZIPInputStream;
  * Date: 03.06.14
  * Time: 14:40
  */
-public class CompositeTextCodingTest extends TestCase {
+public class CompositeTextCodingTest extends JUnitIOCapture {
   public static CharSequence[] queries;
   public static CharSequence[] urls;
   public static CharSequence[] packages;
@@ -85,11 +88,12 @@ public class CompositeTextCodingTest extends TestCase {
     }
   }
 
-  @Override
-  protected void setUp() throws Exception {
+  @BeforeClass
+  public static void setUp() throws Exception {
     loadDataSet();
   }
 
+  @Test
   public void testSimpleCodingQuery() {
     final FastRandom rng = new FastRandom(0);
     int bytes = 0;
@@ -119,9 +123,10 @@ public class CompositeTextCodingTest extends TestCase {
       encode.write(query);
     }
     System.out.println(result.alphabet().size() + " " + buffer.position());
-    assertTrue(buffer.position() < 140000);
+    Assert.assertTrue(buffer.position() < 140000);
   }
 
+  @Test
   public void testSimpleCodingQueryDynamic() {
     final FastRandom rng = new FastRandom(0);
     int bytes = 0;
@@ -143,9 +148,10 @@ public class CompositeTextCodingTest extends TestCase {
     for (Object sequence : result.composite()) {
       System.out.println("[" + sequence + "]");
     }
-    assertTrue(buffer.position() < 140000);
+    Assert.assertTrue(buffer.position() < 140000);
   }
 
+  @Test
   public void testSimpleCodingQueryStream() throws IOException {
     final FastRandom rng = new FastRandom(0);
     final CharSequence[] dataSet = queries;
@@ -175,14 +181,15 @@ public class CompositeTextCodingTest extends TestCase {
       @Override
       public void process(final CharSequence arg) {
         if (index < dataSet.length)
-          assertEquals(dataSet[index++], arg.toString());
+          Assert.assertEquals(dataSet[index++], arg.toString());
         else
-          assertEquals(0, arg.length());
+          Assert.assertEquals(0, arg.length());
       }
     });
     System.out.println(expansion.result().size() + " " + out.size());
   }
 
+  @Test
   public void testSimpleCodingURL() {
     final FastRandom rng = new FastRandom(0);
     int bytes = 0;
@@ -209,7 +216,7 @@ public class CompositeTextCodingTest extends TestCase {
     for (int i = 0; i < urls.length; i++) {
       CharSequence suffix = urls[i];
       while(suffix.length() > 0) {
-        final int symbol = dict.search(new CharSeqAdapter(suffix));
+        final int symbol = dict.search(CharSeq.adapt(suffix));
         suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
         symbolFreqs[symbol]++;
       }
@@ -249,9 +256,10 @@ public class CompositeTextCodingTest extends TestCase {
       encode.write(query);
     }
     System.out.println(dict.size() + " " + buffer.position());
-    assertTrue(rate < 0.44);
+    Assert.assertTrue(rate < 0.44);
   }
 
+  @Test
   public void testSimpleByteCodingURL() {
     final FastRandom rng = new FastRandom(0);
     int bytes = 0;
@@ -320,6 +328,7 @@ public class CompositeTextCodingTest extends TestCase {
 //    assertTrue(rate < 0.44);
   }
 
+  @Test
   public void testPackageCoding() throws IOException {
     if (packages == null)
       return;
@@ -353,9 +362,10 @@ public class CompositeTextCodingTest extends TestCase {
       encode.write(query);
     }
     System.out.println(result.alphabet().size() + " " + buffer.position());
-    assertTrue(buffer.position() < 140000);
+    Assert.assertTrue(buffer.position() < 140000);
   }
 
+  @Test
   public void testUserSessionsCoding() throws IOException {
     if (user_sessions == null)
       return;
