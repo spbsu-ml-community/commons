@@ -41,7 +41,7 @@ public class DynamicDictionary<T extends Comparable<T>> extends DictionaryBase<T
         continue;
       final T first = seq.at(0);
       if (!singles.containsKey(first)) {
-        singles.put(first, -singles.size());
+        singles.put(first, -singles.size() - 1);
         effectiveDict.add(CharSeqTools.<T>create(new Object[]{first}));
       }
       effectiveDict.add(seq);

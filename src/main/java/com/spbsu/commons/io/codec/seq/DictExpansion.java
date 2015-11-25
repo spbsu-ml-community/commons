@@ -138,7 +138,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
   private boolean update() {
     lock.writeLock().lock();
     try {
-      if ((!current.enough(probFound) || !current.enough(probFound)) && suggest.power < MAX_POWER)
+      if ((!current.enough(probFound) || !suggest.enough(probFound)) && suggest.power < MAX_POWER)
         return false;
       double sum = 0;
       double textLength = 0;
