@@ -210,6 +210,25 @@ public abstract class MathTools {
     return result;
   }
 
+  public static double bisection(double left, double right, AnalyticFunc func) {
+    final double fLeft = func.value(left);
+    if (fLeft < EPSILON)
+      return left;
+    final double fRight = func.value(right);
+    if (fRight < EPSILON)
+      return right;
+
+    if (fLeft * fRight > 0)
+      throw new IllegalArgumentException("Function values for left and right parameters should lay on different sides of 0");
+
+    final double middle = (left + right) / 2.;
+    final double fMiddle = func.value(middle);
+    if (fLeft * fMiddle > 0)
+      return bisection(middle, right, func);
+    else
+      return bisection(left, middle, func);
+  }
+
   public static class LogFactorial {
     double cache[];
     public LogFactorial(final int size) {

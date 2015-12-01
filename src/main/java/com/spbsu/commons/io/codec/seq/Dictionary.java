@@ -3,6 +3,7 @@ package com.spbsu.commons.io.codec.seq;
 import com.spbsu.commons.seq.IntSeq;
 import com.spbsu.commons.seq.Seq;
 import gnu.trove.list.TIntList;
+import gnu.trove.procedure.TObjectDoubleProcedure;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +19,7 @@ public interface Dictionary<T extends Comparable<T>> {
 
   IntSeq parse(Seq<T> seq, TIntList freqs, double totalFreq);
   IntSeq parse(Seq<T> seq);
+  void visitVariants(Seq<T> arg, TIntList freqs, double totalFreq, TObjectDoubleProcedure<IntSeq> todo);
 
   Seq<T> get(int index);
 
@@ -43,6 +45,11 @@ public interface Dictionary<T extends Comparable<T>> {
       final int[] arr = new int[seq.length()];
       Arrays.fill(arr, -1);
       return new IntSeq(arr);
+    }
+
+    @Override
+    public void visitVariants(Seq arg, TIntList freqs, double totalFreq, TObjectDoubleProcedure todo) {
+      todo.execute(parse(arg, freqs, totalFreq), 1);
     }
 
     @Override

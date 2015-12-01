@@ -1,10 +1,5 @@
 package com.spbsu.commons.seq;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-
 import gnu.trove.list.array.TByteArrayList;
 
 @SuppressWarnings("EqualsAndHashcode")
@@ -37,5 +32,10 @@ public class ByteSeqBuilder implements SeqBuilder<Byte> {
     final ByteSeq result = new ByteSeq(base.toArray());
     base.clear();
     return result;
+  }
+
+  @Override
+  public void clear() {
+    base.clear();
   }
 }

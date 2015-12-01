@@ -5,4 +5,6 @@ public interface SeqBuilder<T> {
   SeqBuilder<T> addAll(Seq<T> values);
 
   Seq<T> build();
+
+  void clear();
 }

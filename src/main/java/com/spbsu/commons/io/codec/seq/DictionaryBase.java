@@ -4,6 +4,7 @@ import com.spbsu.commons.seq.IntSeq;
 import com.spbsu.commons.seq.IntSeqBuilder;
 import com.spbsu.commons.seq.Seq;
 import gnu.trove.list.TIntList;
+import gnu.trove.procedure.TObjectDoubleProcedure;
 
 import static java.lang.Math.log;
 
@@ -110,6 +111,45 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
         suffix = suffix.sub(1, suffix.length());
         builder.append(-1);
         return exhaustiveParse(suffix, freqs, totalFreq, builder, currentLogProbab - 1e-5, bestLogProBab);
+      }
+      else throw e;
+    }
+    finally {
+      builder.popMark();
+    }
+  }
+
+  @Override
+  public void visitVariants(Seq<T> arg, TIntList freqs, double totalFreq, TObjectDoubleProcedure<IntSeq> todo) {
+    visitVariantsInner(arg, freqs, totalFreq, todo, new IntSeqBuilder(), 0);
+  }
+
+  public void visitVariantsInner(Seq<T> seq, TIntList freqs, double totalFreq, TObjectDoubleProcedure<IntSeq> todo, IntSeqBuilder builder, double currentLogProbab) {
+    if (seq.length() == 0) {
+      todo.execute(builder.buildAll(), currentLogProbab);
+      return;
+    }
+    Seq<T> suffix = seq;
+    int symbol;
+    builder.pushMark();
+    try {
+      symbol = search(suffix);
+
+      do {
+        builder.append(symbol);
+        final Seq<T> variant = suffix.sub(get(symbol).length(), suffix.length());
+        double logProbability = currentLogProbab - log(totalFreq + freqs.size() + 1);
+        logProbability += freqs.size() > symbol ? log(freqs.get(symbol) + 1) : 0.;
+        visitVariantsInner(variant, freqs, totalFreq, todo, builder, logProbability);
+        builder.reset();
+      }
+      while ((symbol = parent(symbol)) >= 0);
+    }
+    catch (RuntimeException e) {
+      if (DICTIONARY_INDEX_IS_CORRUPTED.equals(e.getMessage())) {
+        suffix = suffix.sub(1, suffix.length());
+        builder.append(-1);
+        visitVariantsInner(suffix, freqs, totalFreq, todo, builder, currentLogProbab - 1e-5);
       }
       else throw e;
     }

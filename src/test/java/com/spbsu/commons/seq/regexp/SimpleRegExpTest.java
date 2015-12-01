@@ -43,7 +43,7 @@ public class SimpleRegExpTest extends TestCase {
   private void match() {
     final SimpleRegExp matcher = new SimpleRegExp(pattern);
     mv = new TestMatchVisitor();
-    matcher.match(CharSeq.adapt(string), mv);
+    matcher.match(CharSeq.create(string), mv);
   }
 
   private String randomString(final int size) {

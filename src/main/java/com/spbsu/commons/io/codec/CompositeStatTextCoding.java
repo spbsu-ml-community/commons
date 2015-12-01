@@ -31,7 +31,7 @@ public class CompositeStatTextCoding {
 
   public void accept(final CharSequence seq) {
     if (!stop)
-      expansion.accept(CharSeq.adapt(seq));
+      expansion.accept(CharSeq.create(seq));
     else throw new RuntimeException("Expansion is not supported after encode/decode routine called");
   }
 
@@ -51,7 +51,7 @@ public class CompositeStatTextCoding {
 
     public void write(CharSequence suffix) {
       while(suffix.length() > 0) {
-        final int symbol = dict.search(CharSeq.adapt(suffix));
+        final int symbol = dict.search(CharSeq.create(suffix));
         suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
         output.write(symbol);
       }

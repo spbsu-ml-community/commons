@@ -47,6 +47,17 @@ public class IntSeqBuilder implements SeqBuilder<Integer> {
     return new IntSeq(resultArr);
   }
 
+  public IntSeq buildAll() {
+    final int[] resultArr = new int[data.size()];
+    data.toArray(resultArr, 0, resultArr.length);
+    return new IntSeq(resultArr);
+  }
+
+  @Override
+  public void clear() {
+    data.clear();
+  }
+
   private int mark() {
     if (marks == null || marks.isEmpty())
       return 0;

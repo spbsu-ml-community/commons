@@ -216,7 +216,7 @@ public class CompositeTextCodingTest extends JUnitIOCapture {
     for (int i = 0; i < urls.length; i++) {
       CharSequence suffix = urls[i];
       while(suffix.length() > 0) {
-        final int symbol = dict.search(CharSeq.adapt(suffix));
+        final int symbol = dict.search(CharSeq.create(suffix));
         suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
         symbolFreqs[symbol]++;
       }

@@ -1,11 +1,10 @@
 package com.spbsu.commons.seq;
 
+import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-
-
-import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 
 public class ArraySeqBuilder<T> implements SeqBuilder<T>{
   private final List<T> objects = new ArrayList<>();
@@ -48,5 +47,10 @@ public class ArraySeqBuilder<T> implements SeqBuilder<T>{
     else {
       return new ArraySeq<>(objects.toArray((T[])Array.newInstance(clazz, objects.size())));
     }
+  }
+
+  @Override
+  public void clear() {
+    objects.clear();
   }
 }

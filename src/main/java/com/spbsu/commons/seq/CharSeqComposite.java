@@ -61,11 +61,11 @@ public class CharSeqComposite extends CharSeq {
       return EMPTY;
     seek(start);
     if (activeFragmentRangeStart <= start && activeFragmentRangeEnd >= end) // fragment contains full range
-      return CharSeq.adapt(activeFragment.subSequence(start - activeFragmentRangeStart, end - activeFragmentRangeStart));
+      return CharSeq.create(activeFragment.subSequence(start - activeFragmentRangeStart, end - activeFragmentRangeStart));
     if (isImmutable() && end - start < MAXIMUM_COPY_FRAGMENT_LENGTH) { // fragment is small and it is easier to copy it
       final char[] copy = new char[end - start];
       copyToArray(start, copy, 0, end - start);
-      return CharSeq.adapt(copy);
+      return CharSeq.create(copy);
     }
     int index = 0;
     int fragmentEndOffset = 0;
@@ -97,7 +97,7 @@ public class CharSeqComposite extends CharSeq {
     final char[] chars = new char[length];
     copyToArray(0, chars, 0, length);
     if (isImmutable()) {
-      fragments = new CharSequence[]{activeFragment = adapt(chars)};
+      fragments = new CharSequence[]{activeFragment = create(chars)};
       activeFragmentRangeStart = 0;
       activeFragmentRangeStart = activeFragment.length();
     }

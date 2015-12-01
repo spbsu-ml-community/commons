@@ -56,7 +56,7 @@ public class NFATest extends TestCase {
   private void match() {
     final Matcher<Character> matcher = new PatternCompiler().compile(pattern);
     mv = new TestMatchVisitor();
-    matcher.match(CharSeq.adapt(string), mv);
+    matcher.match(CharSeq.create(string), mv);
   }
 
   private String randomString(final int size) {
@@ -347,7 +347,7 @@ public class NFATest extends TestCase {
     long time1 = 0;
     for (int i = 0; i < 110; i++) {
       final String s = randomString(300000);
-      final Seq<Character> seq = CharSeq.adapt(s);
+      final Seq<Character> seq = CharSeq.create(s);
 
       final Holder<Integer> counter = new Holder<Integer>(0);
       final Matcher.MatchVisitor visitor = new Matcher.MatchVisitor() {

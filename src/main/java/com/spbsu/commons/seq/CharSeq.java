@@ -113,14 +113,14 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
     while (index < textLen) {
       chars[index] = text.charAt(index++);
     }
-    return adapt(chars);
+    return create(chars);
   }
 
-  public static CharSeq adapt(final char[] text, final int start, final int end) {
+  public static CharSeq create(final char[] text, final int start, final int end) {
     return new CharSeqArray(text, start, end);
   }
 
-  public static CharSeq adapt(final char[] text) {
+  public static CharSeq create(final char[] text) {
     return new CharSeqArray(text, 0, text.length);
   }
 
@@ -151,7 +151,7 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
     return new CharSeqArray(copy);
   }
 
-  public static CharSeq adapt(final CharSequence string) {
+  public static CharSeq create(final CharSequence string) {
     return string instanceof CharSeq ? (CharSeq)string : new CharSeqAdapter(string);
   }
 

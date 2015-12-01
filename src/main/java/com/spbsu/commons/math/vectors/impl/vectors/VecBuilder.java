@@ -43,4 +43,9 @@ public class VecBuilder implements SeqBuilder<Double> {
   public Vec build() {
     return new ArrayVec(data.toArray());
   }
+
+  @Override
+  public void clear() {
+    data.clear();
+  }
 }

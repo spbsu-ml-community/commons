@@ -53,4 +53,10 @@ public class SparseVecBuilder implements SeqBuilder<Double> {
   public Vec build() {
     return new SparseVec(index, indices.toArray(), data.toArray());
   }
+
+  @Override
+  public void clear() {
+    data.clear();
+    indices.clear();
+  }
 }
