@@ -1,7 +1,7 @@
 package com.spbsu.commons.text;
 
+import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.CharSeq;
-import com.spbsu.commons.seq.CharSeqArray;
 import com.spbsu.commons.seq.CharSeqComposite;
 import junit.framework.TestCase;
 
@@ -27,24 +27,30 @@ public class CharSeqTest extends TestCase {
   }
 
   public void testCompositeSubSequence(){
-    final CharSeqComposite seq = new CharSeqComposite(new CharSequence[]{"ss", "bbb"});
-    assertFalse(seq.subSequence(4) instanceof CharSeqComposite);
+    final FastRandom rng = new FastRandom();
+
+    final StringBuilder randString = new StringBuilder();
+    for (int i = 0; i < CharSeqComposite.MAXIMUM_COPY_FRAGMENT_LENGTH; i++) {
+      randString.append((char)rng.nextByte());
+    }
+    final CharSeqComposite seq = new CharSeqComposite(randString.toString(), "sss");
+    assertFalse(seq.subSequence(CharSeqComposite.MAXIMUM_COPY_FRAGMENT_LENGTH) instanceof CharSeqComposite);
     assertTrue(seq.subSequence(1) instanceof CharSeqComposite);
     assertEquals(2, ((CharSeqComposite) seq.subSequence(1)).fragmentsCount());
   }
 
   public void testCompaction(){
-    final CharSeqComposite seq1 = new CharSeqComposite(new CharSequence[]{"ss", "bbb"});
-    final CharSeqComposite seq2 = new CharSeqComposite(new CharSequence[]{"ss", "bbb"});
-    final CharSeqComposite compact = new CharSeqComposite(new CharSequence[]{seq1, seq2});
+    final CharSeqComposite seq1 = new CharSeqComposite("ss", "bbb");
+    final CharSeqComposite seq2 = new CharSeqComposite("ss", "bbb");
+    final CharSeqComposite compact = new CharSeqComposite(seq1, seq2);
     assertEquals(4, compact.fragmentsCount());
     assertEquals("ssbbbssbbb", compact.toString());
   }
 
   public void testCopyToArray(){
-    final CharSeqComposite seq1 = new CharSeqComposite(new CharSequence[]{"ss", "bbb"});
-    final CharSeqComposite seq2 = new CharSeqComposite(new CharSequence[]{"ss", "bbb"});
-    final CharSeqComposite compact = new CharSeqComposite(new CharSequence[]{seq1, seq2});
+    final CharSeqComposite seq1 = new CharSeqComposite("ss", "bbb");
+    final CharSeqComposite seq2 = new CharSeqComposite("ss", "bbb");
+    final CharSeqComposite compact = new CharSeqComposite(seq1, seq2);
     assertEquals("sbbbs", compact.subSequence(1, 6).toString());
     assertEquals("ssb", compact.subSequence(0, 3).toString());
     assertEquals("bs", compact.subSequence(4, 6).toString());
