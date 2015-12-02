@@ -202,7 +202,6 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
 
     ps.append("{\n");
     try {
-
       for (int i = 0; i < alphabet.size(); i++) {
         final Seq<T> tSeq = alphabet.get(i);
         indices.clear();
