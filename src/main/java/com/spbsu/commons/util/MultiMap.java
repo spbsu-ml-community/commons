@@ -13,6 +13,7 @@ import java.util.Set;
  * Time: 1:53:41
  */
 public class MultiMap<K, V> {
+  public static Collection EMPTY = Collections.emptyList();
 
   public static <K, V> MultiMap<K, V> create() {
     return new MultiMap<K, V>();
@@ -38,7 +39,8 @@ public class MultiMap<K, V> {
     final Collection<V> v = mapa.get(key);
 
     if (v == null) {
-      return Collections.emptySet();
+      //noinspection unchecked
+      return EMPTY;
     }
 
     return Collections.unmodifiableCollection(v);
@@ -51,5 +53,9 @@ public class MultiMap<K, V> {
 
   public boolean isEmpty() {
     return mapa.isEmpty();
+  }
+
+  public Set<K> keySet() {
+    return mapa.keySet();
   }
 }

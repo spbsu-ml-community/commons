@@ -16,7 +16,11 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
   @Override
   public abstract char charAt(int offset);
   @Override
-  public abstract CharSeq sub(final int start, final int end);
+  public CharSeq sub(final int start, final int end) {
+    char[] copy = new char[end - start];
+    copyToArray(start, copy, 0, end - start);
+    return new CharSeqArray(copy);
+  }
 
   @Override
   public boolean isImmutable() {
