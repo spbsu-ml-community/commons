@@ -1,7 +1,12 @@
 package com.spbsu.commons.system;
 
+import com.spbsu.commons.filters.Filter;
+import com.spbsu.commons.io.StreamTools;
+import com.spbsu.commons.seq.CharSeqTools;
+import com.spbsu.commons.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import sun.net.www.protocol.file.FileURLConnection;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,12 +18,6 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-
-import com.spbsu.commons.filters.Filter;
-import com.spbsu.commons.seq.CharSeqTools;
-import com.spbsu.commons.util.logging.Logger;
-import sun.net.www.protocol.file.FileURLConnection;
 
 /**
  * @author daywalker
@@ -154,11 +153,8 @@ public class RuntimeUtils {
             dirPath = dirPath.substring(0, dirPath.length());
             final File packageDir = new File(dirPath + path);
             final File[] files = packageDir.listFiles();
-            if (files != null) {
-              for (final File file : files) {
-                result.add(path + file.getName());
-              }
-            }
+            if (files != null)
+              StreamTools.visitFiles(packageDir, arg -> result.add(path + arg));
           }
           else {
             try {

@@ -58,4 +58,13 @@ public class MultiMap<K, V> {
   public Set<K> keySet() {
     return mapa.keySet();
   }
+
+  public void putAll(K key, Collection<V> values) {
+    Collection<V> u = mapa.get(key);
+    if (u == null) {
+      u = Factories.hashSet();
+      mapa.put(key, u);
+    }
+    u.addAll(values);
+  }
 }

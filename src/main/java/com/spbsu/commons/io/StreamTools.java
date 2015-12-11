@@ -208,20 +208,14 @@ public class StreamTools {
   }
 
   public static void writeChars(final CharSequence sequence, final File file, final Charset charset) throws IOException {
-    final PrintWriter writer = new PrintWriter(file, charset.name());
-    try {
+    try (PrintWriter writer = new PrintWriter(file, charset.name())) {
       writer.print(sequence);
-    } finally {
-      writer.close();
     }
   }
 
   public static void writeBytes(final byte[] bytes, final File file) throws IOException {
-    final DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file));
-    try {
+    try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file))) {
       outputStream.write(bytes);
-    } finally {
-      outputStream.close();
     }
   }
 
