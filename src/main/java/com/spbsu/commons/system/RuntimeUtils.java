@@ -1,8 +1,10 @@
 package com.spbsu.commons.system;
 
 import com.spbsu.commons.filters.Filter;
+import com.spbsu.commons.func.Action;
 import com.spbsu.commons.io.StreamTools;
 import com.spbsu.commons.seq.CharSeqTools;
+import com.spbsu.commons.util.MultiMap;
 import com.spbsu.commons.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +20,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
 
 /**
  * @author daywalker
@@ -308,5 +311,46 @@ constructor_next:
       //
     }
     throw new IllegalArgumentException("Main class must contain main method :)");
+  }
+
+  public static class InvokeDispatcher {
+    private static final java.util.logging.Logger log = java.util.logging.Logger.getLogger(InvokeDispatcher.class.getName());
+    public final Map<Class<?>, Method> typesMap = new HashMap<>();
+    public final MultiMap<Class<?>, Method> cache = new MultiMap<>();
+    private final Action<Object> unhandledCallback;
+
+    public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback) {
+      this.unhandledCallback = unhandledCallback;
+      Arrays.asList(clazz.getMethods()).stream()
+          .filter(method -> "invoke".equals(method.getName()) && method.getParameterCount() == 1 && method.getReturnType() == void.class)
+          .forEach(method -> typesMap.put(method.getParameterTypes()[0], method));
+    }
+
+    public final void invoke(Object instance, Object message) {
+      Collection<Method> methods = cache.get(message.getClass());
+      if (methods == MultiMap.EMPTY) {
+        methods = new ArrayList<>();
+        for (final Class<?> aClass : typesMap.keySet()) {
+          if (aClass.isAssignableFrom(message.getClass())) {
+            methods.add(typesMap.get(aClass));
+          }
+        }
+        cache.putAll(message.getClass(), methods);
+      }
+      if (!methods.isEmpty()) {
+        for (final Method method : methods) {
+          try {
+            method.invoke(instance, message);
+          }
+          catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }
+      else {
+        log.log(Level.WARNING, "Unhandeled!: " + message.toString());
+        unhandledCallback.invoke(message);
+      }
+    }
   }
 }
