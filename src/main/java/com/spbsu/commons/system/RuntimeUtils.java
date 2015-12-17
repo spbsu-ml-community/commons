@@ -348,7 +348,7 @@ constructor_next:
         }
       }
       else {
-        log.log(Level.WARNING, "Unhandeled!: " + message.toString());
+        log.log(Level.WARNING, "Unhandeled @" + instance + ": " + message.toString());
         unhandledCallback.invoke(message);
       }
     }
