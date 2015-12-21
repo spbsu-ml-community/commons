@@ -99,15 +99,19 @@ public class RuntimeUtils {
     }
   }
 
-  public static String[] packageResourcesList(String path) throws URISyntaxException, IOException {
-    path = path.replace('.', '/') + "/";
-    final ClassLoader loader = RuntimeUtils.class.getClassLoader();
-    if (!(loader instanceof URLClassLoader)) {
-      throw new UnsupportedOperationException("Operation is not supported for current type of classloader");
-    }
-    final URL[] dirs = ((URLClassLoader) loader).getURLs();
+  public static String[] packageResourcesList(String... paths) throws URISyntaxException, IOException {
     final Set<String> result = new HashSet<>();
-    populateFromURLs(path, dirs, result);
+    for (String path : paths) {
+      path = path.replace('.', '/') + "/";
+      final ClassLoader loader = RuntimeUtils.class.getClassLoader();
+      if (!(loader instanceof URLClassLoader)) {
+        throw new UnsupportedOperationException("Operation is not supported for current type of classloader");
+      }
+      final URL[] dirs = ((URLClassLoader) loader).getURLs();
+      final Set<String> increment = new HashSet<>();
+      populateFromURLs(path, dirs, increment);
+      result.addAll(increment);
+    }
     return result.toArray(new String[result.size()]);
   }
 
