@@ -188,10 +188,10 @@ public class RuntimeUtils {
     while(entries.hasMoreElements()) {
       String name = entries.nextElement().getName();
       if (name.startsWith(path)) {
-        final int checkSubdir = name.indexOf("/", path.length());
-        if (checkSubdir >= 0) {
-          name = name.substring(0, checkSubdir);
-        }
+//        final int checkSubdir = name.indexOf("/", path.length());
+//        if (checkSubdir >= 0) {
+//          name = name.substring(0, checkSubdir);
+//        }
         result.add(name);
       }
     }
