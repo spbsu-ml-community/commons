@@ -1,8 +1,7 @@
 package com.spbsu.commons.math.vectors;
 
-import java.util.*;
-
-
+import com.spbsu.commons.JUnitIOCapture;
+import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.math.vectors.impl.vectors.ConcatVec;
@@ -13,20 +12,26 @@ import com.spbsu.commons.random.GaussianRandomVec;
 import com.spbsu.commons.util.ArrayTools;
 import com.spbsu.commons.util.Factories;
 import com.spbsu.commons.util.logging.Interval;
-import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.hash.TIntHashSet;
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.*;
 
 import static com.spbsu.commons.math.vectors.VecTools.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * User: terry
  * Date: 17.12.2009
  */
-public class VectorsTest extends TestCase {
+@SuppressWarnings("ResultOfMethodCallIgnored")
+public class VectorsTest extends JUnitIOCapture {
 
   public static final double EPSILON = 0.0001;
 
+  @Test
   public void testConcatVector() {
     final Vec origin = new ArrayVec(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     final ConcatVec cv = new ConcatVec(new ArrayVec(0, 1, 2, 3, 4), new ArrayVec(5, 6, 7, 8, 9));
@@ -48,84 +53,93 @@ public class VectorsTest extends TestCase {
     assertFalse(iter.advance());
 
   }
+
+  @Test
   public void testDoubleVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
-    final DVector<CharSequence> vector = new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
+    final DVector<CharSequence> vector = new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
     assertEquals(0.0, vector.get("ha"));
     assertEquals(1.5, vector.get("h"));
     assertEquals(2.0, vector.get("hz"));
 
     final BasisVecIterator<CharSequence> iter = vector.iterator();
     assertTrue(iter.advance());
-    assertEquals(iter.key(), "h");
+    Assert.assertEquals(iter.key(), "h");
     assertTrue(iter.advance());
-    assertEquals(iter.key(), "hz");
+    Assert.assertEquals(iter.key(), "hz");
     assertFalse(iter.advance());
   }
 
+  @Test
   public void testSumDoubleVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
-    final DVector<CharSequence> vector = new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
-    final DVector<CharSequence> minusVector = new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{-1.5, -2});
-    final DVector<CharSequence> sum = append(new DVector<CharSequence>(CharSequence.class), vector, vector);
+    final DVector<CharSequence> vector = new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
+    final DVector<CharSequence> minusVector = new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{-1.5, -2});
+    final DVector<CharSequence> sum = append(new DVector<>(CharSequence.class), vector, vector);
 
     assertEquals(3.0, sum.get("h"));
     assertEquals(4.0, sum.get("hz"));
 
-    assertEquals(false, append(new DVector<CharSequence>(CharSequence.class), vector, minusVector).nonZeroes().advance());
+    Assert.assertEquals(false, append(new DVector<>(CharSequence.class), vector, minusVector).nonZeroes().advance());
   }
 
+  @Test
   public void testDoubletoBinaryVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
     toBinary(vector);
 
     assertEquals(1.0, vector.get("h"));
     assertEquals(1.0, vector.get("hz"));
   }
 
+  @Test
   public void testScalarMultiplyDoubleVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
     final DVector<CharSequence> vector2 =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
     assertEquals(1.5 * 1.5 + 2 * 2, VecTools.multiply(vector, vector2));
   }
 
+  @Test
   public void testMultiplyDoubleVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
     final DVector<CharSequence> newVector = scale(vector, 2.0);
 
     assertEquals(3.0, newVector.get("h"));
     assertEquals(4.0, newVector.get("hz"));
   }
 
+  @Test
   public void testCosineDoubleVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1, 1});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1, 1});
     final DVector<CharSequence> vector2 =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{2, 2});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{2, 2});
     final DVector<CharSequence> vector3 =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1, 0});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1, 0});
     assertTrue(Math.abs(1.0 - cosine(vector, vector2)) < 0.0001);
     assertTrue(Math.abs(Math.sqrt(2) / 2 - cosine(vector, vector3)) < 0.00001);
   }
 
+  @Test
   public void testDistanceArrayVec() {
     final ArrayVec v1 = new ArrayVec(new double[2]);
     final ArrayVec v2 = new ArrayVec(1, 1);
     assertEquals(Math.sqrt(2), distance(v1, v2));
   }
 
+  @Test
   public void testTransformDoubleVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1, 1});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1, 1});
     final BasisVecIterator<CharSequence> iter = vector.iterator();
     while (iter.advance()) {
       iter.setValue(iter.value() / 2);
@@ -134,34 +148,38 @@ public class VectorsTest extends TestCase {
     assertEquals(0.5, vector.get("hz"));
   }
 
+  @Test
   public void testEuclideanNormVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
 
     assertEquals(Math.sqrt(1.5 * 1.5 + 2 * 2), norm(vector));
   }
 
+  @Test
   public void testOmeNormVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
 
     assertEquals(1.5 + 2.0, norm1(vector));
   }
 
+  @Test
   public void testInfinityNormVector() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz");
     final DVector<CharSequence> vector =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
 
     assertEquals(2.0, infinityNorm(vector));
   }
 
+  @Test
   public void testDel2LastValues() {
     final Set<CharSequence> axes = Factories.<CharSequence>linkedHashSet("h", "hz", "ss", "asdasd");
     final DVector<CharSequence> vector =
-        new DVector<CharSequence>(axes.toArray(new CharSequence[0]), new double[]{1.5, 2, 3, 0});
+        new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2, 3, 0});
     final VecIterator iterator = vector.nonZeroes();
     while (iterator.advance()) {
       if(iterator.index() > 1)
@@ -169,23 +187,21 @@ public class VectorsTest extends TestCase {
     }
   }
 
+  @Test
   public void testIterator() throws Exception {
-    final DVector<CharSequence> v = new DVector<CharSequence>(
-      new CharSequence[] {"1", "2", "3", "5", "10", "11", "13", "15"},
-      new double[] {1, 1, 1, 1, 1, 1, 1, 1}
+    final DVector<CharSequence> v = new DVector<>(
+        new CharSequence[]{"1", "2", "3", "5", "10", "11", "13", "15"},
+        new double[]{1, 1, 1, 1, 1, 1, 1, 1}
     );
-    final HashSet<CharSequence> found = new HashSet<CharSequence>();
-    v.forEach(new TObjectDoubleProcedure<CharSequence>() {
-      @Override
-      public boolean execute(final CharSequence charSequence, final double v) {
-        found.add(charSequence);
-        return true;
-      }
+    final HashSet<CharSequence> found = new HashSet<>();
+    v.forEach((charSequence, v1) -> {
+      found.add(charSequence);
+      return true;
     });
     assertEquals(8, found.size());
   }
 
-
+  @Test
   public void testInverseTriangle() {
     final Mx a = new VecBasedMx(3, new ArrayVec(
             1, 0, 0,
@@ -193,9 +209,10 @@ public class VectorsTest extends TestCase {
             1, 2, 3
     ));
     final Mx inverse = MxTools.inverseLTriangle(a);
-    assertEquals(MxTools.E(3), MxTools.multiply(a, inverse));
+    Assert.assertEquals(MxTools.E(3), MxTools.multiply(a, inverse));
   }
 
+  @Test
   public void testOuterProduct() {
     final Vec u = new ArrayVec(1.0, 2.0);
     final Vec v = new ArrayVec(3.0, 4.0);
@@ -204,10 +221,11 @@ public class VectorsTest extends TestCase {
                                                  6.0, 8.0));
     final Mx product = outer(u, v);
     for (int i = 0; i < product.dim(); i++) {
-        assertEquals(expected.get(i), product.get(i), 1e-10);
+      Assert.assertEquals(expected.get(i), product.get(i), 1e-10);
     }
   }
 
+  @Test
   public void testMultiply() {
     final Mx a = new VecBasedMx(3, new ArrayVec(
             1, 0, 0,
@@ -224,9 +242,10 @@ public class VectorsTest extends TestCase {
             2, 2, 2,
             6, 10, 2
     ));
-    assertEquals(c, MxTools.multiply(a, b));
+    Assert.assertEquals(c, MxTools.multiply(a, b));
   }
 
+  @Test
   public void testSparseMultiply() {
     final Mx a = new VecBasedMx(3, VecTools.copySparse(new ArrayVec(
             1, 0, 0,
@@ -243,10 +262,10 @@ public class VectorsTest extends TestCase {
             2, 2, 2,
             6, 10, 2
     )));
-    assertEquals(c, MxTools.multiply(a, b));
+    Assert.assertEquals(c, MxTools.multiply(a, b));
   }
 
-
+  @Test
   public void testInverse() {
     final Mx a = new VecBasedMx(3, new ArrayVec(
             1, 1, 1,
@@ -254,12 +273,13 @@ public class VectorsTest extends TestCase {
             1, 1, 2
     ));
     final Mx l = MxTools.choleskyDecomposition(a);
-    assertEquals(a, MxTools.multiply(l, MxTools.transpose(l)));
+    Assert.assertEquals(a, MxTools.multiply(l, MxTools.transpose(l)));
     final Mx inverseL = MxTools.inverseLTriangle(l);
     final Mx inverseA = MxTools.multiply(MxTools.transpose(inverseL), inverseL);
-    assertEquals(MxTools.E(3), MxTools.multiply(a, inverseA));
+    Assert.assertEquals(MxTools.E(3), MxTools.multiply(a, inverseA));
   }
 
+  @Test
   public void testRandomInverse() {
     final int dim = 100;
     final Random rand = new FastRandom(0);
@@ -276,13 +296,14 @@ public class VectorsTest extends TestCase {
       final Mx l = MxTools.choleskyDecomposition(a);
       final Mx aa = MxTools.multiply(l, MxTools.transpose(l));
       if (distance(a, aa) > 0.001)
-        assertEquals(a, aa);
+        Assert.assertEquals(a, aa);
       final Mx inverseL = MxTools.inverseLTriangle(l);
       final Mx inverseA = MxTools.multiply(MxTools.transpose(inverseL), inverseL);
       assertTrue(distance(MxTools.E(dim), MxTools.multiply(a, inverseA)) < 0.001);
     }
   }
 
+  @Test
   public void testMahalanobis3() {
     final Mx L = new VecBasedMx(3, new ArrayVec(new double[] {
             1, 0, 0,
@@ -291,7 +312,7 @@ public class VectorsTest extends TestCase {
     }));
     final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
     final GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(3), Sigma, new Random());
-    final List<Vec> pool = new ArrayList<Vec>(100500);
+    final List<Vec> pool = new ArrayList<>(100500);
     for (int i = 0; i < 20000; i++) {
       pool.add(randomVec.next());
     }
@@ -308,7 +329,7 @@ public class VectorsTest extends TestCase {
     }));
     final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
     final GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma, new Random(1408619692919L));
-    final List<Vec> pool = new ArrayList<Vec>(100500);
+    final List<Vec> pool = new ArrayList<>(100500);
     for (int i = 0; i < 20000; i++) {
       pool.add(randomVec.next());
     }
@@ -326,7 +347,7 @@ public class VectorsTest extends TestCase {
     final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
     final Random random = new FastRandom(1408621387063L);
     final GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma, random);
-    final List<Vec> pool = new ArrayList<Vec>();
+    final List<Vec> pool = new ArrayList<>();
     for (int i = 0; i < 10000; i++) {
       pool.add(randomVec.next());
     }
@@ -351,6 +372,7 @@ public class VectorsTest extends TestCase {
     assertTrue(mistakes < 20);
   }
 
+  @Test
   public void testHHLQ() {
     final ArrayVec vec = new ArrayVec(
             1, 1, 1,
@@ -366,6 +388,7 @@ public class VectorsTest extends TestCase {
     assertTrue(distance(a, MxTools.multiply(l, MxTools.transpose(q))) < 0.0001);
   }
 
+  @Test
   public void testEigenDecomposition() {
     final ArrayVec vec = new ArrayVec(
             1, 1, 1,
@@ -380,6 +403,7 @@ public class VectorsTest extends TestCase {
     assertTrue(distance(a, result) < 0.001);
   }
 
+  @Test
   public void testHHLQInverse() {
     final ArrayVec vec = new ArrayVec(
             1, 1, 1,
@@ -396,6 +420,7 @@ public class VectorsTest extends TestCase {
     assertTrue(distance(MxTools.E(3), MxTools.multiply(invA, a)) < 0.0001);
   }
 
+  @Test
   public void testHHLQInverseBad1() {
     final ArrayVec vec = new ArrayVec(
             8956, 3347.849987, 2846.879988, 2761.270001,
@@ -413,6 +438,7 @@ public class VectorsTest extends TestCase {
     assertTrue(distance(MxTools.E(4), MxTools.multiply(invA, a)) < 0.0001);
   }
 
+  @Test
   public void testHHLQInverseBad2() {
     final ArrayVec vec = new ArrayVec(
             10131, 3599.009986, 3669.579995, 20.63053123, 2862.410003,
@@ -431,6 +457,7 @@ public class VectorsTest extends TestCase {
     assertTrue(distance(MxTools.E(5), MxTools.multiply(invA, a)) < EPSILON);
   }
 
+  @Test
   public void testSubMx1() {
     final Mx a = new VecBasedMx(3, new ArrayVec(
             1, 0, 0,
@@ -440,6 +467,7 @@ public class VectorsTest extends TestCase {
     matrixTest(a);
   }
 
+  @Test
   public void testSubMxSparse1() {
     final Mx a = new VecBasedMx(3, copySparse(new ArrayVec(
             1, 0, 0,
@@ -449,6 +477,7 @@ public class VectorsTest extends TestCase {
     matrixTest(a);
   }
 
+  @Test
   public void testSubMxInverse1() {
     final Mx temp = new VecBasedMx(4, copySparse(new ArrayVec(
             1, 0, 0, 0,
@@ -467,6 +496,7 @@ public class VectorsTest extends TestCase {
     assertTrue(distance(invSub, invA) < EPSILON);
   }
 
+  @Test
   public void testSubMxWriteSparse() {
     final Mx refResult = new VecBasedMx(4, copySparse(new ArrayVec(
             1, 0, 0, 0,
@@ -485,6 +515,7 @@ public class VectorsTest extends TestCase {
     assertTrue(distance(refResult, temp) < EPSILON);
   }
 
+  @Test
   public void testSubMxWrite() {
     final Mx refResult = new VecBasedMx(4, new ArrayVec(
             1, 0, 0, 0,
@@ -503,6 +534,7 @@ public class VectorsTest extends TestCase {
     assertTrue(distance(refResult, temp) < EPSILON);
   }
 
+  @Test
   public void testSubSubMx() {
     final Mx full = new VecBasedMx(4, new ArrayVec(new double[]{
             0, 1, 2, 3,
@@ -526,6 +558,7 @@ public class VectorsTest extends TestCase {
     );
   }
 
+  @Test
   public void testStressMultiply() {
     final Random rnd = new FastRandom();
     final Mx temp = MxTools.E(1000);
@@ -544,6 +577,7 @@ public class VectorsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testStressMultiplySparse() {
     final Random rnd = new FastRandom();
     final Mx temp = MxTools.sparseE(1000);
@@ -606,6 +640,7 @@ public class VectorsTest extends TestCase {
     }
   }
 
+  @Test
   public void testCheckOrthogonality() {
     final Mx mx = new VecBasedMx(2, new ArrayVec(
         0.96, -0.28,
@@ -614,29 +649,33 @@ public class VectorsTest extends TestCase {
     assertTrue(VecTools.checkOrthogonality(mx));
   }
 
+  @Test
   public void testSubtract() {
     final Vec a = new ArrayVec(1, 2, 3);
     final Vec b = new ArrayVec(2, 2, 3);
     final Vec subtract = VecTools.subtract(a, b);
-    assertEquals(new ArrayVec(-1, 0, 0), subtract);
+    Assert.assertEquals(new ArrayVec(-1, 0, 0), subtract);
   }
 
+  @Test
   public void testSubtract2() {
     final Mx a = new VecBasedMx(2, new ArrayVec(0, 1, 0, 1));
     final Mx b = new VecBasedMx(2, new ArrayVec(0, 0, 0, 1));
     final Vec subtract = VecTools.subtract(a, b);
-    assertEquals(new VecBasedMx(2, new ArrayVec(0, 1, 0, 0)), subtract);
+    Assert.assertEquals(new VecBasedMx(2, new ArrayVec(0, 1, 0, 0)), subtract);
   }
 
+  @Test
   public void testSubtract3() throws Exception {
     final Mx a = new VecBasedMx(2, new ArrayVec(1, 0, 0, 1));
     final Mx b = new VecBasedMx(2, new ArrayVec(1, 1, 0, 1));
     final Mx subA = a.sub(0, 0, 1, 2);
     final Mx subB = b.sub(0, 0, 1, 2);
     final Vec subtract = VecTools.subtract(subA, subB);
-    assertEquals(new VecBasedMx(2, new ArrayVec(0, -1)), subtract);
+    Assert.assertEquals(new VecBasedMx(2, new ArrayVec(0, -1)), subtract);
   }
 
+  @Test
   public void testSparseVec() throws Exception {
     final SparseVec sparseVec = new SparseVec(4, new int[]{0, 1, 2}, new double[]{1.0, 2.0, 3.0});  //{1, 2, 3, 0}
     sparseVec.adjust(3, 1.0);
@@ -649,6 +688,7 @@ public class VectorsTest extends TestCase {
     assertTrue(Arrays.equals(new double[]{1, 0, 0, 1}, sparseVec.toArray()));
   }
 
+  @Test
   public void testSparseVecNZIterator() throws Exception {
     final SparseVec sparseVec = new SparseVec(4, new int[]{0, 1, 2}, new double[]{1.0, 2.0, 3.0});  //{1, 2, 3, 0}
     final VecIterator vecIterator = sparseVec.nonZeroes();
@@ -668,16 +708,19 @@ public class VectorsTest extends TestCase {
     assertTrue(Arrays.equals(new double[] {1.0, 0.0, 999.0, 0.0}, sparseVec.toArray()));
   }
 
+  @Test
   public void testToString() {
     final String str = new ArrayVec(0, 1, 2, 3).toString();
-    assertEquals("4 0 1 2 3", str);
+    Assert.assertEquals("4 0 1 2 3", str);
   }
 
+  @Test
   public void testArgmax() throws Exception {
     final Vec vec = new ArrayVec(1, 4, 2, 5, 9);
     assertEquals(4, VecTools.argmax(vec));
   }
 
+  @Test
   public void testCutSparseVec() throws Exception {
     final SparseVec sparseVec = new SparseVec(5, new int[]{1, 2, 4}, new double[]{0.1, 0.2, 0.4});
     final int[] indexesToCut = {0, 1, 4};
@@ -688,5 +731,9 @@ public class VectorsTest extends TestCase {
 
     assertTrue(Arrays.equals(expectedIdxs, cutVec.indices.toArray()));
     assertTrue(Arrays.equals(expectedValues, cutVec.values.toArray()));
+  }
+
+  public void assertEquals(double a, double b) {
+    Assert.assertEquals(a, b, MathTools.EPSILON);
   }
 }
