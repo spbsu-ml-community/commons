@@ -1,13 +1,17 @@
 package text;
 
+import com.spbsu.commons.JUnitIOCapture;
 import com.spbsu.commons.text.stem.Stemmer;
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: Dan Dyugurov
  * Date: 05.11.2006
  */
-public class StemmerTest extends TestCase {
+public class StemmerTest extends JUnitIOCapture {
+  @Test
   public void testStemer() {
     final String[] words = new String[]{"consign",
                                   "consigned",
