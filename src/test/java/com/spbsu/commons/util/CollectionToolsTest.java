@@ -1,15 +1,19 @@
 package com.spbsu.commons.util;
 
+import com.spbsu.commons.JUnitIOCapture;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.util.logging.Interval;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.util.*;
+
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * @author vp
  */
-public class CollectionToolsTest extends TestCase {
+public class CollectionToolsTest extends JUnitIOCapture {
+  @Test
   public void testFastIterator() throws Exception {
     final ArrayList<Object> list = new ArrayList<Object>();
     final int count = 5 * 1000;
@@ -54,6 +58,7 @@ public class CollectionToolsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testParallelSort() {
     final FastRandom rng = new FastRandom(0);
     final double[] array = new double[100000];

@@ -1,17 +1,22 @@
 package com.spbsu.commons.seq.regexp;
 
+import com.spbsu.commons.JUnitIOCapture;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.seq.regexp.converters.PatternVecConverter;
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: Manokk
  * Date: 21.09.11
  * Time: 21:23
  */
-public class CommonRegExpTest extends TestCase {
+public class CommonRegExpTest extends JUnitIOCapture {
   final Alphabet<Character> A = Alphabet.CHARACTER_ALPHABET;
 
+  @Test
   public void testCharAlphabet() {
      for(int c = 0; c < A.size(); c++){
        final SimpleRegExp.Condition<Character> condition = A.get(c);
@@ -25,6 +30,7 @@ public class CommonRegExpTest extends TestCase {
     assertEquals(A.getOrder(SimpleRegExp.Condition.ANY), A.size());
   }
 
+  @Test
   public void testConverters() {
     final Pattern<Character> pattern = new Pattern<Character>(A);
     final PatternVecConverter<Character> conv = new PatternVecConverter<Character>(A);

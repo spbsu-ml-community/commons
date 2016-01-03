@@ -1,27 +1,31 @@
 package com.spbsu.commons.cache;
 
+import com.spbsu.commons.JUnitIOCapture;
 import com.spbsu.commons.func.Computable;
 import com.spbsu.commons.util.Holder;
 import com.spbsu.commons.util.cache.CacheStrategy;
 import com.spbsu.commons.util.cache.impl.FixedSizeCache;
 import com.spbsu.commons.util.cache.impl.LRUStrategy;
 import com.spbsu.commons.util.logging.Interval;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import static org.junit.Assert.*;
+
 /**
  * User: Igor Kuralenok
  * Date: 31.08.2006
  */
-public class CacheTest extends TestCase {
+public class CacheTest extends JUnitIOCapture {
   public static final String KEY1 = "key1";
   public static final String KEY2 = "key2";
   public static final String KEY3 = "key3";
   public static final String KEY4 = "key4";
 
+  @Test
   public void testLRU1() {
     final LRUStrategy strategy = new LRUStrategy(3);
     assertEquals(0, strategy.getStorePosition());
@@ -33,6 +37,7 @@ public class CacheTest extends TestCase {
     assertEquals(0, strategy.getStorePosition());
   }
 
+  @Test
   public void testLRU2() {
     final LRUStrategy strategy = new LRUStrategy(3);
     assertEquals(0, strategy.getStorePosition());
@@ -45,6 +50,7 @@ public class CacheTest extends TestCase {
     assertEquals(1, strategy.getStorePosition());
   }
 
+  @Test
   public void testLRU3() {
     final LRUStrategy strategy = new LRUStrategy(3);
     assertEquals(0, strategy.getStorePosition());
@@ -57,6 +63,7 @@ public class CacheTest extends TestCase {
     assertEquals(1, strategy.getStorePosition());
   }
 
+  @Test
   public void testLRU4() {
     final LRUStrategy strategy = new LRUStrategy(3);
     assertEquals(0, strategy.getStorePosition());
@@ -70,6 +77,7 @@ public class CacheTest extends TestCase {
     assertEquals(0, strategy.getStorePosition());
   }
 
+  @Test
   public void testLRU5() {
     final LRUStrategy strategy = new LRUStrategy(100);
     final Random position = new Random();
@@ -85,6 +93,7 @@ public class CacheTest extends TestCase {
     assertEquals(100, known.size());
   }
 
+  @Test
   public void testLRU6() {
     final LRUStrategy strategy = new LRUStrategy(100);
     final Random position = new Random();
@@ -101,6 +110,7 @@ public class CacheTest extends TestCase {
     assertEquals(100, known.size());
   }
 
+  @Test
   public void testCache1() {
     final FixedSizeCache<String, Object> cache = new FixedSizeCache<String, Object>(3, CacheStrategy.Type.LRU);
     assertNull(cache.get(KEY1));
@@ -115,6 +125,7 @@ public class CacheTest extends TestCase {
     assertNotNull(cache.get(KEY4));
   }
 
+  @Test
   public void testCache2() {
     final FixedSizeCache<String, Object> cache = new FixedSizeCache<String, Object>(3, CacheStrategy.Type.LRU);
     cache.put(KEY1, new Object());
@@ -129,6 +140,7 @@ public class CacheTest extends TestCase {
     assertNotNull(cache.get(KEY4));
   }
 
+  @Test
   public void testCache3() {
     final FixedSizeCache<String, String> cache = new FixedSizeCache<String, String>(3, CacheStrategy.Type.LRU);
     final Computable<String, String> computable = new Computable<String, String>() {
@@ -146,6 +158,7 @@ public class CacheTest extends TestCase {
     assertNotNull(cache.get(KEY1, computable));
   }
 
+  @Test
   public void testDoublePut() {
     final FixedSizeCache<String, Object> cache = new FixedSizeCache<String, Object>(1, CacheStrategy.Type.LRU);
     cache.put(KEY1, new Object());
@@ -157,6 +170,7 @@ public class CacheTest extends TestCase {
     assertTrue(cache.checkEqualSizes());
   }
 
+  @Test
   public void testStress1() {
     final FixedSizeCache<Integer, Object> cache = new FixedSizeCache<Integer, Object>(1000, CacheStrategy.Type.LRU);
     int count = 100000;
@@ -175,6 +189,7 @@ public class CacheTest extends TestCase {
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testStressPut() throws Exception {
     final FixedSizeCache<Integer, Object> cache = new FixedSizeCache<Integer, Object>(1000, CacheStrategy.Type.LRU);
     final int count = 1 * 1000 * 1000;
@@ -185,6 +200,7 @@ public class CacheTest extends TestCase {
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testPerformanceUniform() {
     final FixedSizeCache<Integer, Integer> cache = new FixedSizeCache<Integer, Integer>(1000, CacheStrategy.Type.LRU);
     final long time = System.currentTimeMillis();
@@ -203,7 +219,7 @@ public class CacheTest extends TestCase {
     System.out.println("Time: " + (System.currentTimeMillis() - time));
   }
 
-
+  @Test
   public void testPerformanceNormal() {
     final FixedSizeCache<Integer, Integer> cache = new FixedSizeCache<Integer, Integer>(1000, CacheStrategy.Type.LRU);
     final long time = System.currentTimeMillis();
@@ -227,6 +243,7 @@ public class CacheTest extends TestCase {
     System.out.println("Time: " + (System.currentTimeMillis() - time));
   }
 
+  @Test
   public void testDoublePutAndGC() {
     final FixedSizeCache<String, Object> cache = new FixedSizeCache<String, Object>(1, CacheStrategy.Type.LRU);
     cache.put(KEY1, new Object());

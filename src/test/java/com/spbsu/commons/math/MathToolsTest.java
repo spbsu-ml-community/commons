@@ -1,34 +1,40 @@
 package com.spbsu.commons.math;
 
+import com.spbsu.commons.JUnitIOCapture;
 import com.spbsu.commons.math.vectors.Mx;
 import com.spbsu.commons.math.vectors.MxTools;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.util.logging.Interval;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+import static org.junit.Assert.*;
+
+
 /**
  * @author vp
  */
-public class MathToolsTest extends TestCase {
+public class MathToolsTest extends JUnitIOCapture {
   private static final double EPS = 1E-3;
 
+  @Test
   public void testLogFactorialConsistency() throws Exception {
     for (int i = 1; i < 100; i++) {
       final double v1 = MathTools.logFactorial(i);
       final double v2 = MathTools.logFactorialRamanujan(i);
       assertEqualsWithPrecision(v1, v2);
     }
-    assertEquals(0., MathTools.logFactorialRamanujan(0));
-    assertEquals(0., MathTools.logFactorialRamanujan(1));
+    assertEquals(0., MathTools.logFactorialRamanujan(0), MathTools.EPSILON);
+    assertEquals(0., MathTools.logFactorialRamanujan(1), MathTools.EPSILON);
 
-    assertEquals(0., MathTools.logFactorial(0));
-    assertEquals(0., MathTools.logFactorial(1));
+    assertEquals(0., MathTools.logFactorial(0), MathTools.EPSILON);
+    assertEquals(0., MathTools.logFactorial(1), MathTools.EPSILON);
   }
 
+  @Test
   public void testPoissonProbabilityConsistency() throws Exception {
     final double eps = 1E-3;
     for (double lambda = 0.1; lambda < 10; lambda += 0.1) {
@@ -40,6 +46,7 @@ public class MathToolsTest extends TestCase {
     }
   }
 
+  @Test
   public void testFactorialPerformace() throws Exception {
     final int k = 10000;
 
@@ -66,6 +73,7 @@ public class MathToolsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testConditionalNonPoissonNoiseExpectation() throws Exception {
     assertEquals(0., MathTools.conditionalNonPoissonExpectation(100, 0));
     assertEquals(MathTools.poissonProbability(1, 0), MathTools.conditionalNonPoissonExpectation(1, 1));
@@ -87,6 +95,7 @@ public class MathToolsTest extends TestCase {
     );
   }
 
+  @Test
   public void testConditionalNonPoissonNoiseExpectationFast() throws Exception {
     assertEquals(0., MathTools.conditionalNonPoissonExpectationFast(100, 0));
     assertEquals(MathTools.conditionalNonPoissonExpectation(1, 1), MathTools.conditionalNonPoissonExpectationFast(1, 1));
@@ -108,6 +117,7 @@ public class MathToolsTest extends TestCase {
     );
   }
 
+  @Test
   public void testConditionalNonPoissonNoiseExpectationFastPerf() throws Exception {
     final int runCount = 1000;
     
@@ -131,6 +141,7 @@ public class MathToolsTest extends TestCase {
     }
   }
 
+  @Test
   public void testLQDecompositionFail() throws FileNotFoundException {
     final Scanner scanner = new Scanner(new File("commons/src/test/data/math/badMx.txt"));
     final int n = scanner.nextInt();

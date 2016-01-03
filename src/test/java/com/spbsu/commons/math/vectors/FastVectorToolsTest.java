@@ -1,20 +1,24 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.JUnitIOCapture;
 import com.spbsu.commons.math.vectors.impl.vectors.DVector;
 import com.spbsu.commons.util.logging.Interval;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static org.junit.Assert.*;
+
 /**
  * @author vp
  */
-public class FastVectorToolsTest extends TestCase {
+public class FastVectorToolsTest extends JUnitIOCapture {
   private static final int length = 10000;
   private static final int iterations = 10000;
 
+  @Test
   public void testScalarMultiply() throws Exception {
     final DVector<CharSequence> v1 = generateRandomVector(length);
     final DVector<CharSequence> v2 = generateRandomVector(length);
@@ -28,6 +32,7 @@ public class FastVectorToolsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testMultiplyAll() throws Exception {
     final List<DVector<CharSequence>> list = new ArrayList<DVector<CharSequence>>();
     for (int i = 0; i < 100; i++) {
@@ -64,6 +69,7 @@ public class FastVectorToolsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testSum() throws Exception {
     final DVector<CharSequence> v1 = generateRandomVector(length);
     final DVector<CharSequence> v2 = generateRandomVector(length);
@@ -79,6 +85,7 @@ public class FastVectorToolsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testCosineEuclideanNorm() throws Exception {
     final DVector<CharSequence> v1 = generateRandomVector(length);
     final DVector<CharSequence> v2 = generateRandomVector(length);
@@ -92,6 +99,7 @@ public class FastVectorToolsTest extends TestCase {
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testMultiply() throws Exception {
     final double factor = Math.PI;
 
