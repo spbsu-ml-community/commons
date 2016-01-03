@@ -1,25 +1,27 @@
 package com.spbsu.commons.seq.regexp;
 
 
+import com.spbsu.commons.JUnitIOCapture;
 import com.spbsu.commons.seq.CharSeq;
 import com.spbsu.commons.seq.Seq;
 import com.spbsu.commons.seq.regexp.converters.PatternStringConverter;
 import com.spbsu.commons.util.Holder;
 import com.spbsu.commons.util.logging.Interval;
 import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.procedure.TLongProcedure;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static org.junit.Assert.*;
+
 /**
  * User: solar
  */
-public class NFATest extends TestCase {
+public class NFATest extends JUnitIOCapture {
   private final Alphabet<Character> A = Alphabet.CHARACTER_ALPHABET;
-  private Pattern<Character> pattern = new Pattern<Character>(Alphabet.CHARACTER_ALPHABET);
+  private Pattern<Character> pattern = new Pattern<>(Alphabet.CHARACTER_ALPHABET);
 
   private String string;
   private TestMatchVisitor mv;
@@ -36,13 +38,10 @@ public class NFATest extends TestCase {
 
     public boolean contains(final String s) {
       if (matchesStr == null) {
-        matchesStr = new ArrayList<String>(matches.size());
-        matches.forEach(new TLongProcedure() {
-          @Override
-          public boolean execute(final long l) {
-            matchesStr.add(string.substring((int)(l >> 32), (int)l));
-            return true;
-          }
+        matchesStr = new ArrayList<>(matches.size());
+        matches.forEach(l -> {
+          matchesStr.add(string.substring((int)(l >> 32), (int)l));
+          return true;
         });
       }
       return matchesStr.contains(s);
@@ -68,6 +67,7 @@ public class NFATest extends TestCase {
     return sb.toString();
   }
 
+  @Test
   public void testSubstringMatching() {
     {
       final String str = "asc";
@@ -95,6 +95,7 @@ public class NFATest extends TestCase {
     }
   }
 
+  @Test
   public void testRandomSubstringMatching() {
     long time = 0;
     for (int t = 0; t < 50; t++) {
@@ -137,6 +138,7 @@ public class NFATest extends TestCase {
     System.out.println("Average time = " + time + " ms");
   }
 
+  @Test
   public void testZeroOrOne() {
 //    pattern = create("ab?");
 //    string = "ac";
@@ -161,6 +163,7 @@ public class NFATest extends TestCase {
 
     pattern.clear();
     pattern.add(A.getByT('x'), Pattern.Modifier.NONE);
+    //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.QUESTION);
     pattern.add(A.getByT('y'), Pattern.Modifier.QUESTION);
     pattern.add(A.getByT('z'), Pattern.Modifier.QUESTION);
@@ -176,6 +179,7 @@ public class NFATest extends TestCase {
     assertFalse(mv.contains("xyzxcyz"));
   }
 
+  @Test
   public void testZeroOrMore() {
     pattern = parseRegExp("ab*c");
     string = "abbbbbbbbbbbc";
@@ -188,6 +192,7 @@ public class NFATest extends TestCase {
     pattern.add(A.getByT('o'), Pattern.Modifier.STAR);
     pattern.add(A.getByT('n'), Pattern.Modifier.NONE);
     pattern.add(A.getByT('g'), Pattern.Modifier.NONE);
+    //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
     pattern.add(A.getByT('c'), Pattern.Modifier.NONE);
     pattern.add(A.getByT('a'), Pattern.Modifier.STAR);
@@ -204,6 +209,7 @@ public class NFATest extends TestCase {
 
     pattern.clear();
     pattern.add(A.getByT('x'), Pattern.Modifier.STAR);
+    //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
     pattern.add(A.getByT('y'), Pattern.Modifier.STAR);
 
@@ -241,6 +247,7 @@ public class NFATest extends TestCase {
 
     pattern.clear();
     pattern.add(A.getByT('g'), Pattern.Modifier.NONE);
+    //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
     pattern.add(A.getByT('o'), Pattern.Modifier.NONE);
 
@@ -255,6 +262,7 @@ public class NFATest extends TestCase {
     }
   }
 
+  @Test
   public void testWildcard() {
     pattern = parseRegExp(".*");
     final String s = randomString(100);
@@ -265,6 +273,7 @@ public class NFATest extends TestCase {
     assertEquals(1, mv.occurrences());
   }
 
+  @Test
   public void testSomeCases() {
     pattern.clear();
     pattern = parseRegExp("z?a*c*bm?");
@@ -301,12 +310,15 @@ public class NFATest extends TestCase {
     assertEquals(6, mv.occurrences());
   }
 
+  @Test
   public void testFolding1() {
     string = "bbm";
     pattern = parseRegExp("b*m");
     match();
     assertEquals(1, mv.occurrences());
   }
+
+  @Test
   public void testFolding2() {
     string = "bbmbmm";
     pattern.clear();
@@ -317,6 +329,7 @@ public class NFATest extends TestCase {
     assertEquals(2, mv.occurrences());
   }
 
+  @Test
   public void testFolding3() {
     string = "bbmbmm";
     pattern.clear();
@@ -326,6 +339,7 @@ public class NFATest extends TestCase {
     assertEquals(1, mv.occurrences());
   }
 
+  @Test
   public void testDots() {
     string = "bb";
     pattern.clear();
@@ -338,6 +352,7 @@ public class NFATest extends TestCase {
     assertEquals(old.occurrences(), mv.occurrences());
   }
 
+  @Test
   public void testPerformance() {
     final String patternStr = "z?a*c*bm?";
     pattern = parseRegExp(patternStr);
@@ -349,22 +364,19 @@ public class NFATest extends TestCase {
       final String s = randomString(300000);
       final Seq<Character> seq = CharSeq.create(s);
 
-      final Holder<Integer> counter = new Holder<Integer>(0);
-      final Matcher.MatchVisitor visitor = new Matcher.MatchVisitor() {
-        @Override
-        public boolean found(final int start, final int end) {
+      final Holder<Integer> counter = new Holder<>(0);
+      final Matcher.MatchVisitor visitor = (start, end) -> {
 //          System.out.println(start + " " + end);
 //          counter.setValue(counter.getValue() + 1);
-          return true;
-        }
+        return true;
       };
 
       final int cnt = 0;
       Interval.start();
       final java.util.regex.Matcher matcher = stdMatch.matcher(s);
       for (int t = 0; t < 1; t++) {
-        final int start = 0;
         matcher.reset();
+        //noinspection StatementWithEmptyBody
         while (matcher.find()) {
 //          System.out.println(matcher.start() + " " + matcher.end());
 //          cnt++;
@@ -409,6 +421,7 @@ public class NFATest extends TestCase {
     assertFalse(mv.contains("eee"));
   }
 
+  @Test
   public void testStringConverter() {
     final PatternStringConverter converter = new PatternStringConverter(A);
     final String pStr = "a*b";
@@ -420,7 +433,7 @@ public class NFATest extends TestCase {
   }
 
   public Pattern<Character> parseRegExp(final String str) {
-    final Pattern<Character> result = new Pattern<Character>(Alphabet.CHARACTER_ALPHABET);
+    final Pattern<Character> result = new Pattern<>(Alphabet.CHARACTER_ALPHABET);
     for (int i = 0; i < str.length(); i+=2) {
       final SimpleRegExp.Condition chCondition = str.charAt(i) == '.' ? SimpleRegExp.Condition.ANY : A.getByT(str.charAt(i));
       Pattern.Modifier mod = Pattern.Modifier.NONE;
