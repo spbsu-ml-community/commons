@@ -5,13 +5,14 @@ import com.spbsu.commons.math.vectors.Mx;
 import com.spbsu.commons.math.vectors.MxTools;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.util.logging.Interval;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -27,11 +28,11 @@ public class MathToolsTest extends JUnitIOCapture {
       final double v2 = MathTools.logFactorialRamanujan(i);
       assertEqualsWithPrecision(v1, v2);
     }
-    assertEquals(0., MathTools.logFactorialRamanujan(0), MathTools.EPSILON);
-    assertEquals(0., MathTools.logFactorialRamanujan(1), MathTools.EPSILON);
+    assertEquals(0., MathTools.logFactorialRamanujan(0));
+    assertEquals(0., MathTools.logFactorialRamanujan(1));
 
-    assertEquals(0., MathTools.logFactorial(0), MathTools.EPSILON);
-    assertEquals(0., MathTools.logFactorial(1), MathTools.EPSILON);
+    assertEquals(0., MathTools.logFactorial(0));
+    assertEquals(0., MathTools.logFactorial(1));
   }
 
   @Test
@@ -173,4 +174,7 @@ public class MathToolsTest extends JUnitIOCapture {
 
   }
 
+  private void assertEquals(double a, double b) {
+    Assert.assertEquals(a, b, MathTools.EPSILON);
+  }
 }

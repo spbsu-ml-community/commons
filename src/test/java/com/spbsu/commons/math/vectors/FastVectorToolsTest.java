@@ -1,6 +1,7 @@
 package com.spbsu.commons.math.vectors;
 
 import com.spbsu.commons.JUnitIOCapture;
+import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.impl.vectors.DVector;
 import com.spbsu.commons.util.logging.Interval;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class FastVectorToolsTest extends JUnitIOCapture {
     final DVector<CharSequence> v1 = generateRandomVector(length);
     final DVector<CharSequence> v2 = generateRandomVector(length);
 
-    assertEquals(VecTools.multiply(v1, v2), VecTools.multiply(v2, v1));
+    assertEquals(VecTools.multiply(v1, v2), VecTools.multiply(v2, v1), MathTools.EPSILON);
 
     Interval.start();
     for (int i = 0; i < iterations; i++) {
@@ -34,7 +35,7 @@ public class FastVectorToolsTest extends JUnitIOCapture {
 
   @Test
   public void testMultiplyAll() throws Exception {
-    final List<DVector<CharSequence>> list = new ArrayList<DVector<CharSequence>>();
+    final List<DVector<CharSequence>> list = new ArrayList<>();
     for (int i = 0; i < 100; i++) {
       list.add(generateRandomVector(length));
     }
@@ -49,11 +50,12 @@ public class FastVectorToolsTest extends JUnitIOCapture {
     }
     Interval.start();
     for (int i = 0; i < result.length; i++) {
-      assertEquals(VecTools.multiply(list.get(i), v), result[i]);
+      assertEquals(VecTools.multiply(list.get(i), v), result[i], MathTools.EPSILON);
     }
     Interval.stopAndPrint();
   }
 
+  @Test
   public void testEuclideanNorm() throws Exception {
     final DVector<CharSequence> v1 = generateRandomVector(length);
     VecTools.scale(v1, 1 / VecTools.norm(v1));
@@ -75,12 +77,12 @@ public class FastVectorToolsTest extends JUnitIOCapture {
     final DVector<CharSequence> v2 = generateRandomVector(length);
 
     assertVectorsEqual(
-        VecTools.append(VecTools.append(new DVector<CharSequence>(CharSequence.class), v1), v2),
-        VecTools.append(VecTools.append(new DVector<CharSequence>(CharSequence.class), v2), v1));
+        VecTools.append(VecTools.append(new DVector<>(CharSequence.class), v1), v2),
+        VecTools.append(VecTools.append(new DVector<>(CharSequence.class), v2), v1));
 
     Interval.start();
     for (int i = 0; i < iterations; i++) {
-      VecTools.append(new DVector<CharSequence>(CharSequence.class), v1, v2);
+      VecTools.append(new DVector<>(CharSequence.class), v1, v2);
     }
     Interval.stopAndPrint();
   }
@@ -90,7 +92,7 @@ public class FastVectorToolsTest extends JUnitIOCapture {
     final DVector<CharSequence> v1 = generateRandomVector(length);
     final DVector<CharSequence> v2 = generateRandomVector(length);
 
-    assertEquals(VecTools.cosine(v1, v2), VecTools.cosine(v1, v2));
+    assertEquals(VecTools.cosine(v1, v2), VecTools.cosine(v1, v2), MathTools.EPSILON);
 
     Interval.start();
     for (int i = 0; i < iterations; i++) {
@@ -120,13 +122,13 @@ public class FastVectorToolsTest extends JUnitIOCapture {
     while (iter1.advance()) {
       assertTrue(iter2.advance());
       assertEquals(iter1.key(), iter2.key());
-      assertEquals(iter1.value(), iter2.value());
+      assertEquals(iter1.value(), iter2.value(), MathTools.EPSILON);
     }
   }
 
   public static DVector<CharSequence> generateRandomVector(final int length) {
     final Random random = new Random();
-    final DVector<CharSequence> vector = new DVector<CharSequence>(CharSequence.class);
+    final DVector<CharSequence> vector = new DVector<>(CharSequence.class);
     for (int i = 0; i < length; i++) {
       final double d = random.nextDouble();
       if (d < 0.05) {
