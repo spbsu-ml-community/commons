@@ -55,7 +55,7 @@ public class URLConnectionTools {
       throw new RuntimeException(e);
     }
     try {
-      final SSLContext sslctxt = SSLContext.getInstance("TLS");
+      final SSLContext sslctxt = SSLContext.getInstance("TLSv1.2");
       final String hostName = InetAddress.getLocalHost().getHostName();
       KeyManagerFactory kmf = loadFromPEMFile(hostName);
       if (kmf == null)
@@ -89,7 +89,7 @@ public class URLConnectionTools {
 
   private static KeyManagerFactory createSelfSigned(String domain) throws NoSuchAlgorithmException {
     try {
-      final KeyPair keyPair = createKeyPair(512, "");
+      final KeyPair keyPair = createKeyPair(2048, "");
       final X509Certificate certificate = createSelfSignedCertificate("root@" + domain, domain, "asd", "tbts", "FPesde", "Tam", "RU", keyPair);
       final KeyStore store = KeyStore.getInstance("pkcs12");
       final char[] emptyPass = new char[0];
