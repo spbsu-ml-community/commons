@@ -10,8 +10,10 @@ import gnu.trove.strategy.HashingStrategy;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.math.RoundingMode;
+import java.net.URLDecoder;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -668,5 +670,20 @@ public class CharSeqTools {
 
   public static CharSequence ppDouble(double v) {
     return prettyPrint.format(v);
+  }
+
+  public static Map<String, String> splitURLQuery(CharSequence urlQuery) {
+    final Map<String, String> query_pairs = new LinkedHashMap<>();
+    try {
+      final CharSequence[] parts = split(urlQuery, '&');
+      for (CharSequence part : parts) {
+        int idx = indexOf(part, "=");
+        query_pairs.put(URLDecoder.decode(part.subSequence(0, idx).toString(), "UTF-8"), URLDecoder.decode(part.subSequence(idx + 1, part.length()).toString(), "UTF-8"));
+      }
+    }
+    catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+    return query_pairs;
   }
 }

@@ -3,6 +3,7 @@ package com.spbsu.commons.random;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
+import javafx.scene.Parent;
 
 import java.util.Random;
 import java.util.concurrent.locks.Lock;
@@ -144,6 +145,30 @@ public class FastRandom extends Random {
       result += log(nextDouble());
     }
     return scale * (ksi - result);
+  }
+
+  static char[] BASE64_CHARS;
+  static {
+    BASE64_CHARS = new char[64];
+    int index = 0;
+    for (char ch = 'a'; ch <= 'z'; ch++, index++) {
+      BASE64_CHARS[index] = ch;
+    }
+    for (char ch = 'A'; ch <= 'Z'; ch++, index++) {
+      BASE64_CHARS[index] = ch;
+    }
+    for (char ch = '0'; ch <= '9'; ch++, index++) {
+      BASE64_CHARS[index] = ch;
+    }
+    BASE64_CHARS[index++] = '+';
+    BASE64_CHARS[index] = '/';
+  }
+  public String nextBase64String(int count) {
+    char[] chars = new char[count];
+    for (int i = 0; i < count; i++) {
+      chars[i] = BASE64_CHARS[nextInt(BASE64_CHARS.length)];
+    }
+    return new String(chars);
   }
 
   private static class RandState {
