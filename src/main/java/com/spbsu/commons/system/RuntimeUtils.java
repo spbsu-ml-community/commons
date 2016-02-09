@@ -347,7 +347,7 @@ constructor_next:
             method.invoke(instance, message);
           }
           catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            log.log(Level.WARNING, "Unable to call method", e);
           }
         }
       }
