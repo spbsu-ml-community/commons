@@ -77,8 +77,8 @@ public class URLConnectionTools {
       final KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
 
       final KeyStore ks = KeyStore.getInstance("pkcs12");
-      ks.load(new FileInputStream(certFile), System.getProperty("tbts.ssl.certs.pass", "").toCharArray());
-      kmf.init(ks, System.getProperty("tbts.ssl.key.pass", "").toCharArray());
+      ks.load(new FileInputStream(certFile), System.getProperty("expleague.ssl.certs.pass", "").toCharArray());
+      kmf.init(ks, System.getProperty("expleague.ssl.key.pass", "").toCharArray());
       return kmf;
     }
     catch (UnrecoverableKeyException | KeyStoreException | IOException | CertificateException e) {
@@ -90,7 +90,7 @@ public class URLConnectionTools {
   private static KeyManagerFactory createSelfSigned(String domain) throws NoSuchAlgorithmException {
     try {
       final KeyPair keyPair = createKeyPair(2048, "");
-      final X509Certificate certificate = createSelfSignedCertificate("root@" + domain, domain, "asd", "tbts", "FPesde", "Tam", "RU", keyPair);
+      final X509Certificate certificate = createSelfSignedCertificate("root@" + domain, domain, "asd", "expleague", "FPesde", "Tam", "RU", keyPair);
       final KeyStore store = KeyStore.getInstance("pkcs12");
       final char[] emptyPass = new char[0];
       store.load(null, emptyPass);
