@@ -324,9 +324,12 @@ constructor_next:
     private final Action<Object> unhandledCallback;
 
     public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback) {
+      this(clazz, unhandledCallback, "invoke");
+    }
+    public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback, String methodName) {
       this.unhandledCallback = unhandledCallback;
       Arrays.asList(clazz.getMethods()).stream()
-          .filter(method -> "invoke".equals(method.getName()) && method.getParameterCount() == 1 && method.getReturnType() == void.class)
+          .filter(method -> methodName.equals(method.getName()) && method.getParameterCount() == 1 && method.getReturnType() == void.class)
           .forEach(method -> typesMap.put(method.getParameterTypes()[0], method));
     }
 
