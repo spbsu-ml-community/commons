@@ -2,7 +2,6 @@ package com.spbsu.commons.math.vectors.impl.iterators;
 
 import com.spbsu.commons.math.vectors.Mx;
 import com.spbsu.commons.math.vectors.MxIterator;
-import com.spbsu.commons.math.vectors.VecIterator;
 
 /**
 * User: solar

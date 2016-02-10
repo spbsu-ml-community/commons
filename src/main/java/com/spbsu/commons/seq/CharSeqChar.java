@@ -1,7 +1,5 @@
 package com.spbsu.commons.seq;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * User: Igor Kuralenok
  * Date: 10.05.2006

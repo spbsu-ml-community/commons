@@ -2,7 +2,6 @@ package com.spbsu.commons.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
 /**
  * User: solar

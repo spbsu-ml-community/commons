@@ -4,12 +4,6 @@ import com.spbsu.commons.math.vectors.BasisVecIterator;
 import com.spbsu.commons.math.vectors.GenericBasis;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.impl.iterators.ObjectBasisVecIterator;
-import com.spbsu.commons.util.Pair;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * User: solar

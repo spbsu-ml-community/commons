@@ -2,7 +2,6 @@ package com.spbsu.commons.math.vectors;
 
 import com.spbsu.commons.math.vectors.impl.basis.MxBasisImpl;
 import com.spbsu.commons.math.vectors.impl.idxtrans.SubMxTransformation;
-import com.spbsu.commons.math.vectors.impl.iterators.MxIteratorImpl;
 import com.spbsu.commons.math.vectors.impl.iterators.SkipMxNZIterator;
 import com.spbsu.commons.math.vectors.impl.vectors.IndexTransVec;
 

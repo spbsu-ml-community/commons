@@ -3,7 +3,6 @@ package com.spbsu.commons.util;
 import com.spbsu.commons.seq.CharSeqBuilder;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 /**

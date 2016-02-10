@@ -2,7 +2,6 @@ package com.spbsu.commons.func;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 
 import com.spbsu.commons.filters.Filter;

@@ -1,12 +1,8 @@
 package com.spbsu.commons.func.converters;
 
 
-import com.spbsu.commons.func.types.ConversionDependant;
 import com.spbsu.commons.func.types.ConversionPack;
-import com.spbsu.commons.func.types.ConversionRepository;
 import com.spbsu.commons.func.types.TypeConverter;
-import com.spbsu.commons.seq.CharSeqTools;
-import com.spbsu.commons.util.Pair;
 
 public class Class2CharSequenceConversionPack implements ConversionPack<Class, CharSequence> {
   public static class To implements TypeConverter<Class, CharSequence>{
