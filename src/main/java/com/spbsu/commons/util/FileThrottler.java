@@ -76,6 +76,7 @@ public class FileThrottler {
     });
     thread.setDaemon(true);
     thread.setName("FileThrottler consumer");
+    thread.start();
   }
 
   @Override
