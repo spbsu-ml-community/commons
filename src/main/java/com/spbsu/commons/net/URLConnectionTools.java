@@ -55,7 +55,7 @@ public class URLConnectionTools {
       throw new RuntimeException(e);
     }
     try {
-      final SSLContext sslctxt = SSLContext.getInstance("TLSv1.2");
+      final SSLContext sslctxt = SSLContext.getInstance("TLS");
       final String hostName = InetAddress.getLocalHost().getHostName();
       KeyManagerFactory kmf = loadFromPEMFile(hostName);
       if (kmf == null)
