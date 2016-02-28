@@ -12,6 +12,7 @@ import java.util.List;
  * Time: 18:26:28
  */
 public class StringUtils {
+    public static final String EMPTY = "";
 
     public static String concatWithDelimeter(final CharSequence delimeter, final CharSequence... strings) {
         return concatWithDelimeter(delimeter, Arrays.asList(strings));
