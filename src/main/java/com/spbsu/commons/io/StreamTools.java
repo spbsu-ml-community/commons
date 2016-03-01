@@ -143,11 +143,13 @@ public class StreamTools {
 
   public static void deleteDirectoryContents(final File dir) {
     final File[] files = dir.listFiles();
-    for (final File file : files) {
-      if (file.isDirectory()) {
-        deleteDirectoryWithContents(file);
-      } else {
-        file.delete();
+    if (files != null) {
+      for (final File file : files) {
+        if (file.isDirectory()) {
+          deleteDirectoryWithContents(file);
+        } else {
+          file.delete();
+        }
       }
     }
   }

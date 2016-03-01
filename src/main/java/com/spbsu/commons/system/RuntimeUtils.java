@@ -13,6 +13,7 @@ import sun.net.www.protocol.file.FileURLConnection;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
 import java.net.*;
@@ -326,10 +327,18 @@ constructor_next:
     public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback) {
       this(clazz, unhandledCallback, "invoke");
     }
+
     public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback, String methodName) {
       this.unhandledCallback = unhandledCallback;
       Arrays.asList(clazz.getMethods()).stream()
           .filter(method -> methodName.equals(method.getName()) && method.getParameterCount() == 1 && method.getReturnType() == void.class)
+          .forEach(method -> typesMap.put(method.getParameterTypes()[0], method));
+    }
+
+    public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback, Class<? extends Annotation> annotation) {
+      this.unhandledCallback = unhandledCallback;
+      Arrays.asList(clazz.getMethods()).stream()
+          .filter(method -> method.getAnnotation(annotation) != null && method.getParameterCount() == 1 && method.getReturnType() == void.class)
           .forEach(method -> typesMap.put(method.getParameterTypes()[0], method));
     }
 
@@ -347,6 +356,7 @@ constructor_next:
       if (!methods.isEmpty()) {
         for (final Method method : methods) {
           try {
+            method.setAccessible(true);
             method.invoke(instance, message);
           }
           catch (IllegalAccessException | InvocationTargetException e) {
