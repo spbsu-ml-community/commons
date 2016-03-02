@@ -31,7 +31,7 @@ import java.util.zip.GZIPInputStream;
  * Date: 03.06.14
  * Time: 14:40
  */
-public class CompositeTextCodingTest extends JUnitIOCapture {
+public abstract class CompositeTextCodingTest extends JUnitIOCapture {
   public static CharSequence[] queries;
   public static CharSequence[] urls;
   public static CharSequence[] packages;
