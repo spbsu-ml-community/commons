@@ -45,4 +45,10 @@ public final class ThreadTools {
     });
 
   }
+
+  public static void sleep(final long millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (InterruptedException ignored) {}
+  }
 }
