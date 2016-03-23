@@ -10,9 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.net.www.protocol.file.FileURLConnection;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
@@ -367,6 +365,92 @@ constructor_next:
       else {
         log.log(Level.WARNING, "Unhandeled @" + instance + ": " + message.toString());
         unhandledCallback.invoke(message);
+      }
+    }
+  }
+
+  public static class BashProcess extends Process {
+    private final Thread out;
+    private final Thread err;
+    private PrintStream in;
+    private final Process delegate;
+
+    public BashProcess(String wd) throws IOException {
+      delegate = Runtime.getRuntime().exec("bash");
+      in = new PrintStream(delegate.getOutputStream());
+      out = new Thread(() -> {
+        try {
+          CharSeqTools.processLines(new InputStreamReader(delegate.getInputStream(), StreamTools.UTF), (Action<CharSequence>) System.out::println);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      });
+
+      err = new Thread(() -> {
+        try {
+          CharSeqTools.processLines(new InputStreamReader(delegate.getErrorStream(), StreamTools.UTF), (Action<CharSequence>) System.err::println);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      });
+      out.start();
+      err.start();
+      exec("cd " + wd);
+    }
+
+    public void exec(String command) {
+      in.println("echo " + command);
+      in.println(command);
+      try {
+        delegate.getOutputStream().flush();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public OutputStream getOutputStream() {
+      return delegate.getOutputStream();
+    }
+
+    @Override
+    public InputStream getInputStream() {
+      return delegate.getInputStream();
+    }
+
+    @Override
+    public InputStream getErrorStream() {
+      return delegate.getErrorStream();
+    }
+
+    @Override
+    public int waitFor() throws InterruptedException {
+      try {
+        delegate.getOutputStream().close();
+        final int result = delegate.waitFor();
+        out.join();
+        err.join();
+        return result;
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public int exitValue() {
+      return delegate.exitValue();
+    }
+
+    @Override
+    public void destroy() {
+      delegate.destroy();
+//      out.interrupt();
+//      err.interrupt();
+      try {
+        out.join();
+        err.join();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
       }
     }
   }
