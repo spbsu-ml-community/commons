@@ -3,6 +3,7 @@ package com.spbsu.commons.random;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
+import org.apache.commons.math3.util.FastMath;
 
 import java.util.Random;
 
@@ -39,7 +40,7 @@ public class FastRandom extends Random {
 
   @Override
   public double nextGaussian() {
-    return sqrt(-2. * log(nextDouble())) * cos(2 * Math.PI * nextDouble());
+    return sqrt(-2. * FastMath.log(nextDouble())) * cos(2 * Math.PI * nextDouble());
   }
 
   @Override
@@ -55,7 +56,7 @@ public class FastRandom extends Random {
       return (int) val + (val - (int)val >= 0.5 ? 1 : 0);
     }
     int x = 0;
-    double p = exp(-meanFreq);
+    double p = FastMath.exp(-meanFreq);
     double s = p;
     final double u = nextDouble();
     while (u > s) {
@@ -127,18 +128,18 @@ public class FastRandom extends Random {
 
         if (a <= E / (E + delta)) {
           ksi = pow(b, 1 / delta);
-          eta = c * pow(ksi, delta - 1);
+          eta = c * FastMath.pow(ksi, delta - 1);
         } else {
           ksi = 1 - log(b);
-          eta = c * exp(-ksi);
+          eta = c * FastMath.exp(-ksi);
         }
       }
-      while (eta > pow(ksi, delta - 1) * exp(-ksi));
+      while (eta > FastMath.pow(ksi, delta - 1) * exp(-ksi));
     }
 
     double result = 0;
     for (int i = 0; i < (int)shape; i++) {
-      result += log(nextDouble());
+      result += FastMath.log(nextDouble());
     }
     return scale * (ksi - result);
   }
