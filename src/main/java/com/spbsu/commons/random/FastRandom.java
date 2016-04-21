@@ -40,7 +40,7 @@ public class FastRandom extends Random {
 
   @Override
   public double nextGaussian() {
-    return sqrt(-2. * FastMath.log(nextDouble())) * cos(2 * Math.PI * nextDouble());
+    return sqrt(-2. * Math.log(nextDouble())) * cos(2 * Math.PI * nextDouble());
   }
 
   @Override
@@ -139,7 +139,7 @@ public class FastRandom extends Random {
 
     double result = 0;
     for (int i = 0; i < (int)shape; i++) {
-      result += FastMath.log(nextDouble());
+      result += Math.log(nextDouble());
     }
     return scale * (ksi - result);
   }

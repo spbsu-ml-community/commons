@@ -10,9 +10,8 @@ import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import static com.spbsu.commons.math.vectors.VecTools.copy;
-import static com.spbsu.commons.math.vectors.VecTools.norm;
-import static com.spbsu.commons.math.vectors.VecTools.scale;
+import static com.spbsu.commons.math.vectors.VecTools.*;
+import static java.lang.Math.abs;
 import static java.lang.Math.*;
 
 /**
@@ -68,7 +67,7 @@ public abstract class MathTools {
   }
 
   public static double sigmoid(final double x, final double alpha) {
-    return 1 / (1 + Math.exp(-alpha * x));
+    return 1.0 / (1 + Math.exp(-alpha * x));
   }
 
   public static double logFactorialRamanujan(final int v) {
