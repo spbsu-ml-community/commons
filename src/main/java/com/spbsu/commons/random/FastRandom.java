@@ -168,6 +168,14 @@ public class FastRandom extends Random {
     return new String(chars);
   }
 
+  public String nextLowerCaseString(int count) {
+    char[] chars = new char[count];
+    for (int i = 0; i < count; i++) {
+      chars[i] = (char)('a' + nextInt(26));
+    }
+    return new String(chars);
+  }
+
   private static class RandState {
     private long u;
     private long v = 4101842887655102017L;
