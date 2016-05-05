@@ -375,12 +375,14 @@ constructor_next:
     private PrintStream in;
     private final Process delegate;
 
-    public BashProcess(String wd) throws IOException {
+    public BashProcess(String wd, boolean output) throws IOException {
       delegate = Runtime.getRuntime().exec("bash");
       in = new PrintStream(delegate.getOutputStream());
       out = new Thread(() -> {
         try {
-          CharSeqTools.processLines(new InputStreamReader(delegate.getInputStream(), StreamTools.UTF), (Action<CharSequence>) System.out::println);
+          if (output) {
+            CharSeqTools.processLines(new InputStreamReader(delegate.getInputStream(), StreamTools.UTF), (Action<CharSequence>) System.out::println);
+          }
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
@@ -388,7 +390,9 @@ constructor_next:
 
       err = new Thread(() -> {
         try {
-          CharSeqTools.processLines(new InputStreamReader(delegate.getErrorStream(), StreamTools.UTF), (Action<CharSequence>) System.err::println);
+          if(output) {
+            CharSeqTools.processLines(new InputStreamReader(delegate.getErrorStream(), StreamTools.UTF), (Action<CharSequence>) System.err::println);
+          }
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
