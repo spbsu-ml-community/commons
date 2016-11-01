@@ -21,7 +21,7 @@ public class ReaderChopper {
   }
 
   @Nullable
-  public CharSequence chop(char delimiter) throws IOException {
+  public CharSeq chop(char delimiter) throws IOException {
     if (read < 0)
       return null;
     final CharSeqBuilder builder = new CharSeqBuilder();
@@ -41,7 +41,7 @@ public class ReaderChopper {
     }
   }
 
-  public CharSequence chopQuiet(char... delimiters) {
+  public CharSeq chopQuiet(char... delimiters) {
     try {
       return chop(delimiters);
     } catch (IOException e) {
@@ -56,7 +56,7 @@ public class ReaderChopper {
     }
   };
   @Nullable
-  public CharSequence chop(char... delimiters) throws IOException {
+  public CharSeq chop(char... delimiters) throws IOException {
     final boolean[] filter = this.filter.get();
     for(int i = 0; i < delimiters.length; i++) {
       filter[delimiters[i]] = true;

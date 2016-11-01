@@ -328,14 +328,14 @@ constructor_next:
 
     public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback, String methodName) {
       this.unhandledCallback = unhandledCallback;
-      Arrays.asList(clazz.getMethods()).stream()
+      Arrays.stream(clazz.getMethods())
           .filter(method -> methodName.equals(method.getName()) && method.getParameterCount() == 1 && method.getReturnType() == void.class)
           .forEach(method -> typesMap.put(method.getParameterTypes()[0], method));
     }
 
     public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback, Class<? extends Annotation> annotation) {
       this.unhandledCallback = unhandledCallback;
-      Arrays.asList(clazz.getMethods()).stream()
+      Arrays.stream(clazz.getMethods())
           .filter(method -> method.getAnnotation(annotation) != null && method.getParameterCount() == 1 && method.getReturnType() == void.class)
           .forEach(method -> typesMap.put(method.getParameterTypes()[0], method));
     }

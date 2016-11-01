@@ -16,6 +16,8 @@ import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * User: terry
@@ -339,6 +341,27 @@ public class CharSeqTools {
     return count;
   }
 
+  public static Stream<CharSeq> lines(final Reader input, boolean parallel) {
+    final ReaderChopper chopper = new ReaderChopper(input);
+    CharSequence next;
+    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<CharSeq>() {
+      CharSeq next;
+      @Override
+      public boolean hasNext() {
+        try {
+          next = chopper.chop('\n');
+          return next != null;
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public CharSeq next() {
+        return next;
+      }
+    }, Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.SORTED), parallel);
+  }
 
   public static float parseFloat(final CharSequence in) {
     return FloatingDecimal.readJavaFormatString(in).floatValue();
