@@ -8,6 +8,8 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * Time: 14:12
  */
 public class StateLatch {
+  private static final long NO_TIMEOUT = -1;
+
   public StateLatch(int initState) {
     state(initState);
   }
@@ -45,14 +47,25 @@ public class StateLatch {
   public void await(int state) throws InterruptedException {
     sync.acquireSharedInterruptibly(state);
   }
+  public void await(int state, long timeout) throws InterruptedException {
+    sync.tryAcquireSharedNanos(state, timeout);
+  }
 
-  public void state(int from, int to) {
+  public void state(int from, int to, long nanosTimeout) {
     try {
-      await(from);
+      if (nanosTimeout == NO_TIMEOUT) {
+        await(from);
+      } else {
+        await(from, nanosTimeout);
+      }
       state(to);
     }
     catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void state(int from, int to) {
+    state(from, to, NO_TIMEOUT);
   }
 }
