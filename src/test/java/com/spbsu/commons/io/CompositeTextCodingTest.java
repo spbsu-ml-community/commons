@@ -201,7 +201,7 @@ public class CompositeTextCodingTest /*extends JUnitIOCapture */{
         alpha.add(query.charAt(t));
     }
 
-    final CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 1000);
+    final CompositeStatTextCoding coding = new CompositeStatTextCoding(alpha, 500);
 
     for (int i = 0; i < 100000; i++) {
       final CharSequence query = urls[rng.nextInt(urls.length)];

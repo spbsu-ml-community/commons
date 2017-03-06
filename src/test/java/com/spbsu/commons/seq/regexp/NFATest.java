@@ -419,6 +419,7 @@ public class NFATest extends JUnitIOCapture {
 //    }
     assertTrue(mv.contains(sb.toString()));
     assertFalse(mv.contains("eee"));
+    assertFalse(true);
   }
 
   @Test
