@@ -205,7 +205,21 @@ public class MxTools {
   public static Vec multiply(final Mx mx, final Vec vec) {
     if (vec instanceof Mx)
       return multiply(mx, (Mx) vec);
-    return multiply(mx, new VecBasedMx(1, vec));
+    final int rows = mx.rows();
+    if (vec.dim() != mx.columns())
+      throw new IllegalArgumentException();
+    final Vec result = new ArrayVec(mx.rows());
+    if (vec instanceof ArrayVec && mx instanceof VecBasedMx && ((VecBasedMx) mx).vec instanceof ArrayVec) {
+      for (int i = 0; i < rows; i++) {
+        result.set(i, ((ArrayVec) vec).mul((ArrayVec)mx.row(i)));
+      }
+    }
+    else {
+      for (int i = 0; i < rows; i++) {
+        result.set(i, VecTools.multiply(mx.row(i), vec));
+      }
+    }
+    return result;
   }
 
   public static Mx mahalanobis(final List<Vec> pool) {
