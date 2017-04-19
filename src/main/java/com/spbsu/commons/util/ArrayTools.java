@@ -810,6 +810,16 @@ public abstract class ArrayTools {
     return -1;
   }
 
+  public static int indexOf(final int instance, final int[] array) {
+    for(int i = 0; i < array.length; i++) {
+      if (instance == array[i]) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
   public static <T> T[] concat(final T[] left, final T[] right) {
     @SuppressWarnings("unchecked")
     final T[] result = (T[])Array.newInstance(left.getClass().getComponentType(), left.length + right.length);
