@@ -30,17 +30,17 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
   }
 
   @Override
-  public V put(final K key, final V value) {
+  public synchronized V put(final K key, final V value) {
     if (value == null) return value;
     final CacheSlot<K, V> slot = accessMap.get(key);
     return slot != null ? putEntryInSlot(key, value, slot) : putNewEntry(key, value);
   }
 
-  private V putEntryInSlot(final K key, final V value, final @NotNull CacheSlot<K, V> slot) {
+  private synchronized V putEntryInSlot(final K key, final V value, final @NotNull CacheSlot<K, V> slot) {
     return putEntryInSlot(key, value, slot, alterCacheStrategy(key, cache[slot.position]));
   }
 
-  private V putEntryInSlot(final K key, final V value, final @NotNull CacheSlot<K, V> slot, final boolean alterCacheStrategy) {
+  private synchronized V putEntryInSlot(final K key, final V value, final @NotNull CacheSlot<K, V> slot, final boolean alterCacheStrategy) {
     if (slot.reference != null) slot.reference.clearKey();
     slot.reference = new MyWeakReference<K, V>(key, value, queue);
     cache[slot.position] = Pair.create(key, value);
@@ -50,7 +50,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
     return value;
   }
 
-  private V putNewEntry(final K key, final V value) {
+  private synchronized V putNewEntry(final K key, final V value) {
     final int position = strategy.getStorePosition();
     final MyWeakReference<K, V> reference = new MyWeakReference<K, V>(key, value, queue);
     final CacheSlot<K, V> old = accessMap.put(key, new CacheSlot<K, V>(position, reference));
@@ -64,14 +64,14 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
   }
 
   @Override
-  public V get(final K key) {
+  public synchronized V get(final K key) {
     return get(key, null);
   }
 
   private int accessIndex = 0;
 
   @Override
-  public V get(final K key, final Computable<K, V> wayToGet) {
+  public synchronized V get(final K key, final Computable<K, V> wayToGet) {
     try {
       V result = null;
       final CacheSlot<K, V> slot = accessMap.get(key);
@@ -104,7 +104,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
   }
 
   @Override
-  public void flush() {
+  public synchronized void flush() {
     for (int i = 0; i < cache.length; i++) {
       cache[i] = null;
     }
@@ -133,7 +133,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
   }
 
   @Override
-  public void clear(final K key) {
+  public synchronized void clear(final K key) {
     final CacheSlot<K, V> slot = accessMap.remove(key);
     if (slot != null) {
       final int position = slot.position;
@@ -151,7 +151,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
   }
 
   @Override
-  public void clear() {
+  public synchronized void clear() {
     accessMap.clear();
     flush();
   }
