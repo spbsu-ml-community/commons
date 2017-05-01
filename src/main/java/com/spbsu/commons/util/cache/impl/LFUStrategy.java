@@ -11,8 +11,8 @@ import com.spbsu.commons.util.cache.CacheStrategy;
  * Date: 31.08.2006
  */
 public class LFUStrategy implements CacheStrategy {
-  private int misses;
-  private int access;
+  private volatile int misses;
+  private volatile int access;
   private double[] usages;
 
   public LFUStrategy(final int size) {
