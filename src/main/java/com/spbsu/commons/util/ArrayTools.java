@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static java.lang.Math.abs;
+
 /**
  * @author lawless
  */
@@ -461,6 +463,18 @@ public abstract class ArrayTools {
         max = arr[i];
       }
 
+    }
+    return maxIndex;
+  }
+
+  public static int maxMod(final double[] arr) {
+    int maxIndex = -1;
+    double max = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < arr.length; i++) {
+      if (max < abs(arr[i])) {
+        maxIndex = i;
+        max = arr[i];
+      }
     }
     return maxIndex;
   }

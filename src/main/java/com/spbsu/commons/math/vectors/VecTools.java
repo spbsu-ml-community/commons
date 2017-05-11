@@ -366,6 +366,38 @@ public class VecTools {
     }
   }
 
+  public static double max(final Vec vec) {
+    if (vec instanceof ArrayVec) {
+      return ((ArrayVec) vec).data.array[ArrayTools.max(((ArrayVec) vec).data.array)];
+    }
+    else {
+      double max = Double.NEGATIVE_INFINITY;
+      final VecIterator liter = vec.nonZeroes();
+      while (liter.advance()) {
+        final double value = liter.value();
+        if (max < value)
+          max = value;
+      }
+      return max;
+    }
+  }
+
+  public static double maxMod(final Vec vec) {
+    if (vec instanceof ArrayVec) {
+      return ((ArrayVec) vec).data.array[ArrayTools.maxMod(((ArrayVec) vec).data.array)];
+    }
+    else {
+      double max = Double.NEGATIVE_INFINITY;
+      final VecIterator liter = vec.nonZeroes();
+      while (liter.advance()) {
+        final double value = Math.abs(liter.value());
+        if (max < value)
+          max = value;
+      }
+      return max;
+    }
+  }
+
   @SuppressWarnings("unchecked")
   public static <T extends Vec> T copy(final T vec) {
     if (vec instanceof VecBasedMx) {
@@ -388,16 +420,16 @@ public class VecTools {
 
   @SuppressWarnings("unchecked")
   public static <T extends  Vec> T sum(final Vec a, final Vec b) {
-      final Vec result = copy(a);
-      return (T)append(result, b);
+    final Vec result = copy(a);
+    return (T)append(result, b);
   }
 
   @SuppressWarnings("unchecked")
   public static <T extends Vec> T subtract(final Vec a, final Vec b) {
     final Vec result = copy(a);
     for (int i = 0; i < b.dim(); i++)
-        result.adjust(i, -1.0 * b.get(i));
-      return (T)result;
+      result.adjust(i, -1.0 * b.get(i));
+    return (T)result;
   }
 
   public static Vec adjust(final Vec a, double inc) {
@@ -407,24 +439,26 @@ public class VecTools {
   }
 
   public static Vec assign(final Vec target, final Vec source) {
-    if (target.length() != source.length()) {
+    try {
+      if (target instanceof VecBasedMx) {
+        return assign(((VecBasedMx) target).vec, source);
+      } else if (source instanceof VecBasedMx) {
+        return assign(target, ((VecBasedMx) source).vec);
+      } else if (source instanceof ArrayVec && target instanceof ArrayVec)
+        ((ArrayVec) target).assign((ArrayVec) source);
+      else {
+        final VecIterator aiter = target.nonZeroes();
+        while (aiter.advance())
+          aiter.setValue(0.);
+        return append(target, source);
+      }
+      return target;
+    }
+    catch (ArrayIndexOutOfBoundsException aiobe) {
+//      if (target.length() != source.length()) {
       throw new IllegalArgumentException("Vector dimensions differ");
+//      }
     }
-    if (target instanceof VecBasedMx) {
-      return assign(((VecBasedMx) target).vec, source);
-    }
-    else if (source instanceof VecBasedMx) {
-      return assign(target, ((VecBasedMx) source).vec);
-    }
-    else if (source instanceof ArrayVec && target instanceof ArrayVec)
-      ((ArrayVec)target).assign((ArrayVec)source);
-    else {
-      final VecIterator aiter = target.nonZeroes();
-      while (aiter.advance())
-        aiter.setValue(0.);
-      return append(target, source);
-    }
-    return target;
   }
 
   public static double sum(final Vec target) {

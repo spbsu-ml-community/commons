@@ -48,9 +48,10 @@ public class CharSeqComposite extends CharSeq {
       fragmentEndOffset += fragment(i++).length();
     }
 
-    activeFragmentRangeStart = fragmentEndOffset - fragment(i - 1).length();
+    final CharSequence fragment = fragment(i - 1);
+    activeFragmentRangeStart = fragmentEndOffset - fragment.length();
     activeFragmentRangeEnd = fragmentEndOffset;
-    activeFragment = fragment(i - 1);
+    activeFragment = fragment;
   }
 
   @Override
