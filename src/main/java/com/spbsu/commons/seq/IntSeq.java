@@ -8,7 +8,7 @@ import java.util.Arrays;
  * Time: 11:07
  */
 public class IntSeq extends Seq.Stub<Integer> {
-  public static final IntSeq EMPTY = new IntSeq(0);
+  public static final IntSeq EMPTY = new IntSeq();
   public final int[] arr;
   public final int start;
   public final int end;
