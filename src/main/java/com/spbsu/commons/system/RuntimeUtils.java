@@ -360,6 +360,9 @@ constructor_next:
           catch (IllegalAccessException | InvocationTargetException e) {
             log.log(Level.WARNING, "Unable to call method", e);
           }
+          catch (ClassCastException cce) {
+            log.log(Level.WARNING, "Unable to call method: " + method + " for event [" + message + "] of class " + message.getClass(), cce);
+          }
         }
       }
       else {

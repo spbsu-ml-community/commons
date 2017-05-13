@@ -71,18 +71,21 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
   private int accessIndex = 0;
 
   @Override
-  public synchronized V get(final K key, final Computable<K, V> wayToGet) {
+  public V get(final K key, final Computable<K, V> wayToGet) {
     try {
       V result = null;
-      final CacheSlot<K, V> slot = accessMap.get(key);
+      final CacheSlot<K, V> slot;
       boolean alterCacheStrategy = true; // whatever
-      if (slot != null) {
-        result = slot.reference.get();
-        final int position = slot.position;
-        final Pair<K, V> atPosition = cache[position];
-        alterCacheStrategy = alterCacheStrategy(key, atPosition);
-        if (alterCacheStrategy) {
-          strategy.registerAccess(position);
+      synchronized (this) {
+        slot = accessMap.get(key);
+        if (slot != null) {
+          result = slot.reference.get();
+          final int position = slot.position;
+          final Pair<K, V> atPosition = cache[position];
+          alterCacheStrategy = alterCacheStrategy(key, atPosition);
+          if (alterCacheStrategy) {
+            strategy.registerAccess(position);
+          }
         }
       }
 
@@ -92,8 +95,9 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
         }
         if (result != null) {
           strategy.registerCacheMiss();
-          if (slot != null) putEntryInSlot(key, result, slot, alterCacheStrategy);
-          else putNewEntry(key, result);
+          put(key, result);
+//          if (slot != null) putEntryInSlot(key, result, slot, alterCacheStrategy);
+//          else putNewEntry(key, result);
         }
       }
       return result;

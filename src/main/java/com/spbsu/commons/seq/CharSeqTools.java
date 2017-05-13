@@ -514,21 +514,18 @@ public class CharSeqTools {
         return Integer.compare(a.length(), b.length());
       };
     }
-    return new Comparator<Seq<T>>() {
-      @Override
-      public int compare(final Seq<T> a, final Seq<T> b) {
-        final int minLength = Math.min(a.length(), b.length());
-        int index = 0;
-        while (minLength > index) {
-          final T aCh = a.at(index);
-          final T bCh = b.at(index);
-          if (!aCh.equals(bCh)) {
-            return aCh.compareTo(bCh);
-          }
-          index++;
+    return (a, b) -> {
+      final int minLength = Math.min(a.length(), b.length());
+      int index = 0;
+      while (minLength > index) {
+        final T aCh = a.at(index);
+        final T bCh = b.at(index);
+        if (aCh != bCh && !aCh.equals(bCh)) {
+          return aCh.compareTo(bCh);
         }
-        return Integer.compare(a.length(), b.length());
+        index++;
       }
+      return Integer.compare(a.length(), b.length());
     };
   }
 
@@ -625,28 +622,29 @@ public class CharSeqTools {
   }
 
   public static int trySplit(final CharSequence sequence, final char separator, final CharSequence[] result) {
+    final int length = sequence.length();
     if (sequence instanceof String) {
       int last = 0;
       int index = 0;
-      for (int i = 0; i < sequence.length() && index < result.length - 1; i++) {
+      for (int i = 0; i < length && index < result.length - 1; i++) {
         if (sequence.charAt(i) == separator) {
           result[index++] = new CharSeqAdapter(sequence, last, i);
           last = i + 1;
         }
       }
-      result[index++] = new CharSeqAdapter(sequence, last, sequence.length());
+      result[index++] = new CharSeqAdapter(sequence, last, length);
       return index;
     }
     else {
       int last = 0;
       int index = 0;
-      for (int i = 0; i < sequence.length() && index < result.length - 1; i++) {
+      for (int i = 0; i < length && index < result.length - 1; i++) {
         if (sequence.charAt(i) == separator) {
           result[index++] = sequence.subSequence(last, i);
           last = i + 1;
         }
       }
-      result[index++] = sequence.subSequence(last, sequence.length());
+      result[index++] = sequence.subSequence(last, length);
       return index;
     }
   }

@@ -36,8 +36,8 @@ import static java.lang.Math.min;
 public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderImpl<DictExpansion<T>> {
   public static final double POISSON_SIGNIFICANCE = 0.05;
   public static final double EXTENSION_FACTOR = 1.33;
-  public static final double MAX_POWER = 100000000;
-  public static final double MAX_MIN_PROBABILITY = 0.0001;
+  public static final double MAX_POWER = 10000000;
+  public static final double MAX_MIN_PROBABILITY = 0.002;
   public static final int AGG_POWER = 100000;
   private final boolean isDynamic;
   private int size;
