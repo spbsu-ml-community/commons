@@ -45,7 +45,7 @@ public interface Vec extends Seq<Double> {
     }
 
     @Override
-    public abstract Vec sub(final int start, final int end);
+    public abstract Vec sub(final int start, final int len);
 
     @Override
     public final int hashCode() {

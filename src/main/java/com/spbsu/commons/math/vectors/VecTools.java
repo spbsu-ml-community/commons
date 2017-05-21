@@ -503,6 +503,14 @@ public class VecTools {
     }
   }
 
+  public static void normalizeL2(final Vec row) {
+    final double norm2 = norm(row);
+    final VecIterator it = row.nonZeroes();
+    while(it.advance()) {
+      it.setValue(it.value() / norm2);
+    }
+  }
+
   public static double entropy(final Vec prob) {
     normalizeL1(prob);
     double entropy = 0;
@@ -769,7 +777,11 @@ public class VecTools {
   }
 
   public static <T extends Vec> T toBinary(final T vector) {
-    return toBinary(vector, 0.0);
+    final VecIterator iter = vector.nonZeroes();
+    while (iter.advance()) {
+      iter.setValue(1);
+    }
+    return vector;
   }
 
   public static <T extends Vec> T toBinary(final T vector, final double threshold) {
