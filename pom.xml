@@ -13,7 +13,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
     <java.version>1.8</java.version>
-    <jackson.version>2.5.3</jackson.version>
   </properties>
 
   <dependencies>
@@ -45,12 +44,12 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>${jackson.version}</version>
+      <version>LATEST</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
+      <version>LATEST</version>
     </dependency>
     <dependency>
       <groupId>net.sf.trove4j</groupId>

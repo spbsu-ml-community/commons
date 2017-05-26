@@ -214,6 +214,32 @@ public class CharSeqTools {
     return result.toArray(new CharSequence[result.size()]);
   }
 
+  public static Stream<CharSequence> split(final CharSequence input, CharSequence separator, boolean parallel) {
+    CharSequence next;
+    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<CharSequence>() {
+      int next = 0;
+      int prev = 0;
+      @Override
+      public boolean hasNext() {
+        if (prev >= next && prev < input.length()) {
+          next = indexOf(input, prev, separator);
+          if (next < 0)
+            next = input.length();
+        }
+        return prev < next;
+      }
+
+      @Override
+      public CharSequence next() {
+        if (!hasNext())
+          throw new NoSuchElementException();
+        final CharSequence result = input.subSequence(prev, next);
+        prev = next + separator.length();
+        return result;
+      }
+    }, Spliterator.IMMUTABLE), parallel);
+  }
+
   public static CharSequence cut(final CharSequence from, int index, final char sep) {
     final int start = index;
     while (from.length() > index && from.charAt(index) != sep)

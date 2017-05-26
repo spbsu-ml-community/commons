@@ -824,16 +824,6 @@ public abstract class ArrayTools {
     return -1;
   }
 
-  public static int indexOf(final int instance, final int[] array) {
-    for(int i = 0; i < array.length; i++) {
-      if (instance == array[i]) {
-        return i;
-      }
-    }
-
-    return -1;
-  }
-
   public static <T> T[] concat(final T[] left, final T[] right) {
     @SuppressWarnings("unchecked")
     final T[] result = (T[])Array.newInstance(left.getClass().getComponentType(), left.length + right.length);
@@ -875,5 +865,21 @@ public abstract class ArrayTools {
       }
     }
     return -1;
+  }
+
+  public static int indexOf(int a, int[] array) {
+    final int length = array.length;
+    for (int i = 0; i < length; i++)
+      if (a == array[i])
+        return i;
+    return -1;
+  }
+
+  public static boolean supset(int[] of, int[] arg) {
+    for (int a : arg) {
+      if (indexOf(a, of) < 0)
+        return false;
+    }
+    return true;
   }
 }

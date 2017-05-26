@@ -1,6 +1,11 @@
 package com.spbsu.commons.seq;
 
 import java.util.Arrays;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 /**
  * User: solar
@@ -8,7 +13,7 @@ import java.util.Arrays;
  * Time: 11:07
  */
 public class IntSeq extends Seq.Stub<Integer> {
-  public static final IntSeq EMPTY = new IntSeq();
+  public static final IntSeq EMPTY = new IntSeq(0);
   public final int[] arr;
   public final int start;
   public final int end;
@@ -87,5 +92,19 @@ public class IntSeq extends Seq.Stub<Integer> {
 //    if (index >= arr.length)
 //      throw new ArrayIndexOutOfBoundsException();
     return arr[start + index];
+  }
+
+  public IntStream stream() {
+    return StreamSupport.intStream(new Spliterators.AbstractIntSpliterator(length(), Spliterator.IMMUTABLE) {
+      int cursor = 0;
+      @Override
+      public boolean tryAdvance(IntConsumer action) {
+        if (cursor < length()) {
+          action.accept(intAt(cursor++));
+          return true;
+        }
+        return false;
+      }
+    }, false);
   }
 }

@@ -25,8 +25,11 @@ public final class Interval {
     } else {
       calledFrom = stackTrace[2].toString();
     }
-    System.out.println("Time (ms): " + (System.currentTimeMillis() - ourStartTime.get() + beforeStart.get())
-        + "\t--- called from: " + calledFrom + (message != null ? " info:" + message : ""));
+    if (message != null)
+      System.out.println(message + ": " + (System.currentTimeMillis() - ourStartTime.get() + beforeStart.get()) + "(ms)");
+    else
+      System.out.println("Time (ms): " + (System.currentTimeMillis() - ourStartTime.get() + beforeStart.get())
+              + "\t--- called from: " + calledFrom + (message != null ? " info:" + message : ""));
   }
 
   public static void suspend() {
