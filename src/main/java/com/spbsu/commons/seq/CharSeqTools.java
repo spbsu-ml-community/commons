@@ -376,7 +376,12 @@ public class CharSeqTools {
       public boolean hasNext() {
         try {
           next = chopper.chop('\n');
-          return next != null;
+          if (next != null) {
+            if (next.length() > 0 && next.at(next.length() - 1) == '\r')
+              next = next.subSequence(0, next.length() - 1);
+            return true;
+          }
+          return false;
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
