@@ -5,6 +5,7 @@ import com.spbsu.commons.func.Processor;
 import com.spbsu.commons.seq.CharSeqBuilder;
 import com.spbsu.commons.util.logging.Logger;
 import gnu.trove.list.array.TByteArrayList;
+import org.apache.tools.bzip2.CBZip2InputStream;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.*;
@@ -327,7 +328,8 @@ public class StreamTools {
     if (file.endsWith(".gz"))
       stream = new GZIPInputStream(stream);
     else if (file.endsWith(".bz2"))
-      throw new NotImplementedException();
+      stream = new CBZip2InputStream(stream);
+//      throw new NotImplementedException();
     return new InputStreamReader(stream, UTF);
   }
 }
