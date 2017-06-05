@@ -14,7 +14,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class ThreadTools {
 
-  private static final int COMPUTE_UNITS = Runtime.getRuntime().availableProcessors();
+  public static final int COMPUTE_UNITS = Runtime.getRuntime().availableProcessors();
 
   private ThreadTools() {
   }

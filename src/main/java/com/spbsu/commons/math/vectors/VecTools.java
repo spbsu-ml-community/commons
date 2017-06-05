@@ -5,6 +5,7 @@ import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.*;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.IntSeq;
+import com.spbsu.commons.util.ArrayPart;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.TIntList;
@@ -635,6 +636,30 @@ public class VecTools {
       vec.set(i, (rng.nextBoolean() ? 1 : -1) * rng.nextDouble() * scale);
     }
     return vec;
+  }
+
+  public static void exp(Vec result) {
+    if (result instanceof ArrayVec) {
+      ArrayPart<double[]> data = ((ArrayVec) result).data;
+      final int length = data.length;
+      Arrays.parallelSetAll(data.array, index -> Math.exp(data.array[index]));
+//      for (int i = data.start; i < length / 4; i++) {
+//        final int index = i * 4;
+//        array[index] = Math.exp(array[index]);
+//        array[index + 1] = Math.exp(array[index + 1]);
+//        array[index + 2] = Math.exp(array[index + 2]);
+//        array[index + 3] = Math.exp(array[index + 3]);
+//      }
+//
+    }
+    else if (result instanceof VecBasedMx) {
+      exp(((VecBasedMx) result).vec);
+    }
+    else {
+      for (int i = 0; i < result.length(); i++) {
+        result.set(i, Math.exp(result.get(i)));
+      }
+    }
   }
 
   private static class IndexedVecIter {

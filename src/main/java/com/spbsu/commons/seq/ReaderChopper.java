@@ -12,7 +12,7 @@ import java.io.Reader;
  */
 public class ReaderChopper {
   private final Reader base;
-  private char[] buffer = new char[4096];
+  private char[] buffer = new char[1024 * 1024];
   private int offset = 0;
   private int read = 0;
 
