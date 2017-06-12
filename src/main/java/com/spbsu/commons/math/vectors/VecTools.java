@@ -230,7 +230,7 @@ public class VecTools {
   }
 
   public static double distance(Vec left, Vec right) {
-     return Math.sqrt(l2(left,right));
+     return Math.sqrt(distanceL2(left,right));
   }
 
   public static double distanceJS12(final Vec left, final Vec right) {
@@ -581,7 +581,17 @@ public class VecTools {
     return count;
   }
 
-  public static double l2(Vec left, Vec right) {
+  public static double l2(final Vec vec) {
+    final VecIterator it = vec.nonZeroes();
+    double result = 0;
+    while (it.advance()) {
+      result += it.value() * it.value();
+    }
+
+    return Math.sqrt(result);
+  }
+
+  public static double distanceL2(Vec left, Vec right) {
     checkBasisesEquals(left, right);
     if (left instanceof VecBasedMx) {
       left = ((VecBasedMx)left).vec;
@@ -819,10 +829,6 @@ public class VecTools {
       }
     }
     return vector;
-  }
-
-  public static <A> double infinityNorm(final DVector<A> vector) {
-    return MathTools.max(vector.values());
   }
 
   public static <A> double oneNorm(final DVector<A> vector) {

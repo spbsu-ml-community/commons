@@ -172,7 +172,7 @@ public class VectorsTest extends JUnitIOCapture {
     final DVector<CharSequence> vector =
         new DVector<>(axes.toArray(new CharSequence[axes.size()]), new double[]{1.5, 2});
 
-    assertEquals(2.0, infinityNorm(vector));
+    assertEquals(2.0, infNorm(vector));
   }
 
   @Test
