@@ -9,11 +9,18 @@ import com.spbsu.commons.math.vectors.Vec;
  */
 public interface AnalyticFunc extends FuncC1 {
   double value(double x);
+  double gradient(double x);
 
-  abstract class Stub extends FuncC1.Stub implements AnalyticFunc{
+  abstract class Stub extends FuncC1.Stub implements AnalyticFunc {
     @Override
     public final double value(Vec x) {
       return value(x.get(0));
+    }
+
+    @Override
+    public Vec gradientTo(Vec x, Vec to) {
+      to.set(0, gradient(x.get(0)));
+      return to;
     }
 
     @Override
