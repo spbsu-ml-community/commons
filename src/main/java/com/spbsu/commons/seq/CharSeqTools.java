@@ -496,7 +496,7 @@ public class CharSeqTools {
     };
   }
 
-  public static <T extends Comparable<T>> Comparator<Seq<T>> lexicographicalComparator(final Class<T> clazz){
+  public static <T extends Comparable<T>> Comparator<Seq<T>> lexicographicalComparator(final Class<? extends T> clazz){
     if (char.class.isAssignableFrom(clazz) || Character.class.isAssignableFrom(clazz)) {
       return (aa, bb) -> {
         final CharSeq a = (CharSeq)(Seq)aa;

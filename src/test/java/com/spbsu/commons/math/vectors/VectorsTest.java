@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static com.spbsu.commons.math.vectors.MxTools.transpose;
 import static com.spbsu.commons.math.vectors.VecTools.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  * Date: 17.12.2009
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-public class VectorsTest extends JUnitIOCapture {
+public class VectorsTest {
 
   public static final double EPSILON = 0.0001;
 
@@ -273,9 +274,9 @@ public class VectorsTest extends JUnitIOCapture {
             1, 1, 2
     ));
     final Mx l = MxTools.choleskyDecomposition(a);
-    Assert.assertEquals(a, MxTools.multiply(l, MxTools.transpose(l)));
+    Assert.assertEquals(a, MxTools.multiply(l, transpose(l)));
     final Mx inverseL = MxTools.inverseLTriangle(l);
-    final Mx inverseA = MxTools.multiply(MxTools.transpose(inverseL), inverseL);
+    final Mx inverseA = MxTools.multiply(transpose(inverseL), inverseL);
     Assert.assertEquals(MxTools.E(3), MxTools.multiply(a, inverseA));
   }
 
@@ -294,11 +295,11 @@ public class VectorsTest extends JUnitIOCapture {
         a.set(i, i, Math.sqrt(dim));
       }
       final Mx l = MxTools.choleskyDecomposition(a);
-      final Mx aa = MxTools.multiply(l, MxTools.transpose(l));
+      final Mx aa = MxTools.multiply(l, transpose(l));
       if (distance(a, aa) > 0.001)
         Assert.assertEquals(a, aa);
       final Mx inverseL = MxTools.inverseLTriangle(l);
-      final Mx inverseA = MxTools.multiply(MxTools.transpose(inverseL), inverseL);
+      final Mx inverseA = MxTools.multiply(transpose(inverseL), inverseL);
       assertTrue(distance(MxTools.E(dim), MxTools.multiply(a, inverseA)) < 0.001);
     }
   }
@@ -310,7 +311,7 @@ public class VectorsTest extends JUnitIOCapture {
             0.5, 1, 0,
             0.25, 0.3, 1
     }));
-    final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
+    final Mx Sigma = MxTools.multiply(L, transpose(L));
     final GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(3), Sigma, new Random());
     final List<Vec> pool = new ArrayList<>(100500);
     for (int i = 0; i < 20000; i++) {
@@ -327,7 +328,7 @@ public class VectorsTest extends JUnitIOCapture {
             1, 0,
             0.5, 1,
     }));
-    final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
+    final Mx Sigma = MxTools.multiply(L, transpose(L));
     final GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma, new Random(1408619692919L));
     final List<Vec> pool = new ArrayList<>(100500);
     for (int i = 0; i < 20000; i++) {
@@ -344,7 +345,7 @@ public class VectorsTest extends JUnitIOCapture {
             1, 0,
             0.5, 1,
     }));
-    final Mx Sigma = MxTools.multiply(L, MxTools.transpose(L));
+    final Mx Sigma = MxTools.multiply(L, transpose(L));
     final Random random = new FastRandom(1408621387063L);
     final GaussianRandomVec randomVec = new GaussianRandomVec(new ArrayVec(2), Sigma, random);
     final List<Vec> pool = new ArrayList<>();
@@ -384,8 +385,8 @@ public class VectorsTest extends JUnitIOCapture {
     final Mx q = new VecBasedMx(3, 3);
 
     MxTools.householderLQ(a, l, q);
-    assertTrue(distance(MxTools.multiply(MxTools.transpose(q), q), MxTools.E(3)) < 0.00001);
-    assertTrue(distance(a, MxTools.multiply(l, MxTools.transpose(q))) < 0.0001);
+    assertTrue(distance(MxTools.multiply(transpose(q), q), MxTools.E(3)) < 0.00001);
+    assertTrue(distance(a, MxTools.multiply(l, transpose(q))) < 0.0001);
   }
 
   @Test
@@ -398,9 +399,182 @@ public class VectorsTest extends JUnitIOCapture {
     final Mx a = new VecBasedMx(3, vec);
     final Mx q = new VecBasedMx(3, 3);
     final Mx sigma = new VecBasedMx(3, 3);
-    MxTools.eigenDecomposition(a, q, sigma);
-    final Mx result = MxTools.multiply(MxTools.transpose(q), MxTools.multiply(sigma, q));
+    MxTools.eigenDecomposition(a, sigma, q);
+    final Mx result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
     assertTrue(distance(a, result) < 0.001);
+  }
+
+  @Test
+  public void testEigenDecompositionRand() {
+    final FastRandom rng = new FastRandom(0);
+    final Vec vec = new ArrayVec(100 * 100);
+    VecTools.fillGaussian(vec, rng);
+//    VecTools.normalizeL2(vec);
+    for (int i = 1; i < 100; i++) {
+      for (int j = 0; j < i; j++) {
+        vec.set(i * 100 + j, vec.get(j * 100 + i));
+      }
+    }
+    final Mx a = new VecBasedMx(100, vec);
+    final Mx q = new VecBasedMx(100, 100);
+    final Mx sigma = new VecBasedMx(100, 100);
+    MxTools.eigenDecomposition(a, sigma, q);
+    final Mx result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
+    assertTrue("" + distance(a, result), distance(a, result) < 1);
+  }
+
+  @Test
+  public void testTridiagonalization() {
+    final FastRandom rng = new FastRandom(0);
+    int dim = 100;
+    final Vec vec = new ArrayVec(dim * dim);
+    VecTools.fillGaussian(vec, rng);
+//    VecTools.normalizeL2(vec);
+    for (int i = 1; i < dim; i++) {
+      for (int j = 0; j < i; j++) {
+        vec.set(i * dim + j, vec.get(j * dim + i));
+      }
+    }
+    final Mx a = new VecBasedMx(dim, vec);
+    final Mx q = new VecBasedMx(dim, dim);
+    final Mx sigma = new VecBasedMx(dim, dim);
+    MxTools.lanczos(a, q, sigma, rng);
+    final Mx result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
+    assertTrue("" + distance(a, result), distance(a, result) < 1);
+  }
+
+  @Test
+  public void testEigenLanczos10x10() {
+    eigenLanczosDnC(10);
+  }
+
+  @Test
+  public void testEigenLanczos() {
+//    for (int i = 3; i < 25; i++)
+    eigenLanczosDnC(1000);
+  }
+
+  @Test
+  public void testTridiagonalization3x3() {
+    final FastRandom rng = new FastRandom(0);
+    final ArrayVec vec = new ArrayVec(
+        1, 1, 1,
+        1, 2, 2,
+        1, 2, 3
+    );
+    final Mx a = new VecBasedMx(3, vec);
+    final Mx q = new VecBasedMx(3, 3);
+    final Mx sigma = new VecBasedMx(3, 3);
+    MxTools.lanczos(a, q, sigma, rng);
+    final Mx result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
+    assertTrue("" + distance(a, result), distance(a, result) < 1);
+  }
+
+  @Test
+  public void testDnC2x2() {
+    final FastRandom rng = new FastRandom(0);
+    final ArrayVec vec = new ArrayVec(
+        1, 2,
+        2, 2
+    );
+    final Mx a = new VecBasedMx(2, vec);
+    final Mx q = new VecBasedMx(2, 2);
+    final Mx sigma = new VecBasedMx(2, 2);
+    MxTools.divideAndConquer(a, sigma, q);
+    final Mx result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
+    assertTrue("" + distance(a, result), distance(a, result) < MathTools.EPSILON);
+  }
+
+  @Test
+  public void testDnC2x2_1() {
+    final FastRandom rng = new FastRandom(0);
+    final ArrayVec vec = new ArrayVec(
+    2.96336, 0.3132,
+    0.3132, 0.36983
+    );
+    final Mx a = new VecBasedMx(2, vec);
+    final Mx q = new VecBasedMx(2, 2);
+    final Mx sigma = new VecBasedMx(2, 2);
+    MxTools.eigenDecomposition(a, sigma, q);
+    System.out.println(sigma + "\n" + q);
+    Mx result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
+    assertTrue("" + distance(a, result), distance(a, result) < 10 * MathTools.EPSILON * a.dim());
+    MxTools.divideAndConquer(a, sigma, q);
+    System.out.println(sigma + "\n" + q);
+    result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
+    assertTrue("" + distance(a, result), distance(a, result) < MathTools.EPSILON);
+  }
+
+  @Test
+  public void testEigenDecomposition2x2() {
+    final ArrayVec vec = new ArrayVec(
+        1, 2,
+        2, 2
+    );
+    final Mx a = new VecBasedMx(2, vec);
+    final Mx q = new VecBasedMx(2, 2);
+    final Mx sigma = new VecBasedMx(2, 2);
+    MxTools.eigenDecomposition(a, sigma, q);
+    final Mx result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
+    assertTrue("" + distance(a, result), distance(a, result) < MathTools.EPSILON);
+  }
+
+  @Test
+  public void testEigenDnC4x4() {
+    eigenLanczosDnC(4);
+  }
+
+  private void eigenLanczosDnC(int dim) {
+    final FastRandom rng = new FastRandom(0);
+    final Vec vec = new ArrayVec(dim * dim);
+    VecTools.fillGaussian(vec, rng);
+//    VecTools.normalizeL2(vec);
+    for (int i = 1; i < dim; i++) {
+      for (int j = 0; j < i; j++) {
+        vec.set(i * dim + j, vec.get(j * dim + i));
+      }
+    }
+    final Mx a = new VecBasedMx(dim, vec);
+    Mx q = new VecBasedMx(dim, dim);
+    final Mx qq = new VecBasedMx(dim, dim);
+    final Mx sigma = new VecBasedMx(dim, dim);
+    final Mx sigma1 = new VecBasedMx(dim, dim);
+    MxTools.lanczos(a, q, sigma, rng);
+    MxTools.divideAndConquer(sigma, sigma1, qq);
+    Mx result = MxTools.multiply(transpose(qq), MxTools.multiply(sigma1, qq));
+    if (distance(sigma, result) > MathTools.EPSILON * dim) {
+      assertTrue("" + distance(sigma, result), distance(sigma, result) < 1);
+    }
+    q = MxTools.multiply(qq, q);
+    result = MxTools.multiply(transpose(q), MxTools.multiply(sigma1, q));
+    assertTrue("" + distance(a, result), distance(a, result) < 1);
+  }
+
+  @Test
+  public void testEigenDnC3x3() {
+    final FastRandom rng = new FastRandom(0);
+    final ArrayVec vec = new ArrayVec(
+        1, 1, 1,
+        1, 2, 2,
+        1, 2, 3
+    );
+    final Mx a = new VecBasedMx(3, vec);
+    Mx q = new VecBasedMx(3, 3);
+    final Mx qq = new VecBasedMx(3, 3);
+    final Mx trisigma = new VecBasedMx(3, 3);
+    final Mx sigma = new VecBasedMx(3, 3);
+    MxTools.lanczos(a, q, trisigma, rng);
+    MxTools.eigenDecomposition(trisigma, sigma, qq);
+    System.out.println(sigma + "\n" + qq);
+    fill(qq, 0);
+    fill(sigma, 0);
+    MxTools.divideAndConquer(trisigma, sigma, qq);
+    System.out.println(sigma + "\n" + qq);
+    Mx result = MxTools.multiply(transpose(qq), MxTools.multiply(sigma, qq));
+    assertTrue("" + trisigma + "\n" + result + "\n" + distance(trisigma, result), distance(trisigma, result) < MathTools.EPSILON);
+    q = MxTools.multiply(qq, q);
+    result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
+    assertTrue("" + distance(a, result), distance(a, result) < MathTools.EPSILON);
   }
 
   @Test

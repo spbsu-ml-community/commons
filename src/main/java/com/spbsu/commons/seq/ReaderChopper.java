@@ -1,5 +1,6 @@
 package com.spbsu.commons.seq;
 
+import com.spbsu.commons.util.ArrayTools;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -49,34 +50,36 @@ public class ReaderChopper {
     }
   }
 
-  private final ThreadLocal<boolean[]> filter = new ThreadLocal<boolean[]>() {
-    @Override
-    protected boolean[] initialValue() {
-      return new boolean[Character.MAX_VALUE];
-    }
-  };
+  private final ThreadLocal<boolean[]> filter = ThreadLocal.withInitial(() -> new boolean[Character.MAX_VALUE]);
   @Nullable
   public CharSeq chop(char... delimiters) throws IOException {
+    final CharSeqBuilder builder = new CharSeqBuilder();
+    final int result = chop(builder, delimiters);
+    if (result < 0 && builder.fragmentsCount() == 0)
+      return null;
+    return builder.build();
+  }
+
+  public int chop(CharSeqBuilder builder, char... delimiters) throws IOException {
     final boolean[] filter = this.filter.get();
     for(int i = 0; i < delimiters.length; i++) {
       filter[delimiters[i]] = true;
     }
     try {
       if (read < 0)
-        return null;
-      final CharSeqBuilder builder = new CharSeqBuilder();
+        return -1;
       int start = offset;
       while (true) {
         if (offset >= read) {
           builder.append(buffer, start, read);
           readNext();
           if (read < 0)
-            return builder.length() > 0 ? builder.build() : null;
+            return -1;
           start = 0;
         }
         if (filter[buffer[offset++]]) {
           builder.append(buffer, start, offset - 1);
-          return builder.build();
+          return ArrayTools.indexOf(buffer[offset - 1], delimiters);
         }
       }
     }
@@ -113,5 +116,29 @@ public class ReaderChopper {
       while ((read = base.read(buffer)) == 0);
       offset = 0;
     }
+  }
+
+  public CharSeq restQuiet() {
+    try {
+      return rest();
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public CharSeq rest() throws IOException {
+    if (read < 0)
+      return CharSeq.EMPTY;
+    final CharSeqBuilder builder = new CharSeqBuilder();
+    builder.append(buffer, offset, read);
+    offset = read;
+    readNext();
+    while (read >= 0) {
+      builder.append(buffer, offset, read);
+      offset = read;
+      readNext();
+    }
+    return builder.build();
   }
 }

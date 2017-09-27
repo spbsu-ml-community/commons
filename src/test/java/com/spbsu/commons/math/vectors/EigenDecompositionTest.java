@@ -44,7 +44,7 @@ public class EigenDecompositionTest extends FileTestCase {
 
     final Mx sigma = new VecBasedMx(dim, dim);
     final Mx Q = new VecBasedMx(dim, dim);
-    MxTools.eigenDecomposition(A, Q, sigma);
+    MxTools.eigenDecomposition(A, sigma, Q);
     if (distance(A, MxTools.multiply(MxTools.transpose(Q), MxTools.multiply(sigma, Q))) > A.dim() * MathTools.EPSILON) {
       System.out.println(MxTools.multiply(MxTools.transpose(Q), MxTools.multiply(sigma, Q)).toString());
       System.out.println(A);

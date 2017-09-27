@@ -25,7 +25,7 @@ public interface Alphabet<T> {
 
   int index(Seq<T> seq, int index);
 
-  public static final Alphabet<Character> CHARACTER_ALPHABET = new Alphabet<Character>() {
+  Alphabet<Character> CHARACTER_ALPHABET = new Alphabet<Character>() {
     private static final int ALPHABET_SIZE = 'z' - 'a' + 1;
 
     class CharCondition implements Matcher.Condition<Character> {

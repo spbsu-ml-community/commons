@@ -1,6 +1,7 @@
 package com.spbsu.commons.math.vectors;
 
 import com.spbsu.commons.math.MathTools;
+import com.spbsu.commons.math.vectors.impl.mx.ColsVecArrayMx;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.*;
 import com.spbsu.commons.random.FastRandom;
@@ -183,8 +184,8 @@ public class VecTools {
     for (int i = 0; i < size; i++) {
       final double p = left.get(i);
       final double q = right.get(i);
-      final double pr = p == 0 ? 0 : p * log(2 * p / (p + q));
-      final double qr = q == 0 ? 0 : q * log(2 * q / (p + q));
+      final double pr = p == 0 ? 0 : p * Math.log(2 * p / (p + q));
+      final double qr = q == 0 ? 0 : q * Math.log(2 * q / (p + q));
       result += pr + qr;
     }
     return sqrt(result);
@@ -245,19 +246,19 @@ public class VecTools {
       if (rindex == lindex) {
         final double p = liter.value();
         final double q = riter.value();
-        result += p * log(2 * p / (p + q)) + q * log(2 * q / (p + q));
+        result += p * Math.log(2 * p / (p + q)) + q * Math.log(2 * q / (p + q));
         if (liter.advance())
           lindex = liter.index();
         if (riter.advance())
           rindex = riter.index();
       }
       else if (lindex > rindex) {
-        result += riter.value() * log(2);
+        result += riter.value() * Math.log(2);
         if(riter.advance())
           rindex = riter.index();
       }
       else {
-        result += liter.value() * log(2);
+        result += liter.value() * Math.log(2);
         if(liter.advance())
           lindex = liter.index();
       }
@@ -351,7 +352,7 @@ public class VecTools {
     return x;
   }
 
-  public static void incscale(final Vec result, final Vec left, final double scale) {
+  public static Vec incscale(final Vec result, final Vec left, final double scale) {
     if (Double.isNaN(scale))
       throw new IllegalArgumentException();
     if (left instanceof ArrayVec && left.getClass().equals(result.getClass())) {
@@ -365,6 +366,7 @@ public class VecTools {
         result.adjust(liter.index(), scale * liter.value());
       }
     }
+    return result;
   }
 
   public static double max(final Vec vec) {
@@ -404,6 +406,12 @@ public class VecTools {
     if (vec instanceof VecBasedMx) {
       final VecBasedMx mx = (VecBasedMx) vec;
       return (T)new VecBasedMx(mx.columns(), copy(mx.vec));
+    }
+    if (vec instanceof ColsVecArrayMx) {
+      final ColsVecArrayMx mx = (ColsVecArrayMx) vec;
+      final ArrayVec copy = new ArrayVec(mx.dim());
+      assign(copy, mx);
+      return (T) new VecBasedMx(mx.columns(), copy);
     }
     if (vec instanceof ArrayVec) {
       final ArrayVec arrayVec = (ArrayVec) vec;
@@ -495,7 +503,7 @@ public class VecTools {
         sum += Math.abs(it.value());
       }
     }
-    {
+    if (Math.abs(sum) > 0) {
       final VecIterator it = row.nonZeroes();
 
       while(it.advance()) {
@@ -506,6 +514,8 @@ public class VecTools {
 
   public static void normalizeL2(final Vec row) {
     final double norm2 = norm(row);
+    if (norm2 <= 0)
+      return;
     final VecIterator it = row.nonZeroes();
     while(it.advance()) {
       it.setValue(it.value() / norm2);
@@ -517,7 +527,7 @@ public class VecTools {
     double entropy = 0;
     for (int i = 0; i < prob.dim(); i++) {
       final double p = prob.get(i);
-      entropy += p * log(p);
+      entropy += p * Math.log(p);
     }
     return -entropy;
   }
@@ -648,6 +658,13 @@ public class VecTools {
     return vec;
   }
 
+  public static <T extends Vec> T fillUniformPlus(T vec, FastRandom rng, double scale) {
+    for (int i = 0; i < vec.length(); i++) {
+      vec.set(i, rng.nextDouble() * scale);
+    }
+    return vec;
+  }
+
   public static void exp(Vec result) {
     if (result instanceof ArrayVec) {
       ArrayPart<double[]> data = ((ArrayVec) result).data;
@@ -668,6 +685,29 @@ public class VecTools {
     else {
       for (int i = 0; i < result.length(); i++) {
         result.set(i, Math.exp(result.get(i)));
+      }
+    }
+  }
+  public static void log(Vec result) {
+    if (result instanceof ArrayVec) {
+      ArrayPart<double[]> data = ((ArrayVec) result).data;
+      final int length = data.length;
+      Arrays.parallelSetAll(data.array, index -> Math.log(data.array[index]));
+//      for (int i = data.start; i < length / 4; i++) {
+//        final int index = i * 4;
+//        array[index] = Math.exp(array[index]);
+//        array[index + 1] = Math.exp(array[index + 1]);
+//        array[index + 2] = Math.exp(array[index + 2]);
+//        array[index + 3] = Math.exp(array[index + 3]);
+//      }
+//
+    }
+    else if (result instanceof VecBasedMx) {
+      log(((VecBasedMx) result).vec);
+    }
+    else {
+      for (int i = 0; i < result.length(); i++) {
+        result.set(i, Math.log(result.get(i)));
       }
     }
   }

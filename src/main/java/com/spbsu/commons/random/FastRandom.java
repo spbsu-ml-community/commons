@@ -3,7 +3,6 @@ package com.spbsu.commons.random;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.Vec;
 import com.spbsu.commons.math.vectors.VecIterator;
-import org.apache.commons.math3.util.FastMath;
 
 import java.util.Random;
 
@@ -56,7 +55,7 @@ public class FastRandom extends Random {
       return (int) val + (val - (int)val >= 0.5 ? 1 : 0);
     }
     int x = 0;
-    double p = FastMath.exp(-meanFreq);
+    double p = Math.exp(-meanFreq);
     double s = p;
     final double u = nextDouble();
     while (u > s) {
@@ -128,13 +127,13 @@ public class FastRandom extends Random {
 
         if (a <= E / (E + delta)) {
           ksi = pow(b, 1 / delta);
-          eta = c * FastMath.pow(ksi, delta - 1);
+          eta = c * Math.pow(ksi, delta - 1);
         } else {
           ksi = 1 - log(b);
-          eta = c * FastMath.exp(-ksi);
+          eta = c * Math.exp(-ksi);
         }
       }
-      while (eta > FastMath.pow(ksi, delta - 1) * exp(-ksi));
+      while (eta > Math.pow(ksi, delta - 1) * exp(-ksi));
     }
 
     double result = 0;

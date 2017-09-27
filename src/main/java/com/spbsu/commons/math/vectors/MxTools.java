@@ -1,15 +1,21 @@
 package com.spbsu.commons.math.vectors;
 
+import com.spbsu.commons.math.AnalyticFunc;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
 import com.spbsu.commons.math.vectors.impl.vectors.ArrayVec;
 import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
+import com.spbsu.commons.random.FastRandom;
+import com.spbsu.commons.util.ArrayTools;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 
+import static com.spbsu.commons.math.vectors.VecTools.*;
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
 import static java.lang.Math.sqrt;
@@ -19,6 +25,7 @@ import static java.lang.Math.sqrt;
  * Date: 05.06.14
  */
 public class MxTools {
+  private static final Logger log = Logger.getLogger(MxTools.class.getName());
   private static final double EPSILON = 1e-5;
 
   public static boolean checkSymmetry(final Mx a) {
@@ -137,7 +144,11 @@ public class MxTools {
   }
 
   public static Mx E(final int dim) {
-    final Mx result = new VecBasedMx(dim, dim);
+    final Mx result;
+    if (dim > 10000)
+      result = new VecBasedMx(dim, new SparseVec(dim * dim, dim));
+    else
+      result = new VecBasedMx(dim, dim);
     for (int i = 0; i < dim; i++)
       result.set(i, i, 1);
     return result;
@@ -154,7 +165,7 @@ public class MxTools {
     final int dim = a.columns();
     if (dim != b.rows())
       throw new IllegalArgumentException("Matrices must have a.columns == b.rows!");
-    final VecBasedMx result = new VecBasedMx(a.rows(), b.columns());
+    final VecBasedMx result = new VecBasedMx(b.columns(), b.vec() instanceof SparseVec ? new SparseVec(b.dim()) : new ArrayVec(b.dim()));
     return multiplyTo(a, b, result);
   }
 
@@ -203,21 +214,17 @@ public class MxTools {
   }
 
   public static Vec multiply(final Mx mx, final Vec vec) {
-    if (vec instanceof Mx)
-      return multiply(mx, (Mx) vec);
-    final int rows = mx.rows();
-    if (vec.dim() != mx.columns())
-      throw new IllegalArgumentException();
     final Vec result = new ArrayVec(mx.rows());
-    if (vec instanceof ArrayVec && mx instanceof VecBasedMx && ((VecBasedMx) mx).vec instanceof ArrayVec) {
-      for (int i = 0; i < rows; i++) {
-        result.set(i, ((ArrayVec) vec).mul((ArrayVec)mx.row(i)));
-      }
-    }
-    else {
-      for (int i = 0; i < rows; i++) {
-        result.set(i, VecTools.multiply(mx.row(i), vec));
-      }
+    multiplyTo(mx, vec, result);
+    return result;
+  }
+
+  public static Vec multiplyTo(final Mx mx, final Vec vec, final Vec result) {
+    final int rows = mx.rows();
+    if (rows != result.dim())
+      throw new IllegalArgumentException();
+    for (int i = 0; i < rows; i++) {
+      result.set(i, VecTools.multiply(mx.row(i), vec));
     }
     return result;
   }
@@ -229,14 +236,14 @@ public class MxTools {
     for (int i = 0; i < pool.size(); i++) {
       VecTools.append(mean, pool.get(i));
     }
-    VecTools.scale(mean, -1. / pool.size());
+    scale(mean, -1. / pool.size());
     final Vec temp = new ArrayVec(dim);
     for (final Vec vec : pool) {
       VecTools.assign(temp, vec);
       VecTools.append(temp, mean);
       VecTools.addOuter(covar, temp, temp);
     }
-    VecTools.scale(covar, 1. / pool.size());
+    scale(covar, 1. / pool.size());
     final Mx l = choleskyDecomposition(covar);
     return inverseLTriangle(l);
   }
@@ -246,7 +253,7 @@ public class MxTools {
     final int rows = A.rows();
     VecTools.assign(L, A);
     if (Q != null) {
-      VecTools.scale(Q, 0.);
+      scale(Q, 0.);
       for (int i = 0; i < cols; i++)
         Q.set(i, i, 1.);
     }
@@ -273,37 +280,37 @@ public class MxTools {
         L.set(i, j, 0.);
       }
       for (int k = i + 1; k < rows; k++) {
-        double product = 0.;
-        for (int j = i; j < cols; j++)
-          product += L.get(k, j) * hhplane.get(j);
-        product *= -2.;
-        for (int j = i; j < cols; j++)
-          L.adjust(k, j, hhplane.get(j) * product);
+        final Vec lSub = L.row(k).sub(i, cols - i);
+        final Vec hhplaneSub = hhplane.sub(i, cols - i);
+        double product = -2 * VecTools.multiply(lSub, hhplaneSub);
+        VecTools.incscale(lSub, hhplaneSub, product);
       }
       if (Q != null) {
-        for (int j = 0; j < cols; j++) {
-          double product = 0.;
-          for (int k = i; k < cols; k++)
-            product += Q.get(j, k) * hhplane.get(k);
-          product *= -2.;
-
-          for (int k = i; k < cols; k++)
-            Q.adjust(j, k, product * hhplane.get(k));
+        for (int j = 0; j < rows; j++) {
+          final Vec qSub = Q.row(j).sub(i, cols - i);
+          final Vec hhplaneSub = hhplane.sub(i, cols - i);
+          double product = -2 * VecTools.multiply(qSub, hhplaneSub);
+          VecTools.incscale(qSub, hhplaneSub, product);
         }
       }
     }
   }
 
-  public static void eigenDecomposition(final Mx mx, final Mx q, final Mx sigma) {
+  public static void eigenDecomposition(final Mx mx, final Mx sigma, final Mx q) {
     Mx similar = mx;
     Mx joinedInvertedTransform = E(mx.columns());
-    final Mx trans = new VecBasedMx(mx.columns(), new ArrayVec(mx.dim()));
+    final Mx trans = new VecBasedMx(mx.columns(), mx.columns() > 10000 ? new SparseVec(mx.dim()) : new ArrayVec(mx.dim()));
 
-    for (int i = 0; i < 100 && nonTriangularWeight(similar) > EPSILON * similar.dim(); i++) {
+    for (int i = 0; i < 2000; i++) {
+      double nonDiagonalWeight = nonDiagonalWeight(similar);
+//      System.out.println("Iteration " + i + ": " + nonDiagonalWeight);
+      if (nonDiagonalWeight < EPSILON * similar.columns())
+        break;
       householderLQ(similar, sigma, trans);
+//      System.out.println("LQ dist: " + distance(multiply(sigma, trans), similar));
       transposeIt(trans);
-      joinedInvertedTransform = multiply(trans, joinedInvertedTransform);
       similar = multiply(trans, sigma);
+      joinedInvertedTransform = multiply(trans, joinedInvertedTransform);
 //      System.out.println(distance(multiply(joinedInvertedTransform, multiply(mx, transpose(joinedInvertedTransform))), similar));
     }
 
@@ -315,6 +322,247 @@ public class MxTools {
       if (mxIterator.row() != mxIterator.column())
         mxIterator.setValue(0);
     }
+  }
+
+  public static void lanczos(final Mx mx, final Mx q, final Mx trisigma, FastRandom rng) {
+    Vec w;
+    VecTools.fill(q, 0);
+    VecTools.fill(trisigma, 0);
+    {
+      final Vec v = q.row(0);
+      { // initialize random vector
+        VecTools.fillGaussian(v, rng);
+        VecTools.normalizeL2(v);
+      }
+
+      w = multiply(mx, v);
+      final double alpha = VecTools.multiply(v, w);
+      trisigma.set(0, 0, alpha);
+      incscale(w, v, -alpha);
+    }
+    for (int j = 1; j < mx.columns(); j++) {
+      final Vec v = q.row(j);
+
+      final double beta = VecTools.norm(w);
+      trisigma.set(j - 1, j, beta);
+      trisigma.set(j, j - 1, beta);
+
+      if (Math.abs(beta) <= MathTools.EPSILON) {
+        VecTools.fillGaussian(v, rng);
+      }
+      else VecTools.incscale(v, w, 1./beta);
+
+      if (rng.nextDouble() < 0.1) { // restore ortonormality
+        for (int k = j - 1; k >= 0; k--) {
+          VecTools.incscale(v, q.row(k), -VecTools.multiply(q.row(k), v));
+        }
+        VecTools.normalizeL2(v);
+      }
+
+      w = multiply(mx, v);
+      final double alpha = VecTools.multiply(v, w);
+      trisigma.set(j, j, alpha);
+      incscale(w, q.row(j - 1), -beta);
+      incscale(w, v, -alpha);
+    }
+  }
+  public static void divideAndConquer(Mx trisigma, Mx sigma, Mx q) {
+    fill(sigma, 0);
+    fill(q, 0);
+    divideAndConquerInner(trisigma, sigma, q);
+  }
+
+  private static void divideAndConquerInner(Mx trisigma, Mx sigma, Mx q) {
+    int dim = trisigma.columns();
+    if (dim == 1) {
+      sigma.set(0, 0, trisigma.get(0, 0));
+      q.set(0, 0, 1);
+      return;
+    }
+    final int div = dim / 2;
+    final double beta = trisigma.get(div - 1, div);
+    trisigma.set(div - 1, div, 0);
+    trisigma.set(div, div - 1, 0);
+    trisigma.adjust(div - 1, div - 1, -beta);
+    trisigma.adjust(div, div, -beta);
+    divideAndConquerInner(
+        trisigma.sub(0, 0, div, div),
+        sigma.sub(0, 0, div, div),
+        q.sub(0, 0, div, div)
+    );
+    divideAndConquerInner(
+        trisigma.sub(div, div, dim - div, dim - div),
+        sigma.sub(div, div, dim - div, dim - div),
+        q.sub(div, div, dim - div, dim - div)
+    );
+
+    final Mx resultQ = new VecBasedMx(dim, dim);
+
+    trisigma.set(div - 1, div, beta);
+    trisigma.set(div, div - 1, beta);
+    trisigma.adjust(div - 1, div - 1, beta);
+    trisigma.adjust(div, div, beta);
+
+    final Vec u = new ArrayVec(dim);
+    assign(u.sub(0, div), q.col(div - 1).sub(0, div));
+    assign(u.sub(div, dim - div), q.col(div).sub(div, dim - div));
+    {
+//      Vec v = new ArrayVec(dim);
+//      v.set(div - 1, 1);
+//      v.set(div, 1);
+//      System.out.println("u: " + u + " real u: " + (u = multiply(q, v)));
+    }
+    Mx m = outer(u, u);
+    scale(m, beta);
+    append(m, sigma);
+//    System.out.println("Q^T (\\Sigma + \\beta uu^T) Q: " + multiply(transpose(q), multiply(m, q)) + "\ntrisigma: " + trisigma);
+
+    final Vec d = new ArrayVec(dim);
+    final Mx qInner = new VecBasedMx(dim, dim);
+    for (int i = 0; i < dim; i++) {
+      d.set(i, sigma.get(i, i));
+    }
+
+    int[] order = ArrayTools.sequence(0, dim);
+    double[] dArr = d.toArray();
+    ArrayTools.parallelSort(dArr, order);
+    int[] rorder = new int[order.length];
+    for (int i = 0; i < dim; i++)
+      rorder[order[i]] = i;
+
+    final double[] roots = new double[2];
+    for (int i = 0; i < dim; i++) {
+      final int index = order[i];
+      final double eigenVal;
+      final Vec eigenVec = qInner.row(i);
+      if (Math.abs(u.get(index)) > 1e-4) {
+        final double d_i = d.get(index);
+        final double u_i = u.get(index);
+        double d_i1 = Double.POSITIVE_INFINITY;
+        double u_i1 = 0;
+        for (int j = i + 1; j < dim; j++) {
+          if (Math.abs(u.get(order[j])) > MathTools.EPSILON) {
+            d_i1 = d.get(order[j]);
+            u_i1 = u.get(order[j]);
+            break;
+          }
+        }
+        if (!MathTools.locality(d_i, d_i1, 1e-6)) {
+          double x;
+          if (Double.isFinite(d_i1)) { // quadratic approx
+            x = (d_i + d_i1) / 2;
+            double sumRight;
+            double sumLeft;
+            int it = 0;
+            while(true) {
+              double sumDotLeft = 0;
+              double sumDotRight = 0;
+              sumLeft = 0;
+              sumRight = 0;
+
+              for (int t = 0; t < dim; t++) {
+                if (rorder[t] <= i) {
+                  sumLeft += beta * u.get(t) * u.get(t) / (d.get(t) - x);
+                  sumDotLeft += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
+                }
+                else {
+                  sumRight += beta * u.get(t) * u.get(t) / (d.get(t) - x);
+                  sumDotRight += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
+                }
+              }
+
+              double c1 = sumDotLeft * MathTools.sqr(d_i - x);
+              double c2 = sumDotRight * MathTools.sqr(d_i1 - x);
+              double c3 = 1 + sumLeft + sumRight - sumDotLeft * (d_i - x) - sumDotRight * (d_i1 - x);
+
+              MathTools.quadratic(roots,
+                  c3,
+                  - (c1 + c2 + c3 * (d_i + d_i1)),
+                  c1 * d_i1 + c2 * d_i + c3 * d_i * d_i1
+              );
+              double nextX = roots[0] < d_i1 && roots[0] > d_i ? roots[0] : roots[1];
+              if (Math.abs(1 + sumLeft + sumRight) < MathTools.EPSILON)
+                break;
+              else if (nextX == x || it++ > 10000) {
+                double left = MathTools.inc(d_i);
+                double right = MathTools.dec(d_i1);
+                x = MathTools.bisection(new SecularFunction(d, beta, u), left, right);
+                break;
+              }
+
+              x = nextX;
+            }
+          }
+          else { // linear approx f(x) \sim c_2 + \frac{c_1}{d_i - x}
+            x = d_i + 100;
+            double sum;
+            int it = 0;
+            while (true) {
+              double sumDot = 0;
+              sum = 0;
+
+              for (int t = 0; t < dim; t++) {
+                sum += beta * u.get(t) * u.get(t) / (d.get(t) - x);
+                sumDot += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
+              }
+
+              double c1 = sumDot * MathTools.sqr(d_i - x);
+              double c2 = 1 + sum - sumDot * (d_i - x);
+              double nextX = d_i + c1 / c2;
+              if (Math.abs(1 + sum) < MathTools.EPSILON) {
+                break;
+              }
+              else if (nextX == x || it++ > 10000 || nextX <= d_i) {
+                log.fine("Unable to eliminate secular function error: " + Math.abs(1 + sum));
+                System.out.println("Unable to eliminate secular function error: " + Math.abs(1 + sum));
+                break;
+              }
+              x = nextX;
+            }
+          }
+          eigenVal = x;
+          for (int k = 0; k < dim; k++) {
+            double val = u.get(k) / (d.get(k) - eigenVal);
+            if (Double.isFinite(val))
+              eigenVec.set(k, val);
+            else
+              eigenVec.set(k, 0);
+          }
+          VecTools.normalizeL2(eigenVec);
+        }
+        else {
+          eigenVal = d_i;
+          eigenVec.set(index, 1);
+        }
+      }
+      else {
+        eigenVal = d.get(index);
+        eigenVec.set(index, 1);
+      }
+//      {
+//        final Vec incscale = incscale(multiply(m, eigenVec), eigenVec, -eigenVal);
+//        if (norm(incscale) > 0.001)
+//          System.out.println("Inner eigen value: " + eigenVal + " vec: " + eigenVec + " Ax - \\lamda x: " + incscale);
+//      }
+      sigma.set(i, i, eigenVal);
+    }
+    multiplyTo(qInner, q, resultQ);
+    assign(q, resultQ);
+//
+//    {
+//      final Mx result = MxTools.multiply(transpose(q), MxTools.multiply(sigma, q));
+//      if (distance(trisigma, result) > 0.01) {
+//        System.out.println(/*"" + trisigma + "\n" + result + "\n" */ "distance on merge" + distance(trisigma, result));
+//        divideAndConquer(trisigma, sigma, q);
+//      }
+//      for (int i = 0; i < dim; i++) {
+//        final Vec resultEigenVec = resultQ.row(i);
+//        final double eigenVal = sigma.get(i, i);
+//        Vec incscale = incscale(multiply(trisigma, resultEigenVec), resultEigenVec, -eigenVal);
+//        if (norm(incscale) > 0.001)
+//          System.out.println("Eigen value: " + eigenVal + " vec: " + resultEigenVec + " Ax - \\lamda x: " + incscale);
+//      }
+//    }
   }
 
   public static double nonTriangularWeight(final Mx mx) {
@@ -376,7 +624,7 @@ public class MxTools {
       VecTools.append(temp, mean);
       VecTools.addOuter(covar, temp, temp);
     }
-    VecTools.scale(covar, 1. / ds.rows());
+    scale(covar, 1. / ds.rows());
     switch (type) {
       case SPHERE:
         final Mx l = choleskyDecomposition(covar);
@@ -384,7 +632,7 @@ public class MxTools {
         break;
       case PCA:
         trans = new VecBasedMx(ds.columns(), ds.columns());
-        eigenDecomposition(covar, new VecBasedMx(ds.columns(), ds.columns()), trans);
+        eigenDecomposition(covar, trans, new VecBasedMx(ds.columns(), ds.columns()));
         break;
       case SCALE:
         trans = new VecBasedMx(ds.columns(), ds.columns());
@@ -459,7 +707,7 @@ public class MxTools {
         x0 = x1;
         x1 = temp;
       }
-    } while (VecTools.distance(x0, x1) / x0.dim() > stopCondition);
+    } while (distance(x0, x1) / x0.dim() > stopCondition);
     return x1;
   }
 
@@ -472,5 +720,35 @@ public class MxTools {
   public static class NormalizationProperties {
     public Vec xMean;
     public Mx xTrans;
+  }
+
+  private static class SecularFunction extends AnalyticFunc.Stub {
+    private final Vec d;
+    private final double beta;
+    private final Vec u;
+
+    public SecularFunction(Vec d, double beta, Vec u) {
+      this.d = d;
+      this.beta = beta;
+      this.u = u;
+    }
+
+    @Override
+    public double value(double x) {
+      double value = 1;
+      for (int i = 0; i < d.dim(); i++) {
+        value += beta * u.get(i) * u.get(i) / (d.get(i) - x);
+      }
+      return value;
+    }
+
+    @Override
+    public double gradient(double x) {
+      double value = 0;
+      for (int i = 0; i < d.dim(); i ++) {
+        value += beta * u.get(i) * u.get(i) / MathTools.sqr(d.get(i) - x);
+      }
+      return value;
+    }
   }
 }

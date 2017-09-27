@@ -26,6 +26,8 @@ public interface Mx extends Vec {
   int columns();
   int rows();
 
+  Vec vec();
+
   @SuppressWarnings("EqualsAndHashcode")
   abstract class Stub extends Vec.Stub implements Mx {
     @Override
@@ -61,6 +63,10 @@ public interface Mx extends Vec {
     @Override
     public MxBasis basis() {
       return new MxBasisImpl(rows(), columns());
+    }
+
+    public Vec vec() {
+      return this;
     }
   }
 }

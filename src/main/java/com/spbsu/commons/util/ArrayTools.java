@@ -10,9 +10,11 @@ import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.math.vectors.impl.vectors.VecBuilder;
 import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.seq.*;
+import gnu.trove.list.array.TIntArrayList;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -881,5 +883,20 @@ public abstract class ArrayTools {
         return false;
     }
     return true;
+  }
+
+  public static int[] values(int[] input) {
+    return Arrays.stream(input)
+        .sorted()
+        .distinct()
+        .toArray();
+  }
+
+  public static int indexOf(char a, char[] array) {
+    final int length = array.length;
+    for (int i = 0; i < length; i++)
+      if (a == array[i])
+        return i;
+    return -1;
   }
 }

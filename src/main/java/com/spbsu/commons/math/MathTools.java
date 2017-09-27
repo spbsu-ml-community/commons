@@ -166,6 +166,10 @@ public abstract class MathTools {
     return v * v;
   }
 
+  public static int sqr(final int v) {
+    return v * v;
+  }
+
   public static double meanNaive(final Vec group) {
     return VecTools.sum(group)/group.dim();
   }
@@ -209,23 +213,72 @@ public abstract class MathTools {
     return result;
   }
 
-  public static double bisection(double left, double right, AnalyticFunc func) {
-    final double fLeft = func.value(left);
-    if (fLeft < EPSILON)
+  public static double bisection(AnalyticFunc func, double left, double right) {
+    if (left == right)
       return left;
-    final double fRight = func.value(right);
-    if (fRight < EPSILON)
+    double fLeft = func.value(left);
+    if (Math.abs(fLeft) < EPSILON)
+      return left;
+    double fRight = func.value(right);
+    if (Math.abs(fRight) < EPSILON)
       return right;
 
     if (fLeft * fRight > 0)
       throw new IllegalArgumentException("Function values for left and right parameters should lay on different sides of 0");
 
-    final double middle = (left + right) / 2.;
-    final double fMiddle = func.value(middle);
-    if (fLeft * fMiddle > 0)
-      return bisection(middle, right, func);
+    while (!MathTools.locality(left, right)) {
+      final double middle = (left + right) / 2.;
+      final double fMiddle = func.value(middle);
+      if (Math.abs(fMiddle) < EPSILON)
+        return middle;
+      if (fLeft * fMiddle > 0) {
+        left = middle;
+        fLeft = fMiddle;
+      }
+      else {
+        right = middle;
+        fRight = fMiddle;
+      }
+    }
+    return left;
+  }
+
+  public static double newton(AnalyticFunc func, double left, double right) {
+    if (left == right)
+      return left;
+
+    double x;
+    if (Double.isFinite(left) && Double.isFinite(right))
+      x = (left + right)/2;
+    else if (Double.isInfinite(left) && Double.isInfinite(right))
+      x = 0;
+    else if (Double.isInfinite(left))
+      x = Double.longBitsToDouble(Double.doubleToLongBits(right) - 1);
     else
-      return bisection(left, middle, func);
+      x = Double.longBitsToDouble(Double.doubleToLongBits(left) + 1);;
+    while (Math.abs(func.value(x)) > MathTools.EPSILON) {
+      double nextX = x - func.value(x) / func.gradient(x);
+      if (nextX < left || nextX > right)
+        return x;
+      x = nextX;
+    }
+    return x;
+  }
+
+  public static boolean locality(double nextX, double x) {
+    return Math.abs((nextX - x) / (nextX + x)) < 1e-12;
+  }
+
+  public static boolean locality(double nextX, double x, double epsilon) {
+    return Math.abs((nextX - x) / (nextX + x)) < epsilon;
+  }
+
+  public static double inc(double x) {
+    return Double.longBitsToDouble(Double.doubleToLongBits(x) + 1);
+  }
+
+  public static double dec(double x) {
+    return Double.longBitsToDouble(Double.doubleToLongBits(x) - 1);
   }
 
   public static class LogFactorial {

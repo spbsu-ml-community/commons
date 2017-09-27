@@ -4,6 +4,7 @@ import com.spbsu.commons.JUnitIOCapture;
 import com.spbsu.commons.math.vectors.Mx;
 import com.spbsu.commons.math.vectors.MxTools;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
+import com.spbsu.commons.random.FastRandom;
 import com.spbsu.commons.util.logging.Interval;
 import org.junit.Assert;
 import org.junit.Test;
@@ -172,6 +173,17 @@ public class MathToolsTest extends JUnitIOCapture {
         if (Math.abs(lq.get(i, j) - mx.get(i, j)) > eps)
           System.out.println("Bad LQ, diff = " + (lq.get(i, j) - mx.get(i, j)));
 
+  }
+
+  @Test
+  public void testGammaPerf() {
+    FastRandom random = new FastRandom();
+    Interval.start();
+    for (int i = 0; i < 10000000; i++) {
+      random.nextGamma(10, 1);
+    }
+    Interval.stopAndPrint("ahgdf");
+    assertEquals(0, 1);
   }
 
   private void assertEquals(double a, double b) {

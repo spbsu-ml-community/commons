@@ -59,6 +59,10 @@ public class SubMxTransformation implements IndexTransformation {
 
   @Override
   public IndexTransformation apply(final IndexTransformation trans) {
+    if (trans instanceof SubMxTransformation) {
+      SubMxTransformation other = (SubMxTransformation) trans;
+      return new SubMxTransformation(other.columns, i + other.i, j + other.j, height, width);
+    }
     return new CompositeTransformation(new IndexTransformation[]{this, trans});
   }
 }

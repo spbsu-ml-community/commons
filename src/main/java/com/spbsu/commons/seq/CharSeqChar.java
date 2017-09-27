@@ -49,7 +49,7 @@ public class CharSeqChar extends CharSeq {
   }
 
   @Override
-  public CharSequence trim() {
+  public CharSeq trim() {
     return CharSeqTools.isWhitespace(ch) ? EMPTY : this;
   }
 }

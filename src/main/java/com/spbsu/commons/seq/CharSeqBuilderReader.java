@@ -62,7 +62,7 @@ public class CharSeqBuilderReader extends CharSeq {
   }
 
   @Override
-  public CharSequence trim() {
+  public CharSeq trim() {
     throw new UnsupportedOperationException();
   }
 

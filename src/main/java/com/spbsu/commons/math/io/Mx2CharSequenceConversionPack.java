@@ -7,7 +7,11 @@ import com.spbsu.commons.func.types.ConversionPack;
 import com.spbsu.commons.func.types.TypeConverter;
 import com.spbsu.commons.math.MathTools;
 import com.spbsu.commons.math.vectors.Mx;
+import com.spbsu.commons.math.vectors.Vec;
+import com.spbsu.commons.math.vectors.VecIterator;
+import com.spbsu.commons.math.vectors.impl.mx.SparseMx;
 import com.spbsu.commons.math.vectors.impl.mx.VecBasedMx;
+import com.spbsu.commons.math.vectors.impl.vectors.SparseVec;
 import com.spbsu.commons.seq.CharSeqTools;
 
 /**
@@ -19,17 +23,33 @@ public class Mx2CharSequenceConversionPack implements ConversionPack<Mx, CharSeq
   public static class Mx2CharSequenceConverter implements TypeConverter<Mx, CharSequence> {
     @Override
     public CharSequence convert(final Mx from) {
-      final NumberFormat prettyPrint = MathTools.numberFormatter();
-
       final StringBuilder builder = new StringBuilder();
-      builder.append(from.rows()).append(" ").append(from.columns());
-      for (int i = 0; i < from.rows(); i++) {
-        builder.append("\n");
-        for (int j = 0; j < from.columns(); j++) {
-          if (j > 0) {
+      final NumberFormat prettyPrint = MathTools.numberFormatter();
+      if (from.vec() instanceof SparseVec) {
+        builder.append(from.rows()).append(" ").append(from.columns());
+        for (int i = 0; i < from.rows(); i++) {
+          Vec row = from.row(i);
+          final VecIterator it = row.nonZeroes();
+          if (!row.nonZeroes().advance())
+            continue;
+          builder.append(i);
+          while (it.advance()) {
             builder.append(" ");
+            builder.append(it.index()).append(":").append(prettyPrint.format(it.value()));
           }
-          builder.append(prettyPrint.format(from.get(i, j)));
+          builder.append("\n");
+        }
+      }
+      else {
+        builder.append(from.rows()).append(" ").append(from.columns());
+        for (int i = 0; i < from.rows(); i++) {
+          builder.append("\n");
+          for (int j = 0; j < from.columns(); j++) {
+            if (j > 0) {
+              builder.append(" ");
+            }
+            builder.append(prettyPrint.format(from.get(i, j)));
+          }
         }
       }
       return builder;

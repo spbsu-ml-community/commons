@@ -41,6 +41,9 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
     return charAt(i);
   }
 
+  public char last() {
+    return length() > 0 ? charAt(length() - 1) : 0;
+  }
 
   public boolean equals(final Object object) {
     if (object instanceof CharSequence) {
@@ -91,9 +94,11 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
     }
   }
 
-  public CharSequence trim() {
-    int nonWsStart = 0;
+  public CharSeq trim() {
     final int length = length();
+    if (length == 0)
+      return this;
+    int nonWsStart = 0;
     int nonWsEnd = length;
     //noinspection StatementWithEmptyBody
     while (nonWsStart < length && CharSeqTools.isWhitespace(charAt(nonWsStart++))) ;
