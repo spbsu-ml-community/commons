@@ -490,7 +490,7 @@ public class CharSeqTools {
       }
 
       @Override
-      public Class<T> elementType() {
+      public Class<? extends T> elementType() {
         return componentType;
       }
     };
