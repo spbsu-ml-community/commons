@@ -332,4 +332,13 @@ public class StreamTools {
 //      throw new NotImplementedException();
     return new InputStreamReader(stream, UTF);
   }
+
+  public static void close(Closeable input) {
+    try {
+      input.close();
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

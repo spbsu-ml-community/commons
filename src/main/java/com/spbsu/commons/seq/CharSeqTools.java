@@ -3,6 +3,7 @@ package com.spbsu.commons.seq;
 
 import com.spbsu.commons.func.Action;
 import com.spbsu.commons.func.Processor;
+import com.spbsu.commons.io.StreamTools;
 import com.spbsu.commons.seq.trash.FloatingDecimal;
 import com.spbsu.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
@@ -391,7 +392,7 @@ public class CharSeqTools {
       public CharSeq next() {
         return next;
       }
-    }, Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.SORTED), parallel);
+    }, Spliterator.IMMUTABLE), parallel).onClose(() -> StreamTools.close(input));
   }
 
   public static float parseFloat(final CharSequence in) {
