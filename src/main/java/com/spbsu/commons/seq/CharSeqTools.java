@@ -402,6 +402,11 @@ public class CharSeqTools {
     return FloatingDecimal.readJavaFormatString(in).doubleValue();
   }
 
+  public static double stringToDoubleHash(final CharSequence in) {
+    final long hashCode = in.toString().hashCode();
+    return Double.longBitsToDouble(hashCode);
+  }
+
   public static int parseInt(final CharSequence part) {
     int result = 0;
     boolean negative = false;
