@@ -1,7 +1,7 @@
 package text;
 
-import com.spbsu.commons.JUnitIOCapture;
-import com.spbsu.commons.text.stem.Stemmer;
+import com.expleague.commons.JUnitIOCapture;
+import com.expleague.commons.text.stem.Stemmer;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
