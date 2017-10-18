@@ -5,7 +5,6 @@ import com.expleague.commons.math.vectors.impl.mx.ColsVecArrayMx;
 import com.expleague.commons.math.vectors.impl.vectors.*;
 import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
-import com.spbsu.commons.math.vectors.impl.vectors.*;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.util.ArrayPart;
 import com.expleague.commons.util.ArrayTools;

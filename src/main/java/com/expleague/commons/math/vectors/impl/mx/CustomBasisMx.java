@@ -1,7 +1,6 @@
 package com.expleague.commons.math.vectors.impl.mx;
 
 import com.expleague.commons.math.vectors.*;
-import com.spbsu.commons.math.vectors.*;
 import com.expleague.commons.math.vectors.impl.basis.IntBasis;
 import com.expleague.commons.math.vectors.impl.basis.MxBasisImpl;
 import com.expleague.commons.math.vectors.impl.vectors.SparseVec;

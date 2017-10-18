@@ -10,7 +10,6 @@ import com.expleague.commons.math.vectors.impl.vectors.SparseVec;
 import com.expleague.commons.math.vectors.impl.vectors.VecBuilder;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.seq.*;
-import com.spbsu.commons.seq.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

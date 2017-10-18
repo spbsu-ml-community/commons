@@ -2,7 +2,6 @@ package com.expleague.commons.math.vectors.impl.vectors;
 
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecIterator;
-import com.spbsu.commons.math.vectors.*;
 import com.expleague.commons.math.vectors.impl.iterators.SkipVecNZIterator;
 import com.expleague.commons.util.ArrayPart;
 import com.expleague.commons.util.ArrayTools;
@@ -25,8 +24,8 @@ public class ArrayVec extends Vec.Stub {
   }
 
   public ArrayVec(final double[] values, final int offset, final int length) {
-    if (offset < 0 || offset + length > values.length)
-      throw new ArrayIndexOutOfBoundsException();
+//    if (offset < 0 || offset + length > values.length)
+//      throw new ArrayIndexOutOfBoundsException();
 //    for (int i = offset; i < offset + length; i++) {
 //      if (Double.isNaN(values[i]))
 //        throw new IllegalArgumentException();

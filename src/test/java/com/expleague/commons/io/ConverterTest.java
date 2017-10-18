@@ -1,7 +1,6 @@
 package com.expleague.commons.io;
 
 import com.expleague.commons.func.converters.*;
-import com.spbsu.commons.func.converters.*;
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;

@@ -10,7 +10,6 @@ import java.util.Set;
 
 
 import com.expleague.commons.func.converters.*;
-import com.spbsu.commons.func.converters.*;
 import com.expleague.commons.seq.CharSeqTools;
 import com.expleague.commons.util.Factories;
 import junit.framework.TestCase;
