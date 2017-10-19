@@ -18,7 +18,7 @@ import static java.lang.Math.*;
  * @author vp
  */
 public abstract class MathTools {
-  public static final ConversionRepository CONVERSION = new TypeConvertersCollection(ConversionRepository.ROOT, "com.spbsu.commons.math.io");
+  public static final ConversionRepository CONVERSION = new TypeConvertersCollection(ConversionRepository.ROOT, "com.expleague.commons.math.io");
   public static final double EPSILON = 1e-6;
   public static final double SQRT3 = sqrt(3.);
 

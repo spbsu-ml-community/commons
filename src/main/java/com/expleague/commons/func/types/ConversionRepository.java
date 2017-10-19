@@ -18,5 +18,5 @@ public interface ConversionRepository {
    */
   ConversionRepository customize(Filter<TypeConverter> todo);
 
-  ConversionRepository ROOT = new TypeConvertersCollection("com.spbsu.commons.func.converters");
+  ConversionRepository ROOT = new TypeConvertersCollection("com.expleague.commons.func.converters");
 }
