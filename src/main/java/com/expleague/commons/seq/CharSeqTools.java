@@ -1,10 +1,8 @@
 package com.expleague.commons.seq;
 
 
-import com.expleague.commons.func.Action;
 import com.expleague.commons.io.StreamTools;
 import com.expleague.commons.seq.trash.FloatingDecimal;
-import com.expleague.commons.func.Processor;
 import com.expleague.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
 
@@ -17,6 +15,7 @@ import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -347,21 +346,12 @@ public class CharSeqTools {
     return compacted;
   }
 
-  public static void processLines(final Reader input, final Processor<CharSequence> seqProcessor) throws IOException {
-    final ReaderChopper chopper = new ReaderChopper(input);
-    CharSequence next;
-    while ((next = chopper.chop('\n')) != null) {
-      seqProcessor.process(next);
-      chopper.eat('\r');
-    }
-  }
-
-  public static int processLines(final Reader input, final Action<CharSequence> seqProcessor) throws IOException {
+  public static int processLines(final Reader input, final Consumer<CharSequence> seqProcessor) throws IOException {
     int count = 0;
     final ReaderChopper chopper = new ReaderChopper(input);
     CharSequence next;
     while ((next = chopper.chop('\n')) != null) {
-      seqProcessor.invoke(next);
+      seqProcessor.accept(next);
       chopper.eat('\r');
       count++;
     }
@@ -481,6 +471,14 @@ public class CharSeqTools {
       public T at(final int i) {
         throw new ArrayIndexOutOfBoundsException("Empty sequence");
       }
+
+      @Override
+      public Seq<T> sub(int start, int end) {
+        if (start == 0 && end == 0)
+          return this;
+        throw new ArrayIndexOutOfBoundsException("Empty sequence");
+      }
+
       @Override
       public int length() {
         return 0;
@@ -493,6 +491,11 @@ public class CharSeqTools {
       @Override
       public Class<? extends T> elementType() {
         return componentType;
+      }
+
+      @Override
+      public Stream<T> stream() {
+        return Stream.empty();
       }
     };
   }

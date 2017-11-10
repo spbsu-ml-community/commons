@@ -1,6 +1,5 @@
 package com.expleague.commons.func.converters;
 
-import com.expleague.commons.func.Computable;
 import com.expleague.commons.func.Converter;
 import com.expleague.commons.io.Buffer;
 import com.expleague.commons.io.BufferFactory;
@@ -13,6 +12,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.function.Function;
 
 /**
  * User: Igor Kuralenok
@@ -21,9 +21,9 @@ import java.nio.charset.CharsetEncoder;
 public class CharSequence2BufferConverter<T extends CharSequence> implements Converter<T, Buffer> {
   static CharsetDecoder DECODER;
   static CharsetEncoder ENCODER;
-  private final Computable<char[], ? extends T> factory;
+  private final Function<char[], ? extends T> factory;
 
-  public CharSequence2BufferConverter(final Computable<char[], ? extends T> factory) {
+  public CharSequence2BufferConverter(final Function<char[], ? extends T> factory) {
     this.factory = factory;
   }
 
@@ -54,7 +54,7 @@ public class CharSequence2BufferConverter<T extends CharSequence> implements Con
       final CharBuffer buffer = decode(ByteBuffer.wrap(bytes));
       final char[] chars = new char[buffer.length()];
       buffer.get(chars);
-      return factory.compute(chars);
+      return factory.apply(chars);
     }
     catch (CharacterCodingException e) {
       throw new RuntimeException(e);

@@ -1,5 +1,8 @@
 package com.expleague.commons.seq;
 
+import java.lang.reflect.Array;
+import java.util.stream.BaseStream;
+
 /**
  * User: Manokk
  * Date: 31.08.11
@@ -12,36 +15,10 @@ public interface Seq<T> {
   boolean isImmutable();
   Class<? extends T> elementType();
 
-  abstract class Stub<T> implements Seq<T>{
-    @Override
-    public Seq<T> sub(final int start, final int end) {
-      if (end > length())
-        throw new ArrayIndexOutOfBoundsException();
-      return new Stub<T>() {
-        @Override
-        public T at(final int i) {
-          if (start + i >= end)
-            throw new ArrayIndexOutOfBoundsException();
-          return Stub.this.at(start + i);
-        }
+  <S extends BaseStream<T, S>> S stream();
+  <A> A toArray();
 
-        @Override
-        public int length() {
-          return end - start;
-        }
-
-        @Override
-        public boolean isImmutable() {
-          return Stub.this.isImmutable();
-        }
-
-        @Override
-        public Class<? extends T> elementType() {
-          return Stub.this.elementType();
-        }
-      };
-    }
-
+  abstract class Stub<T> implements Seq<T> {
     @Override
     public String toString() {
       final StringBuilder builder = new StringBuilder();
@@ -86,6 +63,17 @@ public interface Seq<T> {
           return false;
       }
       return true;
+    }
+
+    @Override
+    public <A> A toArray() {
+      //noinspection unchecked
+      final T[] array = (T[])Array.newInstance(elementType(), length());
+      for (int i = 0; i < array.length; i++) {
+        array[i] = at(i);
+      }
+      //noinspection unchecked
+      return (A)array;
     }
   }
 }

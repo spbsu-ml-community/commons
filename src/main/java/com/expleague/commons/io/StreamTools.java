@@ -2,7 +2,6 @@ package com.expleague.commons.io;
 
 
 import com.expleague.commons.util.logging.Logger;
-import com.expleague.commons.func.Processor;
 import com.expleague.commons.seq.CharSeqBuilder;
 import gnu.trove.list.array.TByteArrayList;
 import org.apache.tools.bzip2.CBZip2InputStream;
@@ -11,6 +10,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -75,18 +75,18 @@ public class StreamTools {
     }
   }
 
-  public static void readFile(final File file, final Processor<CharSequence> lineProcessor) throws IOException {
+  public static void readFile(final File file, final Consumer<CharSequence> lineProcessor) throws IOException {
     readFile(file, DEFAULT_CHARSET, lineProcessor);
   }
 
-  public static void readFile(final File file, final Charset charset, final Processor<CharSequence> lineProcessor) throws IOException {
+  public static void readFile(final File file, final Charset charset, final Consumer<CharSequence> lineProcessor) throws IOException {
     final LineNumberReader reader = new LineNumberReader(
         new InputStreamReader(new FileInputStream(file), charset), BUFFER_LENGTH);
     int lineCounter = 0;
     try {
       String line;
       while ((line = reader.readLine()) != null) {
-        lineProcessor.process(line);
+        lineProcessor.accept(line);
         lineCounter++;
       }
     } catch (Exception th) {
@@ -300,14 +300,14 @@ public class StreamTools {
     }
   }
 
-  public static void visitFiles(final File dir, final Processor<String> processor) {
+  public static void visitFiles(final File dir, final Consumer<String> processor) {
     final String absolutePath = dir.getAbsolutePath();
     visitFiles(dir, processor, absolutePath.endsWith("/") ? absolutePath.length() : absolutePath.length() + 1);
   }
 
-  private static void visitFiles(final File file, final Processor<String> processor, final int prefix) {
+  private static void visitFiles(final File file, final Consumer<String> processor, final int prefix) {
     final String absolutePath = file.getAbsolutePath();
-    processor.process(prefix < absolutePath.length() ? absolutePath.substring(prefix) : "");
+    processor.accept(prefix < absolutePath.length() ? absolutePath.substring(prefix) : "");
     if (file.isDirectory()) {
       for (final String next : file.list()) {
         visitFiles(new File(file, next), processor, prefix);

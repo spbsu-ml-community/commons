@@ -1,7 +1,8 @@
 package com.expleague.commons.func.types;
 
-import com.expleague.commons.filters.Filter;
 import com.expleague.commons.func.types.impl.TypeConvertersCollection;
+
+import java.util.function.Predicate;
 
 /**
  * User: solar
@@ -16,7 +17,7 @@ public interface ConversionRepository {
    * Filter provided can filter irrelevant converters, or customize them. Localization can be example of such a customization
    * @return new ConversionRepository
    */
-  ConversionRepository customize(Filter<TypeConverter> todo);
+  ConversionRepository customize(Predicate<TypeConverter> todo);
 
   ConversionRepository ROOT = new TypeConvertersCollection("com.expleague.commons.func.converters");
 }

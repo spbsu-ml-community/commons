@@ -1,7 +1,6 @@
 package com.expleague.commons.cache;
 
 import com.expleague.commons.JUnitIOCapture;
-import com.expleague.commons.func.Computable;
 import com.expleague.commons.util.Holder;
 import com.expleague.commons.util.cache.CacheStrategy;
 import com.expleague.commons.util.cache.impl.FixedSizeCache;
@@ -12,6 +11,7 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
 
 import static org.junit.Assert.*;
 
@@ -143,12 +143,7 @@ public class CacheTest extends JUnitIOCapture {
   @Test
   public void testCache3() {
     final FixedSizeCache<String, String> cache = new FixedSizeCache<String, String>(3, CacheStrategy.Type.LRU);
-    final Computable<String, String> computable = new Computable<String, String>() {
-      @Override
-      public String compute(final String argument) {
-        return argument;
-      }
-    };
+    final Function<String, String> computable = argument -> argument;
     assertNotNull(cache.get(KEY1, computable));
     assertNotNull(cache.get(KEY1));
     cache.put(KEY1, "qqq");
@@ -207,12 +202,9 @@ public class CacheTest extends JUnitIOCapture {
     final Holder<Integer> missCount = new Holder<Integer>(0);
     for (int i = 0; i < 1000000; i++) {
       final int key = (int) (Math.random() * 10000);
-      cache.get(key, new Computable<Integer, Integer>() {
-        @Override
-        public Integer compute(final Integer argument) {
-          missCount.setValue(missCount.getValue() + 1);
-          return 1;
-        }
+      cache.get(key, argument -> {
+        missCount.setValue(missCount.getValue() + 1);
+        return 1;
       });
     }
     System.out.println("Total 1000000 tries, " + missCount + " misses");
@@ -231,12 +223,9 @@ public class CacheTest extends JUnitIOCapture {
       final double r = rnd.nextGaussian();
       final int key = (int) (r * r * 10000);
       maxKey = Math.max(maxKey, key);
-      cache.get(key, new Computable<Integer, Integer>() {
-        @Override
-        public Integer compute(final Integer argument) {
-          missCount.setValue(missCount.getValue() + 1);
-          return 1;
-        }
+      cache.get(key, argument -> {
+        missCount.setValue(missCount.getValue() + 1);
+        return 1;
       });
     }
     System.out.println("Total 1000000 tries, " + missCount + " misses. Maximal key: " + maxKey);
@@ -245,7 +234,7 @@ public class CacheTest extends JUnitIOCapture {
 
   @Test
   public void testDoublePutAndGC() {
-    final FixedSizeCache<String, Object> cache = new FixedSizeCache<String, Object>(1, CacheStrategy.Type.LRU);
+    final FixedSizeCache<String, Object> cache = new FixedSizeCache<>(1, CacheStrategy.Type.LRU);
     cache.put(KEY1, new Object());
     cache.put(KEY1, new Object());
     System.gc();

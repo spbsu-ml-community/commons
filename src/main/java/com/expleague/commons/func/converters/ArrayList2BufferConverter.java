@@ -1,9 +1,9 @@
 package com.expleague.commons.func.converters;
 
 import com.expleague.commons.func.Converter;
-import com.expleague.commons.util.Factories;
 import com.expleague.commons.io.Buffer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,6 +17,6 @@ public class ArrayList2BufferConverter<T> extends List2BufferConverter<T> {
 
   @Override
   protected List<T> createList() {
-    return Factories.arrayList();
+    return new ArrayList<>();
   }
 }

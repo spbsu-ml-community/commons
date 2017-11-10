@@ -1,9 +1,9 @@
 package com.expleague.commons.func.types;
 
 
-import com.expleague.commons.filters.ClassFilter;
-import com.expleague.commons.filters.Filter;
 import com.expleague.commons.func.types.impl.TypeConvertersCollection;
+
+import java.util.function.Predicate;
 
 /**
  * User: solar
@@ -17,13 +17,13 @@ public class SerializationRepository<T> {
 
   public SerializationRepository(final ConversionRepository base, final Class<T> destination) {
     this.base = base;
-    this.baseShattered = base.customize(new ClassFilter<TypeConverter>(ShatteredTypeConverter.class));
+    this.baseShattered = base.customize(ShatteredTypeConverter.class::isInstance);
     this.destination = destination;
   }
 
   public SerializationRepository(final SerializationRepository<T> base, final Object... converters) {
     this.base = new TypeConvertersCollection(base.base, converters);
-    this.baseShattered = this.base.customize(new ClassFilter<TypeConverter>(ShatteredTypeConverter.class));
+    this.baseShattered = this.base.customize(ShatteredTypeConverter.class::isInstance);
     this.destination = base.destination;
   }
 
@@ -42,7 +42,7 @@ public class SerializationRepository<T> {
     ((ShatteredTypeConverter<F,T>)baseShattered.converter(from.getClass(), destination)).writeTo(from, to);
   }
 
-  public SerializationRepository<T> customize(final Filter<TypeConverter> todo) {
+  public SerializationRepository<T> customize(final Predicate<TypeConverter> todo) {
     return new SerializationRepository<T>(base.customize(todo), destination);
   }
 }

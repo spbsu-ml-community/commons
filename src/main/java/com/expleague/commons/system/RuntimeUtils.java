@@ -1,9 +1,7 @@
 package com.expleague.commons.system;
 
-import com.expleague.commons.func.Action;
 import com.expleague.commons.util.MultiMap;
 import com.expleague.commons.util.logging.Logger;
-import com.expleague.commons.filters.Filter;
 import com.expleague.commons.io.StreamTools;
 import com.expleague.commons.seq.CharSeqTools;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +14,8 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -218,14 +218,14 @@ public class RuntimeUtils {
     populateFromURLs(path, additionalUrls.toArray(new URL[additionalUrls.size()]), result);
   }
 
-  public static void processSupers(final Class<?> clazz, final Filter<Class<?>> proc) {
+  public static void processSupers(final Class<?> clazz, final Predicate<Class<?>> proc) {
     final Stack<Class<?>> toBeProcessed = new Stack<>();
     toBeProcessed.push(clazz);
     while (!toBeProcessed.isEmpty()) {
       final Class<?> pop = toBeProcessed.pop();
       if (pop == null)
         continue;
-      if (proc.accept(pop))
+      if (proc.test(pop))
         return;
 
       toBeProcessed.push(pop.getSuperclass());
@@ -320,20 +320,20 @@ constructor_next:
     private static final java.util.logging.Logger log = java.util.logging.Logger.getLogger(InvokeDispatcher.class.getName());
     public final Map<Class<?>, Method> typesMap = new HashMap<>();
     public final MultiMap<Class<?>, Method> cache = new MultiMap<>();
-    private final Action<Object> unhandledCallback;
+    private final Consumer<Object> unhandledCallback;
 
-    public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback) {
+    public InvokeDispatcher(Class<?> clazz, Consumer<Object> unhandledCallback) {
       this(clazz, unhandledCallback, "invoke");
     }
 
-    public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback, String methodName) {
+    public InvokeDispatcher(Class<?> clazz, Consumer<Object> unhandledCallback, String methodName) {
       this.unhandledCallback = unhandledCallback;
       Arrays.stream(clazz.getMethods())
           .filter(method -> methodName.equals(method.getName()) && method.getParameterCount() == 1 && method.getReturnType() == void.class)
           .forEach(method -> typesMap.put(method.getParameterTypes()[0], method));
     }
 
-    public InvokeDispatcher(Class<?> clazz, Action<Object> unhandledCallback, Class<? extends Annotation> annotation) {
+    public InvokeDispatcher(Class<?> clazz, Consumer<Object> unhandledCallback, Class<? extends Annotation> annotation) {
       this.unhandledCallback = unhandledCallback;
       Arrays.stream(clazz.getMethods())
           .filter(method -> method.getAnnotation(annotation) != null && method.getParameterCount() == 1 && method.getReturnType() == void.class)
@@ -367,7 +367,7 @@ constructor_next:
       }
       else {
         log.log(Level.WARNING, "Unhandeled @" + instance + ": " + message.toString());
-        unhandledCallback.invoke(message);
+        unhandledCallback.accept(message);
       }
     }
   }
@@ -384,7 +384,7 @@ constructor_next:
       out = new Thread(() -> {
         try {
           if (output) {
-            CharSeqTools.processLines(new InputStreamReader(delegate.getInputStream(), StreamTools.UTF), (Action<CharSequence>) System.out::println);
+            CharSeqTools.processLines(new InputStreamReader(delegate.getInputStream(), StreamTools.UTF), System.out::println);
           }
         } catch (IOException e) {
           throw new RuntimeException(e);
@@ -394,7 +394,7 @@ constructor_next:
       err = new Thread(() -> {
         try {
           if(output) {
-            CharSeqTools.processLines(new InputStreamReader(delegate.getErrorStream(), StreamTools.UTF), (Action<CharSequence>) System.err::println);
+            CharSeqTools.processLines(new InputStreamReader(delegate.getErrorStream(), StreamTools.UTF), System.err::println);
           }
         } catch (IOException e) {
           throw new RuntimeException(e);

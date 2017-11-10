@@ -1,6 +1,8 @@
 package com.expleague.commons.seq;
 
 import java.util.Arrays;
+import java.util.function.IntSupplier;
+import java.util.stream.IntStream;
 
 /**
  * User: solar
@@ -22,6 +24,16 @@ public class ByteSeq extends Seq.Stub<Byte> {
     this.arr = arr;
     this.start = start;
     this.end = end;
+  }
+
+  public IntStream stream() {
+    return IntStream.generate(new IntSupplier() {
+      int index = 0;
+      @Override
+      public int getAsInt() {
+        return arr[start + index++];
+      }
+    }).limit(length());
   }
 
   @Override

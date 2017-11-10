@@ -1,9 +1,9 @@
 package com.expleague.commons.util.cache;
 
-import com.expleague.commons.func.Computable;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Flushable;
+import java.util.function.Function;
 
 /**
  * User: alms
@@ -22,7 +22,7 @@ public interface Cache<K, V> extends Flushable {
 
   void clear();
 
-  V get(K key, Computable<K, V> wayToGet);
+  V get(K key, Function<K, V> wayToGet);
 
   void clear(K key);
 }

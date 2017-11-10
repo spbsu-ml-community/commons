@@ -3,6 +3,8 @@ package com.expleague.commons.seq;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
+import java.util.function.IntSupplier;
+import java.util.stream.IntStream;
 
 /**
  * User: Igor Kuralenok
@@ -20,6 +22,17 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
     char[] copy = new char[end - start];
     copyToArray(start, copy, 0, end - start);
     return new CharSeqArray(copy);
+  }
+
+  @Override
+  public IntStream stream() {
+    return IntStream.generate(new IntSupplier() {
+      int index = 0;
+      @Override
+      public int getAsInt() {
+        return charAt(index++);
+      }
+    }).limit(length());
   }
 
   @Override
@@ -79,6 +92,10 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
       h = 31 * h + charAt(i);
     }
     return h == 0 ? 1 : h;
+  }
+
+  public char[] toArray() {
+    return toCharArray();
   }
 
   public char[] toCharArray() {

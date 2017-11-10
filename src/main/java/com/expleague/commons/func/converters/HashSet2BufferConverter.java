@@ -2,8 +2,8 @@ package com.expleague.commons.func.converters;
 
 import com.expleague.commons.io.Buffer;
 import com.expleague.commons.func.Converter;
-import com.expleague.commons.util.Factories;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -16,6 +16,6 @@ public class HashSet2BufferConverter<T> extends Set2BufferConverter<T> {
 
   @Override
   protected Set<T> createSet() {
-    return Factories.hashSet();
+    return new HashSet<>();
   }
 }

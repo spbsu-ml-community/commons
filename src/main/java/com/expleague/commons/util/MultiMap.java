@@ -2,10 +2,7 @@ package com.expleague.commons.util;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: alms
@@ -22,16 +19,11 @@ public class MultiMap<K, V> {
   private final Map<K, Collection<V>> mapa;
 
   public MultiMap() {
-    this.mapa = Factories.hashMap();
+    this.mapa = new HashMap<>();
   }
 
   public void put(final K key, final V value) {
-    Collection<V> u = mapa.get(key);
-    if (u == null) {
-      u = Factories.hashSet();
-      mapa.put(key, u);
-    }
-    u.add(value);
+    mapa.computeIfAbsent(key, k -> new HashSet<>()).add(value);
   }
 
   @NotNull
@@ -60,11 +52,6 @@ public class MultiMap<K, V> {
   }
 
   public void putAll(K key, Collection<V> values) {
-    Collection<V> u = mapa.get(key);
-    if (u == null) {
-      u = Factories.hashSet();
-      mapa.put(key, u);
-    }
-    u.addAll(values);
+    mapa.computeIfAbsent(key, k -> new HashSet<>()).addAll(values);
   }
 }

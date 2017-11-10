@@ -5,6 +5,10 @@ package com.expleague.commons.seq;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.util.stream.BaseStream;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 /**
  * User: solar
  * Date: 07.07.14
@@ -25,6 +29,22 @@ public class ArraySeq<T> extends Seq.Stub<T> {
     this.arr = arr;
     this.start = start;
     this.end = end;
+  }
+
+  public ArraySeq(final ArraySeq<T> arr, final int start, final int end) {
+    if (end > arr.length() || start < 0)
+      throw new ArrayIndexOutOfBoundsException();
+    this.arr = arr.arr;
+    this.start = arr.start + start;
+    this.end = arr.start + end;
+  }
+
+  public ArraySeq(final Seq<T> arr, final int start, final int end) {
+    if (end > arr.length() || start < 0)
+      throw new ArrayIndexOutOfBoundsException();
+    this.arr = arr.sub(start, end).toArray();
+    this.start = 0;
+    this.end = end - start;
   }
 
   @Override
@@ -53,6 +73,13 @@ public class ArraySeq<T> extends Seq.Stub<T> {
   public Class<T> elementType() {
     //noinspection unchecked
     return (Class<T>)arr.getClass().getComponentType();
+  }
+
+  @Override
+  public Stream<T> stream() {
+    if (start == 0 && end == arr.length)
+      return Stream.of(arr);
+    return IntStream.range(start, end).mapToObj(i -> arr[i]);
   }
 
   @Override

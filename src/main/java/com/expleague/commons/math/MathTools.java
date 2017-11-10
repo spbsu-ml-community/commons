@@ -226,10 +226,10 @@ public abstract class MathTools {
     if (fLeft * fRight > 0)
       throw new IllegalArgumentException("Function values for left and right parameters should lay on different sides of 0");
 
-    while (!MathTools.locality(left, right)) {
+    while (left != right) {
       final double middle = (left + right) / 2.;
       final double fMiddle = func.value(middle);
-      if (Math.abs(fMiddle) < EPSILON)
+      if (Math.abs(fMiddle) < EPSILON || middle == right || middle == left)
         return middle;
       if (fLeft * fMiddle > 0) {
         left = middle;
@@ -274,11 +274,11 @@ public abstract class MathTools {
   }
 
   public static double inc(double x) {
-    return Double.longBitsToDouble(Double.doubleToLongBits(x) + 1);
+    return x > 0 ? Double.longBitsToDouble(Double.doubleToLongBits(x) + 1) : Double.longBitsToDouble(Double.doubleToLongBits(x) - 1);
   }
 
   public static double dec(double x) {
-    return Double.longBitsToDouble(Double.doubleToLongBits(x) - 1);
+    return x > 0 ? Double.longBitsToDouble(Double.doubleToLongBits(x) - 1) : Double.longBitsToDouble(Double.doubleToLongBits(x) + 1);
   }
 
   public static class LogFactorial {

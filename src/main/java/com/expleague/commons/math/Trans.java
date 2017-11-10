@@ -1,6 +1,5 @@
 package com.expleague.commons.math;
 
-import com.expleague.commons.func.Computable;
 import com.expleague.commons.math.vectors.Mx;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
@@ -8,12 +7,14 @@ import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
+
 /**
  * User: solar
  * Date: 21.12.2010
  * Time: 22:07:07
  */
-public interface Trans extends Computable<Vec,Vec> {
+public interface Trans extends Function<Vec,Vec> {
   int xdim();
   int ydim();
   @Nullable
@@ -31,7 +32,7 @@ public interface Trans extends Computable<Vec,Vec> {
     }
 
     @Override
-    public Vec compute(final Vec argument) {
+    public Vec apply(final Vec argument) {
       return trans(argument);
     }
 

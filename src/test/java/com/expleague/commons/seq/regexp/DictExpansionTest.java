@@ -2,7 +2,6 @@ package com.expleague.commons.seq.regexp;
 
 
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
-import com.expleague.commons.func.Processor;
 import com.expleague.commons.io.codec.seq.DictExpansion;
 import com.expleague.commons.io.codec.seq.ListDictionary;
 import com.expleague.commons.math.vectors.Vec;
@@ -23,6 +22,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Created with IntelliJ IDEA.
@@ -214,10 +214,10 @@ public class DictExpansionTest extends TestCase {
     final DictExpansion<Character> expansion = new DictExpansion<>(new HashSet<>(Collections.singletonList('a')), 1000, System.out);
 
     for (int i = 0; i < 1; i++) {
-      CharSeqTools.processLines(new FileReader(toParse), new Processor<CharSequence>() {
+      CharSeqTools.processLines(new FileReader(toParse), new Consumer<CharSequence>() {
         int index = 0;
         @Override
-        public void process(CharSequence arg) {
+        public void accept(CharSequence arg) {
           if (arg.length() < 150)
             return;
           expansion.accept(CharSeq.create(arg));

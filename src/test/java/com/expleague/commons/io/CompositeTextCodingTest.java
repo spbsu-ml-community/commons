@@ -2,7 +2,6 @@ package com.expleague.commons.io;
 
 import com.expleague.commons.io.codec.ArithmeticCoding;
 import com.expleague.commons.io.codec.CSCInputStream;
-import com.expleague.commons.func.Processor;
 import com.expleague.commons.io.codec.CSCOutputStream;
 import com.expleague.commons.io.codec.CompositeStatTextCoding;
 import com.expleague.commons.io.codec.seq.DictExpansion;
@@ -23,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -174,11 +174,11 @@ public class CompositeTextCodingTest /*extends JUnitIOCapture */{
       stream.flush();
     }
     stream.close();
-    CharSeqTools.processLines(new InputStreamReader(new CSCInputStream(new ByteArrayInputStream(out.toByteArray()), expansion.result(), expansion.resultFreqs())), new Processor<CharSequence>() {
+    CharSeqTools.processLines(new InputStreamReader(new CSCInputStream(new ByteArrayInputStream(out.toByteArray()), expansion.result(), expansion.resultFreqs())), new Consumer<CharSequence>() {
       int index = 0;
 
       @Override
-      public void process(final CharSequence arg) {
+      public void accept(final CharSequence arg) {
         if (index < dataSet.length)
           Assert.assertEquals(dataSet[index++], arg.toString());
         else

@@ -1,7 +1,5 @@
 package com.expleague.commons.util;
 
-import com.expleague.commons.filters.Filter;
-import com.expleague.commons.func.Computable;
 import com.expleague.commons.func.Evaluator;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
@@ -16,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static java.lang.Math.abs;
 
@@ -507,10 +507,11 @@ public abstract class ArrayTools {
     return maxIndex;
   }
 
-  public static <F, T> T[] map(final F[] models, final Class<T> clazz, final Computable<F, T> computable) {
+  public static <F, T> T[] map(final F[] models, final Class<T> clazz, final Function<F, T> computable) {
+    //noinspection unchecked
     final T[] result = (T[]) Array.newInstance(clazz, models.length);
     for (int i = 0; i < models.length; i++)
-      result[i] = computable.compute(models[i]);
+      result[i] = computable.apply(models[i]);
     return result;
   }
 
@@ -640,16 +641,14 @@ public abstract class ArrayTools {
       larray[i + loffset + 3] = rarray[i + roffset + 3];
     }
 
-    for (int i = alignedCount; i < count; i++){
-      larray[i + loffset] = rarray[i + roffset];
-    }
+    System.arraycopy(rarray, alignedCount + roffset, larray, alignedCount + loffset, count - alignedCount);
   }
 
   public static <F> F[] toArray(final Collection<F> weakModels) {
     if (weakModels.size() == 0)
       throw new IllegalArgumentException("Can create array");
     //noinspection unchecked
-    return weakModels.toArray((F[])(weakModels.size() > 0 ? Array.newInstance(weakModels.iterator().next().getClass(), weakModels.size()) : new Object[0]));
+    return weakModels.toArray((F[]) Array.newInstance(weakModels.iterator().next().getClass(), weakModels.size()));
   }
 
   public static <T extends Comparable> T max(final Seq<T> target) {
@@ -657,6 +656,7 @@ public abstract class ArrayTools {
       throw new IllegalArgumentException("Empty sequence");
     T result = target.at(0);
     for (int i = 1; i < target.length(); i++)
+      //noinspection unchecked
       if(result.compareTo(target.at(i)) < 0)
         result = target.at(i);
     return result;
@@ -674,6 +674,7 @@ public abstract class ArrayTools {
   public static <I> I[] cut(final I[] data, final int[] indices) {
     if (indices.length == 0 || data.length == 0)
       throw new IllegalArgumentException();
+    //noinspection unchecked
     final I[] result = (I[])Array.newInstance(data[0].getClass(), indices.length);
     for (int i = 0; i < indices.length; i++) {
       result[i] = data[indices[i]];
@@ -693,6 +694,7 @@ public abstract class ArrayTools {
     if (indices.length == 0 || data.length() == 0)
       throw new IllegalArgumentException();
     if (data instanceof SparseVec) {
+      //noinspection unchecked
       return (Seq<I>) VecTools.cutSparseVec((SparseVec) data, indices);
     }
     else if (data instanceof Vec) {
@@ -701,6 +703,7 @@ public abstract class ArrayTools {
       for (int i = 0; i < indices.length; i++) {
         result.set(i, dataVec.get(indices[i]));
       }
+      //noinspection unchecked
       return (Seq<I>) result;
     }
     else if (data instanceof IntSeq) {
@@ -833,17 +836,17 @@ public abstract class ArrayTools {
     return result;
   }
 
-  public static <T> boolean and(T[] input, Filter<? super T> filter) {
+  public static <T> boolean and(T[] input, Predicate<? super T> filter) {
     for(int i = 0; i < input.length; i++) {
-      if (!filter.accept(input[i]))
+      if (!filter.test(input[i]))
         return false;
     }
     return true;
   }
 
-  public static <T> boolean or(T[] input, Filter<? super T> filter) {
+  public static <T> boolean or(T[] input, Predicate<? super T> filter) {
     for(int i = 0; i < input.length; i++) {
-      if (filter.accept(input[i]))
+      if (filter.test(input[i]))
         return true;
     }
     return false;

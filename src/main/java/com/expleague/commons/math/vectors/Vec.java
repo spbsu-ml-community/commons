@@ -5,6 +5,9 @@ import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.seq.Seq;
 
 import java.util.Arrays;
+import java.util.stream.BaseStream;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 /**
  * User: solar
@@ -45,9 +48,6 @@ public interface Vec extends Seq<Double> {
     }
 
     @Override
-    public abstract Vec sub(final int start, final int len);
-
-    @Override
     public final int hashCode() {
       return VecTools.hashCode(this);
     }
@@ -83,6 +83,11 @@ public interface Vec extends Seq<Double> {
     @Override
     public Class<Double> elementType() {
       return double.class;
+    }
+
+    @Override
+    public DoubleStream stream() {
+      return IntStream.range(0, length()).mapToDouble(this::get);
     }
   }
 }

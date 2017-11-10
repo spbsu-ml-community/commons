@@ -434,115 +434,102 @@ public class MxTools {
       final int index = order[i];
       final double eigenVal;
       final Vec eigenVec = qInner.row(i);
-      if (abs(u.get(index)) > 1e-4) {
-        final double d_i = d.get(index);
-        final double u_i = u.get(index);
-        double d_i1 = Double.POSITIVE_INFINITY;
-        double u_i1 = 0;
-        for (int j = i + 1; j < dim; j++) {
-          if (abs(u.get(order[j])) > MathTools.EPSILON) {
-            d_i1 = d.get(order[j]);
-            u_i1 = u.get(order[j]);
-            break;
-          }
+      final double d_i = d.get(index);
+      final double u_i = u.get(index);
+      double d_i1 = Double.POSITIVE_INFINITY;
+      double u_i1 = 0;
+      for (int j = i + 1; j < dim; j++) {
+        if (abs(u.get(order[j])) > MathTools.EPSILON) {
+          d_i1 = d.get(order[j]);
+          u_i1 = u.get(order[j]);
+          break;
         }
-        if (!MathTools.locality(d_i, d_i1, 1e-6)) {
-          double x;
-          if (Double.isFinite(d_i1)) { // quadratic approx
-            x = (d_i + d_i1) / 2;
-            double sumRight;
-            double sumLeft;
-            int it = 0;
-            while(true) {
-              double sumDotLeft = 0;
-              double sumDotRight = 0;
-              sumLeft = 0;
-              sumRight = 0;
+      }
+      final SecularFunction secularFunction = new SecularFunction(d, beta, u);
+      if (!MathTools.locality(d_i, d_i1, 1e-6) && abs(u_i) > 1e-6) {
+        double x;
+        if (Double.isFinite(d_i1)) { // quadratic approx
+          x = (d_i + d_i1) / 2;
+          double sumRight;
+          double sumLeft;
+          int it = 0;
+          while(true) {
+            double sumDotLeft = 0;
+            double sumDotRight = 0;
+            sumLeft = 0;
+            sumRight = 0;
 
-              for (int t = 0; t < dim; t++) {
-                if (rorder[t] <= i) {
-                  sumLeft += beta * u.get(t) * u.get(t) / (d.get(t) - x);
-                  sumDotLeft += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
-                }
-                else {
-                  sumRight += beta * u.get(t) * u.get(t) / (d.get(t) - x);
-                  sumDotRight += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
-                }
+            for (int t = 0; t < dim; t++) {
+              if (rorder[t] <= i) {
+                sumLeft += beta * u.get(t) * u.get(t) / (d.get(t) - x);
+                sumDotLeft += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
               }
-
-              double c1 = sumDotLeft * MathTools.sqr(d_i - x);
-              double c2 = sumDotRight * MathTools.sqr(d_i1 - x);
-              double c3 = 1 + sumLeft + sumRight - sumDotLeft * (d_i - x) - sumDotRight * (d_i1 - x);
-
-              MathTools.quadratic(roots,
-                  c3,
-                  - (c1 + c2 + c3 * (d_i + d_i1)),
-                  c1 * d_i1 + c2 * d_i + c3 * d_i * d_i1
-              );
-              double nextX = roots[0] < d_i1 && roots[0] > d_i ? roots[0] : roots[1];
-              if (Math.abs(1 + sumLeft + sumRight) < MathTools.EPSILON)
-                break;
-              else if (nextX == x || it++ > 10000) {
-                double left = MathTools.inc(d_i);
-                double right = MathTools.dec(d_i1);
-                x = MathTools.bisection(new SecularFunction(d, beta, u), left, right);
-                break;
+              else {
+                sumRight += beta * u.get(t) * u.get(t) / (d.get(t) - x);
+                sumDotRight += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
               }
-
-              x = nextX;
             }
-          }
-          else { // linear approx f(x) \sim c_2 + \frac{c_1}{d_i - x}
-            x = d_i + 100;
-            double sum;
-            int it = 0;
-            while (true) {
-              double sumDot = 0;
-              sum = 0;
 
-              for (int t = 0; t < dim; t++) {
-                sum += beta * u.get(t) * u.get(t) / (d.get(t) - x);
-                sumDot += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
-              }
+            double c1 = sumDotLeft * MathTools.sqr(d_i - x);
+            double c2 = sumDotRight * MathTools.sqr(d_i1 - x);
+            double c3 = 1 + sumLeft + sumRight - sumDotLeft * (d_i - x) - sumDotRight * (d_i1 - x);
 
-              double c1 = sumDot * MathTools.sqr(d_i - x);
-              double c2 = 1 + sum - sumDot * (d_i - x);
-              double nextX = d_i + c1 / c2;
-              if (Math.abs(1 + sum) < MathTools.EPSILON) {
-                break;
-              }
-              else if (nextX == x || it++ > 10000 || nextX <= d_i) {
-                log.fine("Unable to eliminate secular function error: " + Math.abs(1 + sum));
-                System.out.println("Unable to eliminate secular function error: " + Math.abs(1 + sum));
-                break;
-              }
-              x = nextX;
+            MathTools.quadratic(roots,
+                c3,
+                - (c1 + c2 + c3 * (d_i + d_i1)),
+                c1 * d_i1 + c2 * d_i + c3 * d_i * d_i1
+            );
+            double nextX = roots[0] < d_i1 && roots[0] > d_i ? roots[0] : roots[1];
+            if (Math.abs(1 + sumLeft + sumRight) < 1e-6)
+              break;
+            else if (nextX == x || it++ > 100) {
+              final double left = MathTools.inc(d_i);
+              final double right = MathTools.dec(d_i1);
+              x = MathTools.bisection(secularFunction, left, right);
+              break;
             }
+            x = nextX;
           }
-          eigenVal = x;
-          for (int k = 0; k < dim; k++) {
-            double val = u.get(k) / (d.get(k) - eigenVal);
-            if (Double.isFinite(val))
-              eigenVec.set(k, val);
-            else
-              eigenVec.set(k, 0);
+        }
+        else { // linear approx f(x) \sim c_2 + \frac{c_1}{d_i - x}
+          x = d_i + 100;
+          double sum;
+          int it = 0;
+          while (true) {
+            double sumDot = 0;
+            sum = 0;
+
+            for (int t = 0; t < dim; t++) {
+              sum += beta * u.get(t) * u.get(t) / (d.get(t) - x);
+              sumDot += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
+            }
+
+            final double c1 = sumDot * MathTools.sqr(d_i - x);
+            final double c2 = 1 + sum - sumDot * (d_i - x);
+            final double nextX = d_i + c1 / c2;
+            if (Math.abs(1 + sum) < MathTools.EPSILON) {
+              break;
+            }
+            else if (nextX == x || it++ > 10000 || nextX <= d_i) {
+              break;
+            }
+            x = nextX;
           }
-          VecTools.normalizeL2(eigenVec);
         }
-        else {
-          eigenVal = d_i;
-          eigenVec.set(index, 1);
+        if (Math.abs(secularFunction.value(x)) > 1e-2) {
+          log.fine("Unable to eliminate secular function error: " + Math.abs(secularFunction.value(x)));
         }
+        eigenVal = x;
+        for (int k = 0; k < dim; k++) {
+          double val = u.get(k) / (d.get(k) - eigenVal);
+          eigenVec.set(k, val);
+        }
+        VecTools.normalizeL2(eigenVec);
       }
       else {
-        eigenVal = d.get(index);
+        eigenVal = d_i;
         eigenVec.set(index, 1);
       }
-//      {
-//        final Vec incscale = incscale(multiply(m, eigenVec), eigenVec, -eigenVal);
-//        if (norm(incscale) > 0.001)
-//          System.out.println("Inner eigen value: " + eigenVal + " vec: " + eigenVec + " Ax - \\lamda x: " + incscale);
-//      }
       sigma.set(i, i, eigenVal);
     }
     multiplyTo(qInner, q, resultQ);

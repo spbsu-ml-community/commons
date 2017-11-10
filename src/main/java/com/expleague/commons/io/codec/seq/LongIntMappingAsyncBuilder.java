@@ -1,6 +1,5 @@
 package com.expleague.commons.io.codec.seq;
 
-import com.expleague.commons.func.Action;
 import com.expleague.commons.util.ArrayTools;
 import com.expleague.commons.util.sync.StateLatch;
 import gnu.trove.map.TLongIntMap;
@@ -10,6 +9,7 @@ import gnu.trove.procedure.TLongIntProcedure;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  * User: solar
@@ -36,11 +36,11 @@ public class LongIntMappingAsyncBuilder {
     this.tlBufferSize = tlBufferSize;
   }
 
-  public void populateImpl(Action<TLongIntMap> map) throws InterruptedException {
+  public void populateImpl(Consumer<TLongIntMap> map) throws InterruptedException {
     final BufferWithState bufferWithState = tlBuffer.get();
     final TLongIntMap buffer = bufferWithState.map;
     bufferWithState.state(1, 2);
-    map.invoke(buffer);
+    map.accept(buffer);
     if (buffer.size() >= tlBufferSize) {
       flushBuffer(bufferWithState);
     }
@@ -141,7 +141,7 @@ public class LongIntMappingAsyncBuilder {
     }
   }
 
-  public void populate(Action<TLongIntMap> map) {
+  public void populate(Consumer<TLongIntMap> map) {
     try {
       populateImpl(map);
     } catch (InterruptedException e) {

@@ -1,6 +1,6 @@
 package com.expleague.commons.util.cache;
 
-import com.expleague.commons.func.Computable;
+import java.util.function.Function;
 
 /**
  * User: terry
@@ -31,7 +31,7 @@ public class CachesTools {
       }
 
       @Override
-      public synchronized V get(final K key, final Computable<K, V> wayToGet) {
+      public synchronized V get(final K key, final Function<K, V> wayToGet) {
         return source.get(key, wayToGet);
       }
 

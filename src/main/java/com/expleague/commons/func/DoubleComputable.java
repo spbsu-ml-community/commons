@@ -1,12 +1,14 @@
 package com.expleague.commons.func;
 
+import java.util.function.Function;
+
 /**
  * User: starlight
  * Date: 16.02.15
  */
-public abstract class DoubleComputable<T> implements Computable<T, Double> {
+public abstract class DoubleComputable<T> implements Function<T, Double> {
   @Override
-  public Double compute(final T argument) {
+  public Double apply(final T argument) {
     return computeValue(argument);
   }
 

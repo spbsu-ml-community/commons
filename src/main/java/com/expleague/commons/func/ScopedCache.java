@@ -2,10 +2,10 @@ package com.expleague.commons.func;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 
 import com.expleague.commons.util.Holder;
-import com.expleague.commons.filters.Filter;
 import com.expleague.commons.system.RuntimeUtils;
 
 /**
@@ -15,41 +15,37 @@ import com.expleague.commons.system.RuntimeUtils;
  */
 public class ScopedCache {
   private final CacheHolder owner;
-  Map<Class<? extends CacheHolder>, Map<Class<? extends Computable<? extends CacheHolder, ?>>, Object>> cache = new HashMap<>();
+  private final Map<Class<? extends CacheHolder>, Map<Class<? extends Function<? extends CacheHolder,?>>, Object>> cache = new HashMap<>();
 
   public ScopedCache(final Class<? extends CacheHolder> clazz, final CacheHolder owner) {
     this.owner = owner;
-    RuntimeUtils.processSupers(clazz, new Filter<Class<?>>() {
-      @Override
-      public boolean accept(final Class<?> arg) {
-        if (CacheHolder.class.isAssignableFrom(arg))
-          cache.put((Class<? extends CacheHolder>)arg, new HashMap<Class<? extends Computable<? extends CacheHolder, ?>>, Object>());
-        return false;
-      }
+    RuntimeUtils.processSupers(clazz, arg -> {
+      if (CacheHolder.class.isAssignableFrom(arg))
+        //noinspection unchecked
+        cache.put((Class<? extends CacheHolder>)arg, new HashMap<>());
+      return false;
     });
   }
 
-  public <CH extends CacheHolder, R> R cache(final Class<? extends Computable<? super CH, R>> type, final Class<CH> scope) {
+  public <CH extends CacheHolder, R> R cache(final Class<? extends Function<? super CH,R>> type, final Class<CH> scope) {
     final Holder<R> rHolder = new Holder<>();
-    RuntimeUtils.processSupers(scope, new Filter<Class<?>>() {
-      @Override
-      public boolean accept(final Class<?> arg) {
-        if (!CacheHolder.class.isAssignableFrom(arg))
-          return false;
-        final R o = (R)cache.get(arg).get(type);
-        rHolder.setValue(o);
-        return o != null;
-      }
+    RuntimeUtils.processSupers(scope, arg -> {
+      if (!CacheHolder.class.isAssignableFrom(arg))
+        return false;
+      //noinspection unchecked
+      final R o = (R)cache.get(arg).get(type);
+      rHolder.setValue(o);
+      return o != null;
     });
 
     R result = rHolder.getValue();
     if (result == null) {
       try {
-        final Computable<? super CH, R> calculator = type.newInstance();
+        final Function<? super CH, R> calculator = type.newInstance();
         //noinspection unchecked
-        result = calculator.compute((CH)owner);
+        result = calculator.apply((CH)owner);
         //noinspection unchecked
-        cache.get(scope).put((Class<? extends Computable<? extends CacheHolder, ?>>) type, result);
+        cache.get(scope).put((Class<? extends Function<? extends CacheHolder,?>>) type, result);
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -59,7 +55,7 @@ public class ScopedCache {
   }
 
   public void copyScope(final ScopedCache to, final Class<? extends CacheHolder> scope) {
-    for (final Map.Entry<Class<? extends CacheHolder>, Map<Class<? extends Computable<? extends CacheHolder, ?>>, Object>> entry : cache.entrySet()) {
+    for (final Map.Entry<Class<? extends CacheHolder>, Map<Class<? extends Function<? extends CacheHolder,?>>, Object>> entry : cache.entrySet()) {
       if (entry.getKey().isAssignableFrom(scope))
         to.cache.put(entry.getKey(), entry.getValue());
     }

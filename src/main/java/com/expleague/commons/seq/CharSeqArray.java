@@ -2,6 +2,10 @@ package com.expleague.commons.seq;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.IntSupplier;
+import java.util.stream.BaseStream;
+import java.util.stream.IntStream;
+
 public class CharSeqArray extends CharSeq {
   public final char[] array;
   public final int start;
@@ -28,6 +32,7 @@ public class CharSeqArray extends CharSeq {
   public int length() {
     return end - start;
   }
+
   @Override
   public char charAt(final int offset) {
     return array[start + offset];

@@ -1,10 +1,9 @@
 package com.expleague.commons.io;
 
-import com.expleague.commons.func.Processor;
-
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 
 /**
  * User: igorkuralenok
@@ -447,7 +446,7 @@ public class CompositeBuffer implements Buffer {
     return index;
   }
 
-  public void visitParts(final Processor<Buffer> visitor) {
+  public void visitParts(final Consumer<Buffer> visitor) {
     int active = activeNo;
     int position = this.position;
     Buffer current = localPos > 0 ? BufferFactory.duplicate(this.active).position(localPos) : this.active;
@@ -455,7 +454,7 @@ public class CompositeBuffer implements Buffer {
       if (current instanceof CompositeBuffer)
         ((CompositeBuffer) current).visitParts(visitor);
       else
-        visitor.process(current);
+        visitor.accept(current);
       position += current.remaining();
       if (++active < buffers.length && position < limit) {
         if (limit - position < buffers[active].remaining())

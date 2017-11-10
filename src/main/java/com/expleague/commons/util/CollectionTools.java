@@ -1,10 +1,8 @@
 package com.expleague.commons.util;
 
 import java.util.*;
-
-
-import com.expleague.commons.filters.Filter;
-import com.expleague.commons.func.Computable;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * User: alms
@@ -12,48 +10,32 @@ import com.expleague.commons.func.Computable;
  */
 public class CollectionTools {
 
-  public static <T, U, S extends Collection<U>> S map(final Computable<T, U> converter, final Collection<T> inital, final S accum) {
+  public static <T, U, S extends Collection<U>> S map(final Function<T, U> converter, final Collection<T> inital, final S accum) {
     for (final T el : inital) {
-      final U value = converter.compute(el);
+      final U value = converter.apply(el);
       accum.add(value);
     }
     return accum;
   }
 
-  public static <T, U> List<U> map(final Computable<T, U> converter, final Collection<T> inital) {
-    final List<U> accum = new ArrayList<U>(inital.size());
+  public static <T, U> List<U> map(final Function<T, U> converter, final Collection<T> inital) {
+    final List<U> accum = new ArrayList<>(inital.size());
 
     return map(converter, inital, accum);
   }
 
   public static <F, S> List<F> mapFirst(final Collection<Pair<F, S>> source) {
-    return map(
-      new Computable<Pair<F, S>, F>() {
-        @Override
-        public F compute(final Pair<F, S> argument) {
-          return argument.getFirst();
-        }
-      },
-      source
-    );
+    return map(Pair::getFirst, source);
   }
 
   public static <F, S> List<S> mapSecond(final Collection<Pair<F, S>> inital) {
-    return map(
-      new Computable<Pair<F, S>, S>() {
-        @Override
-        public S compute(final Pair<F, S> argument) {
-          return argument.getSecond();
-        }
-      },
-      inital
-    );
+    return map(Pair::getSecond, inital);
   }
 
-  public static <K, V, U> Map<K, U> transformValues(final Computable<V, U> converter, final Map<K, V> inital) {
+  public static <K, V, U> Map<K, U> transformValues(final Function<V, U> converter, final Map<K, V> inital) {
     final HashMap<K, U> result = new HashMap<K, U>(inital.size());
     for (final Map.Entry<K, V> entry : inital.entrySet()) {
-      result.put(entry.getKey(), converter.compute(entry.getValue()));
+      result.put(entry.getKey(), converter.apply(entry.getValue()));
     }
     return result;
   }
@@ -71,9 +53,9 @@ public class CollectionTools {
   }
 
 
-  public static <T, U extends Collection<T>> U filter(final Collection<? extends T> col, final U accum, final Filter<? super T> filter) {
+  public static <T, U extends Collection<T>> U filter(final Collection<? extends T> col, final U accum, final Predicate<? super T> filter) {
     for (final T el : col) {
-      if (filter.accept(el)) {
+      if (filter.test(el)) {
         accum.add(el);
       }
     }
@@ -81,10 +63,10 @@ public class CollectionTools {
     return accum;
   }
 
-  public static <T, U extends Collection<T>> int count(final U col, final Filter<T> filter) {
+  public static <T, U extends Collection<T>> int count(final U col, final Predicate<T> filter) {
     int num = 0;
     for (final T el : col) {
-      if (filter.accept(el)) {
+      if (filter.test(el)) {
         num++;
       }
     }
@@ -105,10 +87,10 @@ public class CollectionTools {
     return result;
   }
 
-  public static <T, U> Map<U, Integer> computeObjectCounts(final Collection<T> col, final Computable<T, U> conv) {
-    final Map<U, Integer> result = new HashMap<U, Integer>();
+  public static <T, U> Map<U, Integer> computeObjectCounts(final Collection<T> col, final Function<T, U> conv) {
+    final Map<U, Integer> result = new HashMap<>();
     for (final T el : col) {
-      final U convEl = conv.compute(el);
+      final U convEl = conv.apply(el);
       Integer n = result.get(convEl);
       if (n == null) {
         n = 0;
@@ -125,15 +107,15 @@ public class CollectionTools {
    * @param filter
    * @param <T>
    */
-  public static <T> void filterWithRemove(final Iterator<T> iterator, final Filter<T> filter) {
+  public static <T> void filterWithRemove(final Iterator<T> iterator, final Predicate<T> filter) {
     while (iterator.hasNext()) {
-      if (!filter.accept(iterator.next())) {
+      if (!filter.test(iterator.next())) {
         iterator.remove();
       }
     }
   }
 
-  public static <T> Iterator<T> filter(final Iterator<T> iterator, final Filter<T> filter) {
+  public static <T> Iterator<T> filter(final Iterator<T> iterator, final Predicate<T> filter) {
     return new Iterator<T>() {
       T nextObject;
 
@@ -144,7 +126,7 @@ public class CollectionTools {
         }
         while (iterator.hasNext()) {
           final T obj = iterator.next();
-          if (filter.accept(obj)) {
+          if (filter.test(obj)) {
             nextObject = obj;
             return true;
           }

@@ -4,14 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 import com.expleague.commons.func.converters.*;
 import com.expleague.commons.seq.CharSeqTools;
-import com.expleague.commons.util.Factories;
 import junit.framework.TestCase;
 
 /**
@@ -24,13 +21,13 @@ import junit.framework.TestCase;
 public class BufferConverterTest extends TestCase {
 
   public void testCharsequenceCoverter() {
-    final CharSequence2BufferConverter<String> converter = new CharSequence2BufferConverter<String>(new StringCSFactory());
+    final CharSequence2BufferConverter<String> converter = new CharSequence2BufferConverter<>(new StringCSFactory());
     final Buffer buffer = converter.convertTo("fuck");
     assertTrue(CharSeqTools.equals("fuck", converter.convertFrom(buffer)));
   }
 
   public void testCharsequenceCoverter2() {
-    final CharSequence2BufferConverter<String> converter = new CharSequence2BufferConverter<String>(new StringCSFactory());
+    final CharSequence2BufferConverter<String> converter = new CharSequence2BufferConverter<>(new StringCSFactory());
     final Buffer buffer = converter.convertTo("путенг");
     assertTrue(CharSeqTools.equals("путенг", converter.convertFrom(buffer)));
   }
@@ -53,7 +50,7 @@ public class BufferConverterTest extends TestCase {
     final Integer[] array = new Integer[]{1, 2};
 
     final Array2BufferConverter<Integer> conv =
-        new Array2BufferConverter<Integer>(new Integer[0], new Integer2BufferConverter());
+        new Array2BufferConverter<>(new Integer[0], new Integer2BufferConverter());
     final Buffer buffer = conv.convertTo(array);
 
     final Integer[] result = conv.convertFrom(buffer);
@@ -63,8 +60,8 @@ public class BufferConverterTest extends TestCase {
 
   public void testSetConverter() {
     final Set2BufferConverter<Long> converter =
-        new HashSet2BufferConverter<Long>(new Long2BufferConverter());
-    final Set<Long> longs = Factories.hashSet(1L, 2L);
+        new HashSet2BufferConverter<>(new Long2BufferConverter());
+    final Set<Long> longs = new HashSet<>(Arrays.asList(1L, 2L));
     final Buffer buffer = converter.convertTo(longs);
     final Set<Long> result = converter.convertFrom(buffer);
     assertEquals(longs, result);
@@ -72,8 +69,8 @@ public class BufferConverterTest extends TestCase {
 
   public void testListConverter() {
     final List2BufferConverter<Long> converter =
-        new ArrayList2BufferConverter<Long>(new Long2BufferConverter());
-    final List<Long> longs = Factories.arrayList(1L, 2L);
+        new ArrayList2BufferConverter<>(new Long2BufferConverter());
+    final List<Long> longs = new ArrayList<>(Arrays.asList(1L, 2L));
     final Buffer buffer = converter.convertTo(longs);
     final List<Long> result = converter.convertFrom(buffer);
     assertEquals(longs, result);

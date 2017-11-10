@@ -1,6 +1,5 @@
 package com.expleague.commons.util.cache.impl;
 
-import com.expleague.commons.func.Computable;
 import com.expleague.commons.util.Pair;
 import com.expleague.commons.util.cache.Cache;
 import com.expleague.commons.util.cache.CacheStrategy;
@@ -11,6 +10,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * User: Igor Kuralenok
@@ -19,7 +19,7 @@ import java.util.Map;
 public class FixedSizeCache<K, V> implements Cache<K, V> {
   private final Map<K, CacheSlot<K, V>> accessMap;
   private final Pair<K, V>[] cache;
-  private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
+  private final ReferenceQueue<V> queue = new ReferenceQueue<>();
   private final CacheStrategy strategy;
 
   public FixedSizeCache(final int size, final CacheStrategy.Type strategyType) {
@@ -31,7 +31,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
 
   @Override
   public synchronized V put(final K key, final V value) {
-    if (value == null) return value;
+    if (value == null) return null;
     final CacheSlot<K, V> slot = accessMap.get(key);
     return slot != null ? putEntryInSlot(key, value, slot) : putNewEntry(key, value);
   }
@@ -42,7 +42,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
 
   private synchronized V putEntryInSlot(final K key, final V value, final @NotNull CacheSlot<K, V> slot, final boolean alterCacheStrategy) {
     if (slot.reference != null) slot.reference.clearKey();
-    slot.reference = new MyWeakReference<K, V>(key, value, queue);
+    slot.reference = new MyWeakReference<>(key, value, queue);
     cache[slot.position] = Pair.create(key, value);
     if (alterCacheStrategy) {
       strategy.registerAccess(slot.position);
@@ -52,8 +52,8 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
 
   private synchronized V putNewEntry(final K key, final V value) {
     final int position = strategy.getStorePosition();
-    final MyWeakReference<K, V> reference = new MyWeakReference<K, V>(key, value, queue);
-    final CacheSlot<K, V> old = accessMap.put(key, new CacheSlot<K, V>(position, reference));
+    final MyWeakReference<K, V> reference = new MyWeakReference<>(key, value, queue);
+    final CacheSlot<K, V> old = accessMap.put(key, new CacheSlot<>(position, reference));
     if (old != null && old.reference != null) old.reference.clearKey();
     if (cache[position] != null) {
       processReferenceQueue();
@@ -71,11 +71,11 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
   private int accessIndex = 0;
 
   @Override
-  public V get(final K key, final Computable<K, V> wayToGet) {
+  public V get(final K key, final Function<K, V> wayToGet) {
     try {
       V result = null;
       final CacheSlot<K, V> slot;
-      boolean alterCacheStrategy = true; // whatever
+      boolean alterCacheStrategy; // whatever
       synchronized (this) {
         slot = accessMap.get(key);
         if (slot != null) {
@@ -91,7 +91,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
 
       if (result == null) {
         if (wayToGet != null) {
-          result = wayToGet.compute(key);
+          result = wayToGet.apply(key);
         }
         if (result != null) {
           strategy.registerCacheMiss();
@@ -118,6 +118,7 @@ public class FixedSizeCache<K, V> implements Cache<K, V> {
   private synchronized void processReferenceQueue() {
     Reference<? extends V> ref;
     while ((ref = queue.poll()) != null) {
+      //noinspection unchecked
       final MyWeakReference<K, V> reference = (MyWeakReference<K, V>) ref;
       final K key = reference.key;
       if (key != null) {

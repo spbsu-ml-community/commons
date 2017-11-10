@@ -1,7 +1,5 @@
 package com.expleague.commons.func.types.impl;
 
-import com.expleague.commons.filters.AndFilter;
-import com.expleague.commons.filters.Filter;
 import com.expleague.commons.func.Converter;
 import com.expleague.commons.func.Factory;
 import com.expleague.commons.func.types.ConversionPack;
@@ -21,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * User: solar
@@ -31,7 +30,7 @@ import java.util.Set;
 public class TypeConvertersCollection implements ConversionRepository {
   private static final Log LOG = LogFactory.getLog(TypeConvertersCollection.class);
   private final ConversionRepository base;
-  private final Filter<TypeConverter> customize;
+  private final Predicate<TypeConverter> customize;
   private Map<Pair<Class, Class>, Factory<TypeConverter>> factories = new HashMap<>();
   private final Map<Pair<Class, Class>, TypeConverter> instances = new HashMap<>();
   private final Map<Pair<Class, Class>, TypeConverter> cache = new HashMap<>();
@@ -45,13 +44,10 @@ public class TypeConvertersCollection implements ConversionRepository {
    */
 
   public TypeConvertersCollection(final ConversionRepository base, final Object... converters) {
-    this.base = base != null ? base.customize(new Filter<TypeConverter>() {
-      @Override
-      public boolean accept(TypeConverter typeConverter) {
-        if (typeConverter instanceof ConversionDependant)
-          ((ConversionDependant) typeConverter).setConversionRepository(TypeConvertersCollection.this);
-        return true;
-      }
+    this.base = base != null ? base.customize(typeConverter -> {
+      if (typeConverter instanceof ConversionDependant)
+        ((ConversionDependant) typeConverter).setConversionRepository(TypeConvertersCollection.this);
+      return true;
     }) : null;
     this.customize = base instanceof TypeConvertersCollection ? ((TypeConvertersCollection)base).customize : null;
     for (final Object convId : converters) {
@@ -92,14 +88,11 @@ public class TypeConvertersCollection implements ConversionRepository {
     createInstances(factories, customize);
   }
 
-  private TypeConvertersCollection(final ConversionRepository base, final Map<Pair<Class, Class>, Factory<TypeConverter>> factories, final Filter<TypeConverter> filter){
-    this.base = base != null ? base.customize(new Filter<TypeConverter>() {
-      @Override
-      public boolean accept(TypeConverter typeConverter) {
-        if (typeConverter instanceof ConversionDependant)
-          ((ConversionDependant) typeConverter).setConversionRepository(TypeConvertersCollection.this);
-        return true;
-      }
+  private TypeConvertersCollection(final ConversionRepository base, final Map<Pair<Class, Class>, Factory<TypeConverter>> factories, final Predicate<TypeConverter> filter){
+    this.base = base != null ? base.customize(typeConverter -> {
+      if (typeConverter instanceof ConversionDependant)
+        ((ConversionDependant) typeConverter).setConversionRepository(TypeConvertersCollection.this);
+      return true;
     }) : null;
     this.factories = factories;
     this.customize = filter;
@@ -107,14 +100,14 @@ public class TypeConvertersCollection implements ConversionRepository {
     createInstances(factories, filter);
   }
 
-  private void createInstances(final Map<Pair<Class, Class>, Factory<TypeConverter>> factories, final Filter<TypeConverter> filter) {
+  private void createInstances(final Map<Pair<Class, Class>, Factory<TypeConverter>> factories, final Predicate<TypeConverter> filter) {
     for (final Map.Entry<Pair<Class, Class>, Factory<TypeConverter>> entry : factories.entrySet()) {
       if (entry.getValue() == null)
         continue;
       final TypeConverter converter = entry.getValue().create();
       if (converter instanceof ConversionDependant)
         ((ConversionDependant) converter).setConversionRepository(this);
-      if (filter == null || filter.accept(converter))
+      if (filter == null || filter.test(converter))
         instances.put(entry.getKey(), converter);
     }
   }
@@ -180,8 +173,8 @@ public class TypeConvertersCollection implements ConversionRepository {
 
 
   @Override
-  public ConversionRepository customize(final Filter<TypeConverter> todo) {
-    return new TypeConvertersCollection(base != null ? base.customize(todo) : null, factories, customize != null ? new AndFilter<TypeConverter>(customize, todo) : todo);
+  public ConversionRepository customize(final Predicate<TypeConverter> todo) {
+    return new TypeConvertersCollection(base != null ? base.customize(todo) : null, factories, customize != null ? customize.and(todo) : todo);
   }
 
   private boolean register(final Class<?> converterClass) throws NoSuchMethodException {
