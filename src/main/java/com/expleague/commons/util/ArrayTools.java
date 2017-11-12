@@ -437,6 +437,23 @@ public abstract class ArrayTools {
     }
   }
 
+
+  public  static void shuffle(final int[] a, final FastRandom random) {
+    final int N = a.length;
+    for (int i = 0; i < N; i++) {
+      final int r = i + (int) (random.nextDouble() * (N-i));   // between i and N-1
+      swap(a, i, r);
+    }
+  }
+
+  private static void swap(final int[] a,  final int i, final int j) {
+    {
+      final int swap = a[i];
+      a[i] = a[j];
+      a[j] = swap;
+    }
+  }
+
   // shuffle the array a[]
   private static void shuffle(final long[] a, final int[] linked) {
     final int N = a.length;

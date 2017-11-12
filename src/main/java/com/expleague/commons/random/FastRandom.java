@@ -3,9 +3,11 @@ package com.expleague.commons.random;
 import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecIterator;
+import org.apache.commons.math3.random.RandomGenerator;
 
 import java.util.Random;
 
+import static com.expleague.commons.math.MathTools.sqr;
 import static java.lang.Math.*;
 
 /**
@@ -15,7 +17,7 @@ import static java.lang.Math.*;
  * Time: 14:39
  * To change this template use File | Settings | File Templates.
  */
-public class FastRandom extends Random {
+public class FastRandom extends Random implements RandomGenerator {
   private final long seed;
   private final ThreadLocal<RandState> state = new ThreadLocal<RandState>() {
     @Override
@@ -33,6 +35,15 @@ public class FastRandom extends Random {
   }
 
   @Override
+  public void setSeed(final int i) {
+  }
+
+  @Override
+  public void setSeed(final int[] ints) {
+
+  }
+
+  @Override
   public long nextLong() {
     return state.get().advance();
   }
@@ -44,7 +55,7 @@ public class FastRandom extends Random {
 
   @Override
   protected int next(final int bits) {
-    return (int) (nextLong() >>> (64-bits));
+    return (int) (nextLong() >>> (64 - bits));
   }
 
   public int nextPoisson(final double meanFreq) {
@@ -52,7 +63,7 @@ public class FastRandom extends Random {
       final double val = nextNormal(meanFreq, Math.sqrt(meanFreq));
       if (val < 0)
         return nextPoisson(meanFreq);
-      return (int) val + (val - (int)val >= 0.5 ? 1 : 0);
+      return (int) val + (val - (int) val >= 0.5 ? 1 : 0);
     }
     int x = 0;
     double p = Math.exp(-meanFreq);
@@ -74,7 +85,7 @@ public class FastRandom extends Random {
     double sum = 0;
     {
       final VecIterator it = row.nonZeroes();
-      while(it.advance()) {
+      while (it.advance()) {
         sum += it.value();
       }
     }
@@ -84,7 +95,7 @@ public class FastRandom extends Random {
   public int nextSimple(final Vec row, final double len) {
     double rnd = nextDouble() * len;
     final VecIterator it = row.nonZeroes();
-    while(rnd > 0 && it.advance()) {
+    while (rnd > 0 && it.advance()) {
       rnd -= it.value();
     }
     return it.isValid() ? it.index() : -1;
@@ -92,6 +103,7 @@ public class FastRandom extends Random {
 
   private final byte[] randomBytes = new byte[8];
   private byte pos = 8;
+
   //don't use it in parallel
   public final byte nextByte() {
     if (pos == 8) {
@@ -108,15 +120,47 @@ public class FastRandom extends Random {
     }
     return randomBytes[pos++];
   }
+
   private final byte mask = 127;
+
   public final int nextByte(int k) {
     return (mask & nextByte()) % k;
   }
 
+  public double nextGamma(final double alpha) {
+    if (alpha > 1) {
+      double d = alpha - 1.0 / 3;
+      double c = 1.0 / Math.sqrt(9 * d);
+      for (; ; ) {
+        double z = nextGaussian();
+        double u = nextDouble();
+        final double v = sqr(1 + c * z) * (1 + c * z);
+        final double x = d * v;
+        if (z > -1.0 / c && (Math.log(u) < (0.5 * sqr(z) + d - x + d * Math.log(v)))) {
+          return x;
+        }
+      }
+    } else if (alpha == 1) {
+      return nextExponential();
+    } else {
+      final double x = nextGamma(alpha + 1);
+      return x * Math.pow(nextDouble(), 1.0 / alpha);
+    }
+  }
+
+  public double nextBayessianGamma(final double alpha, final double beta) {
+      return nextGamma(alpha) / beta;
+  }
+
+  public double nextExponential() {
+    return -Math.log(nextDouble());
+  }
+
+
   public double nextGamma(double shape, double scale) {
     if (shape < 1)
       throw new IllegalArgumentException("Theta parameter must be positive");
-    final double delta = shape - (int)shape;
+    final double delta = shape - (int) shape;
     double ksi = 0;
     if (delta > MathTools.EPSILON) {
       double eta;
@@ -128,7 +172,8 @@ public class FastRandom extends Random {
         if (a <= E / (E + delta)) {
           ksi = pow(b, 1 / delta);
           eta = c * Math.pow(ksi, delta - 1);
-        } else {
+        }
+        else {
           ksi = 1 - log(b);
           eta = c * Math.exp(-ksi);
         }
@@ -137,13 +182,14 @@ public class FastRandom extends Random {
     }
 
     double result = 0;
-    for (int i = 0; i < (int)shape; i++) {
+    for (int i = 0; i < (int) shape; i++) {
       result += Math.log(nextDouble());
     }
     return scale * (ksi - result);
   }
 
   static char[] BASE64_CHARS;
+
   static {
     BASE64_CHARS = new char[64];
     int index = 0;
@@ -159,6 +205,7 @@ public class FastRandom extends Random {
     BASE64_CHARS[index++] = '+';
     BASE64_CHARS[index] = '/';
   }
+
   public String nextBase64String(int count) {
     char[] chars = new char[count];
     for (int i = 0; i < count; i++) {
@@ -170,7 +217,7 @@ public class FastRandom extends Random {
   public String nextLowerCaseString(int count) {
     char[] chars = new char[count];
     for (int i = 0; i < count; i++) {
-      chars[i] = (char)('a' + nextInt(26));
+      chars[i] = (char) ('a' + nextInt(26));
     }
     return new String(chars);
   }
