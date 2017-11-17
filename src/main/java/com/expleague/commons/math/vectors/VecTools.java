@@ -24,7 +24,7 @@ import static java.lang.Math.sqrt;
  * Date: 16.01.2010
  * Time: 16:28:37
  */
-@SuppressWarnings("UnusedDeclaration")
+@SuppressWarnings({"UnusedDeclaration", "UnusedReturnValue", "SameParameterValue"})
 public class VecTools {
   private static final double EPSILON = 1e-6;
 
@@ -116,8 +116,11 @@ public class VecTools {
         ((CustomBasisVec) left).indices = newIndeces;
         ((CustomBasisVec) left).values = newValues;
       }
-      else if (left instanceof ArrayVec && left.getClass().equals(vec.getClass())) {
-        ((ArrayVec)left).add((ArrayVec)vec);
+      else if (left instanceof OperableVec && left.getClass().equals(vec.getClass())) {
+        final OperableVec operableLeft = (OperableVec) left;
+        final OperableVec operableVec = (OperableVec) vec;
+        //noinspection unchecked
+        operableLeft.add(operableVec);
       }
       else {
         final VecIterator viter = vec.nonZeroes();
@@ -132,8 +135,11 @@ public class VecTools {
 
   public static double multiply(final Vec left, final Vec right) {
     checkBasisesEquals(left, right);
-    if (left instanceof ArrayVec && right instanceof ArrayVec) {
-      return ((ArrayVec) left).mul((ArrayVec) right);
+    if (left instanceof OperableVec && left.getClass().equals(right.getClass()))  {
+      OperableVec operableLeft = (OperableVec) left;
+      OperableVec operableRight = (OperableVec) right;
+      //noinspection unchecked
+      return operableLeft.mul(operableRight);
     }
     final VecIterator liter = left.nonZeroes();
     final VecIterator riter = right.nonZeroes();
@@ -340,8 +346,8 @@ public class VecTools {
         return x;
       }
     }
-    if (x instanceof ArrayVec) {
-      ((ArrayVec) x).fill(val);
+    if (x instanceof OperableVec) {
+      ((OperableVec) x).fill(val);
       return x;
     }
 
@@ -354,12 +360,13 @@ public class VecTools {
   public static Vec incscale(final Vec result, final Vec left, final double scale) {
     if (Double.isNaN(scale))
       throw new IllegalArgumentException();
-    if (left instanceof ArrayVec && left.getClass().equals(result.getClass())) {
-      final ArrayVec larr = (ArrayVec) left;
-      final ArrayVec resarr = (ArrayVec) result;
-      ArrayTools.incscale(larr.data.array, larr.data.start, resarr.data.array, resarr.data.start, larr.data.length, scale);
-    }
-    else {
+
+    if (left instanceof OperableVec && left.getClass().equals(result.getClass())) {
+      OperableVec operableResult = (OperableVec) result;
+      OperableVec operableLeft = (OperableVec) left;
+      //noinspection unchecked
+      operableResult.inscale(operableLeft, scale);
+    } else {
       final VecIterator liter = left.nonZeroes();
       while (liter.advance()) {
         result.adjust(liter.index(), scale * liter.value());
@@ -839,8 +846,8 @@ public class VecTools {
       scale(((VecBasedMx) vector).vec, factor);
       return vector;
     }
-    else if (vector instanceof ArrayVec) {
-      ((ArrayVec)vector).scale(factor);
+    else if (vector instanceof OperableVec) {
+      ((OperableVec)vector).scale(factor);
       return vector;
     }
     final VecIterator iter = vector.nonZeroes();

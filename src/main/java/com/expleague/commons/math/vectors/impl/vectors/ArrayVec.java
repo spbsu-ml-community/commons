@@ -1,5 +1,6 @@
 package com.expleague.commons.math.vectors.impl.vectors;
 
+import com.expleague.commons.math.vectors.OperableVec;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecIterator;
 import com.expleague.commons.math.vectors.impl.iterators.SkipVecNZIterator;
@@ -11,7 +12,7 @@ import com.expleague.commons.util.ArrayTools;
  * Date: 16.01.2010
  * Time: 16:25:41
  */
-public class ArrayVec extends Vec.Stub {
+public class ArrayVec extends Vec.Stub implements OperableVec<ArrayVec> {
   public final ArrayPart<double[]> data;
   public ArrayVec(final double... values) {
     data = new ArrayPart<>(values);
@@ -46,6 +47,11 @@ public class ArrayVec extends Vec.Stub {
 //    if (Double.isNaN(v))
 //      throw new IllegalArgumentException();
     ArrayTools.fill(data.array, data.start, data.length, v);
+  }
+
+  @Override
+  public void inscale(ArrayVec other, double scale) {
+    ArrayTools.incscale(other.data.array, other.data.start, data.array, data.start, other.data.length, scale);
   }
 
   public void scale(final double s) {

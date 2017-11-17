@@ -175,17 +175,6 @@ public class MathToolsTest extends JUnitIOCapture {
 
   }
 
-  @Test
-  public void testGammaPerf() {
-    FastRandom random = new FastRandom();
-    Interval.start();
-    for (int i = 0; i < 10000000; i++) {
-      random.nextGamma(10, 1);
-    }
-    Interval.stopAndPrint("ahgdf");
-    assertEquals(0, 1);
-  }
-
   private void assertEquals(double a, double b) {
     Assert.assertEquals(a, b, MathTools.EPSILON);
   }

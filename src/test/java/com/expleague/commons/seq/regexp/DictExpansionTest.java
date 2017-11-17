@@ -31,7 +31,7 @@ import java.util.function.Consumer;
  * Time: 15:31
  */
 
-public class DictExpansionTest extends TestCase {
+public abstract class DictExpansionTest extends TestCase {
 
   public static final String ROOT_WIKI_FILE = System.getenv("HOME") + "/data/wiki/ru/" + "ruwiki-latest-pages-articles.xml";
 
@@ -70,7 +70,7 @@ public class DictExpansionTest extends TestCase {
       final Vec probabs = new ArrayVec(reference.size());
       VecTools.fill(probabs, 1.);
       VecTools.normalizeL1(probabs);
-      for (int j = 0; j < 10000; j++) {
+      for (int j = 0; j < 1000; j++) {
         final int len = rnd.nextInt(30);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
@@ -99,7 +99,7 @@ public class DictExpansionTest extends TestCase {
       final Vec probabs = new ArrayVec(reference.size());
       VecTools.fill(probabs, 1.);
       VecTools.normalizeL1(probabs);
-      for (int j = 0; j < 10000; j++) {
+      for (int j = 0; j < 1000; j++) {
         final int len = rng.nextInt(100);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)

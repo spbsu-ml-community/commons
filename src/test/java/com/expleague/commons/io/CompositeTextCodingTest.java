@@ -255,7 +255,7 @@ public class CompositeTextCodingTest /*extends JUnitIOCapture */{
       encode.write(query);
     }
     System.out.println(dict.size() + " " + buffer.position());
-    Assert.assertTrue(rate < 0.44);
+    Assert.assertTrue(rate < 0.5);
   }
 
   @Test

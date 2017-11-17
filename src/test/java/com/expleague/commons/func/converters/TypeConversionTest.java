@@ -12,12 +12,14 @@ import junit.framework.TestCase;
  */
 public class TypeConversionTest extends TestCase {
   public void testConvertersPackageInit() throws Exception {
-    final String convert = new TypeConvertersCollection("com.spbsu.commons.func.converters.test.a").convert(10, String.class);
+    final String convert = new TypeConvertersCollection("com.expleague.commons.func.converters" +
+        ".test.a").convert(10, String.class);
     assertEquals("10", convert);
   }
 
   public void testConvertersPackageInitInheritancePlusPrivateClass() throws Exception {
-    final String convert = new TypeConvertersCollection("com.spbsu.commons.func.converters.test.b").convert(10, String.class);
+    final String convert = new TypeConvertersCollection("com.expleague.commons.func.converters" +
+        ".test.b").convert(10, String.class);
     assertEquals("10", convert);
   }
 
@@ -56,7 +58,7 @@ public class TypeConversionTest extends TestCase {
 
   public void testConvertersPackageInheritanceInSource() throws Exception {
     final String convert = new TypeConvertersCollection(D.class).convert(new B(), String.class);
-    assertEquals("Hello, A", convert.toString());
+    assertEquals("Hello, A", convert);
   }
 
   public static class E implements TypeConverter<B, String> {
@@ -68,7 +70,7 @@ public class TypeConversionTest extends TestCase {
 
   public void testConvertersPackageInheritanceInSourcePreference() throws Exception {
     final String convert = new TypeConvertersCollection(D.class, E.class).convert(new B(), String.class);
-    assertEquals("Hello, B", convert.toString());
+    assertEquals("Hello, B", convert);
   }
 
   public void testGeneric1() throws Exception {
