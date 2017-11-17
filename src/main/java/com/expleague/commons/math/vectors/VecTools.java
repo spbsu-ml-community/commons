@@ -16,6 +16,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static java.lang.Math.sqrt;
 
@@ -674,16 +675,11 @@ public class VecTools {
   public static void exp(Vec result) {
     if (result instanceof ArrayVec) {
       ArrayPart<double[]> data = ((ArrayVec) result).data;
+      final double[] array = data.array;
       final int length = data.length;
-      Arrays.parallelSetAll(data.array, index -> Math.exp(data.array[index]));
-//      for (int i = data.start; i < length / 4; i++) {
-//        final int index = i * 4;
-//        array[index] = Math.exp(array[index]);
-//        array[index + 1] = Math.exp(array[index + 1]);
-//        array[index + 2] = Math.exp(array[index + 2]);
-//        array[index + 3] = Math.exp(array[index + 3]);
-//      }
-//
+      IntStream.range(data.start, data.start + length).parallel().forEach(i -> {
+        array[i] = Math.exp(array[i]);
+      });
     }
     else if (result instanceof VecBasedMx) {
       exp(((VecBasedMx) result).vec);

@@ -25,10 +25,10 @@ public class ArrayVec extends Vec.Stub implements OperableVec<ArrayVec> {
   }
 
   public ArrayVec(final double[] values, final int offset, final int length) {
-//    if (offset < 0 || offset + length > values.length)
-//      throw new ArrayIndexOutOfBoundsException();
+    if (offset < 0 || offset + length > values.length)
+      throw new ArrayIndexOutOfBoundsException();
 //    for (int i = offset; i < offset + length; i++) {
-//      if (Double.isNaN(values[i]))
+//      if (Double.isNaN(values[i]) || Double.isInfinite(values[i]))
 //        throw new IllegalArgumentException();
 //    }
     data = new ArrayPart<>(values, offset, length);
@@ -44,18 +44,20 @@ public class ArrayVec extends Vec.Stub implements OperableVec<ArrayVec> {
   }
 
   public void fill(final double v) {
-//    if (Double.isNaN(v))
+//    if (Double.isNaN(v) || Double.isInfinite(v))
 //      throw new IllegalArgumentException();
     ArrayTools.fill(data.array, data.start, data.length, v);
   }
 
   @Override
   public void inscale(ArrayVec other, double scale) {
+//    if (Double.isNaN(scale) || Double.isInfinite(scale))
+//      throw new IllegalArgumentException();
     ArrayTools.incscale(other.data.array, other.data.start, data.array, data.start, other.data.length, scale);
   }
 
   public void scale(final double s) {
-//    if (Double.isNaN(s))
+//    if (Double.isNaN(s) || Double.isInfinite(s))
 //      throw new IllegalArgumentException();
     ArrayTools.mul(data.array, data.start, data.length, s);
   }
@@ -117,7 +119,7 @@ public class ArrayVec extends Vec.Stub implements OperableVec<ArrayVec> {
 
   @Override
   public Vec set(final int i, final double val) {
-//    if (Double.isNaN(val))
+//    if (Double.isNaN(val) || Double.isInfinite(val))
 //      throw new IllegalArgumentException();
     data.array[data.start + i] = val;
     return this;
@@ -125,7 +127,7 @@ public class ArrayVec extends Vec.Stub implements OperableVec<ArrayVec> {
 
   @Override
   public Vec adjust(final int i, final double increment) {
-//    if (Double.isNaN(increment))
+//    if (Double.isNaN(increment) || Double.isInfinite(increment))
 //      throw new IllegalArgumentException();
     data.array[data.start + i] += increment;
     return this;
