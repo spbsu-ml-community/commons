@@ -6,6 +6,8 @@ import com.expleague.commons.seq.SeqTools;
 import com.expleague.commons.seq.Seq;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,8 +53,9 @@ public class DynamicDictionary<T extends Comparable<T>> extends DictionaryBase<T
   }
 
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
   @Override
-  public int search(Seq<T> seq) {
+  public int search(Seq<T> seq, TIntSet excludes) {
     final T first;
     int index;
     lock.readLock().lock();
@@ -61,7 +64,7 @@ public class DynamicDictionary<T extends Comparable<T>> extends DictionaryBase<T
       index = singles.get(first);
       if (index != Constants.DEFAULT_INT_NO_ENTRY_VALUE) {
         if (index < 0)
-          index = composites.search(seq);
+          index = composites.search(seq, excludes);
         return index;
       }
     } finally {

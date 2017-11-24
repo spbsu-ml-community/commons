@@ -1,15 +1,20 @@
 package com.expleague.commons.io.codec.seq;
 
 import com.expleague.commons.func.impl.WeakListenerHolderImpl;
-import com.expleague.commons.math.MathTools;
-import com.expleague.commons.seq.IntSeq;
-import com.expleague.commons.util.JSONTools;
+import com.expleague.commons.math.vectors.Vec;
+import com.expleague.commons.math.vectors.VecTools;
+import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
+import com.expleague.commons.math.vectors.impl.vectors.VecBuilder;
 import com.expleague.commons.seq.CharSeqTools;
+import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.seq.Seq;
 import com.expleague.commons.util.ArrayTools;
+import com.expleague.commons.util.JSONTools;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TLongIntMap;
 import gnu.trove.procedure.TIntDoubleProcedure;
+import gnu.trove.set.TIntSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
@@ -18,10 +23,11 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.IntStream;
 
 import static java.lang.Integer.max;
 import static java.lang.Math.log;
@@ -34,7 +40,6 @@ import static java.lang.Math.min;
  * Time: 18:23
  */
 public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderImpl<DictExpansion<T>> {
-  public static final double POISSON_SIGNIFICANCE = 0.05;
   public static final double EXTENSION_FACTOR = 1.33;
   public static final double MAX_POWER = 10000000;
   public static final double MAX_MIN_PROBABILITY = 0.002;
@@ -109,24 +114,8 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
   public void accept(final Seq<T> seq) {
     lock.readLock().lock();
     try {
-      current.pairsFreqs.populate(pairsFreq -> {
-        final IntSeq parseResult = current.parse(seq);
-        final int length = parseResult.length();
-        int prev = -1;
-        for(int i = 0; i < length; i++) {
-          final int symbol = parseResult.intAt(i);
-          current.updateSymbol(symbol, 1);
-          if (prev >= 0)
-            pairsFreq.adjustOrPutValue((long) prev << 32 | symbol, 1, 1);
-          prev = symbol;
-        }
-      });
-      { // parsing with suggest
-        final IntSeq parse = suggest.parse(seq);
-        for (int i = 0; i < parse.length(); i++) {
-          suggest.updateSymbol(parse.intAt(i), 1);
-        }
-      }
+      current.parse(seq);
+      suggest.parse(seq);
     }
     finally {
       lock.readLock().unlock();
@@ -136,10 +125,10 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
   }
 
   private boolean update() {
+    if ((!current.enough(probFound) || !suggest.enough(probFound)) && suggest.power < MAX_POWER)
+      return false;
     lock.writeLock().lock();
     try {
-      if ((!current.enough(probFound) || !suggest.enough(probFound)) && suggest.power < MAX_POWER)
-        return false;
       double sum = 0;
       double textLength = 0;
       for (int i = 0; i < current.size(); i++) {
@@ -250,12 +239,17 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     }
   }
 
+  public double codeLength() {
+    return result.codeLength();
+  }
+
   public static class DictionaryWithStat<T extends Comparable<T>> extends DictionaryBase<T> {
     private final Dictionary<T> dict;
     private final TIntArrayList symbolFreqs;
     private double power = 0;
     private final LongIntMappingAsyncBuilder pairsFreqs;
     private final double minProbability;
+    private double totalChars = 0;
 
     public DictionaryWithStat(Dictionary<T> dict, double minProbResult) {
       this.dict = dict;
@@ -284,6 +278,11 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     @Override
     public int search(Seq<T> seq) {
       return dict.search(seq);
+    }
+
+    @Override
+    public int search(Seq<T> seq, TIntSet excludes) {
+      return dict.search(seq, excludes);
     }
 
     @Override
@@ -317,12 +316,12 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         if (freq > 0)
           sum -= freq * log(freq);
       }
-      return sum + power * log(power);
+      return (sum + power * log(power)) / totalChars;
     }
 
     private DictionaryWithStat<T> reduce(int slots, boolean isDynamic) {
       final List<StatItem> items = new ArrayList<>();
-      final double codeLength = codeLength();
+      final double codeLength = codeLength() * totalChars;
       final List<Seq<T>> newDict = new ArrayList<>(size());
 
       for (int s = 0; s < size(); s++) {
@@ -344,10 +343,10 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
           }
           while (seq.length() > 0 && (next = search(seq)) >= 0);
           codeLengthWOSymbol += newStatPower * log(newStatPower + size() - 1) - power * log(power + size());
-          items.add(new StatItem(s, -1, s, codeLengthWOSymbol - codeLength, count));
+          items.add(new StatItem(-1, s, codeLengthWOSymbol - codeLength, count));
         }
       }
-      Collections.sort(items, (o1, o2) -> Double.compare(o2.score, o1.score));
+      items.sort(Comparator.comparingDouble(o -> -o.score));
 
       double minProbResult = min(1. / size(), MAX_MIN_PROBABILITY);
       for (final StatItem item : items) {
@@ -358,27 +357,55 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         final Seq<T> symbol = get(item.second);
         newDict.add(symbol);
       }
+
       //noinspection unchecked
       return createDict(newDict, isDynamic, minProbResult);
     }
 
+    private void printPairs(TLongIntMap oldPairs, TLongIntMap newPairs) {
+      for (int first = 0; first < size(); first++) {
+        for (int second = 0; second < size(); second++) {
+          final long code = (long) first << 32 | second;
+          if (oldPairs.get(code) != newPairs.get(code)) {
+            System.out.println("\t" + dict.get(first) + "|" + dict.get(second) + ": " + oldPairs.get(code) + " -> " + newPairs.get(code));
+          }
+        }
+      }
+    }
+
     private DictionaryWithStat<T> expand(int slots, boolean isDynamic) {
+      final Vec freqXFirst = new ArrayVec(dict.size());
+      pairsFreqs.visit((code, freq) -> {
+        freqXFirst.adjust((int) (code >>> 32), freq);
+        return true;
+      });
+      final double totalPairFreqs = VecTools.sum(freqXFirst);
+      final Vec freqs = IntStream.of(symbolFreqs.toArray())
+          .mapToDouble(x -> (double)x)
+          .collect(VecBuilder::new, VecBuilder::append, VecBuilder::addAll)
+          .build();
+
+      final double totalFreqs = VecTools.sum(freqs);
+
       final List<StatItem> items = new ArrayList<>();
-      pairsFreqs.visit((code, count) -> {
+      pairsFreqs.visit((code, freq) -> {
         final int first = (int) (code >>> 32);
         final int second = (int) (code & 0xFFFFFFFFL);
-        final double pairProbIndependentDirichlet = freq(first) * freq(second) / power / power;
-        final double lambda = pairsFreqs.accumulatedValuesTotal() * pairProbIndependentDirichlet;
-        final double logProb = MathTools.logPoissonProbability(lambda, count);
-        items.add(new StatItem(code, first, second, count > lambda ? logProb : 0, count));
+        final double pAB = freq / totalPairFreqs;
+        final double pBcondA = freq / freqXFirst.get(first);
+        final double pA = freqs.get(first) / totalFreqs;
+        final double pB = freqs.get(second) / totalFreqs;
+        items.add(new StatItem(first, second, freq * pBcondA * log(pAB / pA / pB), freq));
         return true;
       });
 
-      Collections.sort(items, (o1, o2) -> Double.compare(o1.score, o2.score));
+      items.sort(Comparator.comparingDouble(o -> -o.score));
       final List<Seq<T>> newDict = new ArrayList<>(alphabet());
       double minProbResult = minProbability;
       for (final StatItem item : items) {
-        if (item.score >= Math.log(POISSON_SIGNIFICANCE) || --slots < 0)
+//        if (item.score/power < 5e-4)
+//          break;
+        if (--slots < 0)
           break;
         newDict.add(CharSeqTools.concat(get(item.first), get(item.second)));
         minProbResult = min(minProbResult, item.count / (double)pairsFreqs.accumulatedValuesTotal());
@@ -396,20 +423,29 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     }
 
     public IntSeq parse(Seq<T> seq) {
-//      if (symbolFreqs.size() < dict.size())
-//        symbolFreqs.fill(symbolFreqs.size(), dict.size(), 0);
-      return parse(seq, symbolFreqs, power);
+      totalChars += seq.length();
+      final IntSeq parseResult = super.parse(seq);
+      pairsFreqs.populate(pairsFreq -> {
+        final int length = parseResult.length();
+        int prev = -1;
+        for(int i = 0; i < length; i++) {
+          final int symbol = parseResult.intAt(i);
+          updateSymbol(symbol, 1);
+          if (prev >= 0)
+            pairsFreq.adjustOrPutValue((long) prev << 32 | symbol, 1, 1);
+          prev = symbol;
+        }
+      });
+      return parseResult;
     }
 
     private final class StatItem {
-      long code;
       int first;
       int second;
       double score;
       int count;
 
-      private StatItem(final long code, final int first, final int second, final double score, final int count) {
-        this.code = code;
+      private StatItem(final int first, final int second, final double score, final int count) {
         this.first = first;
         this.second = second;
         this.score = score;
@@ -420,7 +456,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       public String toString() {
         final StringBuilder result = new StringBuilder();
         if (first >= 0)
-          result.append(get(first));
+          result.append(get(first)).append("|");
         result.append(get(second));
         result.append("->(");
         result.append(count);
@@ -428,6 +464,29 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         result.append(")");
         return result.toString();
       }
+    }
+
+    private double kl(Vec freqs, TLongIntMap pairFreqs) {
+      final Vec freqXFirst = new ArrayVec(freqs.dim());
+      pairFreqs.forEachEntry((code, freq) -> {
+        freqXFirst.adjust((int) (code >>> 32), freq);
+        return true;
+      });
+      final double totalPairFreqs = VecTools.sum(freqXFirst);
+      final double totalFreqs = VecTools.sum(freqs);
+
+      final double result[] = {0};
+      pairFreqs.forEachEntry((code, freq) -> {
+        final int first = (int) (code >>> 32);
+        final int second = (int) (code & 0xFFFFFFFFL);
+        final double pAB = freq / totalPairFreqs;
+        final double pBcondA = freq / freqXFirst.get(first);
+        final double pA = freqs.get(first) / totalFreqs;
+        final double pB = freqs.get(second) / totalFreqs;
+        result[0] += freq * pBcondA * log(pAB / pA / pB);
+        return true;
+      });
+      return result[0];
     }
   }
 }

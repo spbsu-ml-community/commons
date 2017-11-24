@@ -7,6 +7,8 @@ import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
 
 /**
@@ -24,6 +26,7 @@ public interface Trans extends Function<Vec,Vec> {
   Vec transTo(Vec x, Vec to);
 
   Mx transAll(Mx x);
+  Mx transAll(Mx ds, boolean parallel);
 
   abstract class Stub implements Trans {
     @Override
@@ -50,9 +53,29 @@ public interface Trans extends Function<Vec,Vec> {
 
     @Override
     public Mx transAll(final Mx ds) {
+      return transAll(ds, false);
+    }
+
+    public Mx transAll(final Mx ds, boolean parallel) {
       final Mx result = new VecBasedMx(ydim(), new ArrayVec(ds.rows() * ydim()));
+      final CountDownLatch latch = new CountDownLatch(ds.rows());
       for (int i = 0; i < ds.rows(); i++) {
-        transTo(ds.row(i), result.row(i));
+        final int finalI = i;
+        if (parallel)
+          ForkJoinPool.commonPool().execute(() -> {
+            transTo(ds.row(finalI), result.row(finalI));
+            latch.countDown();
+          });
+        else
+          transTo(ds.row(finalI), result.row(finalI));
+      }
+      if (parallel) {
+        try {
+          latch.await();
+        }
+        catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
       }
       return result;
     }

@@ -7,6 +7,9 @@ import com.expleague.commons.math.vectors.impl.iterators.SkipVecNZIterator;
 import com.expleague.commons.util.ArrayPart;
 import com.expleague.commons.util.ArrayTools;
 
+import java.util.function.DoubleSupplier;
+import java.util.stream.DoubleStream;
+
 /**
  * User: solar
  * Date: 16.01.2010
@@ -141,6 +144,20 @@ public class ArrayVec extends Vec.Stub implements OperableVec<ArrayVec> {
   @Override
   public ArrayVec sub(final int start, final int length) {
     return new ArrayVec(data.array, this.data.start + start, length);
+  }
+
+  @Override
+  public DoubleStream stream() {
+    if (data.start == 0 && data.length == data.array.length)
+      return DoubleStream.of(data.array);
+    return DoubleStream.generate(new DoubleSupplier() {
+      int idx = 0;
+
+      @Override
+      public double getAsDouble() {
+        return data.array[idx++ + data.start];
+      }
+    }).limit(data.length);
   }
 
   public void assign(final ArrayVec vec) {

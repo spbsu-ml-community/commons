@@ -5,6 +5,8 @@ import com.expleague.commons.seq.IntSeqBuilder;
 import com.expleague.commons.seq.Seq;
 import gnu.trove.list.TIntList;
 import gnu.trove.procedure.TObjectDoubleProcedure;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 import static java.lang.Math.log;
 
@@ -19,17 +21,11 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
   protected DictionaryBase() {
   }
 
-  private final ThreadLocal<IntSeqBuilder> builderTL = new ThreadLocal<IntSeqBuilder>() {
-    @Override
-    protected IntSeqBuilder initialValue() {
-      return new IntSeqBuilder();
-    }
-  };
   static boolean debug = false;
 
   @Override
   public IntSeq parse(Seq<T> seq, TIntList freqs, double totalFreq) {
-    final IntSeqBuilder builder = builderTL.get();
+    final IntSeqBuilder builder = new IntSeqBuilder();
     if (seq.length() < 10) {
       final double logProBab = exhaustiveParse(seq, freqs, totalFreq, builder, 0, Double.NEGATIVE_INFINITY);
       final IntSeq result = builder.build();
@@ -48,20 +44,25 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
       }
       return result;
     }
-    return linearParse(seq, builder);
+    return linearParse(seq, builder, new TIntHashSet());
   }
 
   @Override
   public IntSeq parse(Seq<T> seq) {
-    return linearParse(seq, builderTL.get());
+    return linearParse(seq, new IntSeqBuilder(), null);
   }
 
-  private IntSeq linearParse(Seq<T> seq, IntSeqBuilder builder) {
+  @Override
+  public IntSeq parse(Seq<T> seq, TIntSet excludes) {
+    return linearParse(seq, new IntSeqBuilder(), excludes);
+  }
+
+  private IntSeq linearParse(Seq<T> seq, IntSeqBuilder builder, TIntSet excludes) {
     Seq<T> suffix = seq;
     while (suffix.length() > 0) {
       int symbol;
       try {
-        symbol = search(suffix);
+        symbol = search(suffix, excludes);
         suffix = suffix.sub(get(symbol).length(), suffix.length());
       }
       catch (RuntimeException e) {
@@ -117,6 +118,11 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
     finally {
       builder.popMark();
     }
+  }
+
+  @Override
+  public int search(Seq<T> seq) {
+    return search(seq, null);
   }
 
   @Override

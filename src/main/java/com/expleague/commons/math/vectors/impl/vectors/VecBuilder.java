@@ -27,6 +27,11 @@ public class VecBuilder implements SeqBuilder<Double> {
     return this;
   }
 
+  public VecBuilder addAll(final VecBuilder other) {
+    data.addAll(other.data);
+    return this;
+  }
+
   @Override
   public VecBuilder addAll(final Seq<Double> values) {
     for (int i = 0; i < values.length(); i++) {

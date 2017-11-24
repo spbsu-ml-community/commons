@@ -4,6 +4,7 @@ import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.seq.Seq;
 import gnu.trove.list.TIntList;
 import gnu.trove.procedure.TObjectDoubleProcedure;
+import gnu.trove.set.TIntSet;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,9 +17,11 @@ import java.util.List;
  */
 public interface Dictionary<T extends Comparable<T>> {
   int search(Seq<T> seq);
+  int search(Seq<T> seq, TIntSet excludes);
 
   IntSeq parse(Seq<T> seq, TIntList freqs, double totalFreq);
   IntSeq parse(Seq<T> seq);
+  IntSeq parse(Seq<T> seq, TIntSet excludes);
   void visitVariants(Seq<T> arg, TIntList freqs, double totalFreq, TObjectDoubleProcedure<IntSeq> todo);
 
   Seq<T> get(int index);
@@ -36,6 +39,11 @@ public interface Dictionary<T extends Comparable<T>> {
     }
 
     @Override
+    public int search(Seq seq, TIntSet excludes) {
+      return -1;
+    }
+
+    @Override
     public IntSeq parse(Seq seq, TIntList freqs, double totalFreq) {
       return parse(seq);
     }
@@ -45,6 +53,11 @@ public interface Dictionary<T extends Comparable<T>> {
       final int[] arr = new int[seq.length()];
       Arrays.fill(arr, -1);
       return new IntSeq(arr);
+    }
+
+    @Override
+    public IntSeq parse(Seq seq, TIntSet excludes) {
+      return parse(seq);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.expleague.commons.io.codec.seq;
 
 import com.expleague.commons.util.ArrayTools;
 import com.expleague.commons.util.sync.StateLatch;
+import gnu.trove.impl.hash.TLongIntHash;
 import gnu.trove.map.TLongIntMap;
 import gnu.trove.map.hash.TLongIntHashMap;
 import gnu.trove.procedure.TLongIntProcedure;
@@ -23,14 +24,11 @@ public class LongIntMappingAsyncBuilder {
   private final int tlBufferSize;
   private long accumulatorValuesTotal;
   private final List<BufferWithState> allBuffers = new CopyOnWriteArrayList<>();
-  private ThreadLocal<BufferWithState> tlBuffer = new ThreadLocal<BufferWithState>(){
-    @Override
-    protected BufferWithState initialValue() {
-      final BufferWithState result = new BufferWithState();
-      allBuffers.add(result);
-      return result;
-    }
-  };
+  private ThreadLocal<BufferWithState> tlBuffer = ThreadLocal.withInitial(() -> {
+    final BufferWithState result = new BufferWithState();
+    allBuffers.add(result);
+    return result;
+  });
 
   public LongIntMappingAsyncBuilder(int tlBufferSize) {
     this.tlBufferSize = tlBufferSize;
@@ -48,14 +46,14 @@ public class LongIntMappingAsyncBuilder {
   }
 
   private void flushBuffer(BufferWithState bufferWithState) {
-    bufferWithState.state(4);
     final TLongIntMap buffer = bufferWithState.map;
+    if (buffer.isEmpty())
+      return;
+    bufferWithState.state(4);
     final long[] bufferKeys = buffer.keys();
     final int[] bufferValues = buffer.values();
     ArrayTools.parallelSort(bufferKeys, bufferValues);
     synchronized (this) {
-      if (buffer.isEmpty())
-        return;
       final long[] currentKeys = accumulatorKeys;
       final int[] currentValues = accumulatorValues;
       final int acculength = accumulatorSize;
@@ -151,6 +149,19 @@ public class LongIntMappingAsyncBuilder {
 
   public long accumulatedValuesTotal() {
     return accumulatorValuesTotal;
+  }
+
+  public TLongIntMap asMap() {
+    flush();
+    synchronized (this) {
+      final TLongIntMap map = new TLongIntHashMap(accumulatorKeys.length, (float) 0.8);
+      int index = 0;
+      while (accumulatorKeys.length > index) {
+        map.put(accumulatorKeys[index], accumulatorValues[index]);
+        index++;
+      }
+      return map;
+    }
   }
 
   class BufferWithState {

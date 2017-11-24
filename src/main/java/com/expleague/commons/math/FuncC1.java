@@ -28,7 +28,6 @@ public interface FuncC1 extends Func, TransC1 {
       return result;
     }
 
-
     @Override
     @NotNull
     public Trans gradient() {

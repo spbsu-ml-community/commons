@@ -3,6 +3,7 @@ package com.expleague.commons.io.codec.seq;
 import com.expleague.commons.seq.CharSeqTools;
 import com.expleague.commons.seq.Seq;
 import com.expleague.commons.util.Pair;
+import gnu.trove.set.TIntSet;
 
 import java.util.*;
 
@@ -59,13 +60,16 @@ public class ListDictionary<T extends Comparable<T>> extends DictionaryBase<T> {
   }
 
   @Override
-  public int search(final Seq<T> seq) {
+  public int search(final Seq<T> seq, final TIntSet excludes) {
     int index = Arrays.binarySearch(sex, seq, cmp);
-    if (index >= 0)
-      return index;
-    index = -index-2;
+    if (index >= 0) {
+      if (excludes == null || !excludes.contains(index))
+        return index;
+      index = -(parents[index] + 2);
+    }
+    index = -(index + 2);
     while (index >= 0) {
-      if (CharSeqTools.startsWith(seq, sex[index]))
+      if (CharSeqTools.startsWith(seq, sex[index]) && (excludes == null || !excludes.contains(index)))
         return index;
       index = parents[index];
     }

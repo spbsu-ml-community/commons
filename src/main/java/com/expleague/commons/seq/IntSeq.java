@@ -46,6 +46,15 @@ public class IntSeq extends Seq.Stub<Integer> {
   }
 
   @Override
+  public int[] toArray() {
+    if (start == 0 && end == arr.length)
+      return arr;
+    final int[] result = new int[length()];
+    System.arraycopy(arr, start, result, 0, length());
+    return result;
+  }
+
+  @Override
   public boolean isImmutable() {
     return true;
   }

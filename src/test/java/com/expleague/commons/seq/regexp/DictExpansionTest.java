@@ -79,6 +79,40 @@ public abstract class DictExpansionTest extends TestCase {
   //      System.out.println(builder);
       }
       String resultAlpha = de.result().alphabet().toString();
+      System.out.println(resultAlpha + ": " + de.codeLength());
+      equalsAtLeastOnce = reference.alphabet().toString().equals(resultAlpha);
+    }
+    assertTrue(equalsAtLeastOnce);
+  }
+
+  public void testRestoreAsym() throws Exception {
+    final ListDictionary<Character> reference = new ListDictionary<Character>(
+            CharSeq.create("a"),
+            CharSeq.create("b"),
+            CharSeq.create("c"),
+            CharSeq.create("cc"),
+            CharSeq.create("ab"),
+            CharSeq.create("bb"));
+    boolean equalsAtLeastOnce = false;
+    for (int i = 0; i < 10 && !equalsAtLeastOnce; i++) {
+        final List<Character> alpha = new ArrayList<>();
+      for (char a = 'a'; a <= 'c'; a++) {
+        alpha.add(a);
+      }
+      final FastRandom rnd = new FastRandom();
+      final DictExpansion<Character> de = new DictExpansion<>(alpha, reference.size());
+      final Vec probabs = new ArrayVec(reference.size());
+      VecTools.fill(probabs, 1.);
+      VecTools.normalizeL1(probabs);
+      for (int j = 0; j < 10000; j++) {
+        final int len = rnd.nextInt(30);
+        final StringBuilder builder = new StringBuilder(len);
+        for (int c = 0; c < len; c++)
+          builder.append(reference.get(rnd.nextSimple(probabs)));
+        de.accept(CharSeq.create(builder));
+  //      System.out.println(builder);
+      }
+      String resultAlpha = de.result().alphabet().toString();
       System.out.println(resultAlpha);
       equalsAtLeastOnce = reference.alphabet().toString().equals(resultAlpha);
     }

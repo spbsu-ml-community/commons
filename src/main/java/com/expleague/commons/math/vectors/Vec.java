@@ -24,6 +24,7 @@ public interface Vec extends Seq<Double> {
 
   int dim();
 
+  DoubleStream stream();
   double[] toArray();
 
   void toArray(final double[] src, final int offset);
