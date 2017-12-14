@@ -7,10 +7,7 @@ import com.expleague.commons.io.codec.seq.ListDictionary;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.random.FastRandom;
-import com.expleague.commons.seq.CharSeq;
-import com.expleague.commons.seq.CharSeqBuilder;
-import com.expleague.commons.seq.CharSeqTools;
-import com.expleague.commons.seq.ReaderChopper;
+import com.expleague.commons.seq.*;
 import com.expleague.commons.util.ArrayTools;
 import junit.framework.TestCase;
 import org.xml.sax.Attributes;
@@ -123,12 +120,13 @@ public abstract class DictExpansionTest extends TestCase {
     boolean equalsAtLeastOnce = false;
     for (int i = 0; i < 10 && !equalsAtLeastOnce; i++) {
       final ListDictionary<Character> reference = new ListDictionary<Character>(ArrayTools.map(
-          new CharSequence[]{"a", "b", "c", "r", "d", "cc", "aa", "bb", "rabracadabra"},
+          new CharSequence[]{"daba", "carac", "abaa", "bab",
+              "rabracadabra"},
           CharSeq.class, CharSeq::create));
       final ListDictionary<Character> start = new ListDictionary<Character>(ArrayTools.map(
           new CharSequence[]{"a", "b", "c", "r", "d"},
           CharSeq.class, CharSeq::create));
-      final DictExpansion<Character> de = new DictExpansion<>(start, reference.size());
+      final DictExpansion<Character> de = new DictExpansion<>(start, reference.size() + start.size());
       final FastRandom rng = new FastRandom();
       final Vec probabs = new ArrayVec(reference.size());
       VecTools.fill(probabs, 1.);
@@ -140,7 +138,10 @@ public abstract class DictExpansionTest extends TestCase {
           builder.append(reference.get(rng.nextSimple(probabs)));
         de.accept(CharSeq.create(builder));
       }
-      equalsAtLeastOnce = reference.alphabet().toString().equals(de.result().alphabet().toString());
+      final List<? extends Seq<Character>> resultAlpha = de.result().alphabet();
+      resultAlpha.removeAll(start.alphabet());
+//      System.out.println(resultAlpha.toString() + ": " + de.codeLength());
+      equalsAtLeastOnce = reference.alphabet().toString().equals(resultAlpha.toString());
     }
     assertTrue(equalsAtLeastOnce);
   }
