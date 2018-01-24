@@ -143,7 +143,7 @@ public class FastRandom extends Random {
     return scale * (ksi - result);
   }
 
-  static char[] BASE64_CHARS;
+  public static char[] BASE64_CHARS;
   static {
     BASE64_CHARS = new char[64];
     int index = 0;

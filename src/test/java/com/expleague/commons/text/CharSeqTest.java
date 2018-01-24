@@ -4,6 +4,7 @@ import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.seq.CharSeq;
 import com.expleague.commons.seq.CharSeqComposite;
 import junit.framework.TestCase;
+import org.junit.Assert;
 
 /**
  * User: Igor Kuralenok
@@ -54,5 +55,11 @@ public class CharSeqTest extends TestCase {
     assertEquals("sbbbs", compact.subSequence(1, 6).toString());
     assertEquals("ssb", compact.subSequence(0, 3).toString());
     assertEquals("bs", compact.subSequence(4, 6).toString());
+  }
+
+  public void testToString() throws Exception {
+    final CharSeqComposite seq1 = new CharSeqComposite("ss", new CharSeqComposite("", "as"),
+        new CharSeqComposite("", "sd", "", ""), new CharSeqComposite(""));
+    Assert.assertEquals("ssassd", seq1.toString());
   }
 }

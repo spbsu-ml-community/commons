@@ -159,7 +159,33 @@ public class CharSeqComposite extends CharSeq {
   }
 
   public CharSequence fragment(final int j) {
-    return fragments[j];
+    try {
+      return fragments[j];
+    }
+    catch (ArrayIndexOutOfBoundsException aioobe) {
+      throw new ArrayIndexOutOfBoundsException("Invalid fragment " + j + " in composte: " +
+          printStructure());
+    }
+  }
+
+  private String printStructure() {
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < fragments.length; i++) {
+      CharSequence fragment = fragments[i];
+      if (i != 0) {
+        builder.append(',');
+      }
+      builder.append(fragment.getClass()).append('[');
+      if (fragment instanceof CharSeqComposite) {
+        builder.append(((CharSeqComposite) fragment).printStructure());
+      }
+      else {
+        builder.append(fragment.toString());
+      }
+      builder.append(']');
+    }
+    builder.append(']');
+    return builder.toString();
   }
 
   int hashCode;

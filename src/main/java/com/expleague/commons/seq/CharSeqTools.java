@@ -358,6 +358,10 @@ public class CharSeqTools {
     return count;
   }
 
+  public static Stream<CharSeq> lines(final Reader input) {
+    return lines(input, false);
+  }
+
   public static Stream<CharSeq> lines(final Reader input, boolean parallel) {
     final ReaderChopper chopper = new ReaderChopper(input);
     CharSequence next;
@@ -465,7 +469,9 @@ public class CharSeqTools {
     return (Seq<T>)new ArraySeq((Object[])symbols);
   }
 
-  public static <T> Seq.Stub<T> emptySeq(final Class<T> componentType) {
+  public static <T> Seq<T> emptySeq(final Class<T> componentType) {
+    if (componentType == char.class || componentType == Character.class)
+      return (Seq<T>)CharSeq.EMPTY;
     return new Seq.Stub<T>() {
       @Override
       public T at(final int i) {

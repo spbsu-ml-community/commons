@@ -7,7 +7,9 @@ import gnu.trove.map.TLongIntMap;
 import gnu.trove.map.hash.TLongIntHashMap;
 import gnu.trove.procedure.TLongIntProcedure;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -23,10 +25,10 @@ public class LongIntMappingAsyncBuilder {
   private int[] accumulatorValues;
   private final int tlBufferSize;
   private long accumulatorValuesTotal;
-  private final List<BufferWithState> allBuffers = new CopyOnWriteArrayList<>();
+  private final List<WeakReference<BufferWithState>> allBuffers = new CopyOnWriteArrayList<>();
   private ThreadLocal<BufferWithState> tlBuffer = ThreadLocal.withInitial(() -> {
     final BufferWithState result = new BufferWithState();
-    allBuffers.add(result);
+    allBuffers.add(new WeakReference<>(result));
     return result;
   });
 
@@ -101,7 +103,9 @@ public class LongIntMappingAsyncBuilder {
       }
       accumulatorSize = index;
       accumulatorValuesTotal = total;
-      buffer.clear();
+      final BufferWithState value = new BufferWithState();
+      tlBuffer.set(value);
+      allBuffers.add(new WeakReference<>(value));
     }
     bufferWithState.state(1);
   }
@@ -132,10 +136,13 @@ public class LongIntMappingAsyncBuilder {
   }
 
   private void flush() {
-    for (int i = 0; i < allBuffers.size(); i++) {
-      final BufferWithState bufferWithState = allBuffers.get(i);
-      bufferWithState.await(1);
-      flushBuffer(bufferWithState);
+    Iterator<WeakReference<BufferWithState>> it = allBuffers.iterator();
+    while (it.hasNext()) {
+      BufferWithState bufferWithState = it.next().get();
+      if (bufferWithState != null) {
+        bufferWithState.await(1);
+        flushBuffer(bufferWithState);
+      }
     }
   }
 

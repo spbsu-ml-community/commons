@@ -3,7 +3,9 @@ package com.expleague.commons.io.codec;
 import com.expleague.commons.io.codec.seq.DictExpansion;
 import com.expleague.commons.io.codec.seq.Dictionary;
 import com.expleague.commons.seq.CharSeq;
+import gnu.trove.list.array.TIntArrayList;
 
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -18,15 +20,15 @@ public class CompositeStatTextCoding {
   private boolean stop = false;
 
   public CompositeStatTextCoding(final Collection<Character> alphabet, final int dictSize) {
-    this.expansion = new DictExpansion<>(alphabet, dictSize, true);
+    this.expansion = new DictExpansion<>(alphabet, dictSize, System.out);
   }
 
   public CompositeStatTextCoding(int slots) {
-    this.expansion = new DictExpansion<Character>(slots);
+    this.expansion = new DictExpansion<>(slots);
   }
 
   public CompositeStatTextCoding(int size, PrintStream trace) {
-    this.expansion = new DictExpansion<Character>(size, trace);
+    this.expansion = new DictExpansion<>(size, trace);
   }
 
   public void accept(final CharSequence seq) {
@@ -42,20 +44,25 @@ public class CompositeStatTextCoding {
   public class Encode {
     public ArithmeticCoding.Encoder output;
     private final Dictionary<Character> dict;
+    private TIntArrayList freqs;
+    private double totalFreq;
 
     public Encode(final ByteBuffer output) {
+      freqs = new TIntArrayList(expansion.resultFreqs());
+      totalFreq = freqs.sum();
+      this.output = new ArithmeticCoding.Encoder(output, expansion.resultFreqs());
+      this.dict = expansion.result();
+      stop = true;
+    }
+
+    public Encode(final OutputStream output) {
       this.output = new ArithmeticCoding.Encoder(output, expansion.resultFreqs());
       this.dict = expansion.result();
       stop = true;
     }
 
     public void write(CharSequence suffix) {
-      while(suffix.length() > 0) {
-        final int symbol = dict.search(CharSeq.create(suffix));
-        suffix = suffix.subSequence(dict.get(symbol).length(), suffix.length());
-        output.write(symbol);
-      }
-      output.write(0);
+      dict.parse(CharSeq.create(suffix), freqs, totalFreq).stream().forEach(output::write);
     }
 
     public void flush() {

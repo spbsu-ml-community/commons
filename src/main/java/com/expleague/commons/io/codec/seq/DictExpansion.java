@@ -7,6 +7,7 @@ import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.math.vectors.impl.vectors.VecBuilder;
 import com.expleague.commons.seq.CharSeqTools;
 import com.expleague.commons.seq.IntSeq;
+import com.expleague.commons.seq.IntSeqBuilder;
 import com.expleague.commons.seq.Seq;
 import com.expleague.commons.util.ArrayTools;
 import com.expleague.commons.util.JSONTools;
@@ -41,7 +42,7 @@ import static java.lang.Math.min;
  */
 public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderImpl<DictExpansion<T>> {
   public static final double EXTENSION_FACTOR = 1.33;
-  public static final double MAX_POWER = 10000000;
+  public static final double MAX_POWER = 20000000;
   public static final double MAX_MIN_PROBABILITY = 0.002;
   public static final int AGG_POWER = 100000;
   private final boolean isDynamic;
@@ -112,23 +113,26 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
 
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
   public void accept(final Seq<T> seq) {
+    boolean enough;
     lock.readLock().lock();
     try {
       current.parse(seq);
       suggest.parse(seq);
+      enough = ((current.enough(probFound) && suggest.enough(probFound)) || suggest.power > MAX_POWER);
     }
     finally {
       lock.readLock().unlock();
     }
 
-    update();
+    if (enough)
+      update();
   }
 
   private boolean update() {
-    if ((!current.enough(probFound) || !suggest.enough(probFound)) && suggest.power < MAX_POWER)
-      return false;
     lock.writeLock().lock();
     try {
+      if ((!current.enough(probFound) || !suggest.enough(probFound)) && suggest.power < MAX_POWER)
+        return false;
       double sum = 0;
       double textLength = 0;
       for (int i = 0; i < current.size(); i++) {
@@ -424,7 +428,9 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
 
     public IntSeq parse(Seq<T> seq) {
       totalChars += seq.length();
-      final IntSeq parseResult = super.parse(seq);
+      IntSeqBuilder builder = new IntSeqBuilder();
+      super.weightedParse(seq, symbolFreqs, totalChars, builder);
+      final IntSeq parseResult = builder.build();
       pairsFreqs.populate(pairsFreq -> {
         final int length = parseResult.length();
         int prev = -1;
