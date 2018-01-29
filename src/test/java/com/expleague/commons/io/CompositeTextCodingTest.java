@@ -19,7 +19,11 @@ import org.junit.Test;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
@@ -400,4 +404,41 @@ public class CompositeTextCodingTest /*extends JUnitIOCapture */{
     System.out.println(result.alphabet().size() + " " + buffer.position());
   }
 
+//  @Test
+  public void testFastq() throws IOException {
+    final CompositeStatTextCoding coding = new CompositeStatTextCoding(Arrays.asList('A', 'C', 'T', 'G'), 20000);
+    for (int i = 0; i < 3; i++) {
+      System.out.println("Iteration: " + i);
+      CharSeqTools.lines(Files.newBufferedReader(Paths.get("/Users/solar/data/biolab-local/sample-rng.fasta")), true).forEach(coding::accept);
+    }
+    coding.expansion().print(new FileWriter("/Users/solar/data/biolab-local/alpha-1.txt"));
+    CompositeStatTextCoding.Encode encode = coding.new Encode(new BufferedOutputStream(Files.newOutputStream(Paths.get("/Users/solar/data/biolab-local/sample-1.de"))));
+    CharSeqTools.lines(Files.newBufferedReader(Paths.get("/Users/solar/data/biolab-local/sample-rng.fasta")), false).forEach(encode::write);
+    encode.flush();
+  }
+
+//  @Test
+  public void testDOI() throws IOException {
+    final HashSet<Character> alpha = new HashSet<>();
+    Path input = Paths.get("/Users/solar/data/doi/sample.csv");
+    CharSeqTools.lines(Files.newBufferedReader(input), false)
+        .forEach(line -> {
+          for (int t = 0; t < line.length(); t++)
+            alpha.add(line.charAt(t));
+        });
+    alpha.add('\n');
+    final CompositeStatTextCoding coding = new CompositeStatTextCoding(Arrays.asList(alpha.toArray(new Character[alpha.size()])), 500000);
+    for (int i = 0; i < 30; i++) {
+      System.out.println("Iteration: " + i);
+      CharSeqTools.lines(Files.newBufferedReader(input), true).forEach(coding::accept);
+      try (FileWriter fileWriter = new FileWriter("/Users/solar/data/doi/alpha.txt")) {
+        coding.expansion().print(fileWriter);
+      }
+    }
+
+    coding.expansion().print(new FileWriter("/Users/solar/data/doi/alpha.txt"));
+    CompositeStatTextCoding.Encode encode = coding.new Encode(new BufferedOutputStream(Files.newOutputStream(Paths.get("/Users/solar/data/doi/sample.de"))));
+    CharSeqTools.lines(Files.newBufferedReader(input), false).forEach(encode::write);
+    encode.flush();
+  }
 }

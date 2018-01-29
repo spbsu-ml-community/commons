@@ -9,7 +9,9 @@ import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.seq.*;
 import com.expleague.commons.util.ArrayTools;
+import gnu.trove.list.array.TIntArrayList;
 import junit.framework.TestCase;
+import org.junit.Assert;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -20,6 +22,9 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,7 +33,7 @@ import java.util.function.Consumer;
  * Time: 15:31
  */
 
-public abstract class DictExpansionTest extends TestCase {
+public class DictExpansionTest extends TestCase {
 
   public static final String ROOT_WIKI_FILE = System.getenv("HOME") + "/data/wiki/ru/" + "ruwiki-latest-pages-articles.xml";
 
@@ -45,7 +50,7 @@ public abstract class DictExpansionTest extends TestCase {
         builder.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
       de.accept(CharSeq.create(builder));
     }
-    assertEquals('z' - 'a' + 1, de.result().size());
+    assertTrue('z' - 'a' + 5 > de.result().size());
   }
 
   public void testRestore() throws Exception {
@@ -144,6 +149,69 @@ public abstract class DictExpansionTest extends TestCase {
       equalsAtLeastOnce = reference.alphabet().toString().equals(resultAlpha.toString());
     }
     assertTrue(equalsAtLeastOnce);
+  }
+
+  public void notestRestoreRand() throws Exception {
+    final FastRandom rng = new FastRandom();
+    for (int i = 0; i < 100; i++) {
+      final Set<CharSeq> known = new HashSet<>();
+      //noinspection unchecked
+      final Seq<Character>[] models = IntStream.range(0, 1000).mapToObj(j -> CharSeq.create(rng.nextBase64String(rng.nextPoisson(5) + 1))).filter(s -> !known.contains(s)).peek(known::add).toArray(Seq[]::new);
+      //noinspection unchecked
+      final Seq<Character>[] alpha = Stream.of(models).flatMap(s -> IntStream.range(0, s.length()).mapToObj(s::at)).sorted().collect(Collectors.toSet()).stream().map(CharSeqChar::new).toArray(Seq[]::new);
+
+      final ListDictionary<Character> reference = new ListDictionary<>(models);
+      final ListDictionary<Character> start = new ListDictionary<>(alpha);
+      final DictExpansion<Character> de = new DictExpansion<>(start, reference.size() + start.size());
+      final Vec probabs = new ArrayVec(reference.size());
+      VecTools.fill(probabs, 1.);
+      VecTools.normalizeL1(probabs);
+      for (int j = 0; j < 100000; j++) {
+        final int len = rng.nextInt(1000);
+        final StringBuilder builder = new StringBuilder(len);
+        for (int c = 0; c < len; c++)
+          builder.append(reference.get(rng.nextSimple(probabs)));
+        de.accept(CharSeq.create(builder));
+      }
+      final List<? extends Seq<Character>> resultAlpha = de.result().alphabet();
+      resultAlpha.removeAll(start.alphabet());
+      known.removeAll(resultAlpha);
+      System.out.println("errors: " + (known.size() / (double) reference.size()));
+      //      System.out.println(resultAlpha.toString() + ": " + de.codeLength());
+    }
+  }
+
+  public void testOptimalParsing() throws Exception {
+    final FastRandom rng = new FastRandom(0);
+    for (int i = 0; i < 10; i++) {
+      final Set<CharSeq> known = new HashSet<>();
+      //noinspection unchecked
+      final Seq<Character>[] models = IntStream.range(0, 1000).mapToObj(j ->
+          j < 64 ? new CharSeqChar(FastRandom.BASE64_CHARS[j]) : CharSeq.create(rng.nextBase64String(rng.nextPoisson(5) + 1))
+      ).filter(s -> !known.contains(s)).peek(known::add).toArray(Seq[]::new);
+
+      ListDictionary<Character> reference = new ListDictionary<>(models);
+      final Vec probabs = new ArrayVec(models.length);
+      VecTools.fill(probabs, 1.);
+      VecTools.normalizeL1(probabs);
+      TIntArrayList freqs = new TIntArrayList(models.length);
+      for (int j = 0; j < models.length; j++) {
+        freqs.add(0);
+      }
+      for (int j = 0; j < 1000; j++) {
+        final int len = rng.nextInt(10);
+        if (len == 0)
+          continue;
+
+        final StringBuilder builder = new StringBuilder(len);
+        for (int c = 0; c < len; c++)
+          builder.append(models[rng.nextSimple(probabs)]);
+        IntSeq parse = reference.parse(CharSeq.create(builder.toString()), freqs, freqs.sum());
+        IntSeq parse1 = reference.parseEx(CharSeq.create(builder.toString()), freqs, freqs.sum());
+        Assert.assertEquals(parse, parse1);
+        parse.stream().forEach(idx -> freqs.setQuick(idx, freqs.getQuick(idx) + 1));
+      }
+    }
   }
 
   @SuppressWarnings("unused")
