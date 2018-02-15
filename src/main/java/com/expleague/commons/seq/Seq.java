@@ -1,6 +1,9 @@
 package com.expleague.commons.seq;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.Array;
+import java.util.Iterator;
 import java.util.stream.BaseStream;
 
 /**
@@ -8,7 +11,7 @@ import java.util.stream.BaseStream;
  * Date: 31.08.11
  * Time: 2:45
  */
-public interface Seq<T> {
+public interface Seq<T> extends Iterable<T> {
   T at(int i);
   Seq<T> sub(int start, int end);
   int length();
@@ -74,6 +77,24 @@ public interface Seq<T> {
       }
       //noinspection unchecked
       return (A)array;
+    }
+
+    @NotNull
+    @Override
+    public Iterator<T> iterator() {
+      return new Iterator<T>() {
+        private int pos = 0;
+
+        @Override
+        public boolean hasNext() {
+          return pos < length();
+        }
+
+        @Override
+        public T next() {
+          return at(pos++);
+        }
+      };
     }
   }
 }
