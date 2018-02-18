@@ -79,22 +79,23 @@ public interface Seq<T> extends Iterable<T> {
       return (A)array;
     }
 
-    @NotNull
-    @Override
-    public Iterator<T> iterator() {
-      return new Iterator<T>() {
-        private int pos = 0;
+  }
 
-        @Override
-        public boolean hasNext() {
-          return pos < length();
-        }
+  @NotNull
+  @Override
+  default Iterator<T> iterator() {
+    return new Iterator<T>() {
+      private int pos = 0;
 
-        @Override
-        public T next() {
-          return at(pos++);
-        }
-      };
-    }
+      @Override
+      public boolean hasNext() {
+        return pos < length();
+      }
+
+      @Override
+      public T next() {
+        return at(pos++);
+      }
+    };
   }
 }

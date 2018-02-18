@@ -4,6 +4,7 @@ import com.expleague.commons.math.vectors.BasisVecIterator;
 import com.expleague.commons.math.vectors.GenericBasis;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.impl.iterators.ObjectBasisVecIterator;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * User: solar
@@ -39,6 +40,7 @@ public class CommonBasisVec<T> extends CustomBasisVec<GenericBasis<T>> {
     return super.adjust(basis().toIndex(key), increment);
   }
 
+  @NotNull
   public BasisVecIterator<T> iterator() {
     return new ObjectBasisVecIterator<T>(nonZeroes(), basis);
   }
