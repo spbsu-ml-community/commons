@@ -3,8 +3,15 @@ package com.expleague.commons.random;
 import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecIterator;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Random;
+import java.util.Spliterator;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import static java.lang.Math.*;
 
@@ -173,6 +180,49 @@ public class FastRandom extends Random {
       chars[i] = (char)('a' + nextInt(26));
     }
     return new String(chars);
+  }
+
+  public IntStream intStream(int limit) {
+    return StreamSupport.intStream(new Spliterator.OfInt() {
+      @Override
+      public OfInt trySplit() {
+        return this;
+      }
+
+      @Override
+      public boolean tryAdvance(IntConsumer action) {
+        action.accept(nextInt(limit));
+        return true;
+      }
+
+      @Override
+      public long estimateSize() {
+        return Long.MAX_VALUE;
+      }
+
+      @Override
+      public int characteristics() {
+        return 0;
+      }
+    }, false);
+  }
+
+  public Reader base64Stream(long count) {
+    return new Reader() {
+      long totalLen = count;
+
+      @Override
+      public int read(@NotNull char[] cbuf, int off, int len) throws IOException {
+        int read;
+        for (read = 0; read < len && totalLen >= 0; read++, totalLen--)
+          cbuf[off + read] = FastRandom.BASE64_CHARS[nextInt(64)];
+        return read == 0 ? -1 : read;
+      }
+
+      @Override
+      public void close() throws IOException {
+      }
+    };
   }
 
   private static class RandState {

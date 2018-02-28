@@ -20,7 +20,7 @@ public class SniffWriter extends Writer {
 
   @Override
   public void write(final char[] cbuf, final int off, final int len) throws IOException {
-    builder.append(cbuf, off, len);
+    builder.appendCopy(cbuf, off, len);
     delegate.write(cbuf, off, len);
   }
 

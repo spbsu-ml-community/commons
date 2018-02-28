@@ -22,7 +22,7 @@ public class SerializationRepository<T> {
   }
 
   public SerializationRepository(final SerializationRepository<T> base, final Object... converters) {
-    this.base = new TypeConvertersCollection(base.base, converters);
+    this.base = new TypeConvertersCollection(base.base, getClass(), converters);
     this.baseShattered = this.base.customize(ShatteredTypeConverter.class::isInstance);
     this.destination = base.destination;
   }

@@ -1,7 +1,6 @@
 package com.expleague.commons.net;
 
 import org.jetbrains.annotations.NotNull;
-import sun.security.x509.*;
 
 import javax.net.ssl.*;
 import java.io.File;
@@ -148,45 +147,46 @@ public class URLConnectionTools {
 
 
   public static X509Certificate createSelfSignedCertificate(String email, String domain, String organizationUnit, String organization, String city, String state, String country, KeyPair keyPair) throws CertificateException, IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
-    log.log(Level.INFO, "creating self signed cert, email: {0}, domain: {1}, organizationUnit: {2},organization: {3}, city: {4}, state: {5}, country: {6}, keyPair: {7}", new Object[]{email, domain, organizationUnit, organization, city, state, country, keyPair});
-    X509CertInfo certInfo = new X509CertInfo();
-    CertificateVersion certVersion = new CertificateVersion();
-    certInfo.set("version", certVersion);
-    Date firstDate = new Date();
-    Date lastDate = new Date(firstDate.getTime() + 31536000000L);
-    CertificateValidity interval = new CertificateValidity(firstDate, lastDate);
-    certInfo.set("validity", interval);
-    certInfo.set("serialNumber", new CertificateSerialNumber((int) (firstDate.getTime() / 1000L)));
-    StringBuilder subject = new StringBuilder(1024);
-    appendName(subject, "CN", domain);
-    appendName(subject, "CN", "*." + domain);
-    appendName(subject, "EMAILADDRESS", email);
-    appendName(subject, "OU", organizationUnit);
-    appendName(subject, "O", organization);
-    appendName(subject, "L", city);
-    appendName(subject, "ST", state);
-    appendName(subject, "C", country);
-    X500Name issuerName = new X500Name(subject.toString());
-
-    try {
-      certInfo.set("issuer", issuerName);
-      certInfo.set("subject", issuerName);
-    } catch (CertificateException var19) {
-      CertificateIssuerName certAlgorithm = new CertificateIssuerName(issuerName);
-      CertificateSubjectName certPublicKey = new CertificateSubjectName(issuerName);
-      certInfo.set("issuer", certAlgorithm);
-      certInfo.set("subject", certPublicKey);
-    }
-
-    AlgorithmId algorithm = new AlgorithmId(AlgorithmId.sha1WithRSAEncryption_oid);
-    CertificateAlgorithmId certAlgorithm1 = new CertificateAlgorithmId(algorithm);
-    certInfo.set("algorithmID", certAlgorithm1);
-    CertificateX509Key certPublicKey1 = new CertificateX509Key(keyPair.getPublic());
-    certInfo.set("key", certPublicKey1);
-    X509CertImpl newCert = new X509CertImpl(certInfo);
-    newCert.sign(keyPair.getPrivate(), "SHA1WithRSA");
-    log.log(Level.FINEST, "creating self signed cert, newCert: {0}", newCert);
-    return newCert;
+//    log.log(Level.INFO, "creating self signed cert, email: {0}, domain: {1}, organizationUnit: {2},organization: {3}, city: {4}, state: {5}, country: {6}, keyPair: {7}", new Object[]{email, domain, organizationUnit, organization, city, state, country, keyPair});
+//    X509CertInfo certInfo = new X509CertInfo();
+//    CertificateVersion certVersion = new CertificateVersion();
+//    certInfo.set("version", certVersion);
+//    Date firstDate = new Date();
+//    Date lastDate = new Date(firstDate.getTime() + 31536000000L);
+//    CertificateValidity interval = new CertificateValidity(firstDate, lastDate);
+//    certInfo.set("validity", interval);
+//    certInfo.set("serialNumber", new CertificateSerialNumber((int) (firstDate.getTime() / 1000L)));
+//    StringBuilder subject = new StringBuilder(1024);
+//    appendName(subject, "CN", domain);
+//    appendName(subject, "CN", "*." + domain);
+//    appendName(subject, "EMAILADDRESS", email);
+//    appendName(subject, "OU", organizationUnit);
+//    appendName(subject, "O", organization);
+//    appendName(subject, "L", city);
+//    appendName(subject, "ST", state);
+//    appendName(subject, "C", country);
+//    X500Name issuerName = new X500Name(subject.toString());
+//
+//    try {
+//      certInfo.set("issuer", issuerName);
+//      certInfo.set("subject", issuerName);
+//    } catch (CertificateException var19) {
+//      CertificateIssuerName certAlgorithm = new CertificateIssuerName(issuerName);
+//      CertificateSubjectName certPublicKey = new CertificateSubjectName(issuerName);
+//      certInfo.set("issuer", certAlgorithm);
+//      certInfo.set("subject", certPublicKey);
+//    }
+//
+//    AlgorithmId algorithm = new AlgorithmId(AlgorithmId.sha1WithRSAEncryption_oid);
+//    CertificateAlgorithmId certAlgorithm1 = new CertificateAlgorithmId(algorithm);
+//    certInfo.set("algorithmID", certAlgorithm1);
+//    CertificateX509Key certPublicKey1 = new CertificateX509Key(keyPair.getPublic());
+//    certInfo.set("key", certPublicKey1);
+//    X509CertImpl newCert = new X509CertImpl(certInfo);
+//    newCert.sign(keyPair.getPrivate(), "SHA1WithRSA");
+//    log.log(Level.FINEST, "creating self signed cert, newCert: {0}", newCert);
+//    return newCert;
+    throw new UnsupportedOperationException();
   }
 
   public static void appendName(StringBuilder sb, String prefix, String value) {

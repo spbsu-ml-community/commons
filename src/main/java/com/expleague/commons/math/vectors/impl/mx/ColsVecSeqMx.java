@@ -10,7 +10,6 @@ import com.expleague.commons.math.vectors.MxIterator;
 import com.expleague.commons.math.vectors.impl.iterators.SkipVecNZIterator;
 import com.expleague.commons.seq.Seq;
 import com.expleague.commons.seq.VecSeq;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Created by vkokarev on 23.07.14.
@@ -41,7 +40,7 @@ public class ColsVecSeqMx extends Mx.Stub {
     }
     columns = totalColumns;
 
-    this.vec = new ArraySeq<VecSeq>(vecSeqs);
+    this.vec = new ArraySeq<>(vecSeqs);
 
     this.rows = this.vec.at(0).length() == 1 ?
         this.vec.at(0).at(0).length() :
@@ -79,7 +78,7 @@ public class ColsVecSeqMx extends Mx.Stub {
 
   @Override
   public Mx sub(final int i, final int j, final int height, final int width) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 
 
@@ -147,7 +146,7 @@ public class ColsVecSeqMx extends Mx.Stub {
 
           @Override
           public boolean seek(final int pos) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
           }
 
           @Override
@@ -208,7 +207,7 @@ public class ColsVecSeqMx extends Mx.Stub {
 
       @Override
       public Vec sub(final int start, final int len) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
       }
 
       @Override
@@ -336,7 +335,7 @@ public class ColsVecSeqMx extends Mx.Stub {
 
     @Override
     public boolean seek(final int pos) {
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
     }
 
     @Override

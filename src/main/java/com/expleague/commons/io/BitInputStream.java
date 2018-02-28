@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 /**
  * User: solar
  * Date: 02.06.14
@@ -50,12 +48,12 @@ public class BitInputStream implements BitInput {
 
   @Override
   public void mark() {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void reset() {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 
   private int next() {

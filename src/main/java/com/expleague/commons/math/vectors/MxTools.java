@@ -7,7 +7,6 @@ import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
 import com.expleague.commons.math.vectors.impl.vectors.SparseVec;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.util.ArrayTools;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.security.InvalidParameterException;
 import java.util.List;
@@ -627,7 +626,7 @@ public class MxTools {
         }
         break;
       default:
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
     final Mx normalized = VecTools.copy(ds);
     for (int i = 0; i < ds.rows(); i++) {

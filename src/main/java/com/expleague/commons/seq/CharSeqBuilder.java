@@ -9,11 +9,7 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
   private final List<CharSequence> fragments;
 
   public CharSeqBuilder(final CharSequence... fragments) {
-    this(new ArrayList<>(Arrays.asList(fragments)));
-  }
-
-  public CharSeqBuilder(final List<CharSequence> fragments) {
-    this.fragments = CharSeqTools.discloseComposites(fragments);
+    this.fragments = new ArrayList<>(Arrays.asList(CharSeqTools.discloseComposites(fragments)));
   }
 
   public CharSeqBuilder(final int parts) {
@@ -29,7 +25,7 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
         append(composite.fragment(i));
       }
     }
-    else add(copy(next));
+    else add(next);
     return this;
   }
 
@@ -39,7 +35,12 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
   }
 
   public CharSeqBuilder append(final int n) {
-    add(Integer.toString(n));
+    add(new CharSeqInt(n));
+    return this;
+  }
+
+  public CharSeqBuilder append(final long n) {
+    add(new CharSeqLong(n));
     return this;
   }
 
@@ -77,13 +78,19 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
 
   public CharSeqBuilder append(final char[] text) {
     if (text.length > 0)
-      add(copy(text));
+      add(CharSeq.create(text));
     return this;
   }
 
   public CharSeqBuilder append(final char[] text, final int start, final int end) {
     if (start != end)
-      add(copy(text, start, end));
+      add(CharSeq.create(text, start, end));
+    return this;
+  }
+
+  public CharSeqBuilder appendCopy(final char[] text, final int start, final int end) {
+    if (start != end)
+      add(CharSeq.copy(text, start, end));
     return this;
   }
 
@@ -118,6 +125,6 @@ public class CharSeqBuilder extends CharSeqComposite implements SeqBuilder<Chara
 
   @Override
   public CharSeq build() {
-    return new CharSeqComposite(fragments.toArray(new CharSequence[fragments.size()]));
+    return fragments.size() == 1 ? CharSeq.create(fragments.get(0)) : new CharSeqComposite(fragments.toArray(new CharSequence[fragments.size()]));
   }
 }

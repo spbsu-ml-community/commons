@@ -1,7 +1,5 @@
 package com.expleague.commons.util;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import java.lang.reflect.Array;
 
 /**
@@ -40,6 +38,6 @@ public class ArrayPart<ArrayType> {
       }
       return (ArrayType)result;
     }
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 }

@@ -6,7 +6,6 @@ import com.expleague.commons.seq.trash.FloatingDecimal;
 import com.expleague.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -319,8 +318,8 @@ public class CharSeqTools {
     return next instanceof String || next instanceof CharSeq && ((CharSeq) next).isImmutable();
   }
 
-  public static List<CharSequence> discloseComposites(final List<CharSequence> fragments) {
-    int fragmentsCount = fragments.size();
+  public static CharSequence[] discloseComposites(final CharSequence[] fragments) {
+    int fragmentsCount = fragments.length;
     boolean hasComposited = false;
     for (final CharSequence fragment : fragments) {
       if (fragment instanceof CharSeqComposite) {
@@ -333,15 +332,16 @@ public class CharSeqTools {
       return fragments;
     }
 
-    final List<CharSequence> compacted = new ArrayList<>(fragmentsCount);
+    final CharSequence[] compacted = new CharSequence[fragmentsCount];
+    int index = 0;
     for (final CharSequence fragment : fragments) {
       if (fragment instanceof CharSeqComposite) {
         final CharSeqComposite charSeqComposite = (CharSeqComposite) fragment;
         for (int j = 0; j < charSeqComposite.fragmentsCount(); j++) {
-          compacted.add(charSeqComposite.fragment(j));
+          compacted[index++] = charSeqComposite.fragment(j);
         }
       }
-      else compacted.add(fragment);
+      else compacted[index++] = fragment;
     }
     return compacted;
   }
@@ -408,7 +408,7 @@ public class CharSeqTools {
     while (offset < part.length()) {
       final int nextCh = part.charAt(offset++) - '0';
       if (nextCh < 0 || nextCh > 9)
-        throw new IllegalArgumentException("Can not parse integer: " + part);
+        throw new NumberFormatException("Can not parse integer: " + part);
       result *= 10;
       result += nextCh;
     }
@@ -619,10 +619,13 @@ public class CharSeqTools {
   }
 
   public static boolean isNumeric(final CharSequence arg) {
-    if (arg.length() == 0)
+    int length = arg.length();
+    if (length == 0)
       return false;
     int index = 0;
-    while(index < arg.length()) {
+    if (arg.charAt(0) == '-' && length > 1)
+      index++;
+    while(index < length) {
       if (!Character.isDigit(arg.charAt(index++)))
         return false;
     }
@@ -712,11 +715,11 @@ public class CharSeqTools {
   }
 
   public static byte[] parseBase64(final CharSequence in) {
-    return DatatypeConverter.parseBase64Binary(in.toString());
+    return Base64.getDecoder().decode(in.toString());
   }
 
   public static CharSequence toBase64(final byte[] bytes) {
-    return DatatypeConverter.printBase64Binary(bytes);
+    return Base64.getEncoder().encodeToString(bytes);
   }
 
   public static int count(CharSequence sequence, int off, int len, char ch) {
@@ -747,5 +750,31 @@ public class CharSeqTools {
       throw new RuntimeException(e);
     }
     return query_pairs;
+  }
+
+  public static byte[] tryLatin1(CharSequence seq) {
+    final int length = seq.length();
+    final byte[] result = new byte[length];
+    for (int i = 0; i < length; i++) {
+      char ch = seq.charAt(i);
+      if (ch > 255)
+        return null;
+      result[i] = (byte)ch;
+    }
+    return result;
+  }
+
+  public static byte[] tryCompactBytes(CharSequence seq) {
+    final int length = seq.length();
+    final byte[] result = new byte[length];
+    final char baseChar = seq.charAt(0);
+    for (int i = 0; i < length; i++) {
+      char ch = seq.charAt(i);
+      int diff = ch - baseChar;
+      if (diff > Byte.MAX_VALUE || diff < Byte.MIN_VALUE)
+        return null;
+      result[i] = (byte)diff;
+    }
+    return result;
   }
 }

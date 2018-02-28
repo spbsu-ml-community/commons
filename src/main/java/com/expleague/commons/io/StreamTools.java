@@ -34,7 +34,7 @@ public class StreamTools {
     final CharSeqBuilder stringBuilder = new CharSeqBuilder();
     int read;
     while ((read = reader.read(buffer)) != -1) {
-      stringBuilder.append(buffer, 0, read);
+      stringBuilder.appendCopy(buffer, 0, read);
     }
     return stringBuilder.build();
   }

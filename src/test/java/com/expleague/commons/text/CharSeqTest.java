@@ -3,8 +3,15 @@ package com.expleague.commons.text;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.seq.CharSeq;
 import com.expleague.commons.seq.CharSeqComposite;
+import com.expleague.commons.seq.ReaderChopper;
+import com.expleague.commons.util.logging.Interval;
 import junit.framework.TestCase;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
+
+import javax.xml.stream.util.StreamReaderDelegate;
+import java.io.IOException;
+import java.io.Reader;
 
 /**
  * User: Igor Kuralenok
@@ -61,5 +68,23 @@ public class CharSeqTest extends TestCase {
     final CharSeqComposite seq1 = new CharSeqComposite("ss", new CharSeqComposite("", "as"),
         new CharSeqComposite("", "sd", "", ""), new CharSeqComposite(""));
     Assert.assertEquals("ssassd", seq1.toString());
+  }
+
+  public void testCompact1() {
+    String test = "steckschlüssel satz";
+    CharSeq seq = CharSeq.compact(CharSeq.create(test));
+    Assert.assertEquals(CharSeq.create(test), seq);
+  }
+
+  public void testReaderBuffersRotation() throws IOException {
+    Interval.start();
+    FastRandom rng = new FastRandom();
+    Reader reader = rng.base64Stream(100 * 1024 * 1024);
+    ReaderChopper chopper = new ReaderChopper(reader);
+    CharSeq next;
+    while ((next = chopper.chop('A')) != null) {
+      ; // nop
+    }
+    Interval.stopAndPrint();
   }
 }

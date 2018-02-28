@@ -1,9 +1,7 @@
 package com.expleague.commons.seq.trash;
 
 import com.expleague.commons.seq.CharSeqTools;
-import sun.misc.FpUtils;
-import sun.misc.DoubleConsts;
-import sun.misc.FloatConsts;
+
 import java.util.regex.*;
 
 /**
@@ -2204,12 +2202,12 @@ public class FloatingDecimal {
 
       // Check for overflow and update exponent accordingly.
 
-      if (exponent > DoubleConsts.MAX_EXPONENT) {         // Infinite result
+      if (exponent > Double.MAX_EXPONENT) {         // Infinite result
         // overflow to properly signed infinity
         return new FloatingDecimal(sign * Double.POSITIVE_INFINITY);
       } else {  // Finite return value
-        if (exponent <= DoubleConsts.MAX_EXPONENT && // (Usually) normal result
-            exponent >= DoubleConsts.MIN_EXPONENT) {
+        if (exponent <= Double.MAX_EXPONENT && // (Usually) normal result
+            exponent >= Double.MIN_EXPONENT) {
 
           // The result returned in this block cannot be a
           // zero or subnormal; however after the
@@ -2223,7 +2221,7 @@ public class FloatingDecimal {
           // Double.MAX_VALUE overflowing to infinity.
 
           significand = (( ((long)exponent +
-                            (long)DoubleConsts.EXP_BIAS) <<
+                            (long) DoubleConsts.EXP_BIAS) <<
                            (DoubleConsts.SIGNIFICAND_WIDTH-1))
                          & DoubleConsts.EXP_BIT_MASK) |
                         (DoubleConsts.SIGNIF_BIT_MASK & significand);
@@ -2269,7 +2267,7 @@ public class FloatingDecimal {
             // Now, discard the bits
             significand = significand >> bitsDiscarded;
 
-            significand = (( ((long)(DoubleConsts.MIN_EXPONENT -1) + // subnorm exp.
+            significand = (( ((long)(Double.MIN_EXPONENT -1) + // subnorm exp.
                               (long)DoubleConsts.EXP_BIAS) <<
                              (DoubleConsts.SIGNIFICAND_WIDTH-1))
                            & DoubleConsts.EXP_BIT_MASK) |
@@ -2309,7 +2307,7 @@ public class FloatingDecimal {
           significand++;
         }
 
-        final FloatingDecimal fd = new FloatingDecimal(FpUtils.rawCopySign(
+        final FloatingDecimal fd = new FloatingDecimal(Math.copySign(
             Double.longBitsToDouble(significand),
             sign));
 
@@ -2337,7 +2335,7 @@ public class FloatingDecimal {
                  * information must be preserved (i.e. case 1).
                  */
         if ((exponent >= FloatConsts.MIN_SUB_EXPONENT-1) &&
-            (exponent <= FloatConsts.MAX_EXPONENT ) ){
+            (exponent <= Float.MAX_EXPONENT ) ){
           // Outside above exponent range, the float value
           // will be zero or infinity.
 
@@ -2419,7 +2417,114 @@ public class FloatingDecimal {
     return value;
   }
 
+  public static class DoubleConsts {
+    /**
+     * Don't let anyone instantiate this class.
+     */
+    private DoubleConsts() {}
 
+    /**
+     * The number of logical bits in the significand of a
+     * {@code double} number, including the implicit bit.
+     */
+    public static final int SIGNIFICAND_WIDTH   = 53;
+
+    /**
+     * The exponent the smallest positive {@code double}
+     * subnormal value would have if it could be normalized..
+     */
+    public static final int     MIN_SUB_EXPONENT = Double.MIN_EXPONENT -
+        (SIGNIFICAND_WIDTH - 1);
+
+    /**
+     * Bias used in representing a {@code double} exponent.
+     */
+    public static final int     EXP_BIAS        = 1023;
+
+    /**
+     * Bit mask to isolate the sign bit of a {@code double}.
+     */
+    public static final long    SIGN_BIT_MASK   = 0x8000000000000000L;
+
+    /**
+     * Bit mask to isolate the exponent field of a
+     * {@code double}.
+     */
+    public static final long    EXP_BIT_MASK    = 0x7FF0000000000000L;
+
+    /**
+     * Bit mask to isolate the significand field of a
+     * {@code double}.
+     */
+    public static final long    SIGNIF_BIT_MASK = 0x000FFFFFFFFFFFFFL;
+
+    static {
+      // verify bit masks cover all bit positions and that the bit
+      // masks are non-overlapping
+      assert(((SIGN_BIT_MASK | EXP_BIT_MASK | SIGNIF_BIT_MASK) == ~0L) &&
+          (((SIGN_BIT_MASK & EXP_BIT_MASK) == 0L) &&
+              ((SIGN_BIT_MASK & SIGNIF_BIT_MASK) == 0L) &&
+              ((EXP_BIT_MASK & SIGNIF_BIT_MASK) == 0L)));
+    }
+  }
+
+  /**
+   * This class contains additional constants documenting limits of the
+   * {@code float} type.
+   *
+   * @author Joseph D. Darcy
+   */
+
+  public static class FloatConsts {
+    /**
+     * Don't let anyone instantiate this class.
+     */
+    private FloatConsts() {}
+
+    /**
+     * The number of logical bits in the significand of a
+     * {@code float} number, including the implicit bit.
+     */
+    public static final int SIGNIFICAND_WIDTH   = 24;
+
+    /**
+     * The exponent the smallest positive {@code float} subnormal
+     * value would have if it could be normalized.
+     */
+    public static final int     MIN_SUB_EXPONENT = Float.MIN_EXPONENT -
+        (SIGNIFICAND_WIDTH - 1);
+
+    /**
+     * Bias used in representing a {@code float} exponent.
+     */
+    public static final int     EXP_BIAS        = 127;
+
+    /**
+     * Bit mask to isolate the sign bit of a {@code float}.
+     */
+    public static final int     SIGN_BIT_MASK   = 0x80000000;
+
+    /**
+     * Bit mask to isolate the exponent field of a
+     * {@code float}.
+     */
+    public static final int     EXP_BIT_MASK    = 0x7F800000;
+
+    /**
+     * Bit mask to isolate the significand field of a
+     * {@code float}.
+     */
+    public static final int     SIGNIF_BIT_MASK = 0x007FFFFF;
+
+    static {
+      // verify bit masks cover all bit positions and that the bit
+      // masks are non-overlapping
+      assert(((SIGN_BIT_MASK | EXP_BIT_MASK | SIGNIF_BIT_MASK) == ~0) &&
+          (((SIGN_BIT_MASK & EXP_BIT_MASK) == 0) &&
+              ((SIGN_BIT_MASK & SIGNIF_BIT_MASK) == 0) &&
+              ((EXP_BIT_MASK & SIGNIF_BIT_MASK) == 0)));
+    }
+  }
 }
 
 /*
@@ -2890,3 +2995,4 @@ class FDBigInt {
     return new String( r );
   }
 }
+

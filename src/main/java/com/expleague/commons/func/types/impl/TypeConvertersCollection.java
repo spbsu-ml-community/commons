@@ -15,10 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -36,14 +33,16 @@ public class TypeConvertersCollection implements ConversionRepository {
   private final Map<Pair<Class, Class>, TypeConverter> cache = new HashMap<>();
 
   public TypeConvertersCollection(final Object... converters) {
-    this(null, converters);
+    this(null, null, converters);
   }
   /**
    * Accepts following variants of converters setup:
    * java.lang.String -- name of package
    */
 
-  public TypeConvertersCollection(final ConversionRepository base, final Object... converters) {
+  public TypeConvertersCollection(final ConversionRepository base, Class<?> context, final Object... converters) {
+    if (context == null)
+      context = getClass();
     this.base = base != null ? base.customize(typeConverter -> {
       if (typeConverter instanceof ConversionDependant)
         ((ConversionDependant) typeConverter).setConversionRepository(TypeConvertersCollection.this);
@@ -54,7 +53,7 @@ public class TypeConvertersCollection implements ConversionRepository {
       try {
         if (convId instanceof String) {
           final String pack = (String) convId;
-          final String[] resources = RuntimeUtils.packageResourcesList(pack);
+          final List<String> resources = RuntimeUtils.packageResourcesList(context, pack);
           final Set<Class> registered = new HashSet<>();
           for (final String resource : resources) {
             if (resource.endsWith(".class")) {

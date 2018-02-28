@@ -28,8 +28,8 @@ public class ArrayVec extends Vec.Stub implements OperableVec<ArrayVec> {
   }
 
   public ArrayVec(final double[] values, final int offset, final int length) {
-    if (offset < 0 || offset + length > values.length)
-      throw new ArrayIndexOutOfBoundsException();
+//    if (offset < 0 || offset + length > values.length)
+//      throw new ArrayIndexOutOfBoundsException();
 //    for (int i = offset; i < offset + length; i++) {
 //      if (Double.isNaN(values[i]) || Double.isInfinite(values[i]))
 //        throw new IllegalArgumentException();

@@ -12,6 +12,8 @@ public class CharSeqArray extends CharSeq {
   public final int end;
 
   public CharSeqArray(final char[] array, final int start, final int end) {
+    if (end < start)
+      throw new ArrayIndexOutOfBoundsException();
     this.array = array;
     this.start = start;
     this.end = end;
@@ -40,6 +42,8 @@ public class CharSeqArray extends CharSeq {
 
   @Override
   public CharSeq sub(final int start, final int end) {
+    if (start == 0 && end == length())
+      return this;
     return new CharSeqArray(array, start + this.start, end + this.start);
   }
 
@@ -101,6 +105,7 @@ public class CharSeqArray extends CharSeq {
     for (int i = start; i < end; i++) {
       h = 31*h + array[i];
     }
+    h = h == 0 ? 1 : h;
     return hashCode = h;
   }
 }

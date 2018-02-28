@@ -13,7 +13,7 @@ import java.io.Reader;
  */
 public class ReaderChopper {
   private final Reader base;
-  private char[] buffer = new char[1024 * 1024];
+  private char[] buffer = new char[0];
   private int offset = 0;
   private int read = 0;
 
@@ -112,6 +112,8 @@ public class ReaderChopper {
 
   private void readNext() throws IOException {
     if (offset >= read) {
+      buffer = new char[64 * 1024 * 1024];
+
       //noinspection StatementWithEmptyBody
       while ((read = base.read(buffer)) == 0);
       offset = 0;

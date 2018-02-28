@@ -13,7 +13,7 @@ public class CharSeqComposite extends CharSeq {
   protected int activeFragmentRangeEnd = -1;
 
   public CharSeqComposite(final CharSequence... fragments) {
-    this.fragments = CharSeqTools.discloseComposites(Arrays.asList(fragments)).toArray(new CharSequence[fragments.length]);
+    this.fragments = CharSeqTools.discloseComposites(fragments);
   }
 
   int length = -1;
@@ -134,7 +134,11 @@ public class CharSeqComposite extends CharSeq {
       if (fragmentEnd >= end) {
         break;
       }
+
       copyToArray(fragment, 0, array, offset, fragmentLength);
+//      if (!new CharSeqArray(array, offset, offset + fragmentLength).equals(fragment)) {
+//        System.out.println(new CharSeqArray(array, offset, offset + fragmentLength).equals(fragment));
+//      }
       offset += fragmentLength;
     }
     fragmentStart = fragmentEnd - fragmentLength;

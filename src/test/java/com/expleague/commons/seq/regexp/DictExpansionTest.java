@@ -1,6 +1,8 @@
 package com.expleague.commons.seq.regexp;
 
 
+import com.expleague.commons.func.types.ConversionRepository;
+import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.io.codec.seq.DictExpansion;
 import com.expleague.commons.io.codec.seq.ListDictionary;
@@ -38,6 +40,8 @@ public class DictExpansionTest extends TestCase {
   public static final String ROOT_WIKI_FILE = System.getenv("HOME") + "/data/wiki/ru/" + "ruwiki-latest-pages-articles.xml";
 
   public void testIndependent() throws Exception {
+    ConversionRepository conversion = MathTools.CONVERSION;
+
     final List<Character> alpha = new ArrayList<>();
     for (char a = 'a'; a <= 'z'; a++)
       alpha.add(a);
@@ -238,7 +242,7 @@ public class DictExpansionTest extends TestCase {
       public void characters(char[] ch, int start, int length) throws SAXException {
         super.characters(ch, start, length);
         if ("/mediawiki/page/revision/text".equals(path.toString())) {
-          builder.append(ch, start, start + length);
+          builder.appendCopy(ch, start, start + length);
         }
       }
 

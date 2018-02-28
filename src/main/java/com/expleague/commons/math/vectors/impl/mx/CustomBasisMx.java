@@ -4,7 +4,6 @@ import com.expleague.commons.math.vectors.*;
 import com.expleague.commons.math.vectors.impl.basis.IntBasis;
 import com.expleague.commons.math.vectors.impl.basis.MxBasisImpl;
 import com.expleague.commons.math.vectors.impl.vectors.SparseVec;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Created by vkokarev on 08.04.14.
@@ -210,7 +209,7 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
 
     @Override
     public boolean seek(final int pos) {
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
     }
 
     @Override

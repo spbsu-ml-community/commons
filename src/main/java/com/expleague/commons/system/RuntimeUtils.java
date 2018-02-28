@@ -1,24 +1,26 @@
 package com.expleague.commons.system;
 
-import com.expleague.commons.util.MultiMap;
-import com.expleague.commons.util.logging.Logger;
 import com.expleague.commons.io.StreamTools;
 import com.expleague.commons.seq.CharSeqTools;
+import com.expleague.commons.util.MultiMap;
+import com.expleague.commons.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.net.www.protocol.file.FileURLConnection;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
-import java.net.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.logging.Level;
 
 /**
@@ -98,125 +100,120 @@ public class RuntimeUtils {
     }
   }
 
-  public static String[] packageResourcesList(String... paths) throws URISyntaxException, IOException {
-    final Set<String> result = new HashSet<>();
-    for (String path : paths) {
-      path = path.replace('.', '/') + "/";
-      final ClassLoader loader = RuntimeUtils.class.getClassLoader();
-      if (!(loader instanceof URLClassLoader)) {
-        throw new UnsupportedOperationException("Operation is not supported for current type of classloader");
-      }
-      final URL[] dirs = ((URLClassLoader) loader).getURLs();
-      final Set<String> increment = new HashSet<>();
-      populateFromURLs(path, dirs, increment);
-      result.addAll(increment);
-    }
-    return result.toArray(new String[result.size()]);
-  }
-
   public static List<String> packageResourcesList(final Class clazz, String path) throws URISyntaxException, IOException {
-    if (!path.endsWith("/")) {
-      path += "/";
-    }
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    assert classLoader != null;
+//    if (!path.endsWith("/")) {
+//      path += "/";
+//    }
+//    if (!path.startsWith("/")) {
+//      path = "/" + path;
+//    }
+    path = path.replace('.', '/');
     final List<String> result = new ArrayList<>();
 
-    final URL dirURL = clazz.getResource(path);
-    if (dirURL == null) {
-      throw new RuntimeException("Invalid path " + path);
-    }
+    Enumeration<URL> resources = classLoader.getResources(path);
+    while (resources.hasMoreElements()) {
+      URL dirURL = resources.nextElement();
 
-    switch (dirURL.getProtocol()) {
-      case "file":
-        for (final String fileName : new File(dirURL.toURI()).list()) {
-          result.add(path + fileName);
-        }
-        return result;
-      case "jar":
-        final String classpath = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
-        for (final JarEntry entry : Collections.list(new JarFile(new File(classpath)).entries())) {
-          final String name = entry.getName();
-          if (name.matches(path.substring(1) + "[^\\/]+\\/?")) {
-            result.add("/" + entry);
-          }
-        }
-        return result;
-    }
-    throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
-  }
-
-  private static void populateFromURLs(final String path, final URL[] dirs, final Set<String> result) throws IOException {
-    for (final URL dir : dirs) {
-      try {
-        final URLConnection connection = dir.openConnection();
-        if (connection instanceof JarURLConnection) {
-          final JarURLConnection jarConnection = (JarURLConnection) connection;
-          final URL baseUrl = jarConnection.getJarFileURL();
-          populateFromJar(path, result, jarConnection.getJarFile(), baseUrl);
-        }
-        else if (connection instanceof FileURLConnection) {
-          String dirPath = URLDecoder.decode(dir.getPath(), "UTF-8");
-          if (new File(dirPath).isDirectory()) {
-            dirPath = dirPath.substring(0, dirPath.length());
-            final File packageDir = new File(dirPath + path);
-            final File[] files = packageDir.listFiles();
-            if (files != null)
-              StreamTools.visitFiles(packageDir, arg -> result.add(path + arg));
-          }
-          else {
-            try {
-              populateFromJar(path, result, new JarFile(dirPath), dir);
-            }
-            catch (IOException exc) {
-              // skip
+      switch (dirURL.getProtocol()) {
+        case "file":
+          Path root = Paths.get(dirURL.toURI());
+          String finalPath = path;
+          Files.find(root, 100, (p, attrs) -> attrs.isRegularFile()).forEach(p -> {
+            String resource = p.toString().substring(root.toString().length());
+            result.add(finalPath + resource);
+          });
+          break;
+        case "jar":
+          final String classpath = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
+          for (final JarEntry entry : Collections.list(new JarFile(new File(classpath)).entries())) {
+            final String name = entry.getName();
+            if (name.startsWith(path) && !entry.isDirectory()) {
+              result.add(name);
             }
           }
-        }
-        else throw new RuntimeException("Unknown connection");
-      } catch (FileNotFoundException e) {
-        // a file specified in the classpath may be unavailable
-        // it is not an error necessarily (classpath may contain unused URLs)
-        // ignore
-        throw new RuntimeException("Unreachable directory " + dir.toString());
+          break;
+        default:
+          throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
       }
     }
+    return result;
   }
 
-  private static void populateFromJar(final String path, final Set<String> result, final JarFile jar, final URL jarUrl) throws IOException
-  {
-    final Enumeration<JarEntry> entries = jar.entries();
-    while(entries.hasMoreElements()) {
-      String name = entries.nextElement().getName();
-      if (name.startsWith(path)) {
-//        final int checkSubdir = name.indexOf("/", path.length());
-//        if (checkSubdir >= 0) {
-//          name = name.substring(0, checkSubdir);
+//  private static void populateFromURLs(final String path, final URL[] dirs, final Set<String> result) throws IOException {
+//    for (final URL dir : dirs) {
+//      try {
+//        final URLConnection connection = dir.openConnection();
+//        if (connection instanceof JarURLConnection) {
+//          final JarURLConnection jarConnection = (JarURLConnection) connection;
+//          final URL baseUrl = jarConnection.getJarFileURL();
+//          populateFromJar(path, result, jarConnection.getJarFile(), baseUrl);
 //        }
-        result.add(name);
-      }
-    }
-    // manifest may specify additional classpath; we have to scan it as well
-    final Manifest manifest = jar.getManifest();
-    if (manifest == null) {
-      return;
-    }
-    final String classPath = manifest.getMainAttributes().getValue("Class-Path");
-    if (classPath == null) {
-      return;
-    }
-    final List<URL> additionalUrls = new ArrayList<>();
-    for (final String urlString : classPath.split("\\s")) {
-      try {
-        additionalUrls.add(new URL(urlString));
-      } catch (MalformedURLException e) {
-        // urlString should be a relative path from this jar directory
-        final String basePath = jarUrl.getFile();
-        final String baseDir = basePath.substring(0, basePath.lastIndexOf("/"));
-        final URL constructedUrl = new URL(jarUrl.getProtocol(), jarUrl.getHost(), jarUrl.getPort(), baseDir + "/" + urlString);
-        additionalUrls.add(constructedUrl);
-      }
-    }
-    populateFromURLs(path, additionalUrls.toArray(new URL[additionalUrls.size()]), result);
-  }
+////        else if (connection instanceof FileURLConnection) {
+////          String dirPath = URLDecoder.decode(dir.getPath(), "UTF-8");
+////          if (new File(dirPath).isDirectory()) {
+////            dirPath = dirPath.substring(0, dirPath.length());
+////            final File packageDir = new File(dirPath + path);
+////            final File[] files = packageDir.listFiles();
+////            if (files != null)
+////              StreamTools.visitFiles(packageDir, arg -> result.add(path + arg));
+////          }
+////          else {
+////            try {
+////              populateFromJar(path, result, new JarFile(dirPath), dir);
+////            }
+////            catch (IOException exc) {
+////              // skip
+////            }
+////          }
+////        }
+//        else throw new RuntimeException("Unknown connection");
+//      } catch (FileNotFoundException e) {
+//        // a file specified in the classpath may be unavailable
+//        // it is not an error necessarily (classpath may contain unused URLs)
+//        // ignore
+//        throw new RuntimeException("Unreachable directory " + dir.toString());
+//      }
+//    }
+//  }
+
+//  private static void populateFromJar(final String path, final Set<String> result, final JarFile jar, final URL jarUrl) throws IOException
+//  {
+//    final Enumeration<JarEntry> entries = jar.entries();
+//    while(entries.hasMoreElements()) {
+//      String name = entries.nextElement().getName();
+//      if (name.startsWith(path)) {
+////        final int checkSubdir = name.indexOf("/", path.length());
+////        if (checkSubdir >= 0) {
+////          name = name.substring(0, checkSubdir);
+////        }
+//        result.add(name);
+//      }
+//    }
+//    // manifest may specify additional classpath; we have to scan it as well
+//    final Manifest manifest = jar.getManifest();
+//    if (manifest == null) {
+//      return;
+//    }
+//    final String classPath = manifest.getMainAttributes().getValue("Class-Path");
+//    if (classPath == null) {
+//      return;
+//    }
+//    final List<URL> additionalUrls = new ArrayList<>();
+//    for (final String urlString : classPath.split("\\s")) {
+//      try {
+//        additionalUrls.add(new URL(urlString));
+//      } catch (MalformedURLException e) {
+//        // urlString should be a relative path from this jar directory
+//        final String basePath = jarUrl.getFile();
+//        final String baseDir = basePath.substring(0, basePath.lastIndexOf("/"));
+//        final URL constructedUrl = new URL(jarUrl.getProtocol(), jarUrl.getHost(), jarUrl.getPort(), baseDir + "/" + urlString);
+//        additionalUrls.add(constructedUrl);
+//      }
+//    }
+//    populateFromURLs(path, additionalUrls.toArray(new URL[additionalUrls.size()]), result);
+//  }
 
   public static void processSupers(final Class<?> clazz, final Predicate<Class<?>> proc) {
     final Stack<Class<?>> toBeProcessed = new Stack<>();
