@@ -669,6 +669,13 @@ public abstract class ArrayTools {
     return weakModels.toArray((F[])(weakModels.size() > 0 ? Array.newInstance(weakModels.iterator().next().getClass(), weakModels.size()) : new Object[0]));
   }
 
+  public static <F> F[] toArray(final Collection<F> weakModels, Class<?> clz) {
+    if (weakModels.size() == 0)
+      throw new IllegalArgumentException("Can create array");
+    //noinspection unchecked
+    return weakModels.toArray((F[])(weakModels.size() > 0 ? Array.newInstance(clz, weakModels.size()) : new Object[0]));
+  }
+
   public static <T extends Comparable> T max(final Seq<T> target) {
     if (target.length() == 0)
       throw new IllegalArgumentException("Empty sequence");
@@ -777,6 +784,22 @@ public abstract class ArrayTools {
 
   public static int sum(final int[] arr) {
     return sum(arr, 0, arr.length);
+  }
+
+  public static double sum(final double[] arr) {
+    double s = 0;
+    for (double entr : arr) {
+      s+=entr;
+    }
+    return s;
+  }
+
+  public static double expSum(final double[] arr) {
+    double s = 0;
+    for (double entr : arr) {
+      s+=Math.exp(entr);
+    }
+    return s;
   }
 
   public static int[] fill(final int[] arr, final int val) {

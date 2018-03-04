@@ -256,4 +256,8 @@ public class FastRandom extends Random implements RandomGenerator {
       return ret;
     }
   }
+
+  public double nextGaussian(double mu, double sd) {
+    return mu + (sd != 0 ? nextGaussian() * sd : 0);
+  }
 }
