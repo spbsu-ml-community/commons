@@ -118,6 +118,38 @@ public class CharSeqTools {
     return new CharSeqArray(result, 0, result.length);
   }
 
+  public static CharSequence fromCamelHumpsToUnderscore(CharSequence from) {
+    final CharSeqBuilder builder = new CharSeqBuilder();
+    int prev = 0;
+    for (int i = 0; i < from.length(); i++){
+      final char ch = from.charAt(i);
+      if(Character.isUpperCase(ch)){
+        if (prev < i)
+          builder.append(from.subSequence(prev, i)).append('_');
+        builder.append(Character.toLowerCase(ch));
+        prev = i + 1;
+      }
+    }
+
+    if (prev < from.length())
+      builder.append(from.subSequence(prev, from.length()));
+    return builder.build();
+  }
+
+  public static CharSequence fromUnderscoreToCamelHumps(CharSequence from, boolean upperCaseFirst) {
+    CharSeqBuilder builder = new CharSeqBuilder();
+    CharSequence[] split = split(from, '_');
+    for (int i = 0; i < split.length; i++) {
+      CharSequence part = split[i];
+      if (upperCaseFirst || i > 0) {
+        builder.append(Character.toUpperCase(part.charAt(0)));
+        builder.append(part.subSequence(1, part.length()));
+      }
+      else builder.append(part);
+    }
+    return builder.build();
+  }
+
   public static CharSequence trim(final CharSequence word) {
     final int initialLength = word.length();
     int len = initialLength;

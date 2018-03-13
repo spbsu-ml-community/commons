@@ -1,7 +1,17 @@
 package com.expleague.commons.seq;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
 import java.util.Map;
@@ -14,6 +24,8 @@ import java.util.stream.IntStream;
  * Date: 10.05.2006
  * Time: 17:55:23
  */
+@JsonSerialize(using = CharSeq.JsonSerializer.class)
+@JsonDeserialize(using = CharSeq.JsonDeserializer.class)
 public abstract class CharSeq implements Seq<Character>, CharSequence, Comparable<CharSeq> {
   public static final CharSeq EMPTY = new CharSeq() {
     @Override
@@ -259,5 +271,26 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
   @Override
   public int compareTo(CharSeq o) {
     return SEQ_COMPARATOR.compare(this, o);
+  }
+
+  public static class JsonSerializer extends StdSerializer<CharSeq> {
+    protected JsonSerializer() {
+      super(CharSeq.class);
+    }
+
+    @Override
+    public void serialize(CharSeq characters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+      jsonGenerator.writeString(characters.toString());
+    }
+  }
+  public static class JsonDeserializer extends StdDeserializer<CharSeq> {
+    protected JsonDeserializer() {
+      super(CharSeq.class);
+    }
+
+    @Override
+    public CharSeq deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+      return intern(create(jsonParser.getValueAsString()));
+    }
   }
 }

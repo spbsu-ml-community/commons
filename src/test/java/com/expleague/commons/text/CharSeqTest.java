@@ -3,6 +3,7 @@ package com.expleague.commons.text;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.seq.CharSeq;
 import com.expleague.commons.seq.CharSeqComposite;
+import com.expleague.commons.seq.CharSeqTools;
 import com.expleague.commons.seq.ReaderChopper;
 import com.expleague.commons.util.logging.Interval;
 import junit.framework.TestCase;
@@ -86,5 +87,11 @@ public class CharSeqTest extends TestCase {
       ; // nop
     }
     Interval.stopAndPrint();
+  }
+
+  public void testCH2U() {
+    Assert.assertEquals(CharSeq.create("hello_world"), CharSeqTools.fromCamelHumpsToUnderscore("HelloWorld"));
+    Assert.assertEquals(CharSeq.create("char_seq_test"), CharSeqTools.fromCamelHumpsToUnderscore(getClass().getSimpleName()));
+    Assert.assertEquals(CharSeq.create(getClass().getSimpleName()), CharSeqTools.fromUnderscoreToCamelHumps(CharSeqTools.fromCamelHumpsToUnderscore(getClass().getSimpleName()), true));
   }
 }
