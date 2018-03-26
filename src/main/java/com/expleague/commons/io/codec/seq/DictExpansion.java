@@ -234,7 +234,8 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         fileWriter.append(seq.toString());
         fileWriter.append('\t');
         fileWriter.append(CharSeqTools.itoa(result.freq(i)));
-        fileWriter.append('\n');
+        //fileWriter.append('\n');
+        fileWriter.append("\n\n");
       }
     }
     finally {
