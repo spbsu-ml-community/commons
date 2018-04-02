@@ -26,7 +26,7 @@ public class PatternCompiler {
     active.add(0);
     for (int i = 0; i < pattern.size(); i++) {
       final int state = i + 1;
-      final int conditionIndex = alphabet.getOrder(pattern.condition(state - 1));
+      final int conditionIndex = alphabet.indexCondition(pattern.condition(state - 1));
       active.forEach(new TIntProcedure() {
         @Override
         public boolean execute(final int a) {

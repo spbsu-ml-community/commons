@@ -203,7 +203,7 @@ public class VecTools {
         if (!((CustomBasisVec) left).basis().equals(((CustomBasisVec) right).basis()))
           throw new IllegalArgumentException("Vector basises are not the same");
       }
-      else throw new IllegalArgumentException("Vector dimensions differs");
+      else throw new IllegalArgumentException("Vector dimensions differs. Left: " + left.dim() + ", while right: " + right.dim());
     }
   }
 

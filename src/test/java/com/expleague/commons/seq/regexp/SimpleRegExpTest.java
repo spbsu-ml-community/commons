@@ -70,7 +70,7 @@ public class SimpleRegExpTest extends JUnitIOCapture {
       final Random rand = new Random();
       final int offset = rand.nextInt(s.length());
       for (int i = offset; i < s.length(); i++) {
-        pattern.add(A.getByT(s.charAt(i)), Pattern.Modifier.NONE);
+        pattern.add(A.conditionByT(s.charAt(i)), Pattern.Modifier.NONE);
       }
       string = s;
       match();
@@ -86,8 +86,8 @@ public class SimpleRegExpTest extends JUnitIOCapture {
       pattern.clear();
 
       for (int i = 0; i < regularString.length(); i++) {
-        pattern.add(A.getByT(regularString.charAt(i)), Pattern.Modifier.NONE);
-        assertEquals(A.getByT(s.charAt(i)).toString().charAt(0), s.charAt(i));
+        pattern.add(A.conditionByT(regularString.charAt(i)), Pattern.Modifier.NONE);
+        assertEquals(A.conditionByT(s.charAt(i)).toString().charAt(0), s.charAt(i));
       }
       string = s;
       match();
@@ -105,10 +105,10 @@ public class SimpleRegExpTest extends JUnitIOCapture {
   @Test
   public void testZeroOrOne() {
     pattern.clear();
-    pattern.add(A.getByT('a'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('a'), Pattern.Modifier.NONE);
     //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.QUESTION);
-    pattern.add(A.getByT('b'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('b'), Pattern.Modifier.NONE);
 
     string = "axaba1bavbaxxb";
     match();
@@ -125,11 +125,11 @@ public class SimpleRegExpTest extends JUnitIOCapture {
     }
 
     pattern.clear();
-    pattern.add(A.getByT('x'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('x'), Pattern.Modifier.NONE);
     //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.QUESTION);
-    pattern.add(A.getByT('y'), Pattern.Modifier.QUESTION);
-    pattern.add(A.getByT('z'), Pattern.Modifier.QUESTION);
+    pattern.add(A.conditionByT('y'), Pattern.Modifier.QUESTION);
+    pattern.add(A.conditionByT('z'), Pattern.Modifier.QUESTION);
 
     string = "xyzx1yz";
     match();
@@ -145,15 +145,15 @@ public class SimpleRegExpTest extends JUnitIOCapture {
   @Test
   public void testZeroOrMore() {
     pattern.clear();
-    pattern.add(A.getByT('l'), Pattern.Modifier.NONE);
-    pattern.add(A.getByT('o'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('n'), Pattern.Modifier.NONE);
-    pattern.add(A.getByT('g'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('l'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('o'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('n'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('g'), Pattern.Modifier.NONE);
     //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
-    pattern.add(A.getByT('c'), Pattern.Modifier.NONE);
-    pattern.add(A.getByT('a'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('t'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('c'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('a'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('t'), Pattern.Modifier.NONE);
 
     string = "loooongcaaaatlong   catlngct";
     match();
@@ -165,10 +165,10 @@ public class SimpleRegExpTest extends JUnitIOCapture {
 //    assertTrue(mv.contains("long   catlngct"));
 
     pattern.clear();
-    pattern.add(A.getByT('x'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('x'), Pattern.Modifier.STAR);
     //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
-    pattern.add(A.getByT('y'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('y'), Pattern.Modifier.STAR);
 
     string = "xcdsv43f3vdfyxyx1y";
     match();
@@ -182,10 +182,10 @@ public class SimpleRegExpTest extends JUnitIOCapture {
     assertFalse(mv.contains(""));
 
     pattern.clear();
-    pattern.add(A.getByT('a'), Pattern.Modifier.NONE);
-    pattern.add(A.getByT('b'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('v'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('c'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('a'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('b'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('v'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('c'), Pattern.Modifier.NONE);
 
     string = "acabvcabbbbbcabbkcasvvccavvvvcavcabc";
     match();
@@ -216,10 +216,10 @@ public class SimpleRegExpTest extends JUnitIOCapture {
 //    assertTrue(mv.contains(s.substring(0, new Random().nextInt(s.length()))));
 
     pattern.clear();
-    pattern.add(A.getByT('g'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('g'), Pattern.Modifier.NONE);
     //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
-    pattern.add(A.getByT('o'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('o'), Pattern.Modifier.NONE);
 
     string = "omgcjbjbjhbhjbhblkjlkomggo";
     match();
@@ -235,11 +235,11 @@ public class SimpleRegExpTest extends JUnitIOCapture {
   @Test
   public void testSomeCases() {
     pattern.clear();
-    pattern.add(A.getByT('z'), Pattern.Modifier.QUESTION);
-    pattern.add(A.getByT('a'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('c'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('b'), Pattern.Modifier.NONE);
-    pattern.add(A.getByT('m'), Pattern.Modifier.QUESTION);
+    pattern.add(A.conditionByT('z'), Pattern.Modifier.QUESTION);
+    pattern.add(A.conditionByT('a'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('c'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('b'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('m'), Pattern.Modifier.QUESTION);
 
     string = "zbmbmbgbfbabdbkbiblbw";
     match();
@@ -253,8 +253,8 @@ public class SimpleRegExpTest extends JUnitIOCapture {
     assertFalse(mv.contains("bl"));
 
     pattern.clear();
-    pattern.add(A.getByT('p'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('x'), Pattern.Modifier.QUESTION);
+    pattern.add(A.conditionByT('p'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('x'), Pattern.Modifier.QUESTION);
 
     string = "zbmbmbgbfbabdbkpppxkxpkwpkxpwkxpwekfnjrgnrrejnerkgnrgekgerjgnjkegnkebiblbw";
     match();
@@ -263,7 +263,7 @@ public class SimpleRegExpTest extends JUnitIOCapture {
     assertEquals(8, mv.occurrences());
 
     pattern.clear();
-    pattern.add(A.getByT('f'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('f'), Pattern.Modifier.STAR);
 
     string = "nkjhjuhnfinniunfiuniuniufbhfhjbhffjhbjhf";
     match();
@@ -334,7 +334,7 @@ public class SimpleRegExpTest extends JUnitIOCapture {
 
     final int eLength = 1000;
     pattern.clear();
-    pattern.add(A.getByT('e'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('e'), Pattern.Modifier.STAR);
 
     final StringBuilder sb = new StringBuilder();
     for (int i = 0; i < eLength; i++) {

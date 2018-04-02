@@ -371,7 +371,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         for (int second = 0; second < size(); second++) {
           final long code = (long) first << 32 | second;
           if (oldPairs.get(code) != newPairs.get(code)) {
-            System.out.println("\t" + dict.get(first) + "|" + dict.get(second) + ": " + oldPairs.get(code) + " -> " + newPairs.get(code));
+            System.out.println("\t" + dict.condition(first) + "|" + dict.condition(second) + ": " + oldPairs.get(code) + " -> " + newPairs.get(code));
           }
         }
       }
@@ -462,8 +462,8 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       public String toString() {
         final StringBuilder result = new StringBuilder();
         if (first >= 0)
-          result.append(get(first)).append("|");
-        result.append(get(second));
+          result.append(condition(first)).append("|");
+        result.append(condition(second));
         result.append("->(");
         result.append(count);
         result.append(", ").append(score);

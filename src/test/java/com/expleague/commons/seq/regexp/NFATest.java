@@ -106,7 +106,7 @@ public class NFATest extends JUnitIOCapture {
       final Random rand = new Random();
       final int offset = rand.nextInt(s.length());
       for (int i = offset; i < s.length(); i++) {
-        pattern.add(A.getByT(s.charAt(i)), Pattern.Modifier.NONE);
+        pattern.add(A.conditionByT(s.charAt(i)), Pattern.Modifier.NONE);
       }
       string = s;
       match();
@@ -122,8 +122,8 @@ public class NFATest extends JUnitIOCapture {
       pattern.clear();
 
       for (int i = 0; i < regularString.length(); i++) {
-        pattern.add(A.getByT(regularString.charAt(i)), Pattern.Modifier.NONE);
-        assertEquals(A.getByT(s.charAt(i)).toString().charAt(0), s.charAt(i));
+        pattern.add(A.conditionByT(regularString.charAt(i)), Pattern.Modifier.NONE);
+        assertEquals(A.conditionByT(s.charAt(i)).toString().charAt(0), s.charAt(i));
       }
       string = s;
       match();
@@ -162,11 +162,11 @@ public class NFATest extends JUnitIOCapture {
     }
 
     pattern.clear();
-    pattern.add(A.getByT('x'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('x'), Pattern.Modifier.NONE);
     //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.QUESTION);
-    pattern.add(A.getByT('y'), Pattern.Modifier.QUESTION);
-    pattern.add(A.getByT('z'), Pattern.Modifier.QUESTION);
+    pattern.add(A.conditionByT('y'), Pattern.Modifier.QUESTION);
+    pattern.add(A.conditionByT('z'), Pattern.Modifier.QUESTION);
 
     string = "xyzxcyz";
     match();
@@ -188,15 +188,15 @@ public class NFATest extends JUnitIOCapture {
     assertTrue(mv.contains(string));
 
     pattern.clear();
-    pattern.add(A.getByT('l'), Pattern.Modifier.NONE);
-    pattern.add(A.getByT('o'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('n'), Pattern.Modifier.NONE);
-    pattern.add(A.getByT('g'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('l'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('o'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('n'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('g'), Pattern.Modifier.NONE);
     //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
-    pattern.add(A.getByT('c'), Pattern.Modifier.NONE);
-    pattern.add(A.getByT('a'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('t'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('c'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('a'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('t'), Pattern.Modifier.NONE);
 
     string = "loooongcaaaatlongsukacatlngct";
     match();
@@ -208,10 +208,10 @@ public class NFATest extends JUnitIOCapture {
 //    assertTrue(mv.contains("long   catlngct"));
 
     pattern.clear();
-    pattern.add(A.getByT('x'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('x'), Pattern.Modifier.STAR);
     //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
-    pattern.add(A.getByT('y'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('y'), Pattern.Modifier.STAR);
 
     string = "xcdsvnmfnvdfyxyxky";
     match();
@@ -246,10 +246,10 @@ public class NFATest extends JUnitIOCapture {
 //    assertTrue(mv.contains(s.substring(0, new Random().nextInt(s.length()))));
 
     pattern.clear();
-    pattern.add(A.getByT('g'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('g'), Pattern.Modifier.NONE);
     //noinspection unchecked
     pattern.add(SimpleRegExp.Condition.ANY, Pattern.Modifier.STAR);
-    pattern.add(A.getByT('o'), Pattern.Modifier.NONE);
+    pattern.add(A.conditionByT('o'), Pattern.Modifier.NONE);
 
     string = "omgcjbjbjhbhjbhblkjlkomggo";
     match();
@@ -290,8 +290,8 @@ public class NFATest extends JUnitIOCapture {
     assertFalse(mv.contains("bl"));
 
     pattern.clear();
-    pattern.add(A.getByT('p'), Pattern.Modifier.STAR);
-    pattern.add(A.getByT('x'), Pattern.Modifier.QUESTION);
+    pattern.add(A.conditionByT('p'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('x'), Pattern.Modifier.QUESTION);
 
     string = "zbmbmbgbfbabdbkpppxkxpkwpkxpwkxpwekfnjrgnrrejnerkgnrgekgerjgnjkegnkebiblbw";
     match();
@@ -300,7 +300,7 @@ public class NFATest extends JUnitIOCapture {
     assertEquals(8, mv.occurrences());
 
     pattern.clear();
-    pattern.add(A.getByT('f'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('f'), Pattern.Modifier.STAR);
 
     string = "nkjhjuhnfinniunfiuniuniufbhfhjbhffjhbjhf";
     match();
@@ -399,7 +399,7 @@ public class NFATest extends JUnitIOCapture {
 
     final int eLength = 1000;
     pattern.clear();
-    pattern.add(A.getByT('e'), Pattern.Modifier.STAR);
+    pattern.add(A.conditionByT('e'), Pattern.Modifier.STAR);
 
     final StringBuilder sb = new StringBuilder();
     for (int i = 0; i < eLength; i++) {
@@ -435,7 +435,7 @@ public class NFATest extends JUnitIOCapture {
   public Pattern<Character> parseRegExp(final String str) {
     final Pattern<Character> result = new Pattern<>(Alphabet.CHARACTER_ALPHABET);
     for (int i = 0; i < str.length(); i+=2) {
-      final SimpleRegExp.Condition chCondition = str.charAt(i) == '.' ? SimpleRegExp.Condition.ANY : A.getByT(str.charAt(i));
+      final SimpleRegExp.Condition chCondition = str.charAt(i) == '.' ? SimpleRegExp.Condition.ANY : A.conditionByT(str.charAt(i));
       Pattern.Modifier mod = Pattern.Modifier.NONE;
       if (str.length() > i + 1) {
         switch(str.charAt(i + 1)) {
