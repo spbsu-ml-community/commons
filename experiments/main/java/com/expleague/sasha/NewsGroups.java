@@ -1,65 +1,43 @@
 package com.expleague.sasha;
 
 import com.expleague.commons.io.codec.seq.DictExpansion;
+import com.expleague.commons.io.codec.seq.Dictionary;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.seq.ByteSeq;
 import com.expleague.commons.seq.CharSeq;
-import org.apache.commons.io.IOUtils;
+import com.expleague.commons.seq.IntSeq;
+import com.expleague.commons.seq.Seq;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class NewsGroups {
 
-    private static List<String> fetch20NewsFilenames(final String path) {
+    private static List<String> fetchFilenames(final String path) {
         List<String> filenames = new ArrayList<>();
         File mainDir = new File(path);
         for (File dir : mainDir.listFiles()) {
             if (!dir.isDirectory()) {
                 continue;
             }
-            System.out.println(dir);
+            //System.out.println(dir);
             for (File file : dir.listFiles()) {
-                filenames.add(dir + "\\" +file.getName());
+                filenames.add(dir + "/" + file.getName());
             }
         }
+        System.out.println("read all filenames in " + mainDir.getPath());
         return filenames;
     }
 
-    private static List<String> fetch20News(final String path) {
-    /*List<String> content = new ArrayList<>();
-    File mainDir = new File(path);
-    //for (int i = 0; i < 4; i++) {
-      //File dir = mainDir.listFiles()[i];
-    for (File dir : mainDir.listFiles()) {
-      if (!dir.isDirectory()) {
-          continue;
-      }
-      System.out.println(dir);
-      for (File file : dir.listFiles()) {
-        StringBuilder sb = new StringBuilder();
-        try {
-          Files.lines(Paths.get(dir + "\\" + file.getName()), Charset.forName("Cp1252")).forEach(x -> {
-            sb.append(x);
-            sb.append('\n');
-          });
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-        content.add(sb.toString());
-        //content.add(dir + "\\" + file.getName());
-      }
-    }*/
+    private static List<String> fetchFiles(final List<String> filenames) {
         List<String> content = new ArrayList<>();
-        List<String> filenames = fetch20NewsFilenames(path);
         for (final String filename : filenames) {
             StringBuilder sb = new StringBuilder();
             try {
@@ -75,16 +53,14 @@ public class NewsGroups {
         return content;
     }
 
-    private static void simple20news(final String dir) throws Exception {
+    private static void simple20news(final String dir) throws IOException {
         final FastRandom rng = new FastRandom(0);
-        //final String DIR = "E:\\YandexDisk\\Саша\\Учеба\\Остальное\\Кураленок\\fastText\\code\\fastText\\data\\my\\my_text";
-        //final String DIR = "/home/akhvorov/Yandex.Disk/Саша/Учеба/Остальное/Кураленок/fastText/code/fastText/data/my/ag_news";
-        //final String DIR = "E:\\YandexDisk\\Саша\\Учеба\\CSC\\Практика\\data\\20_newsgroups";
-        final File toParse = new File(dir + ".test");
         final Set<Character> allCharacters = new HashSet<>();
         long heapSize = Runtime.getRuntime().maxMemory();
         System.out.println("Heap Size = " + heapSize / 1000 / 1000);
-        List<String> content = fetch20News(dir);
+        final List<String> filenames = fetchFilenames(dir);
+        Collections.shuffle(filenames);
+        final List<String> content = fetchFiles(filenames);
         for (String text : content) {
             for (int i = 0; i < text.length(); i++) {
                 allCharacters.add(text.charAt(i));
@@ -98,7 +74,8 @@ public class NewsGroups {
                 expansion.accept(CharSeq.create(text));
                 if (++index % 10000 == 0)
                     try {
-                        expansion.printPairs(new FileWriter(new File(dir + "\\pairs.dict")));
+                        //expansion.printPairs(new FileWriter(new File(dir + "/pairs.dict")));
+                        expansion.print(new FileWriter(new File(dir + ".dict")));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -109,107 +86,207 @@ public class NewsGroups {
             System.out.println(expansion.result().size());
             expansion.print(new FileWriter(new File(dir + ".dict")));
         }
-    /*for (int i = 0; i < content.size(); i++) {
-      CharSeqTools.processLines(new FileReader(content.get(i)), new Consumer<CharSequence>() {
-        int index = 0;
-        int count = 0;
-        @Override
-        public void accept(CharSequence arg) {
-          if (arg.length() < 150)
-            return;
-          expansion.accept(CharSeq.create(arg));
-          if (++index % 10000 == 0)
-            try {
-              expansion.printPairs(new FileWriter(new File(DIR + "\\pairs.dict")));
-              System.out.println("write to file" + count);
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          count++;
-        }
-      });
-    }*/
-        System.out.println(expansion.result().size());
-        expansion.print(new FileWriter(new File(dir + ".dict")));
         System.out.println();
         System.out.println("END");
     }
 
-    private static ByteSeq textToZipBytes(final List<String> filenames, final String localFile) {
-        final List<String> shortNames = filenames.stream()
-                .map(x -> x.substring(x.lastIndexOf("\\")))
-                .collect(Collectors.toList());
-      /*try {
-          ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(localFile));
-          shortNames.forEach(file -> {
-              try {
+    private static byte[] changeByteSize(byte[] bytes, int byteSize) {
+        if (byteSize == 8) {
+            return bytes;
+        }
+        StringBuilder sb = new StringBuilder();
+        int offset = byteSize - (bytes.length * 8) % byteSize;
+        for (int i = 0; i < offset; i++) {
+            sb.append('0');
+        }
+        for (byte b : bytes) {
+            for (int j = 0; j < 8; j++) {
+                if ((b & (1 << 7)) == 0) {
+                    sb.append('0');
+                } else {
+                    sb.append('1');
+                }
+                b <<= 1;
+            }
+        }
+        String byteStr = sb.toString();
+        byte[] newBytes = new byte[byteStr.length() / byteSize];
+        int k = 0;
+        for (int i = 0; i < newBytes.length; i++) {
+            byte b = 0;
+            int j = 0;
+            while (j < byteSize) {
+                b <<= 1;
+                if (byteStr.charAt(k) == '1') {
+                    b |= 1;
+                }
+                j++;
+                k++;
+            }
 
-                  zos.putNextEntry(new ZipEntry(file));
-                  zos.closeEntry();
-              } catch (IOException e) {
-                  System.out.println("file " + file + " not found");
-              } catch (IllegalArgumentException ea) {
-                  System.out.println(file);
-              }
-          });
-          zos.close();
-      } catch (IOException e) {
-          System.out.println("file " + localFile + " not open");
-      }*/
+            newBytes[i] = b;
+        }
+        return newBytes;
+    }
+
+    private static ByteSeq readZipFile(final String filename, final String tempZipFile, int byteSize) throws IOException {
+        final String file = filename.substring(filename.lastIndexOf("/"));
+        String tempFileName = filename.substring(0, filename.lastIndexOf("/"));
+        tempFileName = tempFileName.substring(0, tempFileName.lastIndexOf("/"));
+        tempFileName = tempFileName.substring(0, tempFileName.lastIndexOf("/"));
+        tempFileName += "/tempFile";
+        Files.copy(new File(filename).toPath(), new File(tempFileName).toPath(),
+                new StandardCopyOption[]{StandardCopyOption.REPLACE_EXISTING});
+        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tempZipFile));
+        zos.putNextEntry(new ZipEntry(file));
+        zos.closeEntry();
+
+        FileInputStream fis = new FileInputStream(tempZipFile);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final int bufSize = 256;
+        int count;
+        byte data[] = new byte[bufSize];
+        while ((count = fis.read(data)) != -1) {
+            out.write(data, 0, count);
+        }
+        return new ByteSeq(changeByteSize(out.toByteArray(), byteSize));
+    }
+
+    private static ByteSeq readGzipFile(final String filename, int byteSize) {
         try {
-            ZipInputStream zis = new ZipInputStream(new FileInputStream(localFile));
+            FileInputStream fis = new FileInputStream(filename);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            IOUtils.copy(zis, out);
-          /*final int bufSize = 2048;
-          int count = 0;
-          int offset = 0;
-          byte data[] = new byte[bufSize];
-          while ((count = zis.read(data, offset, bufSize)) != -1) {
-              out.write(data);
-              offset += bufSize;
-          }
-          System.out.println("Offset = " + offset + ", len = " + out.toByteArray().length);
-          return new ByteSeq(out.toByteArray());*/
-            System.out.println(out.toByteArray().length);
-            return new ByteSeq(out.toByteArray());
+            final int bufSize = 256;
+            int count;
+            byte data[] = new byte[bufSize];
+            while ((count = fis.read(data)) != -1) {
+                out.write(data, 0, count);
+            }
+            return new ByteSeq(changeByteSize(out.toByteArray(), byteSize));
         } catch (IOException e) {
-            throw new RuntimeException("Exception in reading zip");
+            System.out.println("file " + filename + " is not ungzip");
+            e.printStackTrace();
+            return null;
         }
     }
 
-    private static void zip20news(final String dir) throws Exception {
-        //final String DIR = "E:\\YandexDisk\\Саша\\Учеба\\CSC\\Практика\\data\\20_newsgroups";
-        final File toParse = new File(dir + ".test");
-        final Set<Byte> allCharacters = new HashSet<>();
+    private static <T extends Comparable<T>> void writeBoW(final List<Seq<T>> seq,
+                                                           final Dictionary<T> dict,
+                                                           final List<String> filenames,
+                                                           final String dir,
+                                                           final boolean isTrain) {
+        int errorsNum = 0;
+        for (int i = 0; i < seq.size(); i++) {
+            final Map<Integer, Integer> bow = new HashMap<>();
+            for (int gram = 0; gram < dict.size(); gram++) {
+                bow.put(gram, 0);
+            }
+            final IntSeq intSeq = dict.parse(seq.get(i));
+            for (final Integer key : intSeq) {
+                bow.put(key, bow.getOrDefault(key, 0) + 1);
+            }
+            final String first = dir.substring(0, dir.lastIndexOf('/'));
+            //final String second = filenames.get(i).substring(dir.length(), filenames.get(i).indexOf('/', dir.length() + 1));
+            //final String newDir = first + "/bows" + second;
+            //System.out.println(filenames.get(i) + ", " + dir);
+            String newDir = first + "/bows"; // + second;
+            String filename = first + "/bows";
+            if (isTrain) {
+                newDir += "-train";
+                filename += "-train";
+            } else {
+                newDir += "-test";
+                filename += "-test";
+            }
+            filename += filenames.get(i).substring(dir.length(), filenames.get(i).length() - 3) + ".bow";
+            new File(newDir).mkdir();
+            File subDir = new File(filename.substring(0, filename.lastIndexOf('/')));
+            if (!subDir.exists()) {
+                subDir.mkdir();
+            }
+            try (PrintStream printStream = new PrintStream(new FileOutputStream(filename))) {
+                for (final Map.Entry<Integer, Integer> entry : bow.entrySet()) {
+                    printStream.println(entry.getKey() + "\t" + entry.getValue());
+                }
+            } catch (IOException e) {
+                boolean isDelete = new File(filename).delete();
+                if (isDelete) {
+                    System.out.println(filename + " is deleted");
+                } else {
+                    System.out.println(filename + " not deleted");
+                }
+                errorsNum++;
+                //e.printStackTrace();
+            }
+        }
+        System.out.println("Errors = " + errorsNum);
+    }
+
+    private static void zip20news(final String dir, int byteSize) throws IOException {
+        final FastRandom random = new FastRandom(0);
+        final Set<Byte> alphabet = new HashSet<>();
         long heapSize = Runtime.getRuntime().maxMemory();
         System.out.println("Heap Size = " + heapSize / 1000 / 1000);
-        List<String> filenames = fetch20NewsFilenames(dir);
-        ByteSeq byteSeq = textToZipBytes(filenames, dir + "_temp.zip");
-        System.out.println("byteSeq is ready");
-        System.out.println("seq length = " + byteSeq.length());
-        for (int i = 0; i < 256; i++) {
-            allCharacters.add((byte)i);
+        List<String> filenames = fetchFilenames(dir + "train-gzip");
+        List<String> testFilenames = fetchFilenames(dir + "test-gzip");
+        List<ByteSeq> byteSeqs = filenames.stream()
+                .map(filename -> readGzipFile(filename, byteSize))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        List<Seq<Byte>> testByteSeqs = testFilenames.stream()
+                .map(x -> (Seq<Byte>)(readGzipFile(x, byteSize)))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        for (int i = 0; i < Math.pow(2, byteSize); i++) {
+            alphabet.add((byte)i);
         }
-        final DictExpansion<Byte> expansion = new DictExpansion<>(allCharacters, 20000, System.out);
-        System.out.println("Content size = " + filenames.size());
-        for (int i = 0; i < 2; i++) {
-            expansion.accept(byteSeq);
+        //filenames = filenames.subList(0, 100); //!!!
+        List<Integer> dictSizesSeq = new ArrayList<>();
+        System.out.println("start dict expansion");
+        int dictSize = 8000;
+        final DictExpansion<Byte> expansion = new DictExpansion<>(alphabet, dictSize, System.out);
+        for (int i = 0; i < 250; i++) {
+            for (int j = 0; j < filenames.size(); j++) {
+                expansion.accept(byteSeqs.get(random.nextInt(filenames.size())));
+            }
             System.out.println(i + "-th iter end");
             if (expansion.result() != null) {
+                dictSizesSeq.add(expansion.result().size());
                 System.out.println(expansion.result().size());
-                expansion.print(new FileWriter(new File(dir + ".dict")));
+                expansion.print(new FileWriter(new File(dir + "train_" + byteSize + ".dict")));
+            }
+            if (expansion.result().size() >= dictSize) {
+                break;
+            }
+            if (i > 1 && i % 50 == 0) {
+                writeBoW(byteSeqs.stream().map(x -> (Seq<Byte>)x).collect(Collectors.toList()),
+                        expansion.result(), filenames, dir + "train-gzip", true);
+                System.out.println("Train BoW have written");
+                writeBoW(testByteSeqs, expansion.result(), testFilenames, dir + "test-gzip", false);
+                System.out.println("Test BoW have written");
             }
         }
         System.out.println();
         System.out.println("END");
+
+        writeBoW(byteSeqs.stream().map(x -> (Seq<Byte>)x).collect(Collectors.toList()),
+                expansion.result(), filenames, dir + "train-gzip", true);
+        System.out.println("Train BoW have written");
+
+        writeBoW(testByteSeqs, expansion.result(), testFilenames, dir + "test-gzip", false);
+        System.out.println("Test BoW have written");
+        System.out.println("dict sizes: " + dictSizesSeq);
     }
 
     public static void main(String... args) {
+        //final String DIR = "E:\\YandexDisk\\Саша\\Учеба\\CSC\\Практика\\data\\20_newsgroups";
+        //final String DIR = "E:/YandexDisk/Саша/Учеба/CSC/Практика/data/20news-bydate-";
+        final String DIR = "../../../data/20news-bydate-";
+        int byteSize = 7;
         try {
-            final String DIR = "E:\\YandexDisk\\Саша\\Учеба\\CSC\\Практика\\data\\20_newsgroups";
             //simple20news(DIR);
-            zip20news(DIR);
-        } catch (Exception e) {
+            zip20news(DIR, byteSize);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

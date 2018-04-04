@@ -22,10 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.IntStream;
@@ -325,17 +322,61 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     }
 
     private DictionaryWithStat<T> reduce(int slots, boolean isDynamic) {
+      final List<Seq<T>> newDict = new ArrayList<>(size());
+      List<Integer> wordIds = new ArrayList<>(size());
+      for (int i = 0; i < size(); i++) {
+        wordIds.add(i);
+      }
+      List<StatItem> items;
+      do {
+        items = statItems(wordIds);
+        wordIds = sortStatItems(items, slots);
+      } while (items.size() > slots);
+      items.sort(Comparator.comparingDouble(o -> -o.score)); // rewrite comparator
+
+      double minProbResult = min(1. / size(), MAX_MIN_PROBABILITY);
+      for (final StatItem item : items) {
+        if (--slots < 0) //item.score < 0. || --slots < 0
+          break;
+        final double p = (item.count + 1) / (power + size());
+        minProbResult = min(p, minProbResult);
+        final Seq<T> symbol = get(item.second);
+        newDict.add(symbol);
+      }
+
+      //noinspection unchecked
+      return createDict(newDict, isDynamic, minProbResult);
+    }
+
+    private List<Integer> sortStatItems(List<StatItem> items, int slots) {
+      items.sort(Comparator.comparingDouble(o -> -o.score));
+      Set<Seq<T>> indepSet = new HashSet<>();
+      for (int i = 0; i < items.size() && items.size() > slots; i++) {
+        boolean independent = true;
+        for (Seq<T> seq : indepSet) {
+          if (isSubstring(get(items.get(i).second), seq)) {
+            independent = false;
+            break;
+          }
+        }
+        if (independent) {
+          indepSet.add(get(items.get(i).second));
+          items.remove(i);
+          i--;
+        }
+      }
+      return Collections.emptyList(); // change
+    }
+
+    private List<StatItem> statItems(List<Integer> wordIds) {
       final List<StatItem> items = new ArrayList<>();
       final double codeLength = codeLength() * totalChars;
-      final List<Seq<T>> newDict = new ArrayList<>(size());
 
-      for (int s = 0; s < size(); s++) {
+      for (Integer s : wordIds) {
         final int parent = parent(s);
         final int count = freq(s);
         Seq<T> seq = get(s);
-        if (parent < 0)
-          newDict.add(seq);
-        else if (count > 0) {
+        if (count > 0) {
           double codeLengthWOSymbol = codeLength + count * log(count);
           double newStatPower = power - count;
           int next = parent;
@@ -351,20 +392,18 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
           items.add(new StatItem(-1, s, codeLengthWOSymbol - codeLength, count));
         }
       }
-      items.sort(Comparator.comparingDouble(o -> -o.score));
+      return items;
+    }
 
-      double minProbResult = min(1. / size(), MAX_MIN_PROBABILITY);
-      for (final StatItem item : items) {
-        if (item.score < 0. || --slots < 0)
-          break;
-        final double p = (item.count + 1) / (power + size());
-        minProbResult = min(p, minProbResult);
-        final Seq<T> symbol = get(item.second);
-        newDict.add(symbol);
+    // rewrite to prefix-function algorithm
+    private <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
+      if (t.length() > s.length()) return false;
+      for (int i = 0; i < s.length() - t.length(); i++) {
+        if (s.sub(i, t.length()).equals(t)) {
+          return true;
+        }
       }
-
-      //noinspection unchecked
-      return createDict(newDict, isDynamic, minProbResult);
+      return false;
     }
 
     private void printPairs(TLongIntMap oldPairs, TLongIntMap newPairs) {
