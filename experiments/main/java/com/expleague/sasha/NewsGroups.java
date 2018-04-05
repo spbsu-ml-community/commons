@@ -222,7 +222,7 @@ public class NewsGroups {
         System.out.println("Errors = " + errorsNum);
     }
 
-    private static void zip20news(final String dir, int byteSize) throws IOException {
+    private static void zip20news(final String dir, final int byteSize, final int dictSize) throws IOException {
         final FastRandom random = new FastRandom(0);
         final Set<Byte> alphabet = new HashSet<>();
         long heapSize = Runtime.getRuntime().maxMemory();
@@ -240,10 +240,9 @@ public class NewsGroups {
         for (int i = 0; i < Math.pow(2, byteSize); i++) {
             alphabet.add((byte)i);
         }
-        //filenames = filenames.subList(0, 100); //!!!
+        filenames = filenames.subList(0, 100); //!!!
         List<Integer> dictSizesSeq = new ArrayList<>();
         System.out.println("start dict expansion");
-        int dictSize = 8000;
         final DictExpansion<Byte> expansion = new DictExpansion<>(alphabet, dictSize, System.out);
         for (int i = 0; i < 250; i++) {
             for (int j = 0; j < filenames.size(); j++) {
@@ -279,13 +278,13 @@ public class NewsGroups {
     }
 
     public static void main(String... args) {
-        //final String DIR = "E:\\YandexDisk\\Саша\\Учеба\\CSC\\Практика\\data\\20_newsgroups";
         //final String DIR = "E:/YandexDisk/Саша/Учеба/CSC/Практика/data/20news-bydate-";
-        final String DIR = "../../../data/20news-bydate-";
-        int byteSize = 7;
+        final String DIR = "../../data/20news-bydate-";
+        int byteSize = 8;
+        int dictSize = 8000;
         try {
             //simple20news(DIR);
-            zip20news(DIR, byteSize);
+            zip20news(DIR, byteSize, dictSize);
         } catch (IOException e) {
             e.printStackTrace();
         }
