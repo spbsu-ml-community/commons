@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.lang.Integer.max;
@@ -325,13 +326,18 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       final List<Seq<T>> newDict = new ArrayList<>(size());
       List<Integer> wordIds = new ArrayList<>(size());
       for (int i = 0; i < size(); i++) {
+        if (parent(i) < 0) {
+          newDict.add(get(i));
+          continue;
+        }
         wordIds.add(i);
       }
       List<StatItem> items;
-      do {
-        items = statItems(wordIds);
-        wordIds = sortStatItems(items, slots);
-      } while (items.size() > slots);
+      //do {
+      //items = statItems(wordIds);
+      //wordIds = sortStatItems(items, slots);
+      //} while (items.size() > slots);
+      items = statItems(wordIds);
       items.sort(Comparator.comparingDouble(o -> -o.score)); // rewrite comparator
 
       double minProbResult = min(1. / size(), MAX_MIN_PROBABILITY);
@@ -349,23 +355,44 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     }
 
     private List<Integer> sortStatItems(List<StatItem> items, int slots) {
-      items.sort(Comparator.comparingDouble(o -> -o.score));
-      Set<Seq<T>> indepSet = new HashSet<>();
-      for (int i = 0; i < items.size() && items.size() > slots; i++) {
-        boolean independent = true;
-        for (Seq<T> seq : indepSet) {
-          if (isSubstring(get(items.get(i).second), seq)) {
-            independent = false;
+      items.sort(Comparator.comparingDouble(o -> -o.score)); // score decrease
+      Set<Integer> indep = new HashSet<>();
+      for (int i = items.size() - 1; i >= 0 && items.size() - indep.size() > slots; i--) {
+        boolean isIndep = true;
+        for (int j = 0; j < items.size(); j++) {
+          if (i != j && isSubstring(get(items.get(j).second), get(items.get(i).second))) {
+            isIndep = false;
             break;
           }
         }
-        if (independent) {
-          indepSet.add(get(items.get(i).second));
-          items.remove(i);
-          i--;
+        if (isIndep) {
+          indep.add(items.get(i).second);
+        } else {
+          break;
         }
       }
-      return Collections.emptyList(); // change
+      List<Integer> wordIds = items.stream()
+              .map(item -> item.second)
+              .filter(id -> !indep.contains(id))
+              .collect(Collectors.toList());
+      /*System.out.println("items: " + items.size() + ", words: " + wordIds.size() + ", indep: " + indep.size() + ", slots: " + slots);
+      System.out.println("all items");
+      items.forEach(item -> System.out.print("(" + get(item.second) + "-" + item.count + ") "));
+      System.out.println();
+      System.out.println("indep");
+      indep.forEach(id -> System.out.print(get(id) + " "));
+      System.out.println();
+      System.out.println("wordIds");
+      wordIds.forEach(id -> System.out.print(get(id) + " "));
+      System.out.println();
+      System.out.println();*/
+      if (indep.size() == 0 && wordIds.size() > slots && wordIds.size() > 0) {
+        wordIds.remove(wordIds.size() - 1);
+        System.out.println("-1 in if");
+      }
+      //System.out.println("in while, items.size = " + items.size() + ", slots = " + slots);
+      //wordIds.forEach(id -> System.out.print(get(id) + " "));
+      return wordIds;
     }
 
     private List<StatItem> statItems(List<Integer> wordIds) {
@@ -397,9 +424,11 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
 
     // rewrite to prefix-function algorithm
     private <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
+      // t is substr of s
       if (t.length() > s.length()) return false;
-      for (int i = 0; i < s.length() - t.length(); i++) {
-        if (s.sub(i, t.length()).equals(t)) {
+      for (int i = 0; i <= s.length() - t.length(); i++) {
+        if (s.sub(i, i + t.length()).equals(t)) {
+          System.out.println(t + " is substr of " + s);
           return true;
         }
       }
