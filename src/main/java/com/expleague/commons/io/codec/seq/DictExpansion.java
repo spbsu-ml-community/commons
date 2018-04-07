@@ -16,6 +16,7 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TLongIntMap;
 import gnu.trove.procedure.TIntDoubleProcedure;
 import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
@@ -333,10 +334,10 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         wordIds.add(i);
       }
       List<StatItem> items;
-      //do {
-      //items = statItems(wordIds);
-      //wordIds = sortStatItems(items, slots);
-      //} while (items.size() > slots);
+      do {
+        items = statItems(wordIds);
+        wordIds = sortStatItems(items, slots);
+      } while (items.size() > slots);
       items = statItems(wordIds);
       items.sort(Comparator.comparingDouble(o -> -o.score)); // rewrite comparator
 
@@ -371,13 +372,28 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
           break;
         }
       }
+      TIntSet indepIdsTSet = new TIntHashSet(indep);
+      for (Integer id : indep) {
+        IntSeqBuilder builder = new IntSeqBuilder();
+        IntSeq seq = linearParse(get(id), builder, indepIdsTSet);
+        for (int i = 0; i < seq.length(); i++) {
+          updateSymbol(seq.at(i), freq(id));
+        }
+        updateSymbol(id, -freq(id));
+      }
       List<Integer> wordIds = items.stream()
               .map(item -> item.second)
               .filter(id -> !indep.contains(id))
               .collect(Collectors.toList());
+      /*
+      Каждое слово, которое хотим удалить, парсим, чтобы найти, что в нем используется.
+      Обновляем у найденных в нем элементов updateSymbol(i, count)
+      Не забываем сделать для удаляемого слова updateSymbol(i, -count)
+       */
+      System.out.println("items: " + items.size() + ", words: " + wordIds.size() + ", indep: " + indep.size() + ", slots: " + slots);
       /*System.out.println("items: " + items.size() + ", words: " + wordIds.size() + ", indep: " + indep.size() + ", slots: " + slots);
       System.out.println("all items");
-      items.forEach(item -> System.out.print("(" + get(item.second) + "-" + item.count + ") "));
+      items.forEach(item -> System.out.print("(" + get(item.second) + "-" + item.count + ", " + item.score + ") "));
       System.out.println();
       System.out.println("indep");
       indep.forEach(id -> System.out.print(get(id) + " "));
@@ -386,10 +402,6 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       wordIds.forEach(id -> System.out.print(get(id) + " "));
       System.out.println();
       System.out.println();*/
-      if (indep.size() == 0 && wordIds.size() > slots && wordIds.size() > 0) {
-        wordIds.remove(wordIds.size() - 1);
-        System.out.println("-1 in if");
-      }
       //System.out.println("in while, items.size = " + items.size() + ", slots = " + slots);
       //wordIds.forEach(id -> System.out.print(get(id) + " "));
       return wordIds;
