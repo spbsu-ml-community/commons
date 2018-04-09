@@ -204,19 +204,23 @@ public class NewsGroups {
             if (!subDir.exists()) {
                 subDir.mkdir();
             }
-            try (PrintStream printStream = new PrintStream(new FileOutputStream(filename))) {
-                for (final Map.Entry<Integer, Integer> entry : bow.entrySet()) {
-                    printStream.println(entry.getKey() + "\t" + entry.getValue());
+            boolean hasWritten = false;
+            while (!hasWritten) {
+                try (PrintStream printStream = new PrintStream(new FileOutputStream(filename))) {
+                    for (final Map.Entry<Integer, Integer> entry : bow.entrySet()) {
+                        printStream.println(entry.getKey() + "\t" + entry.getValue());
+                    }
+                    hasWritten = true;
+                } catch (IOException e) {
+                    boolean isDelete = new File(filename).delete();
+                    if (isDelete) {
+                        System.out.println(filename + " is deleted");
+                    } else {
+                        System.out.println(filename + " not deleted");
+                    }
+                    errorsNum++;
+                    //e.printStackTrace();
                 }
-            } catch (IOException e) {
-                boolean isDelete = new File(filename).delete();
-                if (isDelete) {
-                    System.out.println(filename + " is deleted");
-                } else {
-                    System.out.println(filename + " not deleted");
-                }
-                errorsNum++;
-                //e.printStackTrace();
             }
         }
         System.out.println("Errors = " + errorsNum);
@@ -228,6 +232,7 @@ public class NewsGroups {
         long heapSize = Runtime.getRuntime().maxMemory();
         System.out.println("Heap Size = " + heapSize / 1000 / 1000);
         List<String> filenames = fetchFilenames(dir + "train-gzip");
+        //filenames = filenames.subList(0, 100); //!!!
         List<String> testFilenames = fetchFilenames(dir + "test-gzip");
         List<ByteSeq> byteSeqs = filenames.stream()
                 .map(filename -> readGzipFile(filename, byteSize))
@@ -240,30 +245,28 @@ public class NewsGroups {
         for (int i = 0; i < Math.pow(2, byteSize); i++) {
             alphabet.add((byte)i);
         }
-        filenames = filenames.subList(0, 100); //!!!
         List<Integer> dictSizesSeq = new ArrayList<>();
         System.out.println("start dict expansion");
         final DictExpansion<Byte> expansion = new DictExpansion<>(alphabet, dictSize, System.out);
-        for (int i = 0; i < 250; i++) {
+        for (int i = 0; i < 80; i++) {
             for (int j = 0; j < filenames.size(); j++) {
                 expansion.accept(byteSeqs.get(random.nextInt(filenames.size())));
             }
             System.out.println(i + "-th iter end");
             if (expansion.result() != null) {
                 dictSizesSeq.add(expansion.result().size());
-                System.out.println(expansion.result().size());
                 expansion.print(new FileWriter(new File(dir + "train_" + byteSize + ".dict")));
             }
-            if (expansion.result().size() >= dictSize) {
+            /*if (expansion.result().size() >= dictSize) {
                 break;
-            }
-            if (i > 1 && i % 50 == 0) {
+            }*/
+            /*if (i > 1 && i % 50 == 0) {
                 writeBoW(byteSeqs.stream().map(x -> (Seq<Byte>)x).collect(Collectors.toList()),
                         expansion.result(), filenames, dir + "train-gzip", true);
                 System.out.println("Train BoW have written");
                 writeBoW(testByteSeqs, expansion.result(), testFilenames, dir + "test-gzip", false);
                 System.out.println("Test BoW have written");
-            }
+            }*/
         }
         System.out.println();
         System.out.println("END");
@@ -280,8 +283,8 @@ public class NewsGroups {
     public static void main(String... args) {
         //final String DIR = "E:/YandexDisk/Саша/Учеба/CSC/Практика/data/20news-bydate-";
         final String DIR = "../../data/20news-bydate-";
-        int byteSize = 8;
-        int dictSize = 8000;
+        int byteSize = 5;
+        int dictSize = 3000;
         try {
             //simple20news(DIR);
             zip20news(DIR, byteSize, dictSize);

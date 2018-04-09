@@ -375,7 +375,9 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       TIntSet indepIdsTSet = new TIntHashSet(indep);
       for (Integer id : indep) {
         IntSeqBuilder builder = new IntSeqBuilder();
-        IntSeq seq = linearParse(get(id), builder, indepIdsTSet);
+        //IntSeq seq = linearParse(get(id), builder, indepIdsTSet);
+        double d = weightedParse(get(id), symbolFreqs, totalChars, builder, indepIdsTSet);
+        IntSeq seq = builder.build();
         for (int i = 0; i < seq.length(); i++) {
           updateSymbol(seq.at(i), freq(id));
         }

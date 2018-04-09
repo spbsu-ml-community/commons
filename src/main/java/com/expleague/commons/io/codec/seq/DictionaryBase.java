@@ -173,6 +173,41 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
     return score[len];
   }
 
+  protected double weightedParse(Seq<T> seq, TIntList freqs, double totalFreq, IntSeqBuilder builder, TIntSet excludes) {
+    int len = seq.length();
+    double[] score = new double[len + 1];
+    Arrays.fill(score, Double.NEGATIVE_INFINITY);
+    score[0] = 0;
+    int[] symbols = new int[len + 1];
+
+    for (int pos = 0; pos < len; pos++) {
+      Seq<T> suffix = seq.sub(pos, len);
+      int sym = search(suffix, excludes);
+      do {
+        int symLen = get(sym).length();
+        double symLogProb = (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size());
+
+        if (score[symLen + pos] < score[pos] + symLogProb) {
+          score[symLen + pos] = score[pos] + symLogProb;
+          symbols[symLen + pos] = sym;
+        }
+      }
+      while ((sym = parent(sym)) >= 0);
+    }
+    int[] solution = new int[len + 1];
+    int pos = len;
+    int index = 0;
+    while (pos > 0) {
+      int sym = symbols[pos];
+      solution[len - (++index)] = sym;
+      pos -= get(sym).length();
+    }
+    for (int i = 0; i < index; i++) {
+      builder.append(solution[len - index + i]);
+    }
+    return score[len];
+  }
+
   @Override
   public int search(Seq<T> seq) {
     return search(seq, null);
