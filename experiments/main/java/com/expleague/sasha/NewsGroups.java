@@ -174,8 +174,13 @@ public class NewsGroups {
                                                            final Dictionary<T> dict,
                                                            final List<String> filenames,
                                                            final String dir,
+                                                           final String zipType,
                                                            final boolean isTrain) {
         int errorsNum = 0;
+        int zipTypeLen = 0;
+        if (zipType != null) {
+            zipTypeLen = zipType.length();
+        }
         for (int i = 0; i < seq.size(); i++) {
             final Map<Integer, Integer> bow = new HashMap<>();
             for (int gram = 0; gram < dict.size(); gram++) {
@@ -198,7 +203,7 @@ public class NewsGroups {
                 newDir += "-test";
                 filename += "-test";
             }
-            filename += filenames.get(i).substring(dir.length(), filenames.get(i).length() - 3) + ".bow";
+            filename += filenames.get(i).substring(dir.length(), filenames.get(i).length() - zipTypeLen) + ".bow";
             new File(newDir).mkdir();
             File subDir = new File(filename.substring(0, filename.lastIndexOf('/')));
             if (!subDir.exists()) {
@@ -226,14 +231,21 @@ public class NewsGroups {
         System.out.println("Errors = " + errorsNum);
     }
 
-    private static void zip20news(final String dir, final int byteSize, final int dictSize) throws IOException {
+    private static void byte20news(final String dir, final int byteSize, final int dictSize, final int iterNum, final String zipType) throws IOException {
         final FastRandom random = new FastRandom(0);
         final Set<Byte> alphabet = new HashSet<>();
         long heapSize = Runtime.getRuntime().maxMemory();
         System.out.println("Heap Size = " + heapSize / 1000 / 1000);
-        List<String> filenames = fetchFilenames(dir + "train-gzip");
+        String trainName = "train";
+        String testName = "test";
+        if (zipType != null) {
+            trainName += zipType;
+            testName += zipType;
+        }
+        List<String> filenames = fetchFilenames(dir + trainName);
         //filenames = filenames.subList(0, 100); //!!!
-        List<String> testFilenames = fetchFilenames(dir + "test-gzip");
+        List<String> testFilenames = fetchFilenames(dir + testName);
+        //testFilenames = testFilenames.subList(0, 100); //!!!
         List<ByteSeq> byteSeqs = filenames.stream()
                 .map(filename -> readGzipFile(filename, byteSize))
                 .filter(Objects::nonNull)
@@ -248,7 +260,7 @@ public class NewsGroups {
         List<Integer> dictSizesSeq = new ArrayList<>();
         System.out.println("start dict expansion");
         final DictExpansion<Byte> expansion = new DictExpansion<>(alphabet, dictSize, System.out);
-        for (int i = 0; i < 80; i++) {
+        for (int i = 0; i < iterNum; i++) {
             for (int j = 0; j < filenames.size(); j++) {
                 expansion.accept(byteSeqs.get(random.nextInt(filenames.size())));
             }
@@ -262,32 +274,34 @@ public class NewsGroups {
             }*/
             /*if (i > 1 && i % 50 == 0) {
                 writeBoW(byteSeqs.stream().map(x -> (Seq<Byte>)x).collect(Collectors.toList()),
-                        expansion.result(), filenames, dir + "train-gzip", true);
+                        expansion.result(), filenames, dir + "train-gzip", zipType, true);
                 System.out.println("Train BoW have written");
-                writeBoW(testByteSeqs, expansion.result(), testFilenames, dir + "test-gzip", false);
+                writeBoW(testByteSeqs, expansion.result(), testFilenames, dir + "test-gzip", zipType, false);
                 System.out.println("Test BoW have written");
             }*/
         }
         System.out.println();
-        System.out.println("END");
-
+        System.out.println("dict is constructed");
+        System.out.println("dict sizes: " + dictSizesSeq);
         writeBoW(byteSeqs.stream().map(x -> (Seq<Byte>)x).collect(Collectors.toList()),
-                expansion.result(), filenames, dir + "train-gzip", true);
+                expansion.result(), filenames, dir + trainName, zipType, true);
         System.out.println("Train BoW have written");
 
-        writeBoW(testByteSeqs, expansion.result(), testFilenames, dir + "test-gzip", false);
+        writeBoW(testByteSeqs, expansion.result(), testFilenames, dir + testName, zipType, false);
         System.out.println("Test BoW have written");
-        System.out.println("dict sizes: " + dictSizesSeq);
+        System.out.println("END");
     }
 
     public static void main(String... args) {
         //final String DIR = "E:/YandexDisk/Саша/Учеба/CSC/Практика/data/20news-bydate-";
         final String DIR = "../../data/20news-bydate-";
-        int byteSize = 5;
-        int dictSize = 3000;
+        int byteSize = 8;
+        int dictSize = 8000;
+        int iterNum = 5;
+        String zipType = "";
         try {
             //simple20news(DIR);
-            zip20news(DIR, byteSize, dictSize);
+            byte20news(DIR, byteSize, dictSize, iterNum, zipType);
         } catch (IOException e) {
             e.printStackTrace();
         }
