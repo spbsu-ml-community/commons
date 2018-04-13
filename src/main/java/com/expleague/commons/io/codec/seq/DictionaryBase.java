@@ -35,7 +35,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
         for (int i = 0; i < result.length(); i++) {
           final int symbol = result.intAt(i);
           if (symbol >= 0)
-            System.out.print(" " + get(symbol));
+            System.out.print(" " + condition(symbol));
           else
             System.out.print("##unknown##");
         }
@@ -55,7 +55,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
         for (int i = 0; i < result.length(); i++) {
           final int symbol = result.intAt(i);
           if (symbol >= 0)
-            System.out.print(" " + get(symbol));
+            System.out.print(" " + condition(symbol));
           else
             System.out.print("##unknown##");
         }

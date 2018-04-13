@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
  * Time: 22:07:07
  */
 public interface FuncC1 extends Func, TransC1 {
+  Vec L(Vec at);
+
   abstract class Stub extends Func.Stub implements FuncC1 {
     public Vec gradientRowTo(Vec x, Vec to, int index) {
       return gradientTo(x, to);
@@ -26,6 +28,11 @@ public interface FuncC1 extends Func, TransC1 {
       final Vec result = new ArrayVec(x.dim());
       gradientTo(x, result);
       return result;
+    }
+
+    @Override
+    public Vec L(Vec at) {
+      return new ArrayVec(dim());
     }
 
     @Override

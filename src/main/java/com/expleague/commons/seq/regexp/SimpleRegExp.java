@@ -15,7 +15,7 @@ public class SimpleRegExp implements Matcher<Character> {
   public static SimpleRegExp create(final String str) {
     final Pattern<Character> result = new Pattern<>(Alphabet.CHARACTER_ALPHABET);
     for (int i = 0; i < str.length(); i+=2) {
-      final Condition chCondition = str.charAt(i) == '.' ? Condition.ANY : Alphabet.CHARACTER_ALPHABET.getByT(str.charAt(i));
+      final Condition chCondition = str.charAt(i) == '.' ? Condition.ANY : Alphabet.CHARACTER_ALPHABET.conditionByT(str.charAt(i));
       Pattern.Modifier mod = Pattern.Modifier.NONE;
       if (str.length() > i + 1) {
         switch(str.charAt(i + 1)) {

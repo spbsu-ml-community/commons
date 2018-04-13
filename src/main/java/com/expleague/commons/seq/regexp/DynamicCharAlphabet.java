@@ -29,19 +29,19 @@ public class DynamicCharAlphabet implements Alphabet<Character> {
   }
 
   @Override
-  public Character getT(Matcher.Condition condition) {
+  public Character getT(Matcher.Condition<Character> condition) {
     return condition instanceof CharCondition ? ((CharCondition) condition).ch : null;
   }
 
   @Override
-  public Matcher.Condition<Character> getByT(Character i) {
+  public Matcher.Condition<Character> conditionByT(Character i) {
     if (ichars[i] < 0)
       expand(i);
     return new CharCondition(i);
   }
 
   @Override
-  public Matcher.Condition<Character> get(int i) {
+  public Matcher.Condition<Character> condition(int i) {
     try {
       return new CharCondition(chars[i]);
     }
@@ -51,7 +51,7 @@ public class DynamicCharAlphabet implements Alphabet<Character> {
   }
 
   @Override
-  public int getOrder(Matcher.Condition<Character> c) {
+  public int indexCondition(Matcher.Condition<Character> c) {
     return c instanceof CharCondition ? ichars[(int)((CharCondition) c).ch] : -1;
   }
 

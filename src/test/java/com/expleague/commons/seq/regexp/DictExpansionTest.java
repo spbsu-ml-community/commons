@@ -80,7 +80,7 @@ public class DictExpansionTest extends TestCase {
         final int len = rnd.nextInt(30);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
-          builder.append(reference.get(rnd.nextSimple(probabs)));
+          builder.append(reference.condition(rnd.nextSimple(probabs)));
         de.accept(CharSeq.create(builder));
   //      System.out.println(builder);
       }
@@ -114,7 +114,7 @@ public class DictExpansionTest extends TestCase {
         final int len = rnd.nextInt(30);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
-          builder.append(reference.get(rnd.nextSimple(probabs)));
+          builder.append(reference.condition(rnd.nextSimple(probabs)));
         de.accept(CharSeq.create(builder));
   //      System.out.println(builder);
       }
@@ -144,7 +144,7 @@ public class DictExpansionTest extends TestCase {
         final int len = rng.nextInt(100);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
-          builder.append(reference.get(rng.nextSimple(probabs)));
+          builder.append(reference.condition(rng.nextSimple(probabs)));
         de.accept(CharSeq.create(builder));
       }
       final List<? extends Seq<Character>> resultAlpha = de.result().alphabet();
@@ -174,7 +174,7 @@ public class DictExpansionTest extends TestCase {
         final int len = rng.nextInt(1000);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
-          builder.append(reference.get(rng.nextSimple(probabs)));
+          builder.append(reference.condition(rng.nextSimple(probabs)));
         de.accept(CharSeq.create(builder));
       }
       final List<? extends Seq<Character>> resultAlpha = de.result().alphabet();

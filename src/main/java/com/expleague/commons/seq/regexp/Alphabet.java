@@ -1,6 +1,7 @@
 package com.expleague.commons.seq.regexp;
 
 import com.expleague.commons.seq.CharSeq;
+import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.seq.Seq;
 
 /**
@@ -13,17 +14,19 @@ public interface Alphabet<T> {
 
   int size();
 
-  int getOrder(Matcher.Condition<T> c);
+  int indexCondition(Matcher.Condition<T> c);
 
-  Matcher.Condition<T> get(int i);
+  Matcher.Condition<T> condition(int i);
 
-  Matcher.Condition<T> getByT(T i);
+  Matcher.Condition<T> conditionByT(T i);
 
-  T getT(Matcher.Condition condition);
+  T getT(Matcher.Condition<T> condition);
 
   int index(T t);
 
-  int index(Seq<T> seq, int index);
+  default int index(Seq<T> seq, int index) {
+    return index(seq.at(index));
+  }
 
   Alphabet<Character> CHARACTER_ALPHABET = new Alphabet<Character>() {
     private static final int ALPHABET_SIZE = 'z' - 'a' + 1;
@@ -62,7 +65,7 @@ public interface Alphabet<T> {
     }
 
     @Override
-    public int getOrder(final Matcher.Condition<Character> c) {
+    public int indexCondition(final Matcher.Condition<Character> c) {
       if (c instanceof CharCondition) {
         final CharCondition condition = (CharCondition) c;
         return condition.my - 'a';
@@ -72,7 +75,7 @@ public interface Alphabet<T> {
     }
 
     @Override
-    public SimpleRegExp.Condition<Character> get(final int i) {
+    public SimpleRegExp.Condition<Character> condition(final int i) {
       if (i < ALPHABET_SIZE)
         return new CharCondition((char) ('a' + i));
       if (i == ALPHABET_SIZE)
@@ -82,12 +85,12 @@ public interface Alphabet<T> {
     }
 
     @Override
-    public SimpleRegExp.Condition<Character> getByT(final Character ch) {
-      return get(ch - 'a');
+    public SimpleRegExp.Condition<Character> conditionByT(final Character ch) {
+      return condition(ch - 'a');
     }
 
     @Override
-    public Character getT(final Matcher.Condition condition) {
+    public Character getT(final Matcher.Condition<Character> condition) {
       if (condition instanceof CharCondition)
         return ((CharCondition)condition).my;
       else if (condition == SimpleRegExp.Condition.ANY)
@@ -105,4 +108,12 @@ public interface Alphabet<T> {
       return ((CharSeq)characters).charAt(index) - 'a';
     }
   };
+
+  default IntSeq reindex(Seq<T> seq) {
+    final int[] result = new int[seq.length()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = index(seq.at(i));
+    }
+    return new IntSeq(result);
+  }
 }

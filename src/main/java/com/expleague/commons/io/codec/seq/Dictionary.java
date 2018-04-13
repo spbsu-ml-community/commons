@@ -1,7 +1,10 @@
 package com.expleague.commons.io.codec.seq;
 
+import com.expleague.commons.seq.CharSeq;
 import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.seq.Seq;
+import com.expleague.commons.seq.regexp.Alphabet;
+import com.expleague.commons.seq.regexp.Matcher;
 import gnu.trove.list.TIntList;
 import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.TIntSet;
@@ -15,7 +18,7 @@ import java.util.List;
  * Date: 30.09.15
  * Time: 18:39
  */
-public interface Dictionary<T extends Comparable<T>> {
+public interface Dictionary<T extends Comparable<T>> extends Alphabet<Seq<T>>{
   int search(Seq<T> seq);
   int search(Seq<T> seq, TIntSet excludes);
 
@@ -84,5 +87,41 @@ public interface Dictionary<T extends Comparable<T>> {
     public int parent(int second) {
       return -1;
     }
+
+    @Override
+    public int index(Object ts) {
+      return -1;
+    }
+
+    @Override
+    public SeqCondition conditionByT(Object i) {
+      return null;
+    }
   };
+
+
+  @Override
+  default int indexCondition(Matcher.Condition<Seq<T>> c) {
+    return search(((SeqCondition<T>) c).getSeq());
+  }
+
+  @Override
+  default SeqCondition<T> condition(int i) {
+    return new SeqCondition<>(get(i));
+  }
+
+  @Override
+  default SeqCondition<T> conditionByT(Seq<T> i) {
+    return new SeqCondition<>(i);
+  }
+
+  @Override
+  default Seq<T> getT(Matcher.Condition<Seq<T>> condition) {
+    return ((SeqCondition<T>) condition).getSeq();
+  }
+
+  @Override
+  default int index(Seq<T> ts) {
+    return search(ts);
+  }
 }

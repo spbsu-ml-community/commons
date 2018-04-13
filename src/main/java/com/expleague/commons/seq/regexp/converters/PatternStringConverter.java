@@ -23,7 +23,7 @@ public class PatternStringConverter implements Converter<Pattern<Character>,Stri
   public Pattern<Character> convertFrom(final String str) {
     final Pattern<Character> result = new Pattern<Character>(alpha);
     for (int i = 0; i < str.length(); i+=2) {
-      final SimpleRegExp.Condition chCondition = str.charAt(i) == '.' ? Matcher.Condition.ANY : alpha.getByT(str.charAt(i));
+      final SimpleRegExp.Condition chCondition = str.charAt(i) == '.' ? Matcher.Condition.ANY : alpha.conditionByT(str.charAt(i));
       Pattern.Modifier mod = Pattern.Modifier.NONE;
       if (str.length() > i + 1) {
         switch(str.charAt(i + 1)) {
