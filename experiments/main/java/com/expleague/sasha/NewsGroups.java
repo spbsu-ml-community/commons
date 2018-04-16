@@ -53,40 +53,39 @@ public class NewsGroups {
         return content;
     }
 
-    private static void simple20news(final String dir) throws IOException {
-        final FastRandom rng = new FastRandom(0);
+    private static void simple20news(final String dir, final int dictSize, final int iterNum) throws IOException {
+        final FastRandom random = new FastRandom(0);
         final Set<Character> allCharacters = new HashSet<>();
         long heapSize = Runtime.getRuntime().maxMemory();
         System.out.println("Heap Size = " + heapSize / 1000 / 1000);
-        final List<String> filenames = fetchFilenames(dir);
-        Collections.shuffle(filenames);
-        final List<String> content = fetchFiles(filenames);
-        for (String text : content) {
+        String trainName = "train";
+        String testName = "test";
+        List<String> filenames = fetchFilenames(dir + trainName);
+        List<String> testFilenames = fetchFilenames(dir + testName);
+        final List<CharSeq> content = fetchFiles(filenames).stream().map(CharSeq::create).collect(Collectors.toList());
+        final List<CharSeq> testContent = fetchFiles(testFilenames).stream().map(CharSeq::create).collect(Collectors.toList());
+        for (CharSeq text : content) {
             for (int i = 0; i < text.length(); i++) {
                 allCharacters.add(text.charAt(i));
             }
         }
-        final DictExpansion<Character> expansion = new DictExpansion<>(allCharacters, 20000, System.out);
-        int index = 0;
-        System.out.println("Content size = " + content.size());
-        for (int i = 0; i < 10; i++) {
-            for (String text : content) {
-                expansion.accept(CharSeq.create(text));
-                if (++index % 10000 == 0)
-                    try {
-                        //expansion.printPairs(new FileWriter(new File(dir + "/pairs.dict")));
-                        expansion.print(new FileWriter(new File(dir + ".dict")));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                if (index % 1000 == 0)
-                    System.out.println("Index: " + index);
+        final DictExpansion<Character> expansion = new DictExpansion<>(allCharacters, dictSize, System.out);
+        for (int i = 0; i < iterNum; i++) {
+            for (int j = 0; j < content.size(); j++) {
+                expansion.accept(content.get(random.nextInt(content.size())));
             }
             System.out.println(i + "-th iter end");
-            System.out.println(expansion.result().size());
-            expansion.print(new FileWriter(new File(dir + ".dict")));
         }
+
         System.out.println();
+        System.out.println("dict is constructed");
+        writeBoW(content.stream().map(x -> (Seq<Character>)x).collect(Collectors.toList()),
+                expansion.result(), filenames, dir + trainName, "", true);
+        System.out.println("Train BoW have written");
+
+        writeBoW(testContent.stream().map(x -> (Seq<Character>)x).collect(Collectors.toList()),
+                expansion.result(), testFilenames, dir + testName, "", false);
+        System.out.println("Test BoW have written");
         System.out.println("END");
     }
 
@@ -152,7 +151,7 @@ public class NewsGroups {
         return new ByteSeq(changeByteSize(out.toByteArray(), byteSize));
     }
 
-    private static ByteSeq readGzipFile(final String filename, int byteSize) {
+    private static ByteSeq readByteFile(final String filename, int byteSize) {
         try {
             FileInputStream fis = new FileInputStream(filename);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -210,6 +209,7 @@ public class NewsGroups {
                 subDir.mkdir();
             }
             boolean hasWritten = false;
+            boolean hasError = false;
             while (!hasWritten) {
                 try (PrintStream printStream = new PrintStream(new FileOutputStream(filename))) {
                     for (final Map.Entry<Integer, Integer> entry : bow.entrySet()) {
@@ -217,14 +217,17 @@ public class NewsGroups {
                     }
                     hasWritten = true;
                 } catch (IOException e) {
+                    hasError = true;
                     boolean isDelete = new File(filename).delete();
                     if (isDelete) {
                         System.out.println(filename + " is deleted");
                     } else {
                         System.out.println(filename + " not deleted");
                     }
-                    errorsNum++;
                     //e.printStackTrace();
+                }
+                if (hasError) {
+                    errorsNum++;
                 }
             }
         }
@@ -247,11 +250,11 @@ public class NewsGroups {
         List<String> testFilenames = fetchFilenames(dir + testName);
         //testFilenames = testFilenames.subList(0, 100); //!!!
         List<ByteSeq> byteSeqs = filenames.stream()
-                .map(filename -> readGzipFile(filename, byteSize))
+                .map(filename -> readByteFile(filename, byteSize))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         List<Seq<Byte>> testByteSeqs = testFilenames.stream()
-                .map(x -> (Seq<Byte>)(readGzipFile(x, byteSize)))
+                .map(x -> (Seq<Byte>)(readByteFile(x, byteSize)))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         for (int i = 0; i < Math.pow(2, byteSize); i++) {
@@ -293,15 +296,14 @@ public class NewsGroups {
     }
 
     public static void main(String... args) {
-        //final String DIR = "E:/YandexDisk/Саша/Учеба/CSC/Практика/data/20news-bydate-";
         final String DIR = "../../data/20news-bydate-";
         int byteSize = 8;
-        int dictSize = 8000;
+        int dictSize = 2000;
         int iterNum = 5;
         String zipType = "";
         try {
-            //simple20news(DIR);
-            byte20news(DIR, byteSize, dictSize, iterNum, zipType);
+            simple20news(DIR, dictSize, iterNum);
+            //byte20news(DIR, byteSize, dictSize, iterNum, zipType);
         } catch (IOException e) {
             e.printStackTrace();
         }
