@@ -3,13 +3,14 @@ package com.expleague.commons.io.codec.seq;
 import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.seq.IntSeqBuilder;
 import com.expleague.commons.seq.Seq;
+import com.expleague.commons.util.Pair;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.TIntSet;
 
-import java.util.Arrays;
+import java.util.*;
 
 import static java.lang.Math.log;
 
@@ -232,6 +233,77 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
       }
       while ((sym = parent(sym)) >= 0);
     }
+  }
+
+  protected List<Pair<List<Integer>, Double>> weightedMultiParse(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
+    int len = seq.length();
+    Deque<Pair<Integer, List<Integer>>> parseDeque = new LinkedList<>();
+    List<Pair<List<Integer>, Double>> parseResults = new ArrayList<>();
+    parseDeque.add(new Pair<>(0, new ArrayList<>()));
+    while (parseDeque.size() > 0) {
+      Pair<Integer, List<Integer>> pair = parseDeque.poll();
+      Seq<T> suffix = seq.sub(pair.getFirst(), len);
+      int sym = search(suffix, excludes);
+      do {
+        List<Integer> temp = new ArrayList<>(pair.second);
+        temp.add(sym);
+        if (pair.first + get(sym).length() == len) {
+          double score = 0;
+          for (Integer id : temp) {
+            score += (freqs.size() > id ? log(freqs.get(id) + 1) : 0) - log(totalFreq + size());
+          }
+          parseResults.add(new Pair<>(temp, score));
+          break;
+        } else {
+          parseDeque.add(new Pair<>(pair.first + get(sym).length(), temp));
+        }
+      }
+      while ((sym = parent(sym)) >= 0);
+    }
+    return parseResults;
+    /*Deque<Integer> posDeque = new LinkedList<>();
+    Map<Integer, Integer> parseFreqs = new HashMap<>(freqs.size());
+    while (posDeque.size() > 0) {
+      int pos = posDeque.poll();
+      int sym = search(seq.sub(pos, len), excludes);
+      do {
+        parseFreqs.put(sym, parseFreqs.getOrDefault(sym, 0) + 1);
+        posDeque.add(pos + get(sym).length());
+      }
+      while ((sym = parent(sym)) >= 0);
+    }*/
+
+    /*double[] score = new double[len + 1];
+    Arrays.fill(score, Double.NEGATIVE_INFINITY);
+    score[0] = 0;
+    int[] symbols = new int[len + 1];
+
+    for (int pos = 0; pos < len; pos++) {
+      Seq<T> suffix = seq.sub(pos, len);
+      int sym = search(suffix, excludes);
+      do {
+        int symLen = get(sym).length();
+        double symLogProb = (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size());
+
+        if (score[symLen + pos] < score[pos] + symLogProb) {
+          score[symLen + pos] = score[pos] + symLogProb;
+          symbols[symLen + pos] = sym;
+        }
+      }
+      while ((sym = parent(sym)) >= 0);
+    }
+    int[] solution = new int[len + 1];
+    int pos = len;
+    int index = 0;
+    while (pos > 0) {
+      int sym = symbols[pos];
+      solution[len - (++index)] = sym;
+      pos -= get(sym).length();
+    }
+    for (int i = 0; i < index; i++) {
+      builder.append(solution[len - index + i]);
+    }
+    return score[len];*/
   }
 
   @Override
