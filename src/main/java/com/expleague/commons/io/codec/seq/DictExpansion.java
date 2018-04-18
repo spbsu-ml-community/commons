@@ -383,7 +383,12 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
           updateSymbol(seq.at(i), freq(id));
         }
         updateSymbol(id, -freq(id));*/
-        updateFreqsAfterRemove(weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet), id);
+        //updateFreqsAfterRemove(weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet), id);
+        Map<Integer, Double> parseFreqs = weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet)
+        for (Map.Entry<Integer, Double> entry : parseFreqs.entrySet()) {
+          updateSymbol(entry.getKey(), (int)(freq(id) * entry.getValue()));
+        }
+        updateSymbol(id, -freq(id));
       }
       List<Integer> wordIds = items.stream()
               .map(item -> item.second)
@@ -411,7 +416,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       return wordIds;
     }
 
-    private void updateFreqsAfterRemove(List<Pair<List<Integer>, Double>> parseResults, int removedId) {
+    /*private void updateFreqsAfterRemove(List<Pair<List<Integer>, Double>> parseResults, int removedId) {
       Map<Integer, Double> parseFreqs = new HashMap<>();
       double sumRes = parseResults.stream().mapToDouble(x -> x.second).sum();
       for (Pair<List<Integer>, Double> pair : parseResults) {
@@ -423,7 +428,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         updateSymbol(entry.getKey(), (int)(freq(removedId) * entry.getValue()));
       }
       updateSymbol(removedId, -freq(removedId));
-    }
+    }*/
 
     private List<StatItem> statItems(List<Integer> wordIds) {
       final List<StatItem> items = new ArrayList<>();

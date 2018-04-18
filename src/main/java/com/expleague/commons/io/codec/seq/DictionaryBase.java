@@ -10,6 +10,7 @@ import gnu.trove.set.TIntSet;
 
 import java.util.*;
 
+import static java.lang.Math.exp;
 import static java.lang.Math.log;
 
 /**
@@ -209,8 +210,10 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
     return score[len];
   }
 
-  protected List<Pair<List<Integer>, Double>> weightedMultiParse(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
-    int len = seq.length();
+  protected Map<Integer, Double> weightedMultiParse(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
+    ParseTree<T> tree = new ParseTree<>(seq, freqs, totalFreq, excludes);
+    return tree.wordsProbs();
+    /*int len = seq.length();
     Deque<Pair<Integer, List<Integer>>> parseDeque = new LinkedList<>();
     List<Pair<List<Integer>, Double>> parseResults = new ArrayList<>();
     parseDeque.add(new Pair<>(0, new ArrayList<>()));
@@ -234,7 +237,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
       }
       while ((sym = parent(sym)) >= 0);
     }
-    return parseResults;
+    return parseResults;*/
     /*Deque<Integer> posDeque = new LinkedList<>();
     Map<Integer, Integer> parseFreqs = new HashMap<>(freqs.size());
     while (posDeque.size() > 0) {
@@ -278,6 +281,48 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
       builder.append(solution[len - index + i]);
     }
     return score[len];*/
+  }
+
+  private class ParseTree<T> {
+    private double score;
+    private Map<Integer, ParseTree<T>> children;
+
+    public ParseTree(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
+      this(seq, freqs, totalFreq, excludes, 0);
+    }
+
+    private ParseTree(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes, double logProb) {
+      if (seq.length() == 0) {
+        score = exp(logProb);
+        return;
+      }
+      children = new HashMap<Integer, ParseTree<T>>();
+      int sym = DictionaryBase.this.search(seq, excludes);
+      do {
+        children.put(sym,
+                new ParseTree<T>(seq.sub(get(sym).length(), seq.length()), freqs, totalFreq, excludes,
+                        logProb + (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size())));
+        score += children.get(sym).score;
+      }
+      while ((sym = parent(sym)) >= 0);
+    }
+
+    public Map<Integer, Double> wordsProbs() {
+      Map<Integer, Double> probs = new HashMap<>();
+      wordsProbs(probs);
+      return probs;
+    }
+
+    private void wordsProbs(Map<Integer, Double> probs) {
+      for (Map.Entry<Integer, ParseTree<T>> entry : children.entrySet()) {
+        probs.put(entry.getKey(), probs.getOrDefault(entry.getKey(), 0.0) + entry.getValue().score);
+        entry.getValue().wordsProbs(probs);
+      }
+    }
+
+    public double getScore() {
+      return score;
+    }
   }
 
   @Override
