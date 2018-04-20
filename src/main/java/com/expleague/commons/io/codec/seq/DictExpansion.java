@@ -335,10 +335,10 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         wordIds.add(i);
       }
       List<StatItem> items;
-      do {
+      /*do {
         items = statItems(wordIds);
         wordIds = sortStatItems(items, slots);
-      } while (items.size() > slots);
+      } while (items.size() > slots);*/
       items = statItems(wordIds);
       items.sort(Comparator.comparingDouble(o -> -o.score)); // rewrite comparator
 
@@ -384,7 +384,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         }
         updateSymbol(id, -freq(id));*/
         //updateFreqsAfterRemove(weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet), id);
-        Map<Integer, Double> parseFreqs = weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet)
+        Map<Integer, Double> parseFreqs = weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet);
         for (Map.Entry<Integer, Double> entry : parseFreqs.entrySet()) {
           updateSymbol(entry.getKey(), (int)(freq(id) * entry.getValue()));
         }

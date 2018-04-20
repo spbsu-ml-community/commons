@@ -36,19 +36,24 @@ public class NewsGroups {
         return filenames;
     }
 
+    private static String fetchFile(final String filename) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            //Files.lines(Paths.get(filename), Charset.forName("Cp1252")).forEach(x -> {
+            Files.lines(Paths.get(filename), Charset.forName("UTF8")).forEach(x -> {
+                sb.append(x);
+                sb.append('\n');
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
     private static List<String> fetchFiles(final List<String> filenames) {
         List<String> content = new ArrayList<>();
         for (final String filename : filenames) {
-            StringBuilder sb = new StringBuilder();
-            try {
-                Files.lines(Paths.get(filename), Charset.forName("Cp1252")).forEach(x -> {
-                    sb.append(x);
-                    sb.append('\n');
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            content.add(sb.toString());
+            content.add(fetchFile(filename));
         }
         return content;
     }
@@ -58,12 +63,12 @@ public class NewsGroups {
         final Set<Character> allCharacters = new HashSet<>();
         long heapSize = Runtime.getRuntime().maxMemory();
         System.out.println("Heap Size = " + heapSize / 1000 / 1000);
-        String trainName = "train";
-        String testName = "test";
+        String trainName = "/train";
+        String testName = "/test";
         List<String> filenames = fetchFilenames(dir + trainName);
         List<String> testFilenames = fetchFilenames(dir + testName);
-        final List<CharSeq> content = fetchFiles(filenames).stream().map(CharSeq::create).collect(Collectors.toList());
-        final List<CharSeq> testContent = fetchFiles(testFilenames).stream().map(CharSeq::create).collect(Collectors.toList());
+        System.out.println("train: " + filenames.size() + ", test: " + testFilenames.size());
+        final List<CharSeq> content = filenames.stream().map(NewsGroups::fetchFile).map(CharSeq::create).collect(Collectors.toList());
         for (CharSeq text : content) {
             for (int i = 0; i < text.length(); i++) {
                 allCharacters.add(text.charAt(i));
@@ -82,7 +87,8 @@ public class NewsGroups {
         writeBoW(content.stream().map(x -> (Seq<Character>)x).collect(Collectors.toList()),
                 expansion.result(), filenames, dir + trainName, "", true);
         System.out.println("Train BoW have written");
-
+        content.clear();
+        final List<CharSeq> testContent = testFilenames.stream().map(NewsGroups::fetchFile).map(CharSeq::create).collect(Collectors.toList());
         writeBoW(testContent.stream().map(x -> (Seq<Character>)x).collect(Collectors.toList()),
                 expansion.result(), testFilenames, dir + testName, "", false);
         System.out.println("Test BoW have written");
@@ -296,14 +302,15 @@ public class NewsGroups {
     }
 
     public static void main(String... args) {
-        final String DIR = "../../data/20news-bydate-";
+        final String dir = "../../data/";
+        final String[] collections = new String[]{"20newsgroups", "aclImdb", "ohsumed-all", "reuters"};
         int byteSize = 8;
-        int dictSize = 2000;
+        int dictSize = 20000;
         int iterNum = 5;
         String zipType = "";
         try {
-            simple20news(DIR, dictSize, iterNum);
-            //byte20news(DIR, byteSize, dictSize, iterNum, zipType);
+            simple20news(dir + collections[1], dictSize, iterNum);
+            //byte20news(dir, byteSize, dictSize, iterNum, zipType);
         } catch (IOException e) {
             e.printStackTrace();
         }

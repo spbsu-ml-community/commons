@@ -3,7 +3,6 @@ package com.expleague.commons.io.codec.seq;
 import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.seq.IntSeqBuilder;
 import com.expleague.commons.seq.Seq;
-import com.expleague.commons.util.Pair;
 import gnu.trove.list.TIntList;
 import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.TIntSet;
@@ -296,7 +295,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
         score = exp(logProb);
         return;
       }
-      children = new HashMap<Integer, ParseTree<T>>();
+      children = new HashMap<>();
       int sym = DictionaryBase.this.search(seq, excludes);
       do {
         children.put(sym,

@@ -218,6 +218,39 @@ public class DictExpansionTest extends TestCase {
     }
   }
 
+  public <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
+    // t is substr of s
+    if (t.length() > s.length()) return false;
+    for (int i = 0; i <= s.length() - t.length(); i++) {
+      if (s.sub(i, i + t.length()).equals(t)) {
+        System.out.println(t + " is substr of " + s);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public void testOptimalReduce() {
+    final List<Character> alphabet = new ArrayList<>();
+    for (char a = 'a'; a <= 'c'; a++)
+      alphabet.add(a);
+    final Random rnd = new FastRandom(0);
+    final DictExpansion<Character> de = new DictExpansion<>(alphabet, 10);
+    for (int i = 0; i < 200; i++) {
+      final int len = rnd.nextInt(150);
+      final StringBuilder builder = new StringBuilder(len);
+      for (int c = 0; c < len; c++)
+        builder.append((char)('a' + rnd.nextInt('c' - 'a' + 1)));
+      //System.out.println(CharSeq.create(builder));
+      de.accept(CharSeq.create(builder));
+    }
+    System.out.println(de.result());
+    /*System.out.println(isSubstring(CharSeq.create("aaa"), CharSeq.create("aa")));
+    System.out.println(isSubstring(CharSeq.create("aaa"), CharSeq.create("aab")));
+    System.out.println(isSubstring(CharSeq.create("aaab"), CharSeq.create("aab")));
+    System.out.println(isSubstring(CharSeq.create("aaba"), CharSeq.create("aab")));*/
+  }
+
   @SuppressWarnings("unused")
   public void notestEnWikiConvert() throws Exception {
     final SAXParserFactory factory = SAXParserFactory.newInstance();
