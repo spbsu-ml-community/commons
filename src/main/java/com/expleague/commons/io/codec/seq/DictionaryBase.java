@@ -210,7 +210,8 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
   }
 
   protected Map<Integer, Double> weightedMultiParse(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
-    ParseTree<T> tree = new ParseTree<>(seq, freqs, totalFreq, excludes);
+    ParseTree tree = new ParseTree(seq, freqs, totalFreq, excludes);
+    //System.out.println("in weighted multi parse");
     return tree.wordsProbs();
     /*int len = seq.length();
     Deque<Pair<Integer, List<Integer>>> parseDeque = new LinkedList<>();
@@ -282,9 +283,9 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
     return score[len];*/
   }
 
-  private class ParseTree<T> {
+  private class ParseTree {
     private double score;
-    private Map<Integer, ParseTree<T>> children;
+    private Map<Integer, ParseTree> children;
 
     public ParseTree(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
       this(seq, freqs, totalFreq, excludes, 0);
@@ -293,14 +294,16 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
     private ParseTree(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes, double logProb) {
       if (seq.length() == 0) {
         score = exp(logProb);
+        //System.out.println("score in leaf: " + score);
         return;
       }
       children = new HashMap<>();
       int sym = DictionaryBase.this.search(seq, excludes);
       do {
+        //System.out.println(seq + " - " + get(sym) + " = " + seq.sub(get(sym).length(), seq.length()));
         children.put(sym,
-                new ParseTree<T>(seq.sub(get(sym).length(), seq.length()), freqs, totalFreq, excludes,
-                        logProb + (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size())));
+                new ParseTree(seq.sub(get(sym).length(), seq.length()), freqs, totalFreq, excludes,
+                        logProb + (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size() - excludes.size())));
         score += children.get(sym).score;
       }
       while ((sym = parent(sym)) >= 0);
@@ -313,7 +316,10 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
     }
 
     private void wordsProbs(Map<Integer, Double> probs) {
-      for (Map.Entry<Integer, ParseTree<T>> entry : children.entrySet()) {
+      if (children == null) {
+        return;
+      }
+      for (Map.Entry<Integer, ParseTree> entry : children.entrySet()) {
         probs.put(entry.getKey(), probs.getOrDefault(entry.getKey(), 0.0) + entry.getValue().score);
         entry.getValue().wordsProbs(probs);
       }

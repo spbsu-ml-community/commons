@@ -39,8 +39,8 @@ public class NewsGroups {
     private static String fetchFile(final String filename) {
         StringBuilder sb = new StringBuilder();
         try {
-            //Files.lines(Paths.get(filename), Charset.forName("Cp1252")).forEach(x -> {
-            Files.lines(Paths.get(filename), Charset.forName("UTF8")).forEach(x -> {
+            Files.lines(Paths.get(filename), Charset.forName("Cp1252")).forEach(x -> {
+            //Files.lines(Paths.get(filename), Charset.forName("UTF8")).forEach(x -> {
                 sb.append(x);
                 sb.append('\n');
             });
@@ -92,6 +92,37 @@ public class NewsGroups {
         writeBoW(testContent.stream().map(x -> (Seq<Character>)x).collect(Collectors.toList()),
                 expansion.result(), testFilenames, dir + testName, "", false);
         System.out.println("Test BoW have written");
+        System.out.println("END");
+    }
+
+    private static void simpleOhsumed(final String dir, final int dictSize, final int iterNum) throws IOException {
+        final FastRandom random = new FastRandom(0);
+        final Set<Character> allCharacters = new HashSet<>();
+        long heapSize = Runtime.getRuntime().maxMemory();
+        System.out.println("Heap Size = " + heapSize / 1000 / 1000);
+        String trainName = "/train";
+        List<String> filenames = fetchFilenames(dir + trainName);
+        System.out.println("train: " + filenames.size());
+        final List<CharSeq> content = filenames.stream().map(NewsGroups::fetchFile).map(CharSeq::create).collect(Collectors.toList());
+        for (CharSeq text : content) {
+            for (int i = 0; i < text.length(); i++) {
+                allCharacters.add(text.charAt(i));
+            }
+        }
+        final DictExpansion<Character> expansion = new DictExpansion<>(allCharacters, dictSize, System.out);
+        for (int i = 0; i < iterNum; i++) {
+            for (int j = 0; j < content.size(); j++) {
+                expansion.accept(content.get(random.nextInt(content.size())));
+            }
+            System.out.println(i + "-th iter end");
+        }
+
+        System.out.println();
+        System.out.println("dict is constructed");
+        writeBoW(content.stream().map(x -> (Seq<Character>)x).collect(Collectors.toList()),
+                expansion.result(), filenames, dir + trainName, "", true);
+        System.out.println("Train BoW have written");
+        content.clear();
         System.out.println("END");
     }
 
@@ -175,7 +206,8 @@ public class NewsGroups {
         }
     }
 
-    private static <T extends Comparable<T>> void writeBoW(final List<Seq<T>> seq,
+    //TODO: write only on-zero elements
+    private static <T extends Comparable<T>> void writeBoW(final List<Seq<T>> seqs,
                                                            final Dictionary<T> dict,
                                                            final List<String> filenames,
                                                            final String dir,
@@ -186,13 +218,13 @@ public class NewsGroups {
         if (zipType != null) {
             zipTypeLen = zipType.length();
         }
-        for (int i = 0; i < seq.size(); i++) {
+        for (int i = 0; i < seqs.size(); i++) {
             final Map<Integer, Integer> bow = new HashMap<>();
-            for (int gram = 0; gram < dict.size(); gram++) {
+            /*for (int gram = 0; gram < dict.size(); gram++) {
                 bow.put(gram, 0);
-            }
-            final IntSeq intSeq = dict.parse(seq.get(i));
-            for (final Integer key : intSeq) {
+            }*/
+            final IntSeq intSeq = dict.parse(seqs.get(i));
+            for (final Integer key : intSeq.stream().sorted().boxed().collect(Collectors.toList())) {
                 bow.put(key, bow.getOrDefault(key, 0) + 1);
             }
             final String first = dir.substring(0, dir.lastIndexOf('/'));
@@ -304,12 +336,13 @@ public class NewsGroups {
     public static void main(String... args) {
         final String dir = "../../data/";
         final String[] collections = new String[]{"20newsgroups", "aclImdb", "ohsumed-all", "reuters"};
-        int byteSize = 8;
+        //int byteSize = 8;
         int dictSize = 20000;
-        int iterNum = 5;
+        int iterNum = 10;
         String zipType = "";
         try {
-            simple20news(dir + collections[1], dictSize, iterNum);
+            //simple20news(dir + collections[1], dictSize, iterNum);
+            simpleOhsumed(dir + collections[2], dictSize, iterNum); //iterNum = 10
             //byte20news(dir, byteSize, dictSize, iterNum, zipType);
         } catch (IOException e) {
             e.printStackTrace();

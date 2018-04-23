@@ -385,8 +385,9 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         updateSymbol(id, -freq(id));*/
         //updateFreqsAfterRemove(weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet), id);
         Map<Integer, Double> parseFreqs = weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet);
+        double sumProbs = parseFreqs.values().stream().mapToDouble(x -> x).sum();
         for (Map.Entry<Integer, Double> entry : parseFreqs.entrySet()) {
-          updateSymbol(entry.getKey(), (int)(freq(id) * entry.getValue()));
+          updateSymbol(entry.getKey(), (int)(freq(id) * entry.getValue() / sumProbs));
         }
         updateSymbol(id, -freq(id));
       }
