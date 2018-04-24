@@ -210,9 +210,28 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
   }
 
   protected Map<Integer, Double> weightedMultiParse(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
-    ParseTree tree = new ParseTree(seq, freqs, totalFreq, excludes);
+    Map<Integer, Double> parseProb = new HashMap<>();
+    int len = seq.length();
+    int[] count = new int[len + 1];
+    Arrays.fill(count, 0);
+    count[0] = 1;
+    for (int pos = 0; pos < len; pos++) {
+      Seq<T> suffix = seq.sub(pos, len);
+      int sym = search(suffix, excludes);
+      do {
+        int symLen = get(sym).length();
+        double symLogProb = (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size()); // - excludes.size());
+        parseProb.put(sym, parseProb.getOrDefault(sym, 0.0) + symLogProb * count[pos]);
+        if (pos + symLen < len) {
+          count[pos + symLen] += 1;
+        }
+      }
+      while ((sym = parent(sym)) >= 0);
+    }
+    return parseProb;
+    //ParseTree tree = new ParseTree(seq, freqs, totalFreq, excludes);
     //System.out.println("in weighted multi parse");
-    return tree.wordsProbs();
+    //return tree.wordsProbs();
     /*int len = seq.length();
     Deque<Pair<Integer, List<Integer>>> parseDeque = new LinkedList<>();
     List<Pair<List<Integer>, Double>> parseResults = new ArrayList<>();
