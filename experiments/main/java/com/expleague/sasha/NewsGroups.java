@@ -337,12 +337,12 @@ public class NewsGroups {
         final String dir = "../../data/";
         final String[] collections = new String[]{"20newsgroups", "aclImdb", "ohsumed-all", "reuters"};
         //int byteSize = 8;
-        int dictSize = 20000;
-        int iterNum = 10;
+        int dictSize = 1000;
+        int iterNum = 5;
         String zipType = "";
         try {
-            //simple20news(dir + collections[1], dictSize, iterNum);
-            simpleOhsumed(dir + collections[2], dictSize, iterNum); //iterNum = 10
+            simple20news(dir + collections[0], dictSize, iterNum);
+            //simpleOhsumed(dir + collections[2], dictSize, iterNum); //iterNum = 10
             //byte20news(dir, byteSize, dictSize, iterNum, zipType);
         } catch (IOException e) {
             e.printStackTrace();

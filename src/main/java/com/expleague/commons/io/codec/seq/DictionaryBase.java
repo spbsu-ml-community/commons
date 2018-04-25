@@ -212,7 +212,32 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
   protected Map<Integer, Double> weightedMultiParse(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
     Map<Integer, Double> parseProb = new HashMap<>();
     int len = seq.length();
-    int[] count = new int[len + 1];
+    int[] numParseEnds = new int[len + 1];
+    for (int i = 0; i <= len; i++) {
+      numParseEnds[i] = numOfParseVatiants(seq.sub(i, len), excludes);
+    }
+    for (int i = 0; i <= len; i++) {
+      int numParseStart = numOfParseVatiants(seq.sub(0, i), excludes);
+      for (int j = i + 1; j <= len; j++) {
+        Seq<T> subs = seq.sub(i, j);
+        int sym = search(subs, excludes);
+        if (sym >= 0 && get(sym).length() == subs.length()) {
+          double symProb = (freqs.size() > sym ? (freqs.get(sym) + 1) : 0) / (totalFreq + size()); // - excludes.size());
+          //count[i][j] = numParseStart * numParseEnds[j];
+          parseProb.put(sym, parseProb.getOrDefault(sym, 0.0) + symProb * numParseStart * numParseEnds[j]);
+        }
+      }
+    }
+    double sum = parseProb.values().stream().mapToDouble(x -> x).sum();
+    double norm = sum * numParseEnds[0];
+    for (Integer key : parseProb.keySet()) {
+      parseProb.put(key, parseProb.getOrDefault(key, 0.0) / norm);
+    }
+    /*System.out.println(seq + ": " + sum + ", " + numParseEnds[0]);
+    parseProb.forEach((key, value) -> System.out.print("(" + get(key) + " - " + value + ") "));
+    System.out.println();*/
+    return parseProb;
+    /*int[] count = new int[len + 1];
     Arrays.fill(count, 0);
     count[0] = 1;
     for (int pos = 0; pos < len; pos++) {
@@ -227,8 +252,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
         }
       }
       while ((sym = parent(sym)) >= 0);
-    }
-    return parseProb;
+    }*/
     //ParseTree tree = new ParseTree(seq, freqs, totalFreq, excludes);
     //System.out.println("in weighted multi parse");
     //return tree.wordsProbs();
@@ -300,6 +324,25 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
       builder.append(solution[len - index + i]);
     }
     return score[len];*/
+  }
+
+  private int numOfParseVatiants(Seq<T> seq, TIntSet excludes) {
+    int len = seq.length();
+    int[] count = new int[len + 1];
+    Arrays.fill(count, 0);
+    count[0] = 1;
+    for (int pos = 0; pos < len; pos++) {
+      Seq<T> suffix = seq.sub(pos, len);
+      int sym = search(suffix, excludes);
+      do {
+        int symLen = get(sym).length();
+        if (pos + symLen <= len) {
+          count[pos + symLen] += count[pos];
+        }
+      }
+      while ((sym = parent(sym)) >= 0);
+    }
+    return count[len];
   }
 
   private class ParseTree {

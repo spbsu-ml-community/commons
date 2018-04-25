@@ -335,10 +335,10 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         wordIds.add(i);
       }
       List<StatItem> items;
-      /*do {
+      do {
         items = statItems(wordIds);
         wordIds = sortStatItems(items, slots);
-      } while (items.size() > slots);*/
+      } while (items.size() > slots);
       items = statItems(wordIds);
       items.sort(Comparator.comparingDouble(o -> -o.score)); // rewrite comparator
 
