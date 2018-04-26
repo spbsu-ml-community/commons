@@ -4,11 +4,16 @@ import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.seq.IntSeqBuilder;
 import com.expleague.commons.seq.Seq;
 import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TIntDoubleMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.TIntSet;
 
-import java.util.Arrays;
+import java.util.*;
+import java.util.stream.DoubleStream;
 
+import static java.lang.Math.exp;
 import static java.lang.Math.log;
 
 /**
@@ -35,7 +40,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
         for (int i = 0; i < result.length(); i++) {
           final int symbol = result.intAt(i);
           if (symbol >= 0)
-            System.out.print(" " + condition(symbol));
+            System.out.print(" " + get(symbol));
           else
             System.out.print("##unknown##");
         }
@@ -55,7 +60,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
         for (int i = 0; i < result.length(); i++) {
           final int symbol = result.intAt(i);
           if (symbol >= 0)
-            System.out.print(" " + condition(symbol));
+            System.out.print(" " + get(symbol));
           else
             System.out.print("##unknown##");
         }
@@ -139,6 +144,10 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
   }
 
   protected double weightedParse(Seq<T> seq, TIntList freqs, double totalFreq, IntSeqBuilder builder) {
+    return weightedParse(seq, freqs, totalFreq, builder, null);
+  }
+
+  protected double weightedParse(Seq<T> seq, TIntList freqs, double totalFreq, IntSeqBuilder builder, TIntSet excludes) {
     int len = seq.length();
     double[] score = new double[len + 1];
     Arrays.fill(score, Double.NEGATIVE_INFINITY);
@@ -147,7 +156,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
 
     for (int pos = 0; pos < len; pos++) {
       Seq<T> suffix = seq.sub(pos, len);
-      int sym = search(suffix);
+      int sym = search(suffix, excludes);
       do {
         int symLen = get(sym).length();
         double symLogProb = (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size());
@@ -171,6 +180,52 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
       builder.append(solution[len - index + i]);
     }
     return score[len];
+  }
+
+  public void weightParseVariants(Seq<T> seq, double multiplier, TIntArrayList freqs, TIntSet excludes, TIntDoubleMap result) {
+    int len = seq.length();
+    double[] countForward = new double[len + 1];
+    {
+      countForward[0] = 1;
+      for (int pos = 0; pos < len; pos++) {
+        Seq<T> suffix = seq.sub(pos, len);
+        int sym = search(suffix, excludes);
+        do {
+          int symLen = get(sym).length();
+          countForward[pos + symLen] += (1 + freqs.get(sym)) * countForward[pos];
+        }
+        while ((sym = parent(sym)) >= 0);
+      }
+    }
+
+    double[] countBackward = new double[len + 1];
+    {
+      countBackward[len] = 1;
+      for (int pos = len - 1; pos >= 0; pos--) {
+        Seq<T> suffix = seq.sub(pos, len);
+        int sym = search(suffix, excludes);
+        do {
+          int symLen = get(sym).length();
+          countBackward[pos] += (1 + freqs.get(sym)) * countBackward[pos + symLen];
+        }
+        while ((sym = parent(sym)) >= 0);
+      }
+    }
+
+//    if (countBackward[0] != countForward[len] || countForward[len] <= 0)
+//      System.out.println();
+
+    for (int pos = 0; pos < len; pos++) {
+      Seq<T> suffix = seq.sub(pos, len);
+      int sym = search(suffix, excludes);
+      do {
+        int symLen = get(sym).length();
+        double freqIncrement = (freqs.get(sym) + 1) * countForward[pos] * countBackward[pos + symLen];
+        result.adjustOrPutValue(sym, freqIncrement, freqIncrement);
+      }
+      while ((sym = parent(sym)) >= 0);
+    }
+    result.transformValues(v -> multiplier * v / countForward[len]);
   }
 
   @Override

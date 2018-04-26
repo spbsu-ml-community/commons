@@ -1,18 +1,15 @@
 package com.expleague.commons.io.codec.seq;
 
 import com.expleague.commons.util.ArrayTools;
-import com.expleague.commons.util.sync.StateLatch;
-import gnu.trove.impl.hash.TLongIntHash;
 import gnu.trove.map.TLongIntMap;
 import gnu.trove.map.hash.TLongIntHashMap;
 import gnu.trove.procedure.TLongIntProcedure;
 
-import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.locks.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * User: solar
@@ -20,42 +17,128 @@ import java.util.function.Consumer;
  * Time: 14:02
  */
 public class LongIntMappingAsyncBuilder {
-  private int accumulatorSize = 0;
-  private long[] accumulatorKeys;
-  private int[] accumulatorValues;
+  private volatile int accumulatorSize = 0;
+  private volatile long[] accumulatorKeys;
+  private volatile int[] accumulatorValues;
+  private volatile long accumulatorValuesTotal;
   private final int tlBufferSize;
-  private long accumulatorValuesTotal;
-  private final List<WeakReference<BufferWithState>> allBuffers = new CopyOnWriteArrayList<>();
-  private ThreadLocal<BufferWithState> tlBuffer = ThreadLocal.withInitial(() -> {
-    final BufferWithState result = new BufferWithState();
-    allBuffers.add(new WeakReference<>(result));
-    return result;
-  });
+
+  private final ReadWriteLock lock = new ReentrantReadWriteLock();
+  private final Set<BufferWithLock> allBuffers = new HashSet<>();
+  private ThreadLocal<Supplier<BufferWithLock>> tlBuffer = ThreadLocal.withInitial(() -> this.new BufferHandler());
 
   public LongIntMappingAsyncBuilder(int tlBufferSize) {
     this.tlBufferSize = tlBufferSize;
   }
 
-  public void populateImpl(Consumer<TLongIntMap> map) throws InterruptedException {
-    final BufferWithState bufferWithState = tlBuffer.get();
-    final TLongIntMap buffer = bufferWithState.map;
-    bufferWithState.state(1, 2);
-    map.accept(buffer);
-    if (buffer.size() >= tlBufferSize) {
-      flushBuffer(bufferWithState);
+  public void populate(Consumer<TLongIntMap> map) {
+    BufferWithLock bufferWithLock;
+    int counter = 0;
+    do {
+      bufferWithLock = tlBuffer.get().get();
+      if (counter++ > 10)
+        LockSupport.parkNanos(1_000_000);
     }
-    bufferWithState.state(1);
+    while (!bufferWithLock.lock.tryLock());
+    int size;
+    try {
+      map.accept(bufferWithLock.map);
+      size = bufferWithLock.map.size();
+    }
+    finally {
+      bufferWithLock.lock.unlock();
+    }
+    if (size >= tlBufferSize) {
+      flushBuffer(bufferWithLock);
+    }
   }
 
-  private void flushBuffer(BufferWithState bufferWithState) {
+  public void visitRange(long from, long to, TLongIntProcedure todo) {
+    flush();
+    lock.readLock().lock();
+    try {
+      int index = Arrays.binarySearch(accumulatorKeys, from);
+      index = index < 0 ? -index - 1 : index;
+      while (accumulatorKeys.length > index && accumulatorKeys[index] < from)
+        index++;
+      while (accumulatorKeys.length > index && accumulatorKeys[index] < to) {
+        todo.execute(accumulatorKeys[index], accumulatorValues[index]);
+        index++;
+      }
+    }
+    finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  public void visit(TLongIntProcedure todo) {
+    flush();
+    lock.readLock().lock();
+    try {
+      int index = 0;
+      while (accumulatorSize > index) {
+        todo.execute(accumulatorKeys[index], accumulatorValues[index]);
+        index++;
+      }
+    }
+    finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  public long accumulatedValuesTotal() {
+    return accumulatorValuesTotal;
+  }
+
+  public TLongIntMap asMap() {
+    flush();
+    lock.readLock().lock();
+    try {
+      final TLongIntMap map = new TLongIntHashMap(accumulatorKeys.length, (float) 0.8);
+      int index = 0;
+      while (accumulatorKeys.length > index) {
+        map.put(accumulatorKeys[index], accumulatorValues[index]);
+        index++;
+      }
+      return map;
+    }
+    finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  private BufferWithLock allocate(BufferHandler bufferHandler) {
+    lock.writeLock().lock();
+    try {
+      final BufferWithLock result = new BufferWithLock(bufferHandler);
+      allBuffers.add(result);
+      return result;
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  private void flush() {
+    new ArrayList<>(allBuffers).forEach(this::flushBuffer);
+  }
+
+  private void flushBuffer(BufferWithLock bufferWithState) {
+    bufferWithState.lock.lock(); // will never unlock, the object will be destroyed after merge
+    bufferWithState.handler.reset();
+
     final TLongIntMap buffer = bufferWithState.map;
-    if (buffer.isEmpty())
-      return;
-    bufferWithState.state(4);
     final long[] bufferKeys = buffer.keys();
     final int[] bufferValues = buffer.values();
     ArrayTools.parallelSort(bufferKeys, bufferValues);
-    synchronized (this) {
+
+    lock.writeLock().lock();
+    try {
+      allBuffers.remove(bufferWithState);
+
+      if (buffer.isEmpty())
+        return;
+
       final long[] currentKeys = accumulatorKeys;
       final int[] currentValues = accumulatorValues;
       final int acculength = accumulatorSize;
@@ -64,7 +147,7 @@ public class LongIntMappingAsyncBuilder {
       int indexA = 0;
       int indexB = 0;
       int index = 0;
-      long total = 0l;
+      long total = 0L;
       final int bufferLength = bufferKeys.length;
       final long[] accumulatorKeysLocal = this.accumulatorKeys;
       final int[] accumulatorValuesLocal = this.accumulatorValues;
@@ -103,93 +186,31 @@ public class LongIntMappingAsyncBuilder {
       }
       accumulatorSize = index;
       accumulatorValuesTotal = total;
-      final BufferWithState value = new BufferWithState();
-      tlBuffer.set(value);
-      allBuffers.add(new WeakReference<>(value));
     }
-    bufferWithState.state(1);
-  }
-
-  public void visitRange(long from, long to, TLongIntProcedure todo) {
-    flush();
-    synchronized (this) {
-      int index = Arrays.binarySearch(accumulatorKeys, from);
-      index = index < 0 ? -index - 1 : index;
-      while (accumulatorKeys.length > index && accumulatorKeys[index] < from)
-        index++;
-      while (accumulatorKeys.length > index && accumulatorKeys[index] < to) {
-        todo.execute(accumulatorKeys[index], accumulatorValues[index]);
-        index++;
-      }
+    finally {
+      lock.writeLock().unlock();
     }
   }
 
-  public void visit(TLongIntProcedure todo) {
-    flush();
-    synchronized (this) {
-      int index = 0;
-      while (accumulatorKeys.length > index) {
-        todo.execute(accumulatorKeys[index], accumulatorValues[index]);
-        index++;
-      }
-    }
-  }
-
-  private void flush() {
-    Iterator<WeakReference<BufferWithState>> it = allBuffers.iterator();
-    while (it.hasNext()) {
-      BufferWithState bufferWithState = it.next().get();
-      if (bufferWithState != null) {
-        bufferWithState.await(1);
-        flushBuffer(bufferWithState);
-      }
-    }
-  }
-
-  public void populate(Consumer<TLongIntMap> map) {
-    try {
-      populateImpl(map);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public long accumulatedValuesTotal() {
-    return accumulatorValuesTotal;
-  }
-
-  public TLongIntMap asMap() {
-    flush();
-    synchronized (this) {
-      final TLongIntMap map = new TLongIntHashMap(accumulatorKeys.length, (float) 0.8);
-      int index = 0;
-      while (accumulatorKeys.length > index) {
-        map.put(accumulatorKeys[index], accumulatorValues[index]);
-        index++;
-      }
-      return map;
-    }
-  }
-
-  class BufferWithState {
+  private class BufferWithLock {
+    private final BufferHandler handler;
     private final TLongIntMap map = new TLongIntHashMap((int)(tlBufferSize / 0.8), 0.8f);
-    private final StateLatch latch = new StateLatch(1);
+    private final Lock lock = new ReentrantLock();
 
-    public void state(int newState) {
-      latch.state(newState);
+    BufferWithLock(BufferHandler handler) {
+      this.handler = handler;
+    }
+  }
+
+  private class BufferHandler implements Supplier<BufferWithLock> {
+    private volatile BufferWithLock allocated;
+    @Override
+    public BufferWithLock get() {
+      return allocated == null ? allocated = allocate(this) : allocated;
     }
 
-    public void await(int mask) {
-      try {
-        latch.await(mask);
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    public void state(int from, int to) {
-      await(from);
-      state(to);
+    public void reset() {
+      allocated = null;
     }
   }
 }

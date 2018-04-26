@@ -11,23 +11,26 @@ import com.expleague.commons.seq.IntSeqBuilder;
 import com.expleague.commons.seq.Seq;
 import com.expleague.commons.util.ArrayTools;
 import com.expleague.commons.util.JSONTools;
+import com.expleague.commons.util.Pair;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.TLongIntMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.procedure.TIntDoubleProcedure;
 import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import static java.lang.Integer.max;
@@ -234,7 +237,8 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         fileWriter.append(seq.toString());
         fileWriter.append('\t');
         fileWriter.append(CharSeqTools.itoa(result.freq(i)));
-        fileWriter.append('\n');
+        //fileWriter.append('\n');
+        fileWriter.append("\n\n");
       }
     }
     finally {
@@ -324,17 +328,74 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     }
 
     private DictionaryWithStat<T> reduce(int slots, boolean isDynamic) {
+      final List<Seq<T>> newDict = new ArrayList<>(size());
+      TIntSet wordIds = new TIntHashSet(size());
+      for (int i = 0; i < size(); i++) {
+        if (parent(i) < 0) {
+          newDict.add(get(i));
+          continue;
+        }
+        wordIds.add(i);
+      }
+      List<StatItem> items = statItems(wordIds);
+      TIntSet toRemove = new TIntHashSet();
+      TIntDoubleMap updatedFreqs = new TIntDoubleHashMap();
+      while (items.size() > slots) {
+        updatedFreqs.clear();
+        toRemove.clear();
+        { // choose independent items from the end of the sorted variants
+          for (int i = items.size() - 1; i >= 0 && items.size() - toRemove.size() > slots; i--) {
+            Seq<T> candidate = get(items.get(i).second);
+            boolean couldBeChanged = false;
+            for (int j = 0; !couldBeChanged && j < items.size(); j++) {
+              Seq<T> a = get(items.get(j).second);
+              if (i == j)
+                continue;
+              couldBeChanged = isSubstring(a, candidate);
+            }
+            if (!couldBeChanged)
+              toRemove.add(items.get(i).second);
+          }
+        }
+
+        if (toRemove.isEmpty())
+          throw new RuntimeException("Something went wrong");
+        toRemove.forEach(id -> {
+          weightParseVariants(dict.get(id), freq(id), symbolFreqs, toRemove, updatedFreqs);
+          return true;
+        });
+        wordIds.removeAll(toRemove);
+        updatedFreqs.forEachEntry((id, freq) -> {
+          symbolFreqs.setQuick(id, symbolFreqs.get(id) + (int) freq);
+          return true;
+        });
+        items = statItems(wordIds);
+      }
+      items.sort(Comparator.comparingDouble(o -> -o.score)); // rewrite comparator
+
+      double minProbResult = min(1. / size(), MAX_MIN_PROBABILITY);
+      for (final StatItem item : items) {
+        if (--slots < 0) //item.score < 0. || --slots < 0
+          break;
+        final double p = (item.count + 1) / (power + size());
+        minProbResult = min(p, minProbResult);
+        final Seq<T> symbol = get(item.second);
+        newDict.add(symbol);
+      }
+
+      //noinspection unchecked
+      return createDict(newDict, isDynamic, minProbResult);
+    }
+
+    private List<StatItem> statItems(TIntSet wordIds) {
       final List<StatItem> items = new ArrayList<>();
       final double codeLength = codeLength() * totalChars;
-      final List<Seq<T>> newDict = new ArrayList<>(size());
 
-      for (int s = 0; s < size(); s++) {
+      wordIds.forEach(s -> {
         final int parent = parent(s);
         final int count = freq(s);
         Seq<T> seq = get(s);
-        if (parent < 0)
-          newDict.add(seq);
-        else if (count > 0) {
+        if (count > 0) {
           double codeLengthWOSymbol = codeLength + count * log(count);
           double newStatPower = power - count;
           int next = parent;
@@ -349,21 +410,23 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
           codeLengthWOSymbol += newStatPower * log(newStatPower + size() - 1) - power * log(power + size());
           items.add(new StatItem(-1, s, codeLengthWOSymbol - codeLength, count));
         }
-      }
-      items.sort(Comparator.comparingDouble(o -> -o.score));
+        return true;
+      });
+      items.sort(Comparator.comparingDouble(o -> -o.score)); // rewrite comparator
+      return items;
+    }
 
-      double minProbResult = min(1. / size(), MAX_MIN_PROBABILITY);
-      for (final StatItem item : items) {
-        if (item.score < 0. || --slots < 0)
-          break;
-        final double p = (item.count + 1) / (power + size());
-        minProbResult = min(p, minProbResult);
-        final Seq<T> symbol = get(item.second);
-        newDict.add(symbol);
+    // rewrite to prefix-function algorithm
+    private <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
+      // t is substr of s
+      if (t.length() > s.length()) return false;
+      for (int i = 0; i <= s.length() - t.length(); i++) {
+        if (s.sub(i, i + t.length()).equals(t)) {
+          //System.out.println(t + " is substr of " + s);
+          return true;
+        }
       }
-
-      //noinspection unchecked
-      return createDict(newDict, isDynamic, minProbResult);
+      return false;
     }
 
     private void printPairs(TLongIntMap oldPairs, TLongIntMap newPairs) {
@@ -371,7 +434,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         for (int second = 0; second < size(); second++) {
           final long code = (long) first << 32 | second;
           if (oldPairs.get(code) != newPairs.get(code)) {
-            System.out.println("\t" + dict.condition(first) + "|" + dict.condition(second) + ": " + oldPairs.get(code) + " -> " + newPairs.get(code));
+            System.out.println("\t" + dict.get(first) + "|" + dict.get(second) + ": " + oldPairs.get(code) + " -> " + newPairs.get(code));
           }
         }
       }
@@ -399,6 +462,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         final double pBcondA = freq / freqXFirst.get(first);
         final double pA = freqs.get(first) / totalFreqs;
         final double pB = freqs.get(second) / totalFreqs;
+
         items.add(new StatItem(first, second, freq * pBcondA * log(pAB / pA / pB), freq));
         return true;
       });
@@ -462,8 +526,8 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       public String toString() {
         final StringBuilder result = new StringBuilder();
         if (first >= 0)
-          result.append(condition(first)).append("|");
-        result.append(condition(second));
+          result.append(get(first)).append("|");
+        result.append(get(second));
         result.append("->(");
         result.append(count);
         result.append(", ").append(score);
@@ -495,4 +559,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       return result[0];
     }
   }
+
+
+
 }
