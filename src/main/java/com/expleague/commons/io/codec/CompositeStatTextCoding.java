@@ -84,7 +84,7 @@ public class CompositeStatTextCoding {
       int symbol;
       final StringBuilder builder = new StringBuilder();
       while ((symbol = input.read()) != 0) {
-        builder.append(dict.get(symbol));
+        builder.append(dict.condition(symbol));
       }
       return builder;
     }

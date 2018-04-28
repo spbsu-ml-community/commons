@@ -5,7 +5,6 @@ package com.expleague.commons.seq;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.util.stream.BaseStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -45,6 +44,17 @@ public class ArraySeq<T> extends Seq.Stub<T> {
     this.arr = arr.sub(start, end).toArray();
     this.start = 0;
     this.end = end - start;
+  }
+
+  public static <S> Seq<S> iterate(Class<S> cls, S element, int times) {
+    final SeqBuilder<S> seqBuilder = new ArraySeqBuilder<>(cls);
+    IntStream.range(0, times).forEach(i -> seqBuilder.add(element));
+    return seqBuilder.build();
+  }
+
+  public static <S> Seq<S> emptySeq(Class<S> cls) {
+    final SeqBuilder<S> seqBuilder = new ArraySeqBuilder<>(cls);
+    return seqBuilder.build();
   }
 
   @Override

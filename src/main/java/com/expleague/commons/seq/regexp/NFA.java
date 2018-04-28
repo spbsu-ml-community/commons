@@ -207,7 +207,7 @@ public class NFA<T> implements Matcher<T>{
               builder.append(", ");
             else
               builder.append("\t").append(stateA).append(": ");
-            builder.append(String.format("%s->%d", alphabet.getT(alphabet.get(i)), stateB));
+            builder.append(String.format("%s->%d", alphabet.getT(alphabet.condition(i)), stateB));
             first = false;
           }
         }

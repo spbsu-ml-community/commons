@@ -26,7 +26,7 @@ public class PatternVecConverter<T> implements Converter<Pattern<T>, Vec> {
     for (int i = 0; i < size; i+=2) {
       final int code = (int) vec.get(i);
       final int mod = (int) vec.get(i + 1);
-      p.add(alphabet.get(code), Pattern.Modifier.values()[mod]);
+      p.add(alphabet.condition(code), Pattern.Modifier.values()[mod]);
     }
     return p;
   }
@@ -36,7 +36,7 @@ public class PatternVecConverter<T> implements Converter<Pattern<T>, Vec> {
     final int size = pattern.size();
     final double[] patternVec = new double[2 * size];
     for (int i = 0, j = 0; i < size; i++, j+=2) {
-      patternVec[j] = alphabet.getOrder(pattern.condition(i));
+      patternVec[j] = alphabet.indexCondition(pattern.condition(i));
       patternVec[j + 1] = pattern.modifier(i).ordinal();
     }
     return new ArrayVec(patternVec);

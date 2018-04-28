@@ -14,7 +14,9 @@ import com.expleague.commons.util.JSONTools;
 import com.expleague.commons.util.Pair;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.TLongIntMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.procedure.TIntDoubleProcedure;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
@@ -28,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import static java.lang.Integer.max;
@@ -326,7 +329,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
 
     private DictionaryWithStat<T> reduce(int slots, boolean isDynamic) {
       final List<Seq<T>> newDict = new ArrayList<>(size());
-      List<Integer> wordIds = new ArrayList<>(size());
+      TIntSet wordIds = new TIntHashSet(size());
       for (int i = 0; i < size(); i++) {
         if (parent(i) < 0) {
           newDict.add(get(i));
@@ -334,12 +337,40 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         }
         wordIds.add(i);
       }
-      List<StatItem> items;
-      do {
+      List<StatItem> items = statItems(wordIds);
+      TIntSet toRemove = new TIntHashSet();
+      TIntDoubleMap updatedFreqs = new TIntDoubleHashMap();
+      while (items.size() > slots) {
+        updatedFreqs.clear();
+        toRemove.clear();
+        { // choose independent items from the end of the sorted variants
+          for (int i = items.size() - 1; i >= 0 && items.size() - toRemove.size() > slots; i--) {
+            Seq<T> candidate = get(items.get(i).second);
+            boolean couldBeChanged = false;
+            for (int j = 0; !couldBeChanged && j < items.size(); j++) {
+              Seq<T> a = get(items.get(j).second);
+              if (i == j)
+                continue;
+              couldBeChanged = isSubstring(a, candidate);
+            }
+            if (!couldBeChanged)
+              toRemove.add(items.get(i).second);
+          }
+        }
+
+        if (toRemove.isEmpty())
+          throw new RuntimeException("Something went wrong");
+        toRemove.forEach(id -> {
+          weightParseVariants(dict.get(id), freq(id), symbolFreqs, toRemove, updatedFreqs);
+          return true;
+        });
+        wordIds.removeAll(toRemove);
+        updatedFreqs.forEachEntry((id, freq) -> {
+          symbolFreqs.setQuick(id, symbolFreqs.get(id) + (int) freq);
+          return true;
+        });
         items = statItems(wordIds);
-        wordIds = sortStatItems(items, slots);
-      } while (items.size() > slots);
-      items = statItems(wordIds);
+      }
       items.sort(Comparator.comparingDouble(o -> -o.score)); // rewrite comparator
 
       double minProbResult = min(1. / size(), MAX_MIN_PROBABILITY);
@@ -356,86 +387,11 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       return createDict(newDict, isDynamic, minProbResult);
     }
 
-    private List<Integer> sortStatItems(List<StatItem> items, int slots) {
-      items.sort(Comparator.comparingDouble(o -> -o.score)); // score decrease
-      Set<Integer> indep = new HashSet<>();
-      for (int i = items.size() - 1; i >= 0 && items.size() - indep.size() > slots; i--) {
-        boolean isIndep = true;
-        for (int j = 0; j < items.size(); j++) {
-          if (i != j && isSubstring(get(items.get(j).second), get(items.get(i).second))) {
-            isIndep = false;
-            break;
-          }
-        }
-        if (isIndep) {
-          indep.add(items.get(i).second);
-        } else {
-          break;
-        }
-      }
-      TIntSet indepIdsTSet = new TIntHashSet(indep);
-      for (Integer id : indep) {
-        /*IntSeqBuilder builder = new IntSeqBuilder();
-        //IntSeq seq = linearParse(get(id), builder, indepIdsTSet);
-        double d = weightedParse(get(id), symbolFreqs, totalChars, builder, indepIdsTSet);
-        IntSeq seq = builder.build();
-        for (int i = 0; i < seq.length(); i++) {
-          updateSymbol(seq.at(i), freq(id));
-        }
-        updateSymbol(id, -freq(id));*/
-        //updateFreqsAfterRemove(weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet), id);
-        Map<Integer, Double> parseFreqs = weightedMultiParse(get(id), symbolFreqs, totalChars, indepIdsTSet);
-        double sumProbs = parseFreqs.values().stream().mapToDouble(x -> x).sum();
-        for (Map.Entry<Integer, Double> entry : parseFreqs.entrySet()) {
-          updateSymbol(entry.getKey(), (int)(freq(id) * entry.getValue() / sumProbs));
-        }
-        updateSymbol(id, -freq(id));
-      }
-      List<Integer> wordIds = items.stream()
-              .map(item -> item.second)
-              .filter(id -> !indep.contains(id))
-              .collect(Collectors.toList());
-      /*
-      Каждое слово, которое хотим удалить, парсим, чтобы найти, что в нем используется.
-      Обновляем у найденных в нем элементов updateSymbol(i, count)
-      Не забываем сделать для удаляемого слова updateSymbol(i, -count)
-       */
-      /*System.out.println("items: " + items.size() + ", words: " + wordIds.size() + ", indep: " + indep.size() + ", slots: " + slots);
-      System.out.println("items: " + items.size() + ", words: " + wordIds.size() + ", indep: " + indep.size() + ", slots: " + slots);
-      System.out.println("all items");
-      items.forEach(item -> System.out.print("(" + get(item.second) + "-" + item.count + ", " + item.score + ") "));
-      System.out.println();
-      System.out.println("indep");
-      indep.forEach(id -> System.out.print(get(id) + " "));
-      System.out.println();
-      System.out.println("wordIds");
-      wordIds.forEach(id -> System.out.print(get(id) + " "));
-      System.out.println();
-      System.out.println();*/
-      //System.out.println("in while, items.size = " + items.size() + ", slots = " + slots);
-      //wordIds.forEach(id -> System.out.print(get(id) + " "));
-      return wordIds;
-    }
-
-    /*private void updateFreqsAfterRemove(List<Pair<List<Integer>, Double>> parseResults, int removedId) {
-      Map<Integer, Double> parseFreqs = new HashMap<>();
-      double sumRes = parseResults.stream().mapToDouble(x -> x.second).sum();
-      for (Pair<List<Integer>, Double> pair : parseResults) {
-        for (int id : pair.first) {
-          parseFreqs.put(id, parseFreqs.getOrDefault(id, 0.) + pair.second / sumRes);
-        }
-      }
-      for (Map.Entry<Integer, Double> entry : parseFreqs.entrySet()) {
-        updateSymbol(entry.getKey(), (int)(freq(removedId) * entry.getValue()));
-      }
-      updateSymbol(removedId, -freq(removedId));
-    }*/
-
-    private List<StatItem> statItems(List<Integer> wordIds) {
+    private List<StatItem> statItems(TIntSet wordIds) {
       final List<StatItem> items = new ArrayList<>();
       final double codeLength = codeLength() * totalChars;
 
-      for (Integer s : wordIds) {
+      wordIds.forEach(s -> {
         final int parent = parent(s);
         final int count = freq(s);
         Seq<T> seq = get(s);
@@ -454,7 +410,9 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
           codeLengthWOSymbol += newStatPower * log(newStatPower + size() - 1) - power * log(power + size());
           items.add(new StatItem(-1, s, codeLengthWOSymbol - codeLength, count));
         }
-      }
+        return true;
+      });
+      items.sort(Comparator.comparingDouble(o -> -o.score)); // rewrite comparator
       return items;
     }
 
@@ -504,6 +462,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         final double pBcondA = freq / freqXFirst.get(first);
         final double pA = freqs.get(first) / totalFreqs;
         final double pB = freqs.get(second) / totalFreqs;
+
         items.add(new StatItem(first, second, freq * pBcondA * log(pAB / pA / pB), freq));
         return true;
       });
@@ -600,4 +559,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       return result[0];
     }
   }
+
+
+
 }

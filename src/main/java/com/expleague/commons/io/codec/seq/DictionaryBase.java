@@ -4,10 +4,14 @@ import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.seq.IntSeqBuilder;
 import com.expleague.commons.seq.Seq;
 import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TIntDoubleMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.TIntSet;
 
 import java.util.*;
+import java.util.stream.DoubleStream;
 
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
@@ -140,38 +144,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
   }
 
   protected double weightedParse(Seq<T> seq, TIntList freqs, double totalFreq, IntSeqBuilder builder) {
-    int len = seq.length();
-    double[] score = new double[len + 1];
-    Arrays.fill(score, Double.NEGATIVE_INFINITY);
-    score[0] = 0;
-    int[] symbols = new int[len + 1];
-
-    for (int pos = 0; pos < len; pos++) {
-      Seq<T> suffix = seq.sub(pos, len);
-      int sym = search(suffix);
-      do {
-        int symLen = get(sym).length();
-        double symLogProb = (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size());
-
-        if (score[symLen + pos] < score[pos] + symLogProb) {
-          score[symLen + pos] = score[pos] + symLogProb;
-          symbols[symLen + pos] = sym;
-        }
-      }
-      while ((sym = parent(sym)) >= 0);
-    }
-    int[] solution = new int[len + 1];
-    int pos = len;
-    int index = 0;
-    while (pos > 0) {
-      int sym = symbols[pos];
-      solution[len - (++index)] = sym;
-      pos -= get(sym).length();
-    }
-    for (int i = 0; i < index; i++) {
-      builder.append(solution[len - index + i]);
-    }
-    return score[len];
+    return weightedParse(seq, freqs, totalFreq, builder, null);
   }
 
   protected double weightedParse(Seq<T> seq, TIntList freqs, double totalFreq, IntSeqBuilder builder, TIntSet excludes) {
@@ -209,187 +182,50 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
     return score[len];
   }
 
-  protected Map<Integer, Double> weightedMultiParse(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
-    Map<Integer, Double> parseProb = new HashMap<>();
+  public void weightParseVariants(Seq<T> seq, double multiplier, TIntArrayList freqs, TIntSet excludes, TIntDoubleMap result) {
     int len = seq.length();
-    int[] numParseEnds = new int[len + 1];
-    for (int i = 0; i <= len; i++) {
-      numParseEnds[i] = numOfParseVatiants(seq.sub(i, len), excludes);
-    }
-    for (int i = 0; i <= len; i++) {
-      int numParseStart = numOfParseVatiants(seq.sub(0, i), excludes);
-      for (int j = i + 1; j <= len; j++) {
-        Seq<T> subs = seq.sub(i, j);
-        int sym = search(subs, excludes);
-        if (sym >= 0 && get(sym).length() == subs.length()) {
-          double symProb = (freqs.size() > sym ? (freqs.get(sym) + 1) : 0) / (totalFreq + size()); // - excludes.size());
-          //count[i][j] = numParseStart * numParseEnds[j];
-          parseProb.put(sym, parseProb.getOrDefault(sym, 0.0) + symProb * numParseStart * numParseEnds[j]);
+    double[] countForward = new double[len + 1];
+    {
+      countForward[0] = 1;
+      for (int pos = 0; pos < len; pos++) {
+        Seq<T> suffix = seq.sub(pos, len);
+        int sym = search(suffix, excludes);
+        do {
+          int symLen = get(sym).length();
+          countForward[pos + symLen] += (1 + freqs.get(sym)) * countForward[pos];
         }
+        while ((sym = parent(sym)) >= 0);
       }
     }
-    double sum = parseProb.values().stream().mapToDouble(x -> x).sum();
-    double norm = sum * numParseEnds[0];
-    for (Integer key : parseProb.keySet()) {
-      parseProb.put(key, parseProb.getOrDefault(key, 0.0) / norm);
-    }
-    /*System.out.println(seq + ": " + sum + ", " + numParseEnds[0]);
-    parseProb.forEach((key, value) -> System.out.print("(" + get(key) + " - " + value + ") "));
-    System.out.println();*/
-    return parseProb;
-    /*int[] count = new int[len + 1];
-    Arrays.fill(count, 0);
-    count[0] = 1;
-    for (int pos = 0; pos < len; pos++) {
-      Seq<T> suffix = seq.sub(pos, len);
-      int sym = search(suffix, excludes);
-      do {
-        int symLen = get(sym).length();
-        double symLogProb = (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size()); // - excludes.size());
-        parseProb.put(sym, parseProb.getOrDefault(sym, 0.0) + symLogProb * count[pos]);
-        if (pos + symLen < len) {
-          count[pos + symLen] += 1;
-        }
-      }
-      while ((sym = parent(sym)) >= 0);
-    }*/
-    //ParseTree tree = new ParseTree(seq, freqs, totalFreq, excludes);
-    //System.out.println("in weighted multi parse");
-    //return tree.wordsProbs();
-    /*int len = seq.length();
-    Deque<Pair<Integer, List<Integer>>> parseDeque = new LinkedList<>();
-    List<Pair<List<Integer>, Double>> parseResults = new ArrayList<>();
-    parseDeque.add(new Pair<>(0, new ArrayList<>()));
-    while (parseDeque.size() > 0) {
-      Pair<Integer, List<Integer>> pair = parseDeque.poll();
-      Seq<T> suffix = seq.sub(pair.getFirst(), len);
-      int sym = search(suffix, excludes);
-      do {
-        List<Integer> temp = new ArrayList<>(pair.second);
-        temp.add(sym);
-        if (pair.first + get(sym).length() == len) {
-          double score = 0;
-          for (Integer id : temp) {
-            score += (freqs.size() > id ? log(freqs.get(id) + 1) : 0) - log(totalFreq + size());
-          }
-          parseResults.add(new Pair<>(temp, score));
-          break;
-        } else {
-          parseDeque.add(new Pair<>(pair.first + get(sym).length(), temp));
-        }
-      }
-      while ((sym = parent(sym)) >= 0);
-    }
-    return parseResults;*/
-    /*Deque<Integer> posDeque = new LinkedList<>();
-    Map<Integer, Integer> parseFreqs = new HashMap<>(freqs.size());
-    while (posDeque.size() > 0) {
-      int pos = posDeque.poll();
-      int sym = search(seq.sub(pos, len), excludes);
-      do {
-        parseFreqs.put(sym, parseFreqs.getOrDefault(sym, 0) + 1);
-        posDeque.add(pos + get(sym).length());
-      }
-      while ((sym = parent(sym)) >= 0);
-    }*/
 
-    /*double[] score = new double[len + 1];
-    Arrays.fill(score, Double.NEGATIVE_INFINITY);
-    score[0] = 0;
-    int[] symbols = new int[len + 1];
+    double[] countBackward = new double[len + 1];
+    {
+      countBackward[len] = 1;
+      for (int pos = len - 1; pos >= 0; pos--) {
+        Seq<T> suffix = seq.sub(pos, len);
+        int sym = search(suffix, excludes);
+        do {
+          int symLen = get(sym).length();
+          countBackward[pos] += (1 + freqs.get(sym)) * countBackward[pos + symLen];
+        }
+        while ((sym = parent(sym)) >= 0);
+      }
+    }
+
+//    if (countBackward[0] != countForward[len] || countForward[len] <= 0)
+//      System.out.println();
 
     for (int pos = 0; pos < len; pos++) {
       Seq<T> suffix = seq.sub(pos, len);
       int sym = search(suffix, excludes);
       do {
         int symLen = get(sym).length();
-        double symLogProb = (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size());
-
-        if (score[symLen + pos] < score[pos] + symLogProb) {
-          score[symLen + pos] = score[pos] + symLogProb;
-          symbols[symLen + pos] = sym;
-        }
+        double freqIncrement = (freqs.get(sym) + 1) * countForward[pos] * countBackward[pos + symLen];
+        result.adjustOrPutValue(sym, freqIncrement, freqIncrement);
       }
       while ((sym = parent(sym)) >= 0);
     }
-    int[] solution = new int[len + 1];
-    int pos = len;
-    int index = 0;
-    while (pos > 0) {
-      int sym = symbols[pos];
-      solution[len - (++index)] = sym;
-      pos -= get(sym).length();
-    }
-    for (int i = 0; i < index; i++) {
-      builder.append(solution[len - index + i]);
-    }
-    return score[len];*/
-  }
-
-  private int numOfParseVatiants(Seq<T> seq, TIntSet excludes) {
-    int len = seq.length();
-    int[] count = new int[len + 1];
-    Arrays.fill(count, 0);
-    count[0] = 1;
-    for (int pos = 0; pos < len; pos++) {
-      Seq<T> suffix = seq.sub(pos, len);
-      int sym = search(suffix, excludes);
-      do {
-        int symLen = get(sym).length();
-        if (pos + symLen <= len) {
-          count[pos + symLen] += count[pos];
-        }
-      }
-      while ((sym = parent(sym)) >= 0);
-    }
-    return count[len];
-  }
-
-  private class ParseTree {
-    private double score;
-    private Map<Integer, ParseTree> children;
-
-    public ParseTree(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes) {
-      this(seq, freqs, totalFreq, excludes, 0);
-    }
-
-    private ParseTree(Seq<T> seq, TIntList freqs, double totalFreq, TIntSet excludes, double logProb) {
-      if (seq.length() == 0) {
-        score = exp(logProb);
-        //System.out.println("score in leaf: " + score);
-        return;
-      }
-      children = new HashMap<>();
-      int sym = DictionaryBase.this.search(seq, excludes);
-      do {
-        //System.out.println(seq + " - " + get(sym) + " = " + seq.sub(get(sym).length(), seq.length()));
-        children.put(sym,
-                new ParseTree(seq.sub(get(sym).length(), seq.length()), freqs, totalFreq, excludes,
-                        logProb + (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size() - excludes.size())));
-        score += children.get(sym).score;
-      }
-      while ((sym = parent(sym)) >= 0);
-    }
-
-    public Map<Integer, Double> wordsProbs() {
-      Map<Integer, Double> probs = new HashMap<>();
-      wordsProbs(probs);
-      return probs;
-    }
-
-    private void wordsProbs(Map<Integer, Double> probs) {
-      if (children == null) {
-        return;
-      }
-      for (Map.Entry<Integer, ParseTree> entry : children.entrySet()) {
-        probs.put(entry.getKey(), probs.getOrDefault(entry.getKey(), 0.0) + entry.getValue().score);
-        entry.getValue().wordsProbs(probs);
-      }
-    }
-
-    public double getScore() {
-      return score;
-    }
+    result.transformValues(v -> multiplier * v / countForward[len]);
   }
 
   @Override
