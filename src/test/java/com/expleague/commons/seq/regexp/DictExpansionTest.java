@@ -155,7 +155,7 @@ public class DictExpansionTest extends TestCase {
     assertTrue(equalsAtLeastOnce);
   }
 
-  public void notestRestoreRand() throws Exception {
+  public void testRestoreRand() throws Exception {
     final FastRandom rng = new FastRandom();
     for (int i = 0; i < 100; i++) {
       final Set<CharSeq> known = new HashSet<>();
@@ -170,13 +170,13 @@ public class DictExpansionTest extends TestCase {
       final Vec probabs = new ArrayVec(reference.size());
       VecTools.fill(probabs, 1.);
       VecTools.normalizeL1(probabs);
-      for (int j = 0; j < 100000; j++) {
-        final int len = rng.nextInt(1000);
+      IntStream.range(0, 10000).parallel().forEach(j -> {
+        final int len = rng.nextInt(100);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
           builder.append(reference.condition(rng.nextSimple(probabs)));
         de.accept(CharSeq.create(builder));
-      }
+      });
       final List<? extends Seq<Character>> resultAlpha = de.result().alphabet();
       resultAlpha.removeAll(start.alphabet());
       known.removeAll(resultAlpha);
