@@ -5,7 +5,7 @@
   <groupId>com.expleague</groupId>
   <artifactId>commons</artifactId>
   <version>1.4</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
   <name>SpbSU-ML group java commons</name>
   <description>Utilities including math, charsequence based text processing, sequences etc.</description>
@@ -190,6 +190,10 @@
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
   </distributionManagement>
 
   <build>
@@ -210,7 +214,7 @@
         <configuration>
           <workingDirectory>${basedir}/../</workingDirectory>
           <argLine>-Dfile.encoding=UTF-8</argLine>
-          <argLine>-Xmx1024m</argLine>
+          <argLine>-Xmx2G</argLine>
         </configuration>
       </plugin>
       <plugin>

@@ -1,5 +1,6 @@
 package com.expleague.commons.io;
 
+import com.expleague.commons.JUnitIOCapture;
 import com.expleague.commons.io.codec.ArithmeticCoding;
 import com.expleague.commons.io.codec.CSCInputStream;
 import com.expleague.commons.io.codec.CSCOutputStream;
@@ -34,7 +35,7 @@ import java.util.zip.GZIPInputStream;
  * Date: 03.06.14
  * Time: 14:40
  */
-public class CompositeTextCodingTest /*extends JUnitIOCapture */{
+public class CompositeTextCodingTest extends JUnitIOCapture {
   public static CharSequence[] queries;
   public static CharSequence[] urls;
   public static CharSequence[] packages;

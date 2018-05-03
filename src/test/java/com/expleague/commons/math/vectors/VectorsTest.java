@@ -1,5 +1,6 @@
 package com.expleague.commons.math.vectors;
 
+import com.expleague.commons.JUnitIOCapture;
 import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.util.logging.Interval;
@@ -24,7 +25,7 @@ import static org.junit.Assert.assertTrue;
  * Date: 17.12.2009
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-public class VectorsTest {
+public class VectorsTest extends JUnitIOCapture {
 
   public static final double EPSILON = 0.0001;
 

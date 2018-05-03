@@ -1,6 +1,7 @@
 package com.expleague.commons.seq.regexp;
 
 
+import com.expleague.commons.JUnitIOCapture;
 import com.expleague.commons.func.types.ConversionRepository;
 import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
@@ -14,6 +15,7 @@ import com.expleague.commons.util.ArrayTools;
 import gnu.trove.list.array.TIntArrayList;
 import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Test;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static junit.framework.TestCase.assertTrue;
+
 /**
  * Created with IntelliJ IDEA.
  * User: solar
@@ -35,10 +39,11 @@ import java.util.stream.Stream;
  * Time: 15:31
  */
 
-public class DictExpansionTest extends TestCase {
+public class DictExpansionTest extends JUnitIOCapture {
 
   public static final String ROOT_WIKI_FILE = System.getenv("HOME") + "/data/wiki/ru/" + "ruwiki-latest-pages-articles.xml";
 
+  @Test
   public void testIndependent() throws Exception {
     ConversionRepository conversion = MathTools.CONVERSION;
 
@@ -57,6 +62,7 @@ public class DictExpansionTest extends TestCase {
     assertTrue('z' - 'a' + 5 > de.result().size());
   }
 
+  @Test
   public void testRestore() throws Exception {
     final ListDictionary<Character> reference = new ListDictionary<Character>(
             CharSeq.create("a"),
@@ -91,6 +97,7 @@ public class DictExpansionTest extends TestCase {
     assertTrue(equalsAtLeastOnce);
   }
 
+  @Test
   public void testRestoreAsym() throws Exception {
     final ListDictionary<Character> reference = new ListDictionary<Character>(
             CharSeq.create("a"),
@@ -100,7 +107,7 @@ public class DictExpansionTest extends TestCase {
             CharSeq.create("ab"),
             CharSeq.create("bb"));
     boolean equalsAtLeastOnce = false;
-    for (int i = 0; i < 10 && !equalsAtLeastOnce; i++) {
+    for (int i = 0; i < 30 && !equalsAtLeastOnce; i++) {
         final List<Character> alpha = new ArrayList<>();
       for (char a = 'a'; a <= 'c'; a++) {
         alpha.add(a);
@@ -110,7 +117,7 @@ public class DictExpansionTest extends TestCase {
       final Vec probabs = new ArrayVec(reference.size());
       VecTools.fill(probabs, 1.);
       VecTools.normalizeL1(probabs);
-      for (int j = 0; j < 10000; j++) {
+      for (int j = 0; j < 50000; j++) {
         final int len = rnd.nextInt(30);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
@@ -119,12 +126,14 @@ public class DictExpansionTest extends TestCase {
   //      System.out.println(builder);
       }
       String resultAlpha = de.result().alphabet().toString();
+      System.out.println(reference.alphabet());
       System.out.println(resultAlpha);
       equalsAtLeastOnce = reference.alphabet().toString().equals(resultAlpha);
     }
     assertTrue(equalsAtLeastOnce);
   }
 
+  @Test
   public void testRestoreLong() throws Exception {
     boolean equalsAtLeastOnce = false;
     for (int i = 0; i < 10 && !equalsAtLeastOnce; i++) {
@@ -185,6 +194,7 @@ public class DictExpansionTest extends TestCase {
     }
   }
 
+  @Test
   public void testOptimalParsing() throws Exception {
     final FastRandom rng = new FastRandom(0);
     for (int i = 0; i < 10; i++) {
@@ -202,7 +212,7 @@ public class DictExpansionTest extends TestCase {
       for (int j = 0; j < models.length; j++) {
         freqs.add(0);
       }
-      for (int j = 0; j < 1000; j++) {
+      for (int j = 0; j < 100; j++) {
         final int len = rng.nextInt(10);
         if (len == 0)
           continue;
