@@ -170,7 +170,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         result = current.expand(slots, isDynamic);
       }
       else {
-        this.result = result = current.reduce(size - alphabetSize, isDynamic);
+        this.result = result = current.reduce(size, isDynamic);
       }
       current = result;
       populate = !populate;
@@ -365,7 +365,6 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
 
     @NotNull
     private List<StatItem> filterStatItems(int slots) {
-      slots += IntStream.range(0, symbolFreqs.size()).filter(s -> parent(s) < 0).count();
       TIntSet excludes = new TIntHashSet();
       IntStream.range(0, size()).filter(id -> parent(id) >= 0 && freq(id) == 0).forEach(excludes::add);
       TIntSet toRemove = new TIntHashSet();
@@ -381,12 +380,10 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         { // choose independent items from the end of the sorted variants
           for (int i = items.size() - 1; i >= 0; i--) {
             final StatItem item = items.get(i);
-            if (i <= slots && item.score > 0)
+            if (i < slots && item.score > 0)
               break;
-            if (parent(item.second) < 0) {
-              slots--;
+            if (parent(item.second) < 0)
               continue;
-            }
             final Seq<T> candidate = get(item.second);
             boolean couldBeChanged = false;
             for (int j = 0; !couldBeChanged && j < items.size(); j++) {

@@ -77,7 +77,7 @@ public class CharSeqTest extends TestCase {
     Assert.assertEquals(CharSeq.create(test), seq);
   }
 
-  public void testReaderBuffersRotation() throws IOException {
+  public void notestReaderBuffersRotation() throws IOException {
     Interval.start();
     FastRandom rng = new FastRandom();
     Reader reader = rng.base64Stream(100 * 1024 * 1024);
