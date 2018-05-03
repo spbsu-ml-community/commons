@@ -6,14 +6,11 @@ import com.expleague.commons.seq.Seq;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TIntDoubleMap;
-import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.TIntSet;
 
-import java.util.*;
-import java.util.stream.DoubleStream;
+import java.util.Arrays;
 
-import static java.lang.Math.exp;
 import static java.lang.Math.log;
 
 /**
@@ -72,15 +69,20 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
 
   @Override
   public IntSeq parse(Seq<T> seq) {
-    return linearParse(seq, new IntSeqBuilder(), null);
+    IntSeqBuilder builder = new IntSeqBuilder();
+    linearParse(seq, builder, null);
+    return builder.build();
   }
 
   @Override
   public IntSeq parse(Seq<T> seq, TIntSet excludes) {
-    return linearParse(seq, new IntSeqBuilder(), excludes);
+    IntSeqBuilder builder = new IntSeqBuilder();
+    linearParse(seq, builder, excludes);
+    return builder.build();
   }
 
-  protected IntSeq linearParse(Seq<T> seq, IntSeqBuilder builder, TIntSet excludes) {
+  @SuppressWarnings("UnusedReturnValue")
+  protected int linearParse(Seq<T> seq, IntSeqBuilder builder, TIntSet excludes) {
     Seq<T> suffix = seq;
     while (suffix.length() > 0) {
       int symbol;
@@ -97,7 +99,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
       }
       builder.add(symbol);
     }
-    return builder.build();
+    return builder.length();
   }
 
   protected double exhaustiveParse(Seq<T> seq, TIntList freqs, double totalFreq, IntSeqBuilder builder, double currentLogProbab, double bestLogProBab) {
@@ -182,31 +184,34 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
     return score[len];
   }
 
-  public void weightParseVariants(Seq<T> seq, double multiplier, TIntArrayList freqs, TIntSet excludes, TIntDoubleMap result) {
-    int len = seq.length();
-    double[] countForward = new double[len + 1];
+  public void weightParseVariants(Seq<T> seq, double multiplier, TIntArrayList freqs, double totalFreq, TIntSet excludes, TIntDoubleMap result) {
+//    parse(seq, excludes).stream().forEach(id -> result.adjustOrPutValue(id, multiplier, multiplier));
+    final int len = seq.length();
+    final double[] countForward = new double[len + 1];
     {
       countForward[0] = 1;
       for (int pos = 0; pos < len; pos++) {
         Seq<T> suffix = seq.sub(pos, len);
         int sym = search(suffix, excludes);
         do {
-          int symLen = get(sym).length();
-          countForward[pos + symLen] += (1 + freqs.get(sym)) * countForward[pos];
+          final int symLen = get(sym).length();
+          final int freq = sym < freqs.size() ? freqs.getQuick(sym) : 0;
+          countForward[pos + symLen] += freq * countForward[pos] / totalFreq;
         }
         while ((sym = parent(sym)) >= 0);
       }
     }
 
-    double[] countBackward = new double[len + 1];
+    final double[] countBackward = new double[len + 1];
     {
       countBackward[len] = 1;
       for (int pos = len - 1; pos >= 0; pos--) {
         Seq<T> suffix = seq.sub(pos, len);
         int sym = search(suffix, excludes);
         do {
-          int symLen = get(sym).length();
-          countBackward[pos] += (1 + freqs.get(sym)) * countBackward[pos + symLen];
+          final int symLen = get(sym).length();
+          final int freq = sym < freqs.size() ? freqs.getQuick(sym) : 0;
+          countBackward[pos] += freq * countBackward[pos + symLen] / totalFreq;
         }
         while ((sym = parent(sym)) >= 0);
       }
@@ -220,12 +225,13 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
       int sym = search(suffix, excludes);
       do {
         int symLen = get(sym).length();
-        double freqIncrement = (freqs.get(sym) + 1) * countForward[pos] * countBackward[pos + symLen];
-        result.adjustOrPutValue(sym, freqIncrement, freqIncrement);
+        final int freq = sym < freqs.size() ? freqs.getQuick(sym) : 0;
+        final double freqIncrement = freq / totalFreq * countForward[pos] * countBackward[pos + symLen];
+        final double v = multiplier * freqIncrement / countForward[len];
+        result.adjustOrPutValue(sym, v, v);
       }
       while ((sym = parent(sym)) >= 0);
     }
-    result.transformValues(v -> multiplier * v / countForward[len]);
   }
 
   @Override

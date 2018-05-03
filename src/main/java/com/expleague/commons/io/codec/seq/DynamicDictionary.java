@@ -2,15 +2,14 @@ package com.expleague.commons.io.codec.seq;
 
 import com.expleague.commons.seq.ArraySeq;
 import com.expleague.commons.seq.CharSeqTools;
-import com.expleague.commons.seq.SeqTools;
 import com.expleague.commons.seq.Seq;
+import com.expleague.commons.seq.SeqTools;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.set.TIntSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -25,12 +24,13 @@ public class DynamicDictionary<T extends Comparable<T>> extends DictionaryBase<T
   private final TObjectIntHashMap<T> singles = new TObjectIntHashMap<>();
   private final List<Seq<T>> increment = new ArrayList<>();
 
+  @SafeVarargs
   public DynamicDictionary(Seq<T>... sex) {
     this(new ArraySeq<>(sex));
   }
 
   public DynamicDictionary(Collection<Seq<T>> sex) {
-    //noinspection unchecked
+    //noinspection unchecked,SuspiciousToArrayCall
     this(new ArraySeq<>((Seq<T>[])sex.toArray(new Seq[sex.size()])));
   }
 
@@ -38,14 +38,13 @@ public class DynamicDictionary<T extends Comparable<T>> extends DictionaryBase<T
     final List<Seq<T>> effectiveDict = new ArrayList<>();
     for (int i = 0; i < sex.length(); i++) {
       final Seq<T> seq = sex.at(i);
-      if (seq.length() <= 1)
-        continue;
       final T first = seq.at(0);
       if (!singles.containsKey(first)) {
         singles.put(first, -singles.size() - 1);
-        effectiveDict.add(CharSeqTools.<T>create(new Object[]{first}));
+        effectiveDict.add(CharSeqTools.create(new Object[]{first}));
       }
-      effectiveDict.add(seq);
+      if (seq.length() > 1)
+        effectiveDict.add(seq);
     }
     //noinspection unchecked
     composites = effectiveDict.size() > 0 ? new ListDictionary<>(effectiveDict.toArray(new Seq[effectiveDict.size()])) : EMPTY;
@@ -63,17 +62,21 @@ public class DynamicDictionary<T extends Comparable<T>> extends DictionaryBase<T
       index = singles.get(first);
       if (index != Constants.DEFAULT_INT_NO_ENTRY_VALUE) {
         if (index < 0)
-          index = composites.search(seq, excludes);
-        return index;
+          return composites.search(seq, excludes);
+        return index - 1;
       }
     } finally {
       lock.readLock().unlock();
     }
     lock.writeLock().lock();
     try {
+      int updatedIdx = singles.get(first);
+      if (updatedIdx != Constants.DEFAULT_INT_NO_ENTRY_VALUE)
+        return updatedIdx;
       index = increment.size() + composites.size();
-      increment.add(CharSeqTools.<T>create(new Object[]{SeqTools.copy(first)}));
-      singles.put(first, index);
+      Seq<T> next = CharSeqTools.create(new Object[]{SeqTools.copy(first)});
+      increment.add(next);
+      singles.put(first, index + 1);
       return index;
     }
     finally {
@@ -132,12 +135,7 @@ public class DynamicDictionary<T extends Comparable<T>> extends DictionaryBase<T
     lock.readLock().lock();
     try {
       final List<? extends Seq<T>> result = composites.alphabet();
-      final Iterator<? extends Seq<T>> it = result.iterator();
-      while (it.hasNext()) {
-        final Seq<T> next = it.next();
-        if (next.length() == 1)
-          it.remove();
-      }
+      result.removeIf(next -> next.length() == 1);
       return result;
     }
     finally {

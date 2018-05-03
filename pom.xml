@@ -4,7 +4,7 @@
 
   <groupId>com.expleague</groupId>
   <artifactId>commons</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4</version>
   <packaging>jar</packaging>
 
   <name>SpbSU-ML group java commons</name>
@@ -137,7 +137,7 @@
               <execution>
                 <id>attach-sources</id>
                 <goals>
-                  <goal>jar-no-fork</goal>
+                  <goal>jar</goal>
                 </goals>
               </execution>
             </executions>

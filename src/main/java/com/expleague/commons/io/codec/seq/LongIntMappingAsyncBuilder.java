@@ -192,6 +192,10 @@ public class LongIntMappingAsyncBuilder {
     }
   }
 
+  public double size() {
+    return accumulatorSize;
+  }
+
   private class BufferWithLock {
     private final BufferHandler handler;
     private final TLongIntMap map = new TLongIntHashMap((int)(tlBufferSize / 0.8), 0.8f);

@@ -85,7 +85,7 @@ public class DictExpansionTest extends TestCase {
   //      System.out.println(builder);
       }
       String resultAlpha = de.result().alphabet().toString();
-      System.out.println(resultAlpha + ": " + de.codeLength());
+//      System.out.println(resultAlpha + ": " + de.codeLengthPerChar());
       equalsAtLeastOnce = reference.alphabet().toString().equals(resultAlpha);
     }
     assertTrue(equalsAtLeastOnce);
@@ -149,13 +149,13 @@ public class DictExpansionTest extends TestCase {
       }
       final List<? extends Seq<Character>> resultAlpha = de.result().alphabet();
       resultAlpha.removeAll(start.alphabet());
-//      System.out.println(resultAlpha.toString() + ": " + de.codeLength());
+//      System.out.println(resultAlpha.toString() + ": " + de.codeLengthPerChar());
       equalsAtLeastOnce = reference.alphabet().toString().equals(resultAlpha.toString());
     }
     assertTrue(equalsAtLeastOnce);
   }
 
-  public void testRestoreRand() throws Exception {
+  public void notestRestoreRand() throws Exception {
     final FastRandom rng = new FastRandom();
     for (int i = 0; i < 100; i++) {
       final Set<CharSeq> known = new HashSet<>();
@@ -170,7 +170,7 @@ public class DictExpansionTest extends TestCase {
       final Vec probabs = new ArrayVec(reference.size());
       VecTools.fill(probabs, 1.);
       VecTools.normalizeL1(probabs);
-      IntStream.range(0, 10000).parallel().forEach(j -> {
+      IntStream.range(0, 100000).parallel().forEach(j -> {
         final int len = rng.nextInt(100);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
@@ -181,7 +181,7 @@ public class DictExpansionTest extends TestCase {
       resultAlpha.removeAll(start.alphabet());
       known.removeAll(resultAlpha);
       System.out.println("errors: " + (known.size() / (double) reference.size()));
-      //      System.out.println(resultAlpha.toString() + ": " + de.codeLength());
+      //      System.out.println(resultAlpha.toString() + ": " + de.codeLengthPerChar());
     }
   }
 
