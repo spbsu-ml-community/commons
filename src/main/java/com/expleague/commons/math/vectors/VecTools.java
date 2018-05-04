@@ -486,6 +486,15 @@ public class VecTools {
     return sum;
   }
 
+  public static double product(Vec x) {
+    final VecIterator iterator = x.nonZeroes();
+    double product = 0;
+    while(iterator.advance()) {
+      product *= iterator.value();
+    }
+    return product;
+  }
+
   public static double sum2(final Vec target) {
     final VecIterator iterator = target.nonZeroes();
     double sum2 = 0;

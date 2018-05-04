@@ -21,6 +21,8 @@ public interface Trans extends Function<Vec,Vec> {
   int ydim();
   @Nullable
   Trans gradient();
+  @Nullable
+  DiscontinuousTrans subgradient();
 
   Vec trans(Vec x);
   Vec transTo(Vec x, Vec to);
@@ -31,6 +33,11 @@ public interface Trans extends Function<Vec,Vec> {
   abstract class Stub implements Trans {
     @Override
     public Trans gradient() {
+      return null;
+    }
+
+    @Override
+    public DiscontinuousTrans subgradient() {
       return null;
     }
 
