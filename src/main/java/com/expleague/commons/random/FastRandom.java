@@ -120,34 +120,113 @@ public class FastRandom extends Random {
     return (mask & nextByte()) % k;
   }
 
-  public double nextGamma(double shape, double scale) {
-    if (shape < 1)
-      throw new IllegalArgumentException("Theta parameter must be positive");
-    final double delta = shape - (int)shape;
-    double ksi = 0;
-    if (delta > MathTools.EPSILON) {
-      double eta;
-      do {
-        final double a = nextDouble();
-        final double b = nextDouble();
-        final double c = nextDouble();
+  public double nextStandardExponential() {
+    return -Math.log(1.0 - nextDouble());
+  }
 
-        if (a <= E / (E + delta)) {
-          ksi = pow(b, 1 / delta);
-          eta = c * Math.pow(ksi, delta - 1);
+  public double nextStandardGamma(final double shape) {
+    double b, c;
+    double U, V, X, Y;
+
+    if (shape == 1.0) {
+      return nextStandardExponential();
+    } else if (shape < 1.0) {
+      for (; ; ) {
+        U = nextDouble();
+        V = nextStandardExponential();
+
+        if (U <= 1.0 - shape) {
+          X = Math.pow(U, 1. / shape);
+
+          if (X <= V) {
+            return X;
+          }
         } else {
-          ksi = 1 - log(b);
-          eta = c * Math.exp(-ksi);
+          Y = -Math.log((1 - U) / shape);
+          X = Math.pow(1.0 - shape + shape * Y, 1. / shape);
+
+          if (X <= (V + Y)) {
+            return X;
+          }
         }
       }
-      while (eta > Math.pow(ksi, delta - 1) * exp(-ksi));
+    } else {
+      b = shape - 1. / 3.;
+      c = 1. / Math.sqrt(9 * b);
+      for (; ; ) {
+        do {
+          X = nextGaussian();
+          V = 1.0 + c * X;
+        } while (V <= 0.0);
+
+        V = V * V * V;
+        U = nextDouble();
+        if (U < 1.0 - 0.0331 * (X * X) * (X * X)) {
+          return (b * V);
+        }
+
+        if (Math.log(U) < 0.5 * X * X + b * (1. - V + Math.log(V))) {
+          return (b * V);
+        }
+      }
+    }
+  }
+
+  public Vec nextDirichlet(Vec params, Vec out) {
+    double total = 0;
+    double gamma;
+
+    for (int i = 0; i < params.dim(); ++i) {
+      gamma = nextStandardGamma(params.get(i));
+      out.set(i, gamma);
+      total += gamma;
     }
 
-    double result = 0;
-    for (int i = 0; i < (int)shape; i++) {
-      result += Math.log(nextDouble());
+    double invTotal = 1.0 / total;
+
+    for (int i = 0; i < params.dim(); ++i) {
+      out.set(i, out.get(i) * invTotal);
     }
-    return scale * (ksi - result);
+
+    return out;
+  }
+
+  public double nextGamma(final double shape, final double scale) {
+    return scale * nextStandardGamma(shape);
+  }
+
+  public double nextBeta(double a, double b) {
+    double Ga, Gb;
+
+    if ((a <= 1.0) && (b <= 1.0)) {
+      double U, V, X, Y;
+
+      /* Use Johnk's algorithm */
+      while (true) {
+        U = nextDouble();
+        V = nextDouble();
+        X = Math.pow(U, 1.0 / a);
+        Y = Math.pow(V, 1.0 / b);
+
+        if ((X + Y) <= 1.0) {
+          if (X + Y > 0) {
+            return X / (X + Y);
+          } else {
+            double logX = Math.log(U) / a;
+            double logY = Math.log(V) / b;
+            double logM = logX > logY ? logX : logY;
+            logX -= logM;
+            logY -= logM;
+
+            return Math.exp(logX - Math.log(Math.exp(logX) + Math.exp(logY)));
+          }
+        }
+      }
+    } else {
+      Ga = nextStandardGamma(a);
+      Gb = nextStandardGamma(b);
+      return Ga / (Ga + Gb);
+    }
   }
 
   public static char[] BASE64_CHARS;
