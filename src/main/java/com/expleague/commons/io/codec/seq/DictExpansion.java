@@ -340,6 +340,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       List<StatItem> items = statItems(wordIds);
       TIntSet toRemove = new TIntHashSet();
       TIntDoubleMap updatedFreqs = new TIntDoubleHashMap();
+      //while (items.size() - items.stream().map(x -> x.score).filter(x -> x > 0).count() > slots) { // items.size() > slots
       while (items.size() > slots) {
         updatedFreqs.clear();
         toRemove.clear();
@@ -376,6 +377,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       double minProbResult = min(1. / size(), MAX_MIN_PROBABILITY);
       for (final StatItem item : items) {
         if (--slots < 0) //item.score < 0. || --slots < 0
+        //if (item.score < 0. || --slots < 0)
           break;
         final double p = (item.count + 1) / (power + size());
         minProbResult = min(p, minProbResult);

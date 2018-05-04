@@ -37,17 +37,23 @@ public class NewsGroups {
     }
 
     private static String fetchFile(final String filename) {
-        StringBuilder sb = new StringBuilder();
         try {
-            Files.lines(Paths.get(filename), Charset.forName("Cp1252")).forEach(x -> {
-            //Files.lines(Paths.get(filename), Charset.forName("UTF8")).forEach(x -> {
-                sb.append(x);
-                sb.append('\n');
-            });
-        } catch (IOException e) {
+            StringBuilder sb = new StringBuilder();
+            try {
+                Files.lines(Paths.get(filename), Charset.forName("Cp1252")).forEach(x -> {
+                    //Files.lines(Paths.get(filename), Charset.forName("UTF8")).forEach(x -> {
+                    sb.append(x);
+                    sb.append('\n');
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            System.out.println(filename);
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return sb.toString();
     }
 
     private static List<String> fetchFiles(final List<String> filenames) {
@@ -69,11 +75,12 @@ public class NewsGroups {
         List<String> testFilenames = fetchFilenames(dir + testName);
         System.out.println("train: " + filenames.size() + ", test: " + testFilenames.size());
         final List<CharSeq> content = filenames.stream().map(NewsGroups::fetchFile).map(CharSeq::create).collect(Collectors.toList());
-        for (CharSeq text : content) {
-            for (int i = 0; i < text.length(); i++) {
-                allCharacters.add(text.charAt(i));
-            }
-        }
+        final List<CharSeq> testContent = testFilenames.stream().map(NewsGroups::fetchFile).map(CharSeq::create).collect(Collectors.toList());
+        content.forEach(text -> text.forEach(allCharacters::add));
+        testContent.forEach(text -> text.forEach(allCharacters::add));
+        /*System.out.println("alphabet:");
+        allCharacters.forEach(x -> System.out.print(x + " "));
+        System.out.println();*/
         final DictExpansion<Character> expansion = new DictExpansion<>(allCharacters, dictSize, System.out);
         for (int i = 0; i < iterNum; i++) {
             for (int j = 0; j < content.size(); j++) {
@@ -88,7 +95,6 @@ public class NewsGroups {
                 expansion.result(), filenames, dir + trainName, "", true);
         System.out.println("Train BoW have written");
         content.clear();
-        final List<CharSeq> testContent = testFilenames.stream().map(NewsGroups::fetchFile).map(CharSeq::create).collect(Collectors.toList());
         writeBoW(testContent.stream().map(x -> (Seq<Character>)x).collect(Collectors.toList()),
                 expansion.result(), testFilenames, dir + testName, "", false);
         System.out.println("Test BoW have written");
@@ -206,7 +212,6 @@ public class NewsGroups {
         }
     }
 
-    //TODO: write only on-zero elements
     private static <T extends Comparable<T>> void writeBoW(final List<Seq<T>> seqs,
                                                            final Dictionary<T> dict,
                                                            final List<String> filenames,
@@ -337,11 +342,11 @@ public class NewsGroups {
         final String dir = "../../data/";
         final String[] collections = new String[]{"20newsgroups", "aclImdb", "ohsumed-all", "reuters"};
         //int byteSize = 8;
-        int dictSize = 1000;
-        int iterNum = 5;
+        int dictSize = 8000;
+        int iterNum = 50;
         String zipType = "";
         try {
-            simple20news(dir + collections[0], dictSize, iterNum);
+            simple20news(dir + collections[0] + "-norm", dictSize, iterNum);
             //simpleOhsumed(dir + collections[2], dictSize, iterNum); //iterNum = 10
             //byte20news(dir, byteSize, dictSize, iterNum, zipType);
         } catch (IOException e) {
