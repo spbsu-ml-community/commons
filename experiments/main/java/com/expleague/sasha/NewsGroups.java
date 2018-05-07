@@ -3,10 +3,7 @@ package com.expleague.sasha;
 import com.expleague.commons.io.codec.seq.DictExpansion;
 import com.expleague.commons.io.codec.seq.Dictionary;
 import com.expleague.commons.random.FastRandom;
-import com.expleague.commons.seq.ByteSeq;
-import com.expleague.commons.seq.CharSeq;
-import com.expleague.commons.seq.IntSeq;
-import com.expleague.commons.seq.Seq;
+import com.expleague.commons.seq.*;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -15,6 +12,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -39,8 +38,8 @@ public class NewsGroups {
     private static String fetchFile(final String filename) {
         try {
             StringBuilder sb = new StringBuilder();
-            try {
-                Files.lines(Paths.get(filename), Charset.forName("Cp1252")).forEach(x -> {
+            try (Stream<String> lines = Files.lines(Paths.get(filename), Charset.forName("Latin1"))) {
+                lines.forEach(x -> {
                     //Files.lines(Paths.get(filename), Charset.forName("UTF8")).forEach(x -> {
                     sb.append(x);
                     sb.append('\n');
@@ -74,8 +73,15 @@ public class NewsGroups {
         List<String> filenames = fetchFilenames(dir + trainName);
         List<String> testFilenames = fetchFilenames(dir + testName);
         System.out.println("train: " + filenames.size() + ", test: " + testFilenames.size());
-        final List<CharSeq> content = filenames.stream().map(NewsGroups::fetchFile).map(CharSeq::create).collect(Collectors.toList());
-        final List<CharSeq> testContent = testFilenames.stream().map(NewsGroups::fetchFile).map(CharSeq::create).collect(Collectors.toList());
+        final List<CharSeq> content = filenames.stream().map(name -> {
+            try {
+                return new FileReader(name);
+            }
+            catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }).flatMap(CharSeqTools::lines).map(CharSeq::compact).collect(Collectors.toList());
+        final List<CharSeq> testContent = testFilenames.stream().map(NewsGroups::fetchFile).map(CharSeq::compact).collect(Collectors.toList());
         content.forEach(text -> text.forEach(allCharacters::add));
         testContent.forEach(text -> text.forEach(allCharacters::add));
         /*System.out.println("alphabet:");
@@ -83,9 +89,7 @@ public class NewsGroups {
         System.out.println();*/
         final DictExpansion<Character> expansion = new DictExpansion<>(allCharacters, dictSize, System.out);
         for (int i = 0; i < iterNum; i++) {
-            for (int j = 0; j < content.size(); j++) {
-                expansion.accept(content.get(random.nextInt(content.size())));
-            }
+            IntStream.range(0, content.size()).parallel().forEach(idx -> expansion.accept(content.get(random.nextInt(content.size()))));
             System.out.println(i + "-th iter end");
         }
 
@@ -339,14 +343,14 @@ public class NewsGroups {
     }
 
     public static void main(String... args) {
-        final String dir = "../../data/";
+        final String dir = "/Users/solar/data/text_classification/20news-bydate-normalized";
         final String[] collections = new String[]{"20newsgroups", "aclImdb", "ohsumed-all", "reuters"};
         //int byteSize = 8;
         int dictSize = 8000;
         int iterNum = 50;
         String zipType = "";
         try {
-            simple20news(dir + collections[0] + "-norm", dictSize, iterNum);
+            simple20news(dir /*+ collections[0] + "-norm"*/, dictSize, iterNum);
             //simpleOhsumed(dir + collections[2], dictSize, iterNum); //iterNum = 10
             //byte20news(dir, byteSize, dictSize, iterNum, zipType);
         } catch (IOException e) {
