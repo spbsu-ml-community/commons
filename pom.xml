@@ -4,8 +4,8 @@
 
   <groupId>com.expleague</groupId>
   <artifactId>commons</artifactId>
-  <version>1.4</version>
-  <packaging>pom</packaging>
+  <version>1.4.2-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <name>SpbSU-ML group java commons</name>
   <description>Utilities including math, charsequence based text processing, sequences etc.</description>
