@@ -63,6 +63,12 @@ public class NewsGroups {
         return content;
     }
 
+    private static String normalize(String s) {
+        //return s.toLowerCase().replaceAll("\\W|\\d", "");
+        //return s.toLowerCase().replace('\n', ' ');
+        return s;
+    }
+
     private static void simple20news(final String dir, final int dictSize, final int iterNum) throws IOException {
         final FastRandom random = new FastRandom(0);
         final Set<Character> allCharacters = new HashSet<>();
@@ -73,15 +79,26 @@ public class NewsGroups {
         List<String> filenames = fetchFilenames(dir + trainName);
         List<String> testFilenames = fetchFilenames(dir + testName);
         System.out.println("train: " + filenames.size() + ", test: " + testFilenames.size());
-        final List<CharSeq> content = filenames.stream().map(name -> {
+        /*final List<CharSeq> content = filenames.stream().map(name -> {
             try {
-                return new FileReader(name);
+                StringBuilder sb = new StringBuilder();
+                CharSeqTools.lines(new FileReader(name)).forEach(sb::append);
+                return sb.toString();
             }
             catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
-        }).flatMap(CharSeqTools::lines).map(CharSeq::compact).collect(Collectors.toList());
-        final List<CharSeq> testContent = testFilenames.stream().map(NewsGroups::fetchFile).map(CharSeq::compact).collect(Collectors.toList());
+        }).map(CharSeq::compact).collect(Collectors.toList());*/
+        final List<CharSeq> content = filenames.stream()
+                .map(NewsGroups::fetchFile)
+                .map(NewsGroups::normalize)
+                .map(CharSeq::compact)
+                .collect(Collectors.toList());
+        final List<CharSeq> testContent = testFilenames.stream()
+                .map(NewsGroups::fetchFile)
+                .map(NewsGroups::normalize)
+                .map(CharSeq::compact)
+                .collect(Collectors.toList());
         content.forEach(text -> text.forEach(allCharacters::add));
         testContent.forEach(text -> text.forEach(allCharacters::add));
         /*System.out.println("alphabet:");
@@ -102,6 +119,12 @@ public class NewsGroups {
         writeBoW(testContent.stream().map(x -> (Seq<Character>)x).collect(Collectors.toList()),
                 expansion.result(), testFilenames, dir + testName, "", false);
         System.out.println("Test BoW have written");
+        try {
+            System.out.println("write dict to " + dir + "/dict_" + expansion.result().size() + ".dict");
+            expansion.print(new FileWriter(dir + "/dict_" + expansion.result().size() + ".dict"));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
         System.out.println("END");
     }
 
@@ -227,7 +250,10 @@ public class NewsGroups {
         if (zipType != null) {
             zipTypeLen = zipType.length();
         }
-        for (int i = 0; i < seqs.size(); i++) {
+        if (seqs.size() != filenames.size()) {
+            System.out.println(seqs.size() + ", " + filenames.size());
+        }
+        for (int i = 0; i < Math.min(seqs.size(), filenames.size()); i++) {
             final Map<Integer, Integer> bow = new HashMap<>();
             /*for (int gram = 0; gram < dict.size(); gram++) {
                 bow.put(gram, 0);
@@ -343,14 +369,16 @@ public class NewsGroups {
     }
 
     public static void main(String... args) {
-        final String dir = "/Users/solar/data/text_classification/20news-bydate-normalized";
+        //final String dir = "/Users/solar/data/text_classification/20news-bydate-normalized";
+        final String dir = "../../data/";
         final String[] collections = new String[]{"20newsgroups", "aclImdb", "ohsumed-all", "reuters"};
         //int byteSize = 8;
-        int dictSize = 8000;
+        int dictSize = 20000;
         int iterNum = 50;
         String zipType = "";
         try {
-            simple20news(dir /*+ collections[0] + "-norm"*/, dictSize, iterNum);
+            //simple20news(dir /*+ collections[0] + "-norm"*/, dictSize, iterNum);
+            simple20news(dir + collections[0], dictSize, iterNum);
             //simpleOhsumed(dir + collections[2], dictSize, iterNum); //iterNum = 10
             //byte20news(dir, byteSize, dictSize, iterNum, zipType);
         } catch (IOException e) {
