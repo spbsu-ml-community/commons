@@ -845,7 +845,7 @@ public class VecTools {
   }
 
   public static <T extends Vec> T scale(final T vector, final double factor) {
-    if (Math.abs(factor) < EPSILON)
+    if (factor == 0)
       return fill(vector, 0.);
     if (vector instanceof VecBasedMx) {
       scale(((VecBasedMx) vector).vec, factor);
