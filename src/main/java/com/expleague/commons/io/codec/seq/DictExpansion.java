@@ -6,10 +6,7 @@ import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
-import com.expleague.commons.seq.CharSeqTools;
-import com.expleague.commons.seq.IntSeq;
-import com.expleague.commons.seq.IntSeqBuilder;
-import com.expleague.commons.seq.Seq;
+import com.expleague.commons.seq.*;
 import com.expleague.commons.util.ArrayTools;
 import com.expleague.commons.util.JSONTools;
 import gnu.trove.list.TIntList;
@@ -454,57 +451,41 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       return items;
     }
 
-    // rewrite to prefix-function algorithm
+    private <T extends Comparable<T>> T indexOfTwoStr(final Seq<T> first, final Seq<T> second, T betw, int ind) {
+      if (ind >= 0 && ind < first.length()) {
+        return first.at(ind);
+      } else if (ind == first.length()) {
+        return betw;
+      } else if (ind > first.length() && ind < first.length() + 1 + second.length()) {
+        return second.at(ind - first.length() - 1);
+      } else {
+        return null;
+      }
+    }
+
     private <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
       // t is substr of s
-      if (t.length() > s.length()) return false;
-      for (int i = 0; i <= s.length() - t.length(); i++) {
-        if (s.sub(i, i + t.length()).equals(t)) {
-          //System.out.println(t + " is substr of " + s);
-          return true;
-        }
+      //Seq<T> superStr = CharSeqTools.concat(t, (Seq<T>)CharSeqTools.create(new null), s);
+      if (t.length() > s.length()) {
+        return false;
       }
-      return false;
-    }
-
-    /*int[] prefixFunction(Seq<T> s) {
-      int n = s.length();
+      T symb = null;
+      int n = t.length() + 1 + s.length();
       int[] pi = new int[n];
       for (int i = 1; i < n; i++) {
         int j = pi[i-1];
-        while (j > 0 && s.at(i) != s.at(j))
+        while (j > 0 && indexOfTwoStr(t, s, symb, i) != indexOfTwoStr(t, s, symb, j))
           j = pi[j-1];
-        if (s.at(i) == s.at(j)) {
+        if (indexOfTwoStr(t, s, symb, i) == indexOfTwoStr(t, s, symb, j)) {
           j++;
         }
-        pi[i] = j;
-      return pi;
-    }
-
-    /*private <T extends Comparable<T>> boolean isSubstring2(final Seq<T> s, final Seq<T> t) {
-      // t is substr of s
-      int n = s.length() + t.length() + 1;
-      int[] pi = new int[n];
-      for (int i = 1; i < n; i++) {
-        int j = pi[i-1];
-        while (j > 0 && s.at(i) != s.at(j))
-          j = pi[j-1];
-        if (s.at(i) == s.at(j)) {
-          j++;
-        }
-        pi[i] = j;
-      }
-      return pi;
-      Seq<T> superStr = ;
-      if (t.length() > s.length()) return false;
-      for (int i = 0; i <= s.length() - t.length(); i++) {
-        if (s.sub(i, i + t.length()).equals(t)) {
-          //System.out.println(t + " is substr of " + s);
+        if (j == t.length()) {
           return true;
         }
+        pi[i] = j;
       }
       return false;
-    }*/
+    }
 
     private void printPairs(TLongIntMap oldPairs, TLongIntMap newPairs) {
       for (int first = 0; first < size(); first++) {
