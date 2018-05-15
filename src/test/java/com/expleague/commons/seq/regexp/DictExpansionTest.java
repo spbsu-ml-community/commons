@@ -12,6 +12,7 @@ import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.seq.*;
 import com.expleague.commons.util.ArrayTools;
+import com.expleague.commons.util.logging.Interval;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TLongIntMap;
 import junit.framework.TestCase;
@@ -40,7 +41,7 @@ import static junit.framework.TestCase.assertTrue;
  * Time: 15:31
  */
 
-public class DictExpansionTest extends JUnitIOCapture {
+public class DictExpansionTest /*extends JUnitIOCapture*/ {
 
   public static final String ROOT_WIKI_FILE = System.getenv("HOME") + "/data/wiki/ru/" + "ruwiki-latest-pages-articles.xml";
 
@@ -298,7 +299,7 @@ public class DictExpansionTest extends JUnitIOCapture {
   }
 
   @Test
-  public void testIsSubstring() {
+  public void testIsSubstringCorrect() {
     final Random rnd = new FastRandom(0);
     for (int i = 0; i < 10000; i++) {
       final int len1 = rnd.nextInt(150);
@@ -312,6 +313,27 @@ public class DictExpansionTest extends JUnitIOCapture {
       Assert.assertEquals(isSubstring(CharSeq.compact(builder1.toString()), CharSeq.compact(builder2.toString())),
               isSubstring2(CharSeq.compact(builder1.toString()), CharSeq.compact(builder2.toString())));
     }
+  }
+
+  @Test
+  public void testIsSubstringSpeed() {
+    Interval.start();
+    Interval.suspend();
+    final Random rnd = new FastRandom(0);
+    for (int i = 0; i < 100000; i++) {
+      final int len1 = rnd.nextInt(550);
+      final StringBuilder builder1 = new StringBuilder(len1);
+      for (int c = 0; c < 1 + len1; c++)
+        builder1.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
+      final int len2 = rnd.nextInt(550);
+      final StringBuilder builder2 = new StringBuilder(len1);
+      for (int c = 0; c < 1 + len2; c++)
+        builder2.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
+      Interval.resume();
+      isSubstring2(CharSeq.compact(builder1.toString()), CharSeq.compact(builder2.toString()));
+      Interval.suspend();
+    }
+    Interval.stopAndPrint();
   }
 
   @SuppressWarnings("unused")
