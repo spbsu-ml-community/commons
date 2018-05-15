@@ -322,6 +322,7 @@ public class NewsGroups {
         //filenames = filenames.subList(0, 100); //!!!
         List<String> testFilenames = fetchFilenames(dir + testName);
         //testFilenames = testFilenames.subList(0, 100); //!!!
+        System.out.println("train: " + filenames.size() + ", test: " + testFilenames.size());
         List<ByteSeq> byteSeqs = filenames.stream()
                 .map(filename -> readByteFile(filename, byteSize))
                 .filter(Objects::nonNull)
@@ -341,24 +342,9 @@ public class NewsGroups {
                 expansion.accept(byteSeqs.get(random.nextInt(filenames.size())));
             }
             System.out.println(i + "-th iter end");
-            if (expansion.result() != null) {
-                dictSizesSeq.add(expansion.result().size());
-                expansion.print(new FileWriter(new File(dir + "train_" + byteSize + ".dict")));
-            }
-            /*if (expansion.result().size() >= dictSize) {
-                break;
-            }*/
-            /*if (i > 1 && i % 50 == 0) {
-                writeBoW(byteSeqs.stream().map(x -> (Seq<Byte>)x).collect(Collectors.toList()),
-                        expansion.result(), filenames, dir + "train-gzip", zipType, true);
-                System.out.println("Train BoW have written");
-                writeBoW(testByteSeqs, expansion.result(), testFilenames, dir + "test-gzip", zipType, false);
-                System.out.println("Test BoW have written");
-            }*/
         }
         System.out.println();
         System.out.println("dict is constructed");
-        System.out.println("dict sizes: " + dictSizesSeq);
         writeBoW(byteSeqs.stream().map(x -> (Seq<Byte>)x).collect(Collectors.toList()),
                 expansion.result(), filenames, dir + trainName, zipType, true);
         System.out.println("Train BoW have written");
@@ -372,15 +358,15 @@ public class NewsGroups {
         //final String dir = "/Users/solar/data/text_classification/20news-bydate-normalized";
         final String dir = "../../data/";
         final String[] collections = new String[]{"20newsgroups", "aclImdb", "ohsumed-all", "reuters"};
-        //int byteSize = 8;
-        int dictSize = 20000;
-        int iterNum = 50;
+        int byteSize = 7; //7, 6, 5, 4
+        int dictSize = 8000;
+        int iterNum = 20;
         String zipType = "";
         try {
             //simple20news(dir /*+ collections[0] + "-norm"*/, dictSize, iterNum);
-            simple20news(dir + collections[0], dictSize, iterNum);
+            //simple20news(dir + collections[0], dictSize, iterNum);
             //simpleOhsumed(dir + collections[2], dictSize, iterNum); //iterNum = 10
-            //byte20news(dir, byteSize, dictSize, iterNum, zipType);
+            byte20news(dir + collections[0] + "/", byteSize, dictSize, iterNum, zipType);
         } catch (IOException e) {
             e.printStackTrace();
         }

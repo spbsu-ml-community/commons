@@ -467,6 +467,45 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       return false;
     }
 
+    /*int[] prefixFunction(Seq<T> s) {
+      int n = s.length();
+      int[] pi = new int[n];
+      for (int i = 1; i < n; i++) {
+        int j = pi[i-1];
+        while (j > 0 && s.at(i) != s.at(j))
+          j = pi[j-1];
+        if (s.at(i) == s.at(j)) {
+          j++;
+        }
+        pi[i] = j;
+      return pi;
+    }
+
+    /*private <T extends Comparable<T>> boolean isSubstring2(final Seq<T> s, final Seq<T> t) {
+      // t is substr of s
+      int n = s.length() + t.length() + 1;
+      int[] pi = new int[n];
+      for (int i = 1; i < n; i++) {
+        int j = pi[i-1];
+        while (j > 0 && s.at(i) != s.at(j))
+          j = pi[j-1];
+        if (s.at(i) == s.at(j)) {
+          j++;
+        }
+        pi[i] = j;
+      }
+      return pi;
+      Seq<T> superStr = ;
+      if (t.length() > s.length()) return false;
+      for (int i = 0; i <= s.length() - t.length(); i++) {
+        if (s.sub(i, i + t.length()).equals(t)) {
+          //System.out.println(t + " is substr of " + s);
+          return true;
+        }
+      }
+      return false;
+    }*/
+
     private void printPairs(TLongIntMap oldPairs, TLongIntMap newPairs) {
       for (int first = 0; first < size(); first++) {
         for (int second = 0; second < size(); second++) {
