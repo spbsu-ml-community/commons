@@ -13,6 +13,7 @@ import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.seq.*;
 import com.expleague.commons.util.ArrayTools;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TLongIntMap;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -228,12 +229,12 @@ public class DictExpansionTest extends JUnitIOCapture {
     }
   }
 
-  public <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
+  private <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
     // t is substr of s
     if (t.length() > s.length()) return false;
     for (int i = 0; i <= s.length() - t.length(); i++) {
       if (s.sub(i, i + t.length()).equals(t)) {
-        System.out.println(t + " is substr of " + s);
+        //System.out.println(t + " is substr of " + s);
         return true;
       }
     }
@@ -259,6 +260,58 @@ public class DictExpansionTest extends JUnitIOCapture {
     System.out.println(isSubstring(CharSeq.create("aaa"), CharSeq.create("aab")));
     System.out.println(isSubstring(CharSeq.create("aaab"), CharSeq.create("aab")));
     System.out.println(isSubstring(CharSeq.create("aaba"), CharSeq.create("aab")));*/
+  }
+
+  private <T extends Comparable<T>> T indexOfTwoStr(final Seq<T> first, final Seq<T> second, T betw, int ind) {
+    if (ind >= 0 && ind < first.length()) {
+      return first.at(ind);
+    } else if (ind == first.length()) {
+      return betw;
+    } else if (ind > first.length() && ind < first.length() + 1 + second.length()) {
+      return second.at(ind - first.length() - 1);
+    } else {
+      return null;
+    }
+  }
+
+  private <T extends Comparable<T>> boolean isSubstring2(final Seq<T> s, final Seq<T> t) {
+    // t is substr of s
+    if (t.length() > s.length()) {
+      return false;
+    }
+    T symb = null;
+    int n = t.length() + 1 + s.length();
+    int[] pi = new int[n];
+    for (int i = 1; i < n; i++) {
+      int j = pi[i-1];
+      while (j > 0 && indexOfTwoStr(t, s, symb, i) != indexOfTwoStr(t, s, symb, j))
+        j = pi[j-1];
+      if (indexOfTwoStr(t, s, symb, i) == indexOfTwoStr(t, s, symb, j)) {
+        j++;
+      }
+      if (j == t.length()) {
+        return true;
+      }
+      pi[i] = j;
+    }
+    return false;
+  }
+
+  @Test
+  public void testIsSubstring() {
+    final Random rnd = new FastRandom(0);
+    for (int i = 0; i < 10000; i++) {
+      final int len1 = rnd.nextInt(150);
+      final StringBuilder builder1 = new StringBuilder(len1);
+      for (int c = 0; c < 1 + len1; c++)
+        builder1.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
+      final int len2 = rnd.nextInt(150);
+      final StringBuilder builder2 = new StringBuilder(len1);
+      for (int c = 0; c < 1 + len2; c++)
+        builder2.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
+      Assert.assertEquals(isSubstring(CharSeq.compact(builder1.toString()), CharSeq.compact(builder2.toString())),
+              isSubstring2(CharSeq.compact(builder1.toString()), CharSeq.compact(builder2.toString())));
+    }
   }
 
   @SuppressWarnings("unused")
