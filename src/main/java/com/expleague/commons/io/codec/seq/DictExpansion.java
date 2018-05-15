@@ -155,11 +155,6 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         probFound *= 0.8;
       }
 
-      int slots;
-      if ((int) (current.size() * (EXTENSION_FACTOR - 1)) < 10)
-        slots = size - alphabetSize;
-      else
-        slots = min(size - alphabetSize, (int) (current.size() * (EXTENSION_FACTOR - 1)));
 
       DictionaryWithStat<T> result;
       if (populate) {
@@ -167,6 +162,11 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         invoke(this);
         if (trace != null)
           trace.println("Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + current.minProbability);
+        int slots;
+        if (current.size() * EXTENSION_FACTOR < 10)
+          slots = size - alphabetSize;
+        else
+          slots = (int)(current.size() * EXTENSION_FACTOR);
         result = current.expand(slots, isDynamic);
       }
       else {
@@ -547,7 +547,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       for (final StatItem item : items) {
 //        if (item.score > log(0.05))
 //          break;
-        if (item.score < 1)
+        if (item.score < 0)
           break;
         if (--slots < 0)
           break;
