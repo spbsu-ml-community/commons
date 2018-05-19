@@ -1,7 +1,6 @@
 package com.expleague.commons.io.codec.seq;
 
 import com.expleague.commons.func.impl.WeakListenerHolderImpl;
-import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
@@ -24,6 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -39,7 +39,7 @@ import static java.lang.Math.min;
  * Time: 18:23
  */
 public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderImpl<DictExpansion<T>> {
-  public static final double EXTENSION_FACTOR = 2;
+  public static final double EXTENSION_FACTOR = 1.3;
   public static final double MAX_POWER = 20000000;
   public static final double MAX_MIN_PROBABILITY = 0.002;
   public static final int AGG_POWER = 100000;
@@ -370,56 +370,56 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       TIntDoubleMap updatedFreqs = new TIntDoubleHashMap();
 
       List<StatItem> items = statItems(excludes);
-
-      while (!items.isEmpty() && (items.size() > slots || items.get(items.size() - 1).score < 0)) {
-        updatedFreqs.clear();
-        changedToRemove.clear();
-        toRemove.clear();
-        { // choose independent items from the end of the sorted variants
-          for (int i = items.size() - 1; i >= 0; i--) {
-            final StatItem item = items.get(i);
-            if (i <= slots && item.score > 0)
-              break;
-            if (parent(item.second) < 0) {
-              slots--;
-              continue;
-            }
-            final Seq<T> candidate = get(item.second);
-            boolean couldBeChanged = false;
-            for (int j = 0; !couldBeChanged && j < items.size(); j++) {
-              Seq<T> a = get(items.get(j).second);
-              if (i == j)
-                continue;
-              couldBeChanged = isSubstring(a, candidate);
-            }
-            if (couldBeChanged)
-              changedToRemove.add(item.second);
-            else
-              toRemove.add(item.second);
-          }
-        }
-
-        if (toRemove.isEmpty() && changedToRemove.isEmpty())
-          break;
-        if (toRemove.isEmpty())
-          toRemove.addAll(changedToRemove.subList((int)(changedToRemove.size() * 0.7), changedToRemove.size()));
-        excludes.addAll(toRemove);
-        toRemove.forEach(id -> {
-          weightParseVariants(dict.get(id), freq(id), symbolFreqs, power, excludes, updatedFreqs);
-          return true;
-        });
-        updatedFreqs.forEachEntry((id, freq) -> {
-          if (toRemove.contains(id))
-            if (symbolFreqs.size() > id)
-              symbolFreqs.setQuick(id, 0);
-          else
-            updateSymbol(id, (int) freq);
-          return true;
-        });
-        power = symbolFreqs.sum();
-        items = statItems(excludes);
-      }
-      return items;
+//
+//      while (!items.isEmpty() && (items.size() > slots || items.get(items.size() - 1).score < 0)) {
+//        updatedFreqs.clear();
+//        changedToRemove.clear();
+//        toRemove.clear();
+//        { // choose independent items from the end of the sorted variants
+//          for (int i = items.size() - 1; i >= 0; i--) {
+//            final StatItem item = items.get(i);
+//            if (i <= slots && item.score > 0)
+//              break;
+//            if (parent(item.second) < 0) {
+//              slots--;
+//              continue;
+//            }
+//            final Seq<T> candidate = get(item.second);
+//            boolean couldBeChanged = false;
+//            for (int j = 0; !couldBeChanged && j < items.size(); j++) {
+//              Seq<T> a = get(items.get(j).second);
+//              if (i == j)
+//                continue;
+//              couldBeChanged = isSubstring(a, candidate);
+//            }
+//            if (couldBeChanged)
+//              changedToRemove.add(item.second);
+//            else
+//              toRemove.add(item.second);
+//          }
+//        }
+//
+//        if (toRemove.isEmpty() && changedToRemove.isEmpty())
+//          break;
+//        if (toRemove.isEmpty())
+//          toRemove.addAll(changedToRemove.subList((int)(changedToRemove.size() * 0.7), changedToRemove.size()));
+//        excludes.addAll(toRemove);
+//        toRemove.forEach(id -> {
+//          weightParseVariants(dict.get(id), freq(id), symbolFreqs, power, excludes, updatedFreqs);
+//          return true;
+//        });
+//        updatedFreqs.forEachEntry((id, freq) -> {
+//          if (toRemove.contains(id))
+//            if (symbolFreqs.size() > id)
+//              symbolFreqs.setQuick(id, 0);
+//          else
+//            updateSymbol(id, (int) freq);
+//          return true;
+//        });
+//        power = symbolFreqs.sum();
+//        items = statItems(excludes);
+//      }
+      return items.subList(0, Math.min(items.size(), slots));
     }
 
     private List<StatItem> statItems(TIntSet excludes) {
@@ -443,7 +443,8 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
             codeLengthWOSymbol -= newFreq * log(newFreq) - (oldFreq > 0 ? oldFreq * log(oldFreq) : 0);
           }
           double score = codeLengthWOSymbol - codeLength;
-          items.add(new StatItem(-1, id, score, count));
+          if (score > 0)
+            items.add(new StatItem(-1, id, score, count));
         }
         else items.add(new StatItem(-1, id, Double.POSITIVE_INFINITY, count));
       });
@@ -463,7 +464,20 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       }
     }
 
-    private <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
+
+
+    private int[] pi = new int[10000];
+    private Seq<T> nullSymCache;
+    private Seq<T> nullSym(Seq<T> s) {
+      if (nullSymCache == null) {
+        Object nullStr = Array.newInstance(s.elementType(), 1);
+        nullSymCache = CharSeqTools.create(nullStr);
+      }
+      return nullSymCache;
+    }
+    private boolean isSubstring(final Seq<T> s, final Seq<T> t) {
+      if (s.elementType() == char.class)
+        return CharSeqTools.indexOf((CharSequence)s, (CharSequence)t) >= 0;
       // t is substr of s
       //Seq<T> superStr = CharSeqTools.concat(t, (Seq<T>)CharSeqTools.create(new null), s);
       if (t.length() > s.length()) {
@@ -471,17 +485,16 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       }
       T symb = null;
       int n = t.length() + 1 + s.length();
-      int[] pi = new int[n];
+      Seq<T> nullSym = nullSym(s);
+      Seq<T> concat = CharSeqTools.concat(s, nullSym, t);
       for (int i = 1; i < n; i++) {
         int j = pi[i-1];
-        while (j > 0 && indexOfTwoStr(t, s, symb, i) != indexOfTwoStr(t, s, symb, j))
+        while (j > 0 && concat.at(i) != concat.at(j))
           j = pi[j-1];
-        if (indexOfTwoStr(t, s, symb, i) == indexOfTwoStr(t, s, symb, j)) {
+        if (concat.at(i) == concat.at(j))
           j++;
-        }
-        if (j == t.length()) {
+        if (j == t.length())
           return true;
-        }
         pi[i] = j;
       }
       return false;
