@@ -1,6 +1,7 @@
 package com.expleague.commons.seq;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.function.IntSupplier;
 import java.util.stream.IntStream;
 
@@ -82,6 +83,15 @@ public class ByteSeq extends Seq.Stub<Byte> {
     result = 31 * result + start;
     result = 31 * result + end;
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return Base64.getEncoder().encodeToString(arr);
+  }
+
+  public static ByteSeq create(String seq) {
+    return new ByteSeq(Base64.getDecoder().decode(seq));
   }
 
   @Override

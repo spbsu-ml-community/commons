@@ -26,6 +26,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -275,26 +276,51 @@ public class DictExpansionTest /*extends JUnitIOCapture*/ {
     }
   }
 
+  private int[] pi = new int[10000];
+  private Seq nullSymCache;
+  private Seq nullSym(Seq s) {
+//    if (nullSymCache == null) {
+      Object nullStr = Array.newInstance(s.elementType(), 1);
+      return nullSymCache = CharSeqTools.create(nullStr);
+//    }
+//    return nullSymCache;
+  }
   private <T extends Comparable<T>> boolean isSubstring2(final Seq<T> s, final Seq<T> t) {
     // t is substr of s
-    if (t.length() > s.length()) {
+    //Seq<T> superStr = CharSeqTools.concat(t, (Seq<T>)CharSeqTools.create(new null), s);
+    if (t.length() > s.length())
       return false;
-    }
-    T symb = null;
-    int n = t.length() + 1 + s.length();
-    int[] pi = new int[n];
-    for (int i = 1; i < n; i++) {
-      int j = pi[i-1];
-      while (j > 0 && indexOfTwoStr(t, s, symb, i) != indexOfTwoStr(t, s, symb, j))
-        j = pi[j-1];
-      if (indexOfTwoStr(t, s, symb, i) == indexOfTwoStr(t, s, symb, j)) {
-        j++;
-      }
-      if (j == t.length()) {
-        return true;
-      }
-      pi[i] = j;
-    }
+
+    int[] pi = new int[s.length()];
+//    int n = t.length() + 1 + s.length();
+//    if (s.elementType() == char.class) {
+//      CharSeq concat = (CharSeq)CharSeqTools.<CharSeq>concat((CharSeq)t, new CharSeqChar((char)0), (CharSeq)s);
+//      for (int i = 1; i < n; i++) {
+//        int j = pi[i-1];
+//        while (j > 0 && concat.charAt(i) != concat.charAt(j))
+//          j = pi[j-1];
+//        if (concat.charAt(i) == concat.charAt(j))
+//          j++;
+//        if (j == t.length())
+//          return true;
+//        pi[i] = j;
+//      }
+//    }
+//    else {
+//      T symb = null;
+//      Seq<T> nullSym = nullSym(s);
+//      Seq<T> concat = CharSeqTools.concat(t, nullSym, s);
+//      for (int i = 1; i < n; i++) {
+//        int j = pi[i-1];
+//        while (j > 0 && concat.at(i) != concat.at(j))
+//          j = pi[j-1];
+//        if (concat.at(i) == concat.at(j))
+//          j++;
+//        if (j == t.length())
+//          return true;
+//        pi[i] = j;
+//      }
+//    }
     return false;
   }
 
@@ -310,8 +336,12 @@ public class DictExpansionTest /*extends JUnitIOCapture*/ {
       final StringBuilder builder2 = new StringBuilder(len1);
       for (int c = 0; c < 1 + len2; c++)
         builder2.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
-      Assert.assertEquals(isSubstring(CharSeq.compact(builder1.toString()), CharSeq.compact(builder2.toString())),
-              isSubstring2(CharSeq.compact(builder1.toString()), CharSeq.compact(builder2.toString())));
+      CharSeq left = CharSeq.compact(builder1.toString());
+      CharSeq right = CharSeq.compact(builder2.toString());
+      if (isSubstring(left, right) != isSubstring2(left, right)) {
+        isSubstring2(left, right);
+        Assert.assertEquals(isSubstring(left, right), isSubstring2(left, right));
+      }
     }
   }
 
@@ -320,17 +350,23 @@ public class DictExpansionTest /*extends JUnitIOCapture*/ {
     Interval.start();
     Interval.suspend();
     final Random rnd = new FastRandom(0);
-    for (int i = 0; i < 100000; i++) {
-      final int len1 = rnd.nextInt(550);
+    for (int i = 0; i < 1000000; i++) {
+      final int len1 = rnd.nextInt(150);
       final StringBuilder builder1 = new StringBuilder(len1);
       for (int c = 0; c < 1 + len1; c++)
         builder1.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
-      final int len2 = rnd.nextInt(550);
+      final int len2 = rnd.nextInt(150);
       final StringBuilder builder2 = new StringBuilder(len1);
       for (int c = 0; c < 1 + len2; c++)
         builder2.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
+      CharSeq left = CharSeq.create(builder1.toString());
+      String str = builder2.toString();
+      CharSeq right = CharSeq.create(str);
+
       Interval.resume();
-      isSubstring2(CharSeq.compact(builder1.toString()), CharSeq.compact(builder2.toString()));
+//      builder1.indexOf(str);
+//      isSubstring2(left, right);
+      CharSeqTools.indexOf(left, right);
       Interval.suspend();
     }
     Interval.stopAndPrint();

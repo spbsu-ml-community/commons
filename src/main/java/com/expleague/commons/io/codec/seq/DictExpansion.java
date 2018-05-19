@@ -229,7 +229,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     ps.append("}\n");
   }
 
-  public void print(FileWriter fileWriter) throws IOException {
+  public void print(Writer fileWriter) throws IOException {
     lock.readLock().lock();
 
     try {
