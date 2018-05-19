@@ -67,12 +67,12 @@ public class NewsGroups {
 
   private static String normalize(String s) {
     //        return s.toLowerCase().replaceAll("\\W|\\d", "");
-    String result = s.toLowerCase()
-              .replaceAll("\\*\\*+", " ")
-              .replaceAll("--+", " ")
-              .replaceAll("[\\.,:!?;\\\\/$]", "")
-              .replaceAll("['\"<>()\\[\\]{};+\n\r]", " ")
-              .replaceAll("\\s+", " ");
+    String result = s.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
+//              .replaceAll("\\*\\*+", " ")
+//              .replaceAll("--+", " ")
+//              .replaceAll("[\\.,:!?;\\\\/$]", "")
+//              .replaceAll("['\"<>()\\[\\]{};+\n\r]", " ")
+//              .replaceAll("\\s+", " ");
     //      System.out.println(result);
     return result;
   }
@@ -112,15 +112,8 @@ public class NewsGroups {
       System.out.println(i + "-th iter end");
     }
 
-    System.out.println();
-    System.out.println("dict is constructed");
-    writeBoW(content, expansion.result(), filenames, dir + trainName, "", true);
-    System.out.println("Train BoW have written");
-    content.clear();
-    writeBoW(testContent, expansion.result(), testFilenames, dir + testName, "", false);
-    System.out.println("Test BoW have written");
     try {
-      System.out.println("write dict to " + dir + "/dict_" + expansion.result().size() + ".dict");
+      System.out.println("writing dict to " + dir + "/dict_" + expansion.result().size() + ".dict");
       expansion.print(new FileWriter(dir + "/dict_" + expansion.result().size() + ".dict"));
     } catch (IOException ioe) {
       ioe.printStackTrace();
@@ -263,16 +256,8 @@ public class NewsGroups {
       //final String second = filenames.get(i).substring(dir.length(), filenames.get(i).indexOf('/', dir.length() + 1));
       //final String newDir = first + "/bows" + second;
       //System.out.println(filenames.get(i) + ", " + dir);
-      String newDir = first + "/bows"; // + second;
-      String filename = first + "/bows";
-      if (isTrain) {
-        newDir += "-train";
-        filename += "-train";
-      } else {
-        newDir += "-test";
-        filename += "-test";
-      }
-      filename += filenames.get(i).substring(dir.length(), filenames.get(i).length() - zipTypeLen) + ".bow";
+      final String newDir = first + (isTrain ? "/train" : "/test") + "-bows"; // + second;
+      final String filename = newDir + filenames.get(i).substring(dir.length(), filenames.get(i).length() - zipTypeLen) + ".bow";
       new File(newDir).mkdir();
       File subDir = new File(filename.substring(0, filename.lastIndexOf('/')));
       if (!subDir.exists()) {
@@ -351,48 +336,48 @@ public class NewsGroups {
   }
 
   public static void main(String... args) throws IOException {
-    final String dir = "/Users/solar/data/text_classification/20news-bydate";
+    final String dir = "/Users/solar/data/text_classification/imdb";
     //        final String dir = "../../data/";
 //    final String[] collections = new String[]{"20newsgroups", "aclImdb", "ohsumed-all", "reuters"};
     //int byteSize = 8;
-    int dictSize = 20000;
-    int iterNum = 50;
+    int dictSize = 2000;
+    int iterNum = 5;
     String zipType = "";
     simple20news(dir /*+ collections[0] + "-norm"*/, dictSize, iterNum);
 //    simple20news(dir/* + collections[0]*/, dictSize, iterNum);
     //simpleOhsumed(dir + collections[2], dictSize, iterNum); //iterNum = 10
     //byte20news(dir, byteSize, dictSize, iterNum, zipType);
 
-//    String dictionary = "/Users/solar/data/text_classification/20news-bydate/dict_20000.dict";
-//    ListDictionary<Character> dict = new ListDictionary<>(
-//        CharSeqTools.lines(Files.newBufferedReader(Paths.get(dictionary)))
-//            .map(line -> CharSeq.create(CharSeqTools.split(line, '\t')[0]))
-//            .filter(str -> str.length() > 0)
-//            .<Seq<Character>>toArray(Seq[]::new)
-//    );
-//
-//    List<String> filenames = fetchFilenames(dir + "/train");
-//    filenames.addAll(fetchFilenames(dir + "/test"));
-//    TIntArrayList freqs = new TIntArrayList(dict.size());
-//    freqs.fill(0, dict.size(), 0);
-//    int[] stat = new int[]{0};
-//    filenames.stream()
-//        .map(NewsGroups::fetchFile)
-//        .map(NewsGroups::normalize)
-//        .map(text -> {
-//          if (stat[0] > 10000)
-//            return dict.parse(CharSeq.create(text), freqs, stat[0]);
-//          else
-//            return dict.parse(CharSeq.create(text));
-//        })
-//        .flatMapToInt(IntSeq::stream)
-//        .forEach(idx -> {
-//          stat[0]++;
-//          freqs.set(idx, freqs.get(idx) + 1);
-//        });
-//
-//    transferDirToBow(dict, freqs, stat[0], dir + "/train");
-//    transferDirToBow(dict, freqs, stat[0], dir + "/test");
+    String dictionary = dir + "/dict_" + dictSize + ".dict";
+    ListDictionary<Character> dict = new ListDictionary<>(
+        CharSeqTools.lines(Files.newBufferedReader(Paths.get(dictionary)))
+            .map(line -> CharSeq.create(CharSeqTools.split(line, '\t')[0]))
+            .filter(str -> str.length() > 0)
+            .<Seq<Character>>toArray(Seq[]::new)
+    );
+
+    List<String> filenames = fetchFilenames(dir + "/train");
+    filenames.addAll(fetchFilenames(dir + "/test"));
+    TIntArrayList freqs = new TIntArrayList(dict.size());
+    freqs.fill(0, dict.size(), 0);
+    int[] stat = new int[]{0};
+    filenames.stream()
+        .map(NewsGroups::fetchFile)
+        .map(NewsGroups::normalize)
+        .map(text -> {
+          if (stat[0] > 10000)
+            return dict.parse(CharSeq.create(text), freqs, stat[0]);
+          else
+            return dict.parse(CharSeq.create(text));
+        })
+        .flatMapToInt(IntSeq::stream)
+        .forEach(idx -> {
+          stat[0]++;
+          freqs.set(idx, freqs.get(idx) + 1);
+        });
+
+    transferDirToBow(dict, freqs, stat[0], dir + "/train");
+    transferDirToBow(dict, freqs, stat[0], dir + "/test");
   }
 
   private static void transferDirToBow(ListDictionary<Character> dict, TIntArrayList freqs, int totalFreq, String sourceDirName) throws IOException {
