@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,16 +56,16 @@ public class DictTools {
     System.out.println("END");
   }
 
-  private static <T extends Comparable<T>> void transferDirToBow(int bits, ListDictionary<T> dict, TIntArrayList freqs, int totalFreq, Path sourceDir) throws IOException {
-    final TIntIntHashMap tf = new TIntIntHashMap();
+  private static <T extends Comparable<T>> void transferDirToBow(int bits, ListDictionary<T> dict, TIntArrayList freqs, int totalFreq, Path sourceDir, Path dstDir) throws IOException {
     Files.walk(sourceDir, Integer.MAX_VALUE, FileVisitOption.FOLLOW_LINKS).filter(file -> !Files.isDirectory(file)).forEach(file -> {
       try {
-        String relative = file.toString().substring(sourceDir.toString().length());
-        Path dst = Paths.get(sourceDir.toString() + "-bows", relative + ".bow");
+        final TIntIntHashMap tf = new TIntIntHashMap();
+        final String relative = file.toString().substring(sourceDir.toString().length() + 1);
+        final Path dst = dstDir.resolve(relative + ".bow");
         if (!Files.exists(dst.getParent()))
           Files.createDirectories(dst.getParent());
 
-        Seq<T> seq = convertToSeq(file, bits);
+        final Seq<T> seq = convertToSeq(file, bits, Charset.forName("Latin1"));
         dict.parse(seq, freqs, totalFreq).stream()
             .forEach(id -> tf.adjustOrPutValue(id, 1, 1));
 
@@ -109,17 +110,23 @@ public class DictTools {
     }
     else System.out.println("Using existing dictionary: " + dictionary);
 
-    if ("apply".equals(mode)) {
+    if ("apply".equals(mode) || "build".equals(mode)) {
       final boolean binary = bits > 0 && bits <= 8;
       //noinspection unchecked
-      final ListDictionary<T> dict = (ListDictionary<T>) new ListDictionary(CharSeqTools.lines(Files.newBufferedReader(dictionary)).map(line -> binary ? ByteSeq.create(CharSeqTools.split(line, '\t')[0].toString()) : CharSeq.create(CharSeqTools.split(line, '\t')[0])).filter(str -> str.length() > 0).<Seq<Character>>toArray(Seq[]::new));
+      final ListDictionary<T> dict = (ListDictionary<T>) new ListDictionary(
+          CharSeqTools.lines(Files.newBufferedReader(dictionary))
+              .map(line -> binary ? ByteSeq.create(CharSeqTools.split(line, '\t')[0].toString()) : CharSeq.create(CharSeqTools.split(line, '\t')[0]))
+              .filter(str -> str.length() > 0)
+              .<Seq<Character>>toArray(Seq[]::new)
+      );
 
       final TIntArrayList freqs = buildFreqs(dir2process, bits, dict);
       final int power = freqs.sum();
-      Files.list(dir2process).filter(Files::isDirectory).forEach(sub -> {
+      Files.list(dir2process).filter(Files::isDirectory).filter(dir -> !dir.toString().endsWith("-bows")).forEach(sub -> {
         try {
           System.out.println("Converting directory: " + sub.toString());
-          transferDirToBow(bits, dict, freqs, power, sub);
+          final Path dstDir = Paths.get(sub.toString() + "-bows");
+          transferDirToBow(bits, dict, freqs, power, sub, dstDir);
         }
         catch (IOException e) {
           throw new RuntimeException(e);
@@ -155,18 +162,18 @@ public class DictTools {
   @NotNull
   private static <T> Stream<Seq<T>> getDirContentStream(Path dir, int bits) throws IOException {
     return Files.walk(dir, Integer.MAX_VALUE, FileVisitOption.FOLLOW_LINKS)
-        .filter(file -> !Files.isDirectory(file))
-        .map(file -> convertToSeq(file, bits));
+        .filter(file -> !Files.isDirectory(file)).filter(file -> !file.toString().endsWith(".dict")).filter(file -> !file.toString().contains("-bows"))
+        .map(file -> convertToSeq(file, bits, Charset.forName("Latin1")));
   }
 
-  private static <T> Seq<T> convertToSeq(Path file, int bits) {
+  private static <T> Seq<T> convertToSeq(Path file, int bits, Charset charset) {
     try {
       if (bits > 0 && bits <= 8) {
         //noinspection unchecked
         return (Seq<T>) new ByteSeq(changeByteSize(Files.readAllBytes(file), bits));
       }
       else {
-        try (BufferedReader reader = Files.newBufferedReader(file)) {
+        try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
           //noinspection unchecked
           return (Seq<T>) CharSeq.create(normalize(StreamTools.readReader(reader).toString()));
         }
