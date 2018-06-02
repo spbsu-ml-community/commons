@@ -24,6 +24,11 @@ public interface AnalyticFunc extends FuncC1 {
     }
 
     @Override
+    public double gradient(double x) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public final int dim() {
       return 1;
     }

@@ -214,22 +214,26 @@ public abstract class MathTools {
   }
 
   public static double bisection(AnalyticFunc func, double left, double right) {
+    return bisection(func, left, right, EPSILON);
+  }
+
+  public static double bisection(AnalyticFunc func, double left, double right, double epsilon) {
     if (left == right)
       return left;
     double fLeft = func.value(left);
-    if (Math.abs(fLeft) < EPSILON)
+    if (fLeft == 0)
       return left;
     double fRight = func.value(right);
-    if (Math.abs(fRight) < EPSILON)
+    if (fRight == 0)
       return right;
 
     if (fLeft * fRight > 0)
       throw new IllegalArgumentException("Function values for left and right parameters should lay on different sides of 0");
 
-    while (left != right) {
+    while (Math.abs(left - right) > epsilon) {
       final double middle = (left + right) / 2.;
       final double fMiddle = func.value(middle);
-      if (Math.abs(fMiddle) < EPSILON || middle == right || middle == left)
+      if (fMiddle == 0 || middle == right || middle == left)
         return middle;
       if (fLeft * fMiddle > 0) {
         left = middle;

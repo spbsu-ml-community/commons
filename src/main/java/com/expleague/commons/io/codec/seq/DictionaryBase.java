@@ -27,7 +27,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
   static boolean debug = false;
 
   @Override
-  public IntSeq parse(Seq<T> seq, TIntList freqs, double totalFreq) {
+  public IntSeq parse(Seq<T> seq, TIntArrayList freqs, double totalFreq) {
     final IntSeqBuilder builder = new IntSeqBuilder();
     final double logProBab = weightedParse(seq, freqs, totalFreq, builder);
     final IntSeq result = builder.build();
@@ -145,11 +145,11 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
     }
   }
 
-  protected double weightedParse(Seq<T> seq, TIntList freqs, double totalFreq, IntSeqBuilder builder) {
+  protected double weightedParse(Seq<T> seq, TIntArrayList freqs, double totalFreq, IntSeqBuilder builder) {
     return weightedParse(seq, freqs, totalFreq, builder, null);
   }
 
-  protected double weightedParse(Seq<T> seq, TIntList freqs, double totalFreq, IntSeqBuilder builder, TIntSet excludes) {
+  protected double weightedParse(Seq<T> seq, TIntArrayList freqs, double totalFreq, IntSeqBuilder builder, TIntSet excludes) {
     int len = seq.length();
     double[] score = new double[len + 1];
     Arrays.fill(score, Double.NEGATIVE_INFINITY);
@@ -161,7 +161,7 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
       int sym = search(suffix, excludes);
       do {
         int symLen = get(sym).length();
-        double symLogProb = (freqs.size() > sym ? log(freqs.get(sym) + 1) : 0) - log(totalFreq + size());
+        double symLogProb = (freqs.size() > sym ? log(freqs.getQuick(sym) + 1) : 0) - log(totalFreq + size());
 
         if (score[symLen + pos] < score[pos] + symLogProb) {
           score[symLen + pos] = score[pos] + symLogProb;
@@ -240,11 +240,11 @@ public abstract class DictionaryBase<T extends Comparable<T>> implements Diction
   }
 
   @Override
-  public void visitVariants(Seq<T> arg, TIntList freqs, double totalFreq, TObjectDoubleProcedure<IntSeq> todo) {
+  public void visitVariants(Seq<T> arg, TIntArrayList freqs, double totalFreq, TObjectDoubleProcedure<IntSeq> todo) {
     visitVariantsInner(arg, freqs, todo, new IntSeqBuilder(), 0);
   }
 
-  public void visitVariantsInner(Seq<T> seq, TIntList freqs, TObjectDoubleProcedure<IntSeq> todo, IntSeqBuilder builder, double currentLogProbab) {
+  public void visitVariantsInner(Seq<T> seq, TIntArrayList freqs, TObjectDoubleProcedure<IntSeq> todo, IntSeqBuilder builder, double currentLogProbab) {
     if (seq.length() == 0) {
       todo.execute(builder.buildAll(), currentLogProbab);
       return;

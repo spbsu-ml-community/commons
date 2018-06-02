@@ -112,7 +112,7 @@ public class ReaderChopper {
 
   private void readNext() throws IOException {
     if (offset >= read) {
-      buffer = new char[64 * 1024 * 1024];
+      buffer = new char[64 * 1024];
 
       //noinspection StatementWithEmptyBody
       while ((read = base.read(buffer)) == 0);

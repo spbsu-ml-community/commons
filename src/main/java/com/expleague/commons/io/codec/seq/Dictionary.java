@@ -1,11 +1,10 @@
 package com.expleague.commons.io.codec.seq;
 
-import com.expleague.commons.seq.CharSeq;
 import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.seq.Seq;
 import com.expleague.commons.seq.regexp.Alphabet;
 import com.expleague.commons.seq.regexp.Matcher;
-import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.procedure.TObjectDoubleProcedure;
 import gnu.trove.set.TIntSet;
 
@@ -22,10 +21,10 @@ public interface Dictionary<T extends Comparable<T>> extends Alphabet<Seq<T>>{
   int search(Seq<T> seq);
   int search(Seq<T> seq, TIntSet excludes);
 
-  IntSeq parse(Seq<T> seq, TIntList freqs, double totalFreq);
+  IntSeq parse(Seq<T> seq, TIntArrayList freqs, double totalFreq);
   IntSeq parse(Seq<T> seq);
   IntSeq parse(Seq<T> seq, TIntSet excludes);
-  void visitVariants(Seq<T> arg, TIntList freqs, double totalFreq, TObjectDoubleProcedure<IntSeq> todo);
+  void visitVariants(Seq<T> arg, TIntArrayList freqs, double totalFreq, TObjectDoubleProcedure<IntSeq> todo);
 
   Seq<T> get(int index);
 
@@ -47,7 +46,7 @@ public interface Dictionary<T extends Comparable<T>> extends Alphabet<Seq<T>>{
     }
 
     @Override
-    public IntSeq parse(Seq seq, TIntList freqs, double totalFreq) {
+    public IntSeq parse(Seq seq, TIntArrayList freqs, double totalFreq) {
       return parse(seq);
     }
 
@@ -64,7 +63,8 @@ public interface Dictionary<T extends Comparable<T>> extends Alphabet<Seq<T>>{
     }
 
     @Override
-    public void visitVariants(Seq arg, TIntList freqs, double totalFreq, TObjectDoubleProcedure todo) {
+    public void visitVariants(Seq arg, TIntArrayList freqs, double totalFreq, TObjectDoubleProcedure todo) {
+      //noinspection unchecked
       todo.execute(parse(arg, freqs, totalFreq), 1);
     }
 

@@ -1,15 +1,11 @@
 package com.expleague.commons.io.codec.seq;
 
 import com.expleague.commons.func.impl.WeakListenerHolderImpl;
-import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
-import com.expleague.commons.seq.CharSeqTools;
-import com.expleague.commons.seq.IntSeq;
-import com.expleague.commons.seq.IntSeqBuilder;
-import com.expleague.commons.seq.Seq;
+import com.expleague.commons.seq.*;
 import com.expleague.commons.util.ArrayTools;
 import com.expleague.commons.util.JSONTools;
 import gnu.trove.list.TIntList;
@@ -27,6 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -42,7 +39,7 @@ import static java.lang.Math.min;
  * Time: 18:23
  */
 public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderImpl<DictExpansion<T>> {
-  public static final double EXTENSION_FACTOR = 2;
+  public static final double EXTENSION_FACTOR = 1.3;
   public static final double MAX_POWER = 20000000;
   public static final double MAX_MIN_PROBABILITY = 0.002;
   public static final int AGG_POWER = 100000;
@@ -155,11 +152,6 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         probFound *= 0.8;
       }
 
-      int slots;
-      if ((int) (current.size() * (EXTENSION_FACTOR - 1)) < 10)
-        slots = size - alphabetSize;
-      else
-        slots = min(size - alphabetSize, (int) (current.size() * (EXTENSION_FACTOR - 1)));
 
       DictionaryWithStat<T> result;
       if (populate) {
@@ -167,10 +159,15 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
         invoke(this);
         if (trace != null)
           trace.println("Size: " + current.size() + " rate: " + compressionRate + " minimal probability: " + current.minProbability);
+        int slots;
+        if (current.size() * EXTENSION_FACTOR < 10)
+          slots = size - alphabetSize;
+        else
+          slots = (int)(current.size() * EXTENSION_FACTOR);
         result = current.expand(slots, isDynamic);
       }
       else {
-        this.result = result = current.reduce(size, isDynamic);
+        this.result = result = current.reduce(size - alphabetSize, isDynamic);
       }
       current = result;
       populate = !populate;
@@ -232,7 +229,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     ps.append("}\n");
   }
 
-  public void print(FileWriter fileWriter) throws IOException {
+  public void print(Writer fileWriter) throws IOException {
     lock.readLock().lock();
 
     try {
@@ -365,6 +362,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
 
     @NotNull
     private List<StatItem> filterStatItems(int slots) {
+      slots += IntStream.range(0, symbolFreqs.size()).filter(s -> parent(s) < 0).count();
       TIntSet excludes = new TIntHashSet();
       IntStream.range(0, size()).filter(id -> parent(id) >= 0 && freq(id) == 0).forEach(excludes::add);
       TIntSet toRemove = new TIntHashSet();
@@ -372,54 +370,56 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       TIntDoubleMap updatedFreqs = new TIntDoubleHashMap();
 
       List<StatItem> items = statItems(excludes);
-
-      while (!items.isEmpty() && (items.size() > slots || items.get(items.size() - 1).score < 0)) {
-        updatedFreqs.clear();
-        changedToRemove.clear();
-        toRemove.clear();
-        { // choose independent items from the end of the sorted variants
-          for (int i = items.size() - 1; i >= 0; i--) {
-            final StatItem item = items.get(i);
-            if (i < slots && item.score > 0)
-              break;
-            if (parent(item.second) < 0)
-              continue;
-            final Seq<T> candidate = get(item.second);
-            boolean couldBeChanged = false;
-            for (int j = 0; !couldBeChanged && j < items.size(); j++) {
-              Seq<T> a = get(items.get(j).second);
-              if (i == j)
-                continue;
-              couldBeChanged = isSubstring(a, candidate);
-            }
-            if (couldBeChanged)
-              changedToRemove.add(item.second);
-            else
-              toRemove.add(item.second);
-          }
-        }
-
-        if (toRemove.isEmpty() && changedToRemove.isEmpty())
-          break;
-        if (toRemove.isEmpty())
-          toRemove.addAll(changedToRemove.subList((int)(changedToRemove.size() * 0.7), changedToRemove.size()));
-        excludes.addAll(toRemove);
-        toRemove.forEach(id -> {
-          weightParseVariants(dict.get(id), freq(id), symbolFreqs, power, excludes, updatedFreqs);
-          return true;
-        });
-        updatedFreqs.forEachEntry((id, freq) -> {
-          if (toRemove.contains(id))
-            if (symbolFreqs.size() > id)
-              symbolFreqs.setQuick(id, 0);
-          else
-            updateSymbol(id, (int) freq);
-          return true;
-        });
-        power = symbolFreqs.sum();
-        items = statItems(excludes);
-      }
-      return items;
+//
+//      while (!items.isEmpty() && (items.size() > slots || items.get(items.size() - 1).score < 0)) {
+//        updatedFreqs.clear();
+//        changedToRemove.clear();
+//        toRemove.clear();
+//        { // choose independent items from the end of the sorted variants
+//          for (int i = items.size() - 1; i >= 0; i--) {
+//            final StatItem item = items.get(i);
+//            if (i <= slots && item.score > 0)
+//              break;
+//            if (parent(item.second) < 0) {
+//              slots--;
+//              continue;
+//            }
+//            final Seq<T> candidate = get(item.second);
+//            boolean couldBeChanged = false;
+//            for (int j = 0; !couldBeChanged && j < items.size(); j++) {
+//              Seq<T> a = get(items.get(j).second);
+//              if (i == j)
+//                continue;
+//              couldBeChanged = isSubstring(a, candidate);
+//            }
+//            if (couldBeChanged)
+//              changedToRemove.add(item.second);
+//            else
+//              toRemove.add(item.second);
+//          }
+//        }
+//
+//        if (toRemove.isEmpty() && changedToRemove.isEmpty())
+//          break;
+//        if (toRemove.isEmpty())
+//          toRemove.addAll(changedToRemove.subList((int)(changedToRemove.size() * 0.7), changedToRemove.size()));
+//        excludes.addAll(toRemove);
+//        toRemove.forEach(id -> {
+//          weightParseVariants(dict.get(id), freq(id), symbolFreqs, power, excludes, updatedFreqs);
+//          return true;
+//        });
+//        updatedFreqs.forEachEntry((id, freq) -> {
+//          if (toRemove.contains(id))
+//            if (symbolFreqs.size() > id)
+//              symbolFreqs.setQuick(id, 0);
+//          else
+//            updateSymbol(id, (int) freq);
+//          return true;
+//        });
+//        power = symbolFreqs.sum();
+//        items = statItems(excludes);
+//      }
+      return items.subList(0, Math.min(items.size(), slots));
     }
 
     private List<StatItem> statItems(TIntSet excludes) {
@@ -443,7 +443,8 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
             codeLengthWOSymbol -= newFreq * log(newFreq) - (oldFreq > 0 ? oldFreq * log(oldFreq) : 0);
           }
           double score = codeLengthWOSymbol - codeLength;
-          items.add(new StatItem(-1, id, score, count));
+          if (score > 0)
+            items.add(new StatItem(-1, id, score, count));
         }
         else items.add(new StatItem(-1, id, Double.POSITIVE_INFINITY, count));
       });
@@ -451,15 +452,50 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       return items;
     }
 
-    // rewrite to prefix-function algorithm
-    private <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
+    private <T extends Comparable<T>> T indexOfTwoStr(final Seq<T> first, final Seq<T> second, T betw, int ind) {
+      if (ind >= 0 && ind < first.length()) {
+        return first.at(ind);
+      } else if (ind == first.length()) {
+        return betw;
+      } else if (ind > first.length() && ind < first.length() + 1 + second.length()) {
+        return second.at(ind - first.length() - 1);
+      } else {
+        return null;
+      }
+    }
+
+
+
+    private int[] pi = new int[10000];
+    private Seq<T> nullSymCache;
+    private Seq<T> nullSym(Seq<T> s) {
+      if (nullSymCache == null) {
+        Object nullStr = Array.newInstance(s.elementType(), 1);
+        nullSymCache = CharSeqTools.create(nullStr);
+      }
+      return nullSymCache;
+    }
+    private boolean isSubstring(final Seq<T> s, final Seq<T> t) {
+      if (s.elementType() == char.class)
+        return CharSeqTools.indexOf((CharSequence)s, (CharSequence)t) >= 0;
       // t is substr of s
-      if (t.length() > s.length()) return false;
-      for (int i = 0; i <= s.length() - t.length(); i++) {
-        if (s.sub(i, i + t.length()).equals(t)) {
-          //System.out.println(t + " is substr of " + s);
+      //Seq<T> superStr = CharSeqTools.concat(t, (Seq<T>)CharSeqTools.create(new null), s);
+      if (t.length() > s.length()) {
+        return false;
+      }
+      T symb = null;
+      int n = t.length() + 1 + s.length();
+      Seq<T> nullSym = nullSym(s);
+      Seq<T> concat = CharSeqTools.concat(s, nullSym, t);
+      for (int i = 1; i < n; i++) {
+        int j = pi[i-1];
+        while (j > 0 && concat.at(i) != concat.at(j))
+          j = pi[j-1];
+        if (concat.at(i) == concat.at(j))
+          j++;
+        if (j == t.length())
           return true;
-        }
+        pi[i] = j;
       }
       return false;
     }
@@ -544,7 +580,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       for (final StatItem item : items) {
 //        if (item.score > log(0.05))
 //          break;
-        if (item.score < 1)
+        if (item.score < 0)
           break;
         if (--slots < 0)
           break;
