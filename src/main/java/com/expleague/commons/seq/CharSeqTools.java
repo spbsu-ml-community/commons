@@ -2,9 +2,14 @@ package com.expleague.commons.seq;
 
 
 import com.expleague.commons.io.StreamTools;
+import com.expleague.commons.math.MathTools;
+import com.expleague.commons.math.vectors.Mx;
+import com.expleague.commons.math.vectors.VecTools;
+import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
 import com.expleague.commons.seq.trash.FloatingDecimal;
 import com.expleague.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -15,6 +20,7 @@ import java.net.URLDecoder;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -443,6 +449,8 @@ public class CharSeqTools {
         throw new NumberFormatException("Can not parse integer: " + part);
       result *= 10;
       result += nextCh;
+      if (result < 0) // overfill
+        throw new NumberFormatException("Can not parse integer: " + part);
     }
     return result * (negative ? -1 : 1);
   }
@@ -461,6 +469,8 @@ public class CharSeqTools {
         throw new IllegalArgumentException("Can not parse integer: " + part);
       result *= 10;
       result += nextCh;
+      if (result < 0) // overfill
+        throw new NumberFormatException("Can not parse integer: " + part);
     }
     return result * (negative ? -1l : 1l);
   }
@@ -657,6 +667,9 @@ public class CharSeqTools {
     int index = 0;
     if (arg.charAt(0) == '-' && length > 1)
       index++;
+    char firstChar = arg.charAt(index++);
+    if (!Character.isDigit(firstChar) || firstChar == '0')
+      return false;
     while(index < length) {
       if (!Character.isDigit(arg.charAt(index++)))
         return false;
@@ -806,6 +819,76 @@ public class CharSeqTools {
       if (diff > Byte.MAX_VALUE || diff < Byte.MIN_VALUE)
         return null;
       result[i] = (byte)diff;
+    }
+    return result;
+  }
+
+  public interface SubstitutionCost {
+    double eval(char from, char to);
+  }
+
+  public static SubstitutionCost SMART_COST = (from, to) -> {
+    if (from == to)
+      return 0;
+    else if (Character.toUpperCase(from) == Character.toUpperCase(to))
+      return 0.2;
+    else if (Character.isDigit(from) && Character.isDigit(to))
+      return 0.5;
+    else if (to == 0)
+      return 10;
+    else if (from == 0 && Character.isSpaceChar(to))
+      return 0.2;
+    else if (from == 0)
+      return 0.9;
+    return 10;
+  };
+
+  public static CharSequence closestSubstring(CharSequence forSeq, CharSequence inSeq) {
+    final CharSeqBuilder builder = new CharSeqBuilder();
+    closestSubstring(forSeq, inSeq, SMART_COST, builder);
+    return builder.build();
+  }
+
+  public static double closestSubstring(CharSequence left, CharSequence right, SubstitutionCost substitutionCost, @Nullable CharSeqBuilder builder) {
+    final Mx distance = new VecBasedMx((left.length() + 1), (right.length() + 1));
+    IntStream.range(1, left.length() + 1).forEach(idx -> distance.set(idx, 0, distance.get(idx - 1, 0) + substitutionCost.eval(left.charAt(idx - 1), (char) 0)));
+    //    IntStream.range(1, right.length() + 1).forEach(idx -> distance.set(0, idx, distance.get(0, idx - 1) + substitutionCost.eval((char)0, right.charAt(idx - 1))));
+    for (int i = 1; i < left.length() + 1; i++) {
+      for (int j = 1; j < right.length() + 1; j++) {
+        double skipRight = distance.get(i, j - 1) + substitutionCost.eval((char) 0, right.charAt(j - 1));
+        double skipLeft = distance.get(i - 1, j) + substitutionCost.eval(left.charAt(i - 1), (char) 0);
+        double substitution = distance.get(i - 1, j - 1) + substitutionCost.eval(left.charAt(i - 1), right.charAt(j - 1));
+        distance.set(i, j, Math.min(Math.min(skipRight, skipLeft), substitution));
+      }
+    }
+
+    int substitutionStart = right.length();
+    int substitutionEnd = 0;
+    int i = left.length();
+    int j = VecTools.argmin(distance.row(left.length()));
+    final double result = distance.get(left.length(), j);
+    while (j < right.length() && MathTools.locality(result, distance.get(left.length(), j + 1)))
+      j++;
+    if (builder != null) {
+      while (i > 0 && j > 0) {
+        double skipRight = distance.get(i, j - 1) + substitutionCost.eval((char) 0, right.charAt(j - 1));
+        double skipLeft = distance.get(i - 1, j) + substitutionCost.eval(left.charAt(i - 1), (char) 0);
+        double substitution = distance.get(i - 1, j - 1) + substitutionCost.eval(left.charAt(i - 1), right.charAt(j - 1));
+
+        final double score = distance.get(i, j);
+        if (MathTools.locality(substitution, score)) {
+          substitutionEnd = Math.max(substitutionEnd, j);
+          i--;
+          j--;
+          substitutionStart = Math.min(substitutionStart, j);
+        }
+        else if (MathTools.locality(skipLeft, score))
+          i--;
+        else
+          j--;
+      }
+      if (substitutionStart <= substitutionEnd)
+        builder.append(right.subSequence(substitutionStart, substitutionEnd));
     }
     return result;
   }

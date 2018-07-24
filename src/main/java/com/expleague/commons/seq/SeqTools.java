@@ -1,5 +1,7 @@
 package com.expleague.commons.seq;
 
+import java.util.stream.Collector;
+
 /**
  * User: solar
  * Date: 16.07.14
@@ -20,5 +22,14 @@ public class SeqTools {
 
 //    throw new UnsupportedOperationException();
     return a;
+  }
+
+  public static <T> Collector<T, SeqBuilder<T>, SeqBuilder<T>> collect(Class<T> clazz) {
+    //noinspection unchecked
+    return Collector.of(
+        () -> new ArraySeqBuilder<T>(clazz),
+        SeqBuilder::add,
+        (left, right) -> left.addAll(right.build())
+    );
   }
 }

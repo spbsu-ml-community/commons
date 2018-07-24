@@ -917,16 +917,27 @@ public class VecTools {
   }
 
   public static int argmax(final Vec v) {
-    int argmax = 0;
+    int argmax = v.dim();
     double maxValue = Double.NEGATIVE_INFINITY;
-    final VecIterator iter = v.nonZeroes();
-    while (iter.advance()) {
-      if (iter.value() > maxValue) {
-        maxValue = iter.value();
-        argmax = iter.index();
+    for (int i = 0; i < v.length(); i++) {
+      if (v.get(i) > maxValue) {
+        maxValue = v.get(i);
+        argmax = i;
       }
     }
     return argmax;
+  }
+
+  public static int argmin(final Vec v) {
+    int argmin = -1;
+    double minValue = Double.POSITIVE_INFINITY;
+    for (int i = 0; i < v.dim(); i++) {
+      if (v.get(i) < minValue) {
+        minValue = v.get(i);
+        argmin = i;
+      }
+    }
+    return argmin;
   }
 
   public static IntSeq toIntSeq(final Vec v) {

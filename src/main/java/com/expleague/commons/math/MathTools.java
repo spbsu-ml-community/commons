@@ -270,7 +270,7 @@ public abstract class MathTools {
   }
 
   public static boolean locality(double nextX, double x) {
-    return Math.abs((nextX - x) / (nextX + x)) < 1e-12;
+    return x == nextX || Math.abs((nextX - x) / (nextX + x)) < 1e-12;
   }
 
   public static boolean locality(double nextX, double x, double epsilon) {

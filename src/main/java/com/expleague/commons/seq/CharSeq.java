@@ -207,6 +207,8 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
 
   private static final Map<CharSeq, WeakReference<CharSeq>> intern = new WeakHashMap<>();
   public static synchronized CharSeq intern(CharSeq seq) {
+    if (seq == null)
+      return null;
     WeakReference<CharSeq> known = intern.get(seq);
     if (known != null) {
       CharSeq intern = known.get();
@@ -220,6 +222,8 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
   }
 
   public static CharSeq compact(CharSequence seq) {
+    if (seq == null)
+      return null;
     if (CharSeqTools.isNumeric(seq)) { // compact integers representation
       try {
         if (seq.length() < 10) {
@@ -253,7 +257,7 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
   }
 
   public static CharSeq create(final CharSequence string) {
-    return string instanceof CharSeq ? (CharSeq)string : new CharSeqAdapter(string);
+    return string == null ? null : (string instanceof CharSeq ? (CharSeq)string : new CharSeqAdapter(string));
   }
 
   @Override
@@ -289,8 +293,8 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
     }
 
     @Override
-    public CharSeq deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-      return intern(create(jsonParser.getValueAsString()));
+    public CharSeq deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+      return compact(create(jsonParser.getValueAsString()));
     }
   }
 }

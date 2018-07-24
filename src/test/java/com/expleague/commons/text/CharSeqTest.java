@@ -71,10 +71,12 @@ public class CharSeqTest extends TestCase {
     Assert.assertEquals("ssassd", seq1.toString());
   }
 
-  public void testCompact1() {
+  public void testCompact() {
     String test = "steckschlüssel satz";
     CharSeq seq = CharSeq.compact(CharSeq.create(test));
     Assert.assertEquals(CharSeq.create(test), seq);
+    Assert.assertEquals("008", CharSeq.compact("008").toString());
+    Assert.assertEquals("6620698906966216938737", CharSeq.compact("6620698906966216938737").toString());
   }
 
   public void notestReaderBuffersRotation() throws IOException {

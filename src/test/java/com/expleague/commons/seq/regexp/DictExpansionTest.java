@@ -42,7 +42,7 @@ import static junit.framework.TestCase.assertTrue;
  * Time: 15:31
  */
 
-public class DictExpansionTest /*extends JUnitIOCapture*/ {
+public class DictExpansionTest extends JUnitIOCapture {
 
   public static final String ROOT_WIKI_FILE = System.getenv("HOME") + "/data/wiki/ru/" + "ruwiki-latest-pages-articles.xml";
 

@@ -1,5 +1,6 @@
 package com.expleague.commons.text;
 
+import com.expleague.commons.seq.CharSeq;
 import com.expleague.commons.seq.CharSeqTools;
 import junit.framework.TestCase;
 
@@ -42,5 +43,12 @@ public class CharSeqToolsTest extends TestCase {
     assertEquals("abcd", CharSeqTools.removeLeading("/abcd", '/'));
     assertEquals("abcd/", CharSeqTools.removeLeading("/////abcd/", '/'));
     assertEquals("", CharSeqTools.removeLeading("/////", '/'));
+  }
+
+  public void testClosemostString() {
+    assertEquals(CharSeq.create("3"), CharSeqTools.closestSubstring("3", "8LEDs Car Truck Police Strobe Flash Light Dash Emergency 3 Flashing Mode Lights"));
+    assertEquals(CharSeq.create("ABC"), CharSeqTools.closestSubstring("abc", "askhjd asdfiqrasdfjhgABCsjdhk"));
+    assertEquals(CharSeq.create("aSbc"), CharSeqTools.closestSubstring("abc", "askhjd asdfiqrasdfjhgaSbcsjdhk"));
+    assertEquals(CharSeq.create("Men\\'s"), CharSeqTools.closestSubstring("mens", "Men\\'s O-Neck Long Sleeve Striped Slim Fit Pullover Casual Sweater"));
   }
 }
