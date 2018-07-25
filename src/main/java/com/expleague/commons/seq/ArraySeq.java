@@ -70,6 +70,11 @@ public class ArraySeq<T> extends Seq.Stub<T> {
   }
 
   @Override
+  public Seq<T> sub(int[] indices) {
+    return IntStream.of(indices).mapToObj(this::at).collect(SeqTools.collect((Class<T>)elementType())).build();
+  }
+
+  @Override
   public int length() {
     return end - start;
   }

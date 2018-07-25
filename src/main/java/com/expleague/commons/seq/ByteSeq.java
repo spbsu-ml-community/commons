@@ -53,6 +53,13 @@ public class ByteSeq extends Seq.Stub<Byte> {
   }
 
   @Override
+  public ByteSeq sub(int[] indices) {
+    final byte[] buffer = new byte[indices.length];
+    IntStream.of(indices).parallel().forEach(idx -> buffer[idx] = arr[start + indices[idx]]);
+    return new ByteSeq(buffer);
+  }
+
+  @Override
   public boolean isImmutable() {
     return true;
   }

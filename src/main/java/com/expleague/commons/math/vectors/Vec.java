@@ -44,6 +44,11 @@ public interface Vec extends Seq<Double> {
     }
 
     @Override
+    public Vec sub(int[] indices) {
+      return new ArrayVec(IntStream.of(indices).mapToDouble(this::get).toArray());
+    }
+
+    @Override
     public final String toString() {
       return MathTools.CONVERSION.convert(this, CharSequence.class).toString();
     }

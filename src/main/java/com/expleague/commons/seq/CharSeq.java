@@ -17,6 +17,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.IntSupplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -73,6 +75,13 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
 
   public final CharSeq subSequence(final int start) {
     return subSequence(start, length());
+  }
+
+  @Override
+  public CharSeq sub(int[] indices) {
+    final char[] buffer = new char[indices.length];
+    IntStream.of(indices).parallel().forEach(idx -> buffer[idx] = at(indices[idx]));
+    return CharSeq.create(buffer);
   }
 
   @Override
@@ -258,6 +267,10 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
 
   public static CharSeq create(final CharSequence string) {
     return string == null ? null : (string instanceof CharSeq ? (CharSeq)string : new CharSeqAdapter(string));
+  }
+
+  public static Collector<CharSeq, CharSeqBuilder, CharSeqBuilder> collector() {
+    return Collector.of(CharSeqBuilder::new, CharSeqBuilder::append, (left, right) -> left.append(right.build()));
   }
 
   @Override

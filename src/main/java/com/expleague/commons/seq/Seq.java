@@ -14,12 +14,14 @@ import java.util.stream.BaseStream;
 public interface Seq<T> extends Iterable<T> {
   T at(int i);
   Seq<T> sub(int start, int end);
+  Seq<T> sub(int[] indices);
   int length();
   boolean isImmutable();
   Class<? extends T> elementType();
 
   <S extends BaseStream<T, S>> S stream();
   <A> A toArray();
+
 
   abstract class Stub<T> implements Seq<T> {
     @Override

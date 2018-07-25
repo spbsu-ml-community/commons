@@ -528,6 +528,13 @@ public class CharSeqTools {
       }
 
       @Override
+      public Seq<T> sub(int[] indices) {
+        if (indices.length == 0)
+          return this;
+        throw new ArrayIndexOutOfBoundsException("Empty sequence");
+      }
+
+      @Override
       public int length() {
         return 0;
       }
