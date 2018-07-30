@@ -456,6 +456,8 @@ public class VecTools {
 
   public static Vec assign(final Vec target, final Vec source) {
     try {
+      if (target == source)
+        return target;
       if (target instanceof VecBasedMx) {
         return assign(((VecBasedMx) target).vec, source);
       } else if (source instanceof VecBasedMx) {
