@@ -12,18 +12,16 @@ import gnu.trove.list.array.TIntArrayList;
  * Date: 07.07.14
  * Time: 20:24
  */
-public class SparseVecBuilder implements SeqBuilder<Double> {
-  private final TDoubleArrayList data;
+public class SparseVecBuilder extends VecBuilder {
   private final TIntArrayList indices;
   int index = 0;
 
   public SparseVecBuilder() {
-    data = new TDoubleArrayList();
     indices = new TIntArrayList();
   }
 
   public SparseVecBuilder(final int capacity) {
-    data = new TDoubleArrayList(capacity);
+    super(capacity);
     indices = new TIntArrayList(capacity);
   }
 

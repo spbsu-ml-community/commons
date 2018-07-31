@@ -47,7 +47,7 @@ public class IntSeq extends Seq.Stub<Integer> {
 
   @Override
   public Seq<Integer> sub(int[] indices) {
-    return new IntSeq(IntStream.of(indices).map(idx -> arr[start + indices[idx]]).toArray());
+    return new IntSeq(IntStream.of(indices).map(idx -> arr[start + idx]).toArray());
   }
 
   @Override

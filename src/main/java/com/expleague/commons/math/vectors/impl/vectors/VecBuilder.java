@@ -11,7 +11,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  * Time: 20:24
  */
 public class VecBuilder implements SeqBuilder<Double> {
-  private final TDoubleArrayList data;
+  protected final TDoubleArrayList data;
 
   public VecBuilder() {
     data = new TDoubleArrayList();
