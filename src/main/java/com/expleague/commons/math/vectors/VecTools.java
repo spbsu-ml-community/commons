@@ -16,6 +16,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.sqrt;
