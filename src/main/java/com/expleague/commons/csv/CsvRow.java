@@ -24,6 +24,7 @@ public interface CsvRow extends Function<String, Optional<CharSeq>>, Cloneable {
   CsvRow clone();
 
   CharSeq at(int i);
+  int length();
 
   static Supplier<WritableCsvRow> factory(String... fields) {
     final TObjectIntMap<String> index = new TObjectIntHashMap<>();

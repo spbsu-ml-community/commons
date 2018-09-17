@@ -10,23 +10,26 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+@SuppressWarnings("unused")
 public class CsvTools {
   private static final Logger log = Logger.create(CsvTools.class);
   public static Stream<CharSeq[]> readCSV(Reader reader, boolean parallel) {
-    return readCSV(reader, parallel, new char[]{'\n', ',', '"', '\''});
+    return readCSV(reader, parallel, ',', '"', true);
   }
 
-  public static Stream<CharSeq[]> readCSV(Reader reader, boolean parallel, char[] delimiters) {
+  public static Stream<CharSeq[]> readCSV(Reader reader, boolean parallel, char separator, char quote, boolean skipErrors) {
     final ReaderChopper chopper = new ReaderChopper(reader);
-    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CSVLinesIterator(chopper, delimiters), Spliterator.IMMUTABLE), parallel).onClose(() -> StreamTools.close(reader));
+    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+        new CSVLinesIterator(chopper, quote, separator, skipErrors),
+        Spliterator.IMMUTABLE),
+        parallel
+    ).onClose(() -> StreamTools.close(reader));
   }
 
   public static void readCSVWithHeader(String file, Consumer<CsvRow> processor) {
@@ -68,12 +71,12 @@ public class CsvTools {
   }
 
   public static Stream<CsvRow> csvLines(Reader reader) {
-    return csvLines(reader, new char[]{'\n', ',', '"', '\''});
+    return csvLines(reader, ',', '"', true);
   }
 
-  public static Stream<CsvRow> csvLines(Reader reader, char[] delimiters) {
+  public static Stream<CsvRow> csvLines(Reader reader, char separator, char quote, boolean skipErrors) {
     final TObjectIntMap<String> names = new TObjectIntHashMap<>();
-    final Stream<CharSeq[]> lines = readCSV(reader, false, delimiters);
+    final Stream<CharSeq[]> lines = readCSV(reader, false, separator, quote, skipErrors);
     final Spliterator<CharSeq[]> spliterator = lines.spliterator();
     spliterator.tryAdvance(header -> {
       for (int i = 0; i < header.length; i++) {
@@ -86,13 +89,18 @@ public class CsvTools {
 
   private static class CSVLinesIterator implements Iterator<CharSeq[]> {
     private final ReaderChopper chopper;
-    private final char[] delimiters;
-    CharSeq[] next;
-    CharSeq[] prev;
-    CharSeqBuilder builder;
+    private final BitSet mask;
+    private CharSeq[] next;
+    private CharSeq[] prev;
+    private CharSeqBuilder builder;
+    private final char fieldQuote;
+    private final char fieldSeparator;
+    private final boolean skipErrors;
 
-    public CSVLinesIterator(ReaderChopper chopper, char[] delimiters) {
-      this.delimiters = delimiters;
+    public CSVLinesIterator(ReaderChopper chopper, char quote, char separator, boolean skipErrors) {
+      this.mask = new BitSet(Character.MAX_VALUE);
+      IntStream.of(this.fieldQuote = quote, this.fieldSeparator = separator, '\n').forEach(mask::set);
+      this.skipErrors = skipErrors;
       this.chopper = chopper;
       builder = new CharSeqBuilder();
     }
@@ -104,53 +112,41 @@ public class CsvTools {
       try {
         next = prev != null ? prev : new CharSeq[0];
         int index = 0;
-        lineRead:
         while (true) {
-          final int result = chopper.chop(builder, delimiters);
-          switch (result) {
-            case 1:
+          final int result = chopper.chop(builder, mask);
+          if (result == fieldQuote) {
+            while (true) {
+              chopper.chop(builder, fieldQuote);
+              if (chopper.eat(fieldQuote))
+                builder.add(fieldQuote);
+              else
+                break;
+            }
+          }
+          else if (result == fieldSeparator) {
+            appendAt(index++);
+          }
+          else {
+            if (builder.length() > 0)
               appendAt(index++);
-              break;
-            case 2:
-              while (true) {
-                chopper.chop(builder, '"');
-                if (chopper.eat('"'))
-                  builder.add('"');
-                else
-                  break;
-              }
-              break;
-            case 3:
-              while (true) {
-                chopper.chop(builder, '\'');
-                if (chopper.eat('\''))
-                  builder.add('\'');
-                else
-                  break;
-              }
-              break;
-            case 0: // EOL
-              appendAt(index++);
-              if (index < next.length) { // not enough records in this line
+
+            if (index > 0 && index < next.length) { // not enough records in this line, skip it
+              if (skipErrors) {
                 index = 0;
                 continue;
               }
-              break lineRead;
-            default: // or EOF
-              if (!appendAt(index++) || index < next.length) { // maximum line is bigger then this one, skip the record
-                next = null;
-              }
-              break lineRead;
+              else throw new RuntimeException("");
+            }
+            return result == '\n';
           }
         }
-        return next != null;
       }
       catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
 
-    private boolean appendAt(int index) {
+    private void appendAt(int index) {
       CharSeq build = builder.build().trim();
       builder.clear();
       if (index >= next.length) { // expanding the line
@@ -159,7 +155,7 @@ public class CsvTools {
         next = expand;
       }
       next[index] = build;
-      return build.length() > 0;
+//      return build.length() > 0;
     }
 
     @Override

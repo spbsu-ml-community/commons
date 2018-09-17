@@ -22,6 +22,10 @@ public interface Seq<T> extends Iterable<T> {
   <S extends BaseStream<T, S>> S stream();
   <A> A toArray();
 
+  @SafeVarargs
+  static <T> Seq<T> of(T... arr) {
+    return new ArraySeq<>(arr);
+  }
 
   abstract class Stub<T> implements Seq<T> {
     @Override

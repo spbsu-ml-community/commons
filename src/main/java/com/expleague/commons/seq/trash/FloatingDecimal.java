@@ -1249,6 +1249,10 @@ public class FloatingDecimal {
 
       return new FloatingDecimal( isNegative, decExp, digits, nDigits,  false );
     } catch ( StringIndexOutOfBoundsException e ){ }
+    if (in.equals("∞"))
+      return new FloatingDecimal(Double.POSITIVE_INFINITY);
+    else if (in.equals("-∞"))
+      return new FloatingDecimal(Double.NEGATIVE_INFINITY);
     throw new NumberFormatException("For input string: \"" + in + "\"");
   }
 

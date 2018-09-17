@@ -24,6 +24,11 @@ public class WritableCsvRow implements CsvRow {
     return split[i];
   }
 
+  @Override
+  public int length() {
+    return names.size();
+  }
+
   public WritableCsvRow set(int i, CharSeq seq) {
     if (seq != null)
       split[i] = seq;

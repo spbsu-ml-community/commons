@@ -245,6 +245,7 @@ public class FastRandom extends Random {
     BASE64_CHARS[index++] = '+';
     BASE64_CHARS[index] = '/';
   }
+
   public String nextBase64String(int count) {
     char[] chars = new char[count];
     for (int i = 0; i < count; i++) {
@@ -271,6 +272,31 @@ public class FastRandom extends Random {
       @Override
       public boolean tryAdvance(IntConsumer action) {
         action.accept(nextInt(limit));
+        return true;
+      }
+
+      @Override
+      public long estimateSize() {
+        return Long.MAX_VALUE;
+      }
+
+      @Override
+      public int characteristics() {
+        return 0;
+      }
+    }, false);
+  }
+
+  public IntStream base64Stream() {
+    return StreamSupport.intStream(new Spliterator.OfInt() {
+      @Override
+      public OfInt trySplit() {
+        return this;
+      }
+
+      @Override
+      public boolean tryAdvance(IntConsumer action) {
+        action.accept(BASE64_CHARS[nextInt(BASE64_CHARS.length)]);
         return true;
       }
 

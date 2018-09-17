@@ -62,40 +62,40 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
 
   @Deprecated
   public DictExpansion(final Collection<T> alphabet, final int size, final boolean trace) {
-    this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, trace ? System.out : null);
+    this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, -1, trace ? System.out : null);
   }
 
   public DictExpansion(final Collection<T> alphabet, final int size, final PrintStream trace) {
-    this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, trace);
+    this(new ListDictionary<>(ArrayTools.toArray(alphabet)), size, -1, trace);
   }
 
   public DictExpansion(final Dictionary<T> alphabet, final int size) {
-    this(alphabet, size, null);
+    this(alphabet, size, -1, null);
   }
 
-  public DictExpansion(final Dictionary<T> alphabet, final int size, final PrintStream trace) {
+  public DictExpansion(final Dictionary<T> alphabet, final int size, int maxLength, final PrintStream trace) {
     this.size = size;
     this.trace = trace;
     this.alphabetSize = alphabet.size();
     initial = alphabet;
     isDynamic = !(alphabet instanceof ListDictionary);
     //noinspection unchecked
-    current = createDict((List<Seq<T>>)alphabet.alphabet(), null, isDynamic, MAX_MIN_PROBABILITY);
+    current = createDict((List<Seq<T>>)alphabet.alphabet(), null, isDynamic, MAX_MIN_PROBABILITY, maxLength);
     //noinspection unchecked
   }
 
   public DictExpansion(int slots) {
     //noinspection unchecked
-    this(Dictionary.EMPTY, slots, null);
+    this(Dictionary.EMPTY, slots, -1, null);
   }
 
   public DictExpansion(int size, PrintStream trace) {
     //noinspection unchecked
-    this(Dictionary.EMPTY, size, trace);
+    this(Dictionary.EMPTY, size, -1, trace);
   }
 
   @NotNull
-  private static <T extends Comparable<T>> DictionaryWithStat<T> createDict(List<Seq<T>> alphabet, TIntArrayList initFreqs, boolean isDynamic, double minProbResult) {
+  private static <T extends Comparable<T>> DictionaryWithStat<T> createDict(List<Seq<T>> alphabet, TIntArrayList initFreqs, boolean isDynamic, double minProbResult, int maxLength) {
 //    if (alphabet.contains(CharSeq.create("игры для девочек")))
 //      System.out.println("yes");
 //    else
@@ -103,7 +103,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     if (initFreqs != null && initFreqs.size() != alphabet.size())
       throw new IllegalArgumentException();
     //noinspection unchecked
-    return new DictionaryWithStat<>(isDynamic ? new DynamicDictionary<>(alphabet) : new ListDictionary<>(alphabet.toArray(new Seq[alphabet.size()])), initFreqs, minProbResult);
+    return new DictionaryWithStat<>(isDynamic ? new DynamicDictionary<>(alphabet) : new ListDictionary<>(alphabet.toArray(new Seq[alphabet.size()])), initFreqs, minProbResult, maxLength);
   }
 
   public Dictionary<T> result() {
@@ -256,13 +256,15 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
     private final Dictionary<T> dict;
     private final TIntArrayList symbolFreqs;
     private final TIntArrayList parseFreqs;
+    private final int maxLength;
     private double power = 0;
     private final LongIntMappingAsyncBuilder pairsFreqs;
     private final double minProbability;
     private double totalChars = 0;
     private final FastRandom rng = new FastRandom(0);
 
-    public DictionaryWithStat(Dictionary<T> dict, TIntArrayList initFreqs, double minProbResult) {
+    public DictionaryWithStat(Dictionary<T> dict, TIntArrayList initFreqs, double minProbResult, int maxLength) {
+      this.maxLength = maxLength;
       this.dict = dict;
       symbolFreqs = new TIntArrayList(dict.size());
       symbolFreqs.fill(symbolFreqs.size(), dict.size(), 0);
@@ -357,7 +359,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       }
 
       //noinspection unchecked
-      return createDict(newDict, freqs, isDynamic, minProbResult);
+      return createDict(newDict, freqs, isDynamic, minProbResult, maxLength);
     }
 
     @NotNull
@@ -580,6 +582,8 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
       for (final StatItem item : items) {
 //        if (item.score > log(0.05))
 //          break;
+        if (this.maxLength > 0 && item.length() > this.maxLength)
+          continue;
         if (item.score < 0)
           break;
         if (--slots < 0)
@@ -591,7 +595,7 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
           minProbResult = min(minProbResult, item.count / (double)pairsFreqs.accumulatedValuesTotal());
       }
       //noinspection unchecked
-      return createDict(newDict, freqs, isDynamic, minProbResult);
+      return createDict(newDict, freqs, isDynamic, minProbResult, maxLength);
     }
 
     public boolean enough(double probFound) {
@@ -672,6 +676,10 @@ public class DictExpansion<T extends Comparable<T>> extends WeakListenerHolderIm
 
       public Seq<T> text() {
         return first >= 0 ? CharSeqTools.concat(get(first), get(second)) : get(second);
+      }
+
+      public int length() {
+        return (first >= 0 ? get(first).length() : 0) + (second >= 0 ? get(second).length() : 0);
       }
     }
 

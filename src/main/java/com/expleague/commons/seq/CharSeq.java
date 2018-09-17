@@ -230,6 +230,21 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
     return compact;
   }
 
+  public static synchronized CharSeq intern(CharSequence seq) {
+    if (seq == null)
+      return null;
+    WeakReference<CharSeq> known = intern.get(CharSeq.create(seq));
+    if (known != null) {
+      CharSeq intern = known.get();
+      if (intern != null) {
+        return intern;
+      }
+    }
+    CharSeq compact = compact(seq);
+    intern.put(compact, new WeakReference<>(compact));
+    return compact;
+  }
+
   public static CharSeq compact(CharSequence seq) {
     if (seq == null)
       return null;

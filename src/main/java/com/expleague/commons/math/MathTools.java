@@ -2,12 +2,18 @@ package com.expleague.commons.math;
 
 import com.expleague.commons.func.types.ConversionRepository;
 import com.expleague.commons.func.types.impl.TypeConvertersCollection;
+import com.expleague.commons.math.vectors.Mx;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecIterator;
 import com.expleague.commons.math.vectors.VecTools;
+import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
+import com.expleague.commons.seq.IntSeq;
+import com.expleague.commons.seq.IntSeqBuilder;
 
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static com.expleague.commons.math.vectors.VecTools.*;
@@ -320,5 +326,101 @@ public abstract class MathTools {
     return factorial(n) / factorial(n - k) / factorial(k);
   }
 
+  public interface VariantVisitor {
+    boolean stage(int i);
+    void next();
+  }
+
+  public static void visitVariants(int[] varsAtStep, VariantVisitor vv) {
+    final int[] current = new int[varsAtStep.length];
+    current[varsAtStep.length - 1] = -1;
+    boolean last;
+    do {
+      vv.next();
+      last = true;
+      for (int j = current.length - 1; j >= 0; j--) {
+        if (++current[j] < varsAtStep[j]) {
+          last = false;
+          boolean accepted = true;
+          for (int i = 0; i < current.length; i++) {
+            if (!accepted)
+              current[i] = varsAtStep[i];
+            accepted = accepted && vv.stage(current[i]);
+          }
+          break;
+        }
+        else current[j] = 0;
+      }
+    }
+    while (!last);
+  }
+
+  public static double maxKnapsack(Vec gain, IntSeq volume, int maxVolume, IntSeqBuilder resultSubset) {
+    final Mx state = new VecBasedMx(gain.dim() + 1, maxVolume + 1);
+    for (int i = 1; i < volume.length() + 1; i++) {
+      final int v_i = volume.intAt(i - 1);
+      final double g_i = gain.get(i - 1);
+      for (int vol = 0; vol <= maxVolume; vol++) {
+        final double gainWithI = v_i <= vol ? state.get(i - 1, vol - v_i) + g_i : 0;
+        state.set(i, vol, Math.max(state.get(i - 1, vol), gainWithI));
+      }
+    }
+    if (resultSubset != null) {
+      double currentGain = state.get(state.dim() - 1);
+      int currentVolume = maxVolume;
+      for (int i = gain.dim(); i > 0 && currentGain > 0; i--) {
+        final int v_i = volume.intAt(i - 1);
+        final double g_i = gain.get(i - 1);
+        if (state.get(i-1, currentVolume) != state.get(i, currentVolume)) {
+          resultSubset.add(i - 1);
+          currentGain -= g_i;
+          currentVolume -= v_i;
+        }
+      }
+    }
+    return state.get(state.dim() - 1);
+  }
+
+  public static double maxTimedKnapsack(Vec gain, IntSeq volume, IntSeq time, IntSeq maxVolume, IntSeqBuilder resultSubset) {
+    final List<Mx> states = new ArrayList<>();
+    Mx prev = null;
+    for (int t = 0; t < maxVolume.length(); t++) {
+      final Mx state = new VecBasedMx(gain.dim() + 1, maxVolume.intAt(t) + 1);
+      if (prev != null) {
+        final Vec firstRow = state.row(0);
+        VecTools.assign(firstRow.sub(0, prev.columns()), prev.row(prev.rows() - 1));
+        VecTools.fill(firstRow.sub(prev.columns(), firstRow.dim() - prev.columns()), prev.get(prev.dim() - 1));
+      }
+      for (int i = 1; i < volume.length() + 1; i++) {
+        final int v_i = volume.intAt(i - 1);
+        final double g_i = gain.get(i - 1);
+        for (int vol = 0; vol < state.columns(); vol++) {
+          final double gainWithI = v_i <= vol && time.intAt(i - 1) == t ? state.get(i - 1, vol - v_i) + g_i : 0;
+          state.set(i, vol, Math.max(state.get(i - 1, vol), gainWithI));
+        }
+      }
+      prev = state;
+      states.add(state);
+    }
+    if (resultSubset != null) {
+      int currentVolume = Integer.MAX_VALUE;
+      for (int t = states.size() - 1; t >= 0; t--) {
+        final Mx state = states.get(t);
+        currentVolume = Math.min(state.columns() - 1, currentVolume);
+        double currentGain = state.get(state.dim() - 1);
+        for (int i = gain.dim(); i > 0 && currentGain > 0; i--) {
+          final int v_i = volume.intAt(i - 1);
+          final double g_i = gain.get(i - 1);
+          if (state.get(i-1, currentVolume) != state.get(i, currentVolume)) {
+            resultSubset.add(i - 1);
+            currentGain -= g_i;
+            currentVolume -= v_i;
+          }
+        }
+      }
+    }
+    final Mx state = states.get(states.size() - 1);
+    return state.get(state.dim() - 1);
+  }
 }
 

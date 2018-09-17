@@ -3,7 +3,11 @@ package com.expleague.commons.math;
 import com.expleague.commons.JUnitIOCapture;
 import com.expleague.commons.math.vectors.Mx;
 import com.expleague.commons.math.vectors.MxTools;
+import com.expleague.commons.math.vectors.Vec;
+import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
+import com.expleague.commons.seq.IntSeq;
+import com.expleague.commons.seq.IntSeqBuilder;
 import com.expleague.commons.util.logging.Interval;
 import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
 import org.junit.Assert;
@@ -173,6 +177,36 @@ public class MathToolsTest extends JUnitIOCapture {
         if (Math.abs(lq.get(i, j) - mx.get(i, j)) > eps)
           System.out.println("Bad LQ, diff = " + (lq.get(i, j) - mx.get(i, j)));
 
+  }
+
+  @Test
+  public void testMaxKnapsack() {
+    {
+      final Vec gain = new ArrayVec(10, 12, 34, 3, 2);
+      final IntSeq vol = new IntSeq(10, 4, 20, 1, 2);
+      final IntSeqBuilder subset = new IntSeqBuilder();
+      MathTools.maxKnapsack(gain, vol, 30, subset);
+      Assert.assertEquals(new IntSeq(4, 3, 2, 1), subset.build());
+      MathTools.maxKnapsack(gain, vol, 20, subset);
+      Assert.assertEquals(new IntSeq(2), subset.build());
+      MathTools.maxKnapsack(gain, vol, 19, subset);
+      Assert.assertEquals(new IntSeq(4, 3, 1, 0), subset.build());
+      MathTools.maxKnapsack(gain, vol, 50, subset);
+      Assert.assertEquals(new IntSeq(4, 3, 2, 1, 0), subset.build());
+    }
+  }
+
+  @Test
+  public void testTimedMaxKnapsack() {
+    {
+      final Vec gain = new ArrayVec(10, 22, 34, 3, 2);
+      final IntSeq vol = new IntSeq(4, 10, 20, 1, 2);
+      final IntSeq time = new IntSeq(1, 2, 3, 3, 4);
+      final IntSeq maxVolumes = new IntSeq(1, 5, 13, 25, 30, 36);
+      final IntSeqBuilder subset = new IntSeqBuilder();
+      MathTools.maxTimedKnapsack(gain, vol, time, maxVolumes, subset);
+      Assert.assertEquals(new IntSeq(4, 3, 2, 0), subset.build());
+    }
   }
 
   private void assertEquals(double a, double b) {

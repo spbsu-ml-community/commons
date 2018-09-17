@@ -1,10 +1,12 @@
 package com.expleague.commons.seq;
 
-import com.expleague.commons.util.ArrayTools;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.BitSet;
+import java.util.stream.IntStream;
 
 /**
  * User: solar
@@ -23,22 +25,16 @@ public class ReaderChopper {
 
   @Nullable
   public CharSeq chop(char delimiter) throws IOException {
-    if (read < 0)
-      return null;
     final CharSeqBuilder builder = new CharSeqBuilder();
-    int start = offset;
-    while (true) {
-      if (offset >= read) {
-        builder.append(buffer, start, read);
-        readNext();
-        if (read < 0)
-          return builder.length() > 0 ? builder.build() : null;
-        start = 0;
-      }
-      if (buffer[offset++] == delimiter) {
-        builder.append(buffer, start, offset - 1);
-        return builder.build();
-      }
+    chop(builder, delimiter);
+    return builder.length() == 0 ? null : builder.build();
+  }
+
+  public CharSeq chopQuiet(char delimiter) {
+    try {
+      return chop(delimiter);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -50,42 +46,67 @@ public class ReaderChopper {
     }
   }
 
-  private final ThreadLocal<boolean[]> filter = ThreadLocal.withInitial(() -> new boolean[Character.MAX_VALUE]);
   @Nullable
   public CharSeq chop(char... delimiters) throws IOException {
     final CharSeqBuilder builder = new CharSeqBuilder();
-    final int result = chop(builder, delimiters);
+    chop(builder, mask(delimiters));
+    return builder.length() == 0 ? null : builder.build();
+  }
+
+  @Nullable
+  public CharSeq chop(BitSet mask) throws IOException {
+    final CharSeqBuilder builder = new CharSeqBuilder();
+    final int result = chop(builder, mask);
     if (result < 0 && builder.fragmentsCount() == 0)
       return null;
     return builder.build();
   }
 
   public int chop(CharSeqBuilder builder, char... delimiters) throws IOException {
-    final boolean[] filter = this.filter.get();
-    for(int i = 0; i < delimiters.length; i++) {
-      filter[delimiters[i]] = true;
-    }
-    try {
-      if (read < 0)
-        return -1;
-      int start = offset;
-      while (true) {
-        if (offset >= read) {
-          builder.append(buffer, start, read);
-          readNext();
-          if (read < 0)
-            return -1;
-          start = 0;
-        }
-        if (filter[buffer[offset++]]) {
-          builder.append(buffer, start, offset - 1);
-          return ArrayTools.indexOf(buffer[offset - 1], delimiters);
-        }
+    return chop(builder, mask(delimiters));
+  }
+
+  @NotNull
+  public static BitSet mask(char... delimiters) {
+    final BitSet mask = new BitSet(Character.MAX_VALUE);
+    IntStream.range(0, delimiters.length).map(idx -> delimiters[idx]).forEach(mask::set);
+    return mask;
+  }
+
+  public void chop(CharSeqBuilder builder, char delimiter) throws IOException {
+    if (read < 0)
+      return;
+    int start = offset;
+    while (true) {
+      if (offset >= read) {
+        builder.append(buffer, start, read);
+        readNext();
+        if (read < 0)
+          return;
+        start = 0;
+      }
+      if (buffer[offset++] == delimiter) {
+        builder.append(buffer, start, offset - 1);
+        return;
       }
     }
-    finally {
-      for(int i = 0; i < delimiters.length; i++) {
-        filter[delimiters[i]] = false;
+  }
+
+  public int chop(CharSeqBuilder builder, BitSet mask) throws IOException {
+    if (read < 0)
+      return -1;
+    int start = offset;
+    while (true) {
+      if (offset >= read) {
+        builder.append(buffer, start, read);
+        readNext();
+        if (read < 0)
+          return -1;
+        start = 0;
+      }
+      if (mask.get(buffer[offset++])) {
+        builder.append(buffer, start, offset - 1);
+        return buffer[offset - 1];
       }
     }
   }

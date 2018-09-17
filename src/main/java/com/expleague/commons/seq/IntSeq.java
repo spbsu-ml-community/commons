@@ -42,7 +42,7 @@ public class IntSeq extends Seq.Stub<Integer> {
 
   @Override
   public IntSeq sub(final int start, final int end) {
-    return new IntSeq(arr, start + this.start, end+ this.start);
+    return new IntSeq(arr, start + this.start, end + this.start);
   }
 
   @Override
@@ -103,14 +103,15 @@ public class IntSeq extends Seq.Stub<Integer> {
   }
 
   public int intAt(final int index) {
-//    if (index >= arr.length)
-//      throw new ArrayIndexOutOfBoundsException();
+    //    if (index >= arr.length)
+    //      throw new ArrayIndexOutOfBoundsException();
     return arr[start + index];
   }
 
   public IntStream stream() {
     return StreamSupport.intStream(new Spliterators.AbstractIntSpliterator(length(), Spliterator.IMMUTABLE) {
       int cursor = 0;
+
       @Override
       public boolean tryAdvance(IntConsumer action) {
         if (cursor < length()) {
