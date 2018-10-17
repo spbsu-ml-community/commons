@@ -27,7 +27,7 @@ public class WordInfo {
           double w = lemma.weight() + (token.equals(lemma.lemma()) ? 0.001 : 0);
           if (lemma instanceof Noun) {
             final Noun noun = (Noun) lemma;
-            w += (noun.padezh() == Noun.Padezh.NOM ? 0.0001 : 0)
+            w += (noun.grammaticalCase() == GrammaticalCase.NOM ? 0.0001 : 0)
                 + (noun.isPlural() ? -0.0002 : 0)
                 + (noun.isName() ? -0.5 : 0);
           }

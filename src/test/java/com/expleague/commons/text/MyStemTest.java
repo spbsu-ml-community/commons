@@ -1,5 +1,6 @@
 package com.expleague.commons.text;
 
+import com.expleague.commons.text.lemmer.GrammaticalCase;
 import com.expleague.commons.text.lemmer.MyStem;
 import com.expleague.commons.text.lemmer.Noun;
 import com.expleague.commons.text.lemmer.PartOfSpeech;
@@ -27,8 +28,8 @@ public class MyStemTest {
   @Test
   public void testPadezh() {
     MyStem stemmer = new MyStem(Paths.get("/Users/solar/bin/mystem"));
-    Assert.assertEquals(Noun.Padezh.NOM, stemmer.parse("замок").get(0).as(Noun.class).padezh());
-    Assert.assertEquals(Noun.Padezh.GEN, stemmer.parse("строим дома").get(1).as(Noun.class).padezh());
+    Assert.assertEquals(GrammaticalCase.NOM, stemmer.parse("замок").get(0).as(Noun.class).grammaticalCase());
+    Assert.assertEquals(GrammaticalCase.GEN, stemmer.parse("строим дома").get(1).as(Noun.class).grammaticalCase());
     Assert.assertEquals(null, stemmer.parse("отпугиватель").get(0).as(Noun.class));
   }
 }

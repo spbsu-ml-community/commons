@@ -1,66 +1,56 @@
 package com.expleague.commons.text.lemmer;
 
 import com.expleague.commons.seq.CharSeq;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.stream.Stream;
-
-public class Noun extends LemmaInfo {
-  private final Padezh padezh;
+public class Noun extends CorePOS {
+  private final GrammaticalCase grammaticalCase;
   private final boolean name;
+  private final boolean animate;
 
-  public Noun(CharSeq lemma, double weight, Padezh padezh, boolean plural, boolean name) {
-    super(lemma, weight, PartOfSpeech.S, plural);
-    this.padezh = padezh;
+    public Noun(CharSeq lemma, double weight, PartOfSpeech pos, boolean plural, GrammaticalGender grammaticalGender,
+                GrammaticalCase grammaticalCase, boolean name, boolean animate) {
+        super(lemma, weight, pos, plural, grammaticalGender);
+        this.grammaticalCase = grammaticalCase;
+        this.name = name;
+        this.animate = animate;
+    }
+
+  public Noun(CharSeq lemma, double weight, boolean plural, GrammaticalGender grammaticalGender,
+              GrammaticalCase grammaticalCase, boolean name, boolean animate) {
+    super(lemma, weight, PartOfSpeech.S, plural, grammaticalGender);
+    this.grammaticalCase = grammaticalCase;
     this.name = name;
+    this.animate = animate;
   }
 
-  public Padezh padezh() {
-    return padezh;
+  public GrammaticalCase grammaticalCase() {
+    return grammaticalCase;
+  }
+
+  public boolean isName() {
+        return name;
+    }
+
+  public boolean isAnimate() {
+    return animate;
   }
 
   @Override
   public String toString() {
-    return lemma() + "(сущ., " + padezh().description + ", " + (isPlural() ? "мн." : "ед.")+ ")";
+    return lemma() + "(сущ., " + ", " + grammaticalGender().description() + ", " +
+            grammaticalCase().description() + ", " + (isAnimate() ? "одуш." : "неодущ") + ", " +
+            (isName() ? "имя" : "") + ", " + (isPlural() ? "мн." : "ед.") + ")";
   }
 
-  public boolean isName() {
-    return name;
-  }
+  static class Factory extends CorePOS.Factory {
+    protected GrammaticalCase grammaticalCase;
+    protected boolean name;
+    protected boolean animate;
 
-  public enum Padezh {
-    NOM("им", "именительный"),
-    GEN("род", "родительный"),
-    DAT("дат", "дательный"),
-    ACC("вин", "винительный"),
-    INS("твор", "творительный"),
-    ABL("пр", "предложный"),
-    PART("парт", "партитив (второй родительный)"),
-    LOC("местн", "местный (второй предложный)"),
-    VOC("зват", "звательный");
+    public Factory(PartOfSpeech pos) {
+          super(pos);
+      }
 
-    private final String description;
-    private final String shortName;
-
-    Padezh(String shortName, String description) {
-      this.shortName = shortName;
-      this.description = description;
-    }
-
-    public String description() {
-      return this.description;
-    }
-
-    @Nullable
-    private static Padezh parse(CharSeq shortName) {
-      //noinspection EqualsBetweenInconvertibleTypes
-      return Stream.of(Padezh.values()).filter(p -> shortName.equals(p.shortName)).findAny().orElse(null);
-    }
-  }
-
-  static class Factory extends LemmaInfo.DefaultFactory {
-    private Padezh padezh;
-    private boolean name;
     public Factory() {
       super(PartOfSpeech.S);
     }
@@ -71,13 +61,17 @@ public class Noun extends LemmaInfo {
       if (property.equals("фам") || property.equals("отч") || property.equals("имя")) {
         name = true;
       }
-      padezh = padezh != null ? padezh : Padezh.parse(property);
+      if (property.equals("од"))
+          animate = true;
+      if (property.equals("неод"))
+          animate = false;
+      grammaticalCase = grammaticalCase != null ? grammaticalCase : GrammaticalCase.parse(property);
       return this;
     }
 
     @Override
     public LemmaInfo build() {
-      return new Noun(lemma, weight, padezh, plural, name);
+      return new Noun(lemma, weight, plural, grammaticalGender, grammaticalCase, name, animate);
     }
   }
 }

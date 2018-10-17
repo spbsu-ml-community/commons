@@ -3,20 +3,20 @@ package com.expleague.commons.text.lemmer;
 import java.util.function.Supplier;
 
 public enum PartOfSpeech {
-  A("прилагательное"),
-  ADV("наречие"),
-  ADVPRO("местоименное наречие"),
-  ANUM("числительное-прилагательное"),
-  APRO("местоимение-прилагательное"),
-  COM("часть композита - сложного слова"),
-  CONJ("союз"),
-  INTJ("междометие"),
-  NUM("числительное"),
-  PART("частица"),
-  PR("предлог"),
+  A("прилагательное", Adjective.Factory::new),
+  ADV("наречие", Adverb.Factory::new),
+  ADVPRO("местоименное наречие", ProAdverb.Factory::new),
+  ANUM("числительное-прилагательное", NumAdjective.Factory::new),
+  APRO("местоимение-прилагательное", ProAdjective.Factory::new),
+  COM("часть композита - сложного слова", Composite.Factory::new),
+  CONJ("союз", Conjunction.Factory::new),
+  INTJ("междометие", Interjection.Factory::new),
+  NUM("числительное", Numeral.Factory::new),
+  PART("частица", Particle.Factory::new),
+  PR("предлог", Pretext.Factory::new),
   S("существительное", Noun.Factory::new),
-  SPRO("местоимение-существительное"),
-  V("глагол");
+  SPRO("местоимение-существительное", ProNoun.Factory::new),
+  V("глагол", Verb.Factory::new);
 
   final String name;
   final Supplier<LemmaInfo.Factory> factory;
