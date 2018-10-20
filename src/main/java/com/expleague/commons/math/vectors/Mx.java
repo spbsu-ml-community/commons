@@ -1,6 +1,7 @@
 package com.expleague.commons.math.vectors;
 
 import com.expleague.commons.math.vectors.impl.idxtrans.SubMxTransformation;
+import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
 import com.expleague.commons.math.vectors.impl.vectors.IndexTransVec;
 import com.expleague.commons.math.vectors.impl.basis.MxBasisImpl;
 import com.expleague.commons.math.vectors.impl.iterators.SkipMxNZIterator;
@@ -63,6 +64,28 @@ public interface Mx extends Vec {
     @Override
     public MxBasis basis() {
       return new MxBasisImpl(rows(), columns());
+    }
+
+    @Override
+    public double get(int i, int j) {
+      return get(i * columns() + j);
+    }
+
+    @Override
+    public Mx set(int i, int j, double val) {
+      set(i * columns() + j, val);
+      return this;
+    }
+
+    @Override
+    public Mx adjust(int i, int j, double increment) {
+      adjust(i * columns() + j, increment);
+      return this;
+    }
+
+    @Override
+    public Mx sub(int i, int j, int height, int width) {
+      return new VecBasedMx(width, new IndexTransVec(this, new SubMxTransformation(columns(), i, j, height, width)));
     }
 
     public Vec vec() {

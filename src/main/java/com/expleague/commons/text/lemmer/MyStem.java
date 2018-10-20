@@ -9,21 +9,24 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class MyStem {
-  private final Process mystem;
-  private final ThreadPoolExecutor executor;
+  private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.DAYS, new LinkedBlockingQueue<>());
   private final Writer toMyStem;
   private final Reader fromMyStem;
 
   public MyStem(Path mystemExecutable) {
     try {
-      mystem = Runtime.getRuntime().exec(mystemExecutable.toString() + " -i --weight -c");
+      Process mystem = Runtime.getRuntime().exec(mystemExecutable.toString() + " -i --weight -c");
       toMyStem = new OutputStreamWriter(mystem.getOutputStream(), StandardCharsets.UTF_8);
       fromMyStem = new InputStreamReader(mystem.getInputStream(), StandardCharsets.UTF_8);
-      executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.DAYS, new LinkedBlockingQueue<>());
     }
     catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public MyStem(InputStream fromMyStem, OutputStream toMyStem) {
+    this.toMyStem = new OutputStreamWriter(toMyStem, StandardCharsets.UTF_8);
+    this.fromMyStem = new InputStreamReader(fromMyStem, StandardCharsets.UTF_8);
   }
 
   public List<WordInfo> parse(CharSequence seq) {

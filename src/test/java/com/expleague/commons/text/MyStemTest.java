@@ -2,15 +2,23 @@ package com.expleague.commons.text;
 
 import com.expleague.commons.text.lemmer.*;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Paths;
 
 @SuppressWarnings("ConstantConditions")
 public class MyStemTest {
+
+  private MyStem stemmer;
+
+  @Before
+  public void setUp() throws Exception {
+    stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
+  }
+
   @Test
   public void testTokens() {
-    MyStem stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
     Assert.assertEquals("[Hello, world]", stemmer.parse("Hello world").toString());
     Assert.assertEquals("[кошкин, дома]", stemmer.parse("кошкин дома").toString());
     Assert.assertEquals("[кошкин, 5, дома]", stemmer.parse("кошкин 5 дома").toString());
@@ -18,7 +26,6 @@ public class MyStemTest {
 
   @Test
   public void testPOS() {
-    MyStem stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
     Assert.assertEquals(PartOfSpeech.S, stemmer.parse("дом").get(0).lemma().pos());
     Assert.assertEquals(PartOfSpeech.A, stemmer.parse("качественный").get(0).lemma().pos());
     Assert.assertEquals(PartOfSpeech.ADV, stemmer.parse("быстро").get(0).lemma().pos());
@@ -35,7 +42,6 @@ public class MyStemTest {
 
   @Test
   public void testGrammaticalNumber() {
-    MyStem stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
     Assert.assertEquals(true, stemmer.parse("замки").get(0).as(Noun.class).isPlural());
     Assert.assertEquals(false, stemmer.parse("замок").get(0).as(Noun.class).isPlural());
     Assert.assertEquals(false, stemmer.parse("пятнадцатый").get(0).as(NumAdjective.class).isPlural());
@@ -49,7 +55,6 @@ public class MyStemTest {
 
   @Test
   public void testGrammaticalGender() {
-    MyStem stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
     Assert.assertEquals(CorePOS.GrammaticalGender.M, stemmer.parse("стол").get(0).as(Noun.class).grammaticalGender());
     Assert.assertEquals(CorePOS.GrammaticalGender.F, stemmer.parse("карта").get(0).as(Noun.class).grammaticalGender());
     Assert.assertEquals(CorePOS.GrammaticalGender.N, stemmer.parse("облако").get(0).as(Noun.class).grammaticalGender());
@@ -65,7 +70,6 @@ public class MyStemTest {
 
   @Test
   public void testGrammaticalCase() {
-    MyStem stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
     Assert.assertEquals(GrammaticalCase.NOM, stemmer.parse("замок").get(0).as(Noun.class).grammaticalCase());
     Assert.assertEquals(GrammaticalCase.GEN, stemmer.parse("строим дома").get(1).as(Noun.class).grammaticalCase());
     Assert.assertEquals(null, stemmer.parse("отпугиватель").get(0).as(Noun.class));
@@ -80,7 +84,6 @@ public class MyStemTest {
 
   @Test
   public void testGrammaticalForm() {
-    MyStem stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
     Assert.assertEquals(Adjective.GrammaticalForm.BREV, stemmer.parse("свеж").get(0).as(Adjective.class).grammaticalForm());
     Assert.assertEquals(Adjective.GrammaticalForm.PLEN, stemmer.parse("свежий").get(0).as(Adjective.class).grammaticalForm());
     Assert.assertEquals(null, stemmer.parse("пятидесятый").get(0).as(NumAdjective.class).grammaticalForm());
@@ -88,7 +91,6 @@ public class MyStemTest {
 
   @Test
   public void testComparisonDegree() {
-    MyStem stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
     Assert.assertEquals(null, stemmer.parse("сильный").get(0).as(Adjective.class).comparisonDegree());
     Assert.assertEquals(Adjective.ComparisonDegree.COMP, stemmer.parse("сильнее").get(0).as(Adjective.class).comparisonDegree());
     Assert.assertEquals(Adjective.ComparisonDegree.SUPR, stemmer.parse("сильнейший").get(0).as(Adjective.class).comparisonDegree());
@@ -96,7 +98,6 @@ public class MyStemTest {
 
   @Test
   public void testGrammaticalAnimacy() {
-    MyStem stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
     Assert.assertEquals(false, stemmer.parse("сильный").get(0).as(Adjective.class).isAnimate());
     Assert.assertEquals(true, stemmer.parse("зверь").get(0).as(Noun.class).isAnimate());
     Assert.assertEquals(false, stemmer.parse("стол").get(0).as(Noun.class).isAnimate());
