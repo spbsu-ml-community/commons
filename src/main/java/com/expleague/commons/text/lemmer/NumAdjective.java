@@ -5,8 +5,10 @@ import com.expleague.commons.seq.CharSeq;
 public class NumAdjective extends Adjective {
 
     public NumAdjective(CharSeq lemma, double weight, boolean plural, GrammaticalGender grammaticalGender,
-                        GrammaticalCase grammaticalCase, GrammaticalForm grammaticalForm, ComparisonDegree comparisonDegree) {
-        super(lemma, weight, PartOfSpeech.ANUM, plural, grammaticalGender, grammaticalCase, grammaticalForm, comparisonDegree);
+                        GrammaticalCase grammaticalCase, GrammaticalForm grammaticalForm,
+                        ComparisonDegree comparisonDegree, boolean grammaticalAnimacy) {
+        super(lemma, weight, PartOfSpeech.ANUM, plural, grammaticalGender, grammaticalCase,
+                grammaticalForm, comparisonDegree, grammaticalAnimacy);
     }
 
     @Override
@@ -31,7 +33,7 @@ public class NumAdjective extends Adjective {
         @Override
         public LemmaInfo build() {
             return new NumAdjective(lemma, weight, plural, grammaticalGender,
-                    grammaticalCase, grammaticalForm, comparisonDegree);
+                    grammaticalCase, grammaticalForm, comparisonDegree, grammaticalAnimacy);
         }
     }
 }

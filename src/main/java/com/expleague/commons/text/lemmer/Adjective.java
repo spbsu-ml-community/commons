@@ -9,21 +9,26 @@ public class Adjective extends CorePOS {
     private final GrammaticalCase grammaticalCase;
     private final GrammaticalForm grammaticalForm;
     private final ComparisonDegree comparisonDegree;
+    private final boolean grammaticalAnimacy;
 
     public Adjective(CharSeq lemma, double weight, PartOfSpeech pos, boolean plural, GrammaticalGender grammaticalGender,
-                     GrammaticalCase grammaticalCase, GrammaticalForm grammaticalForm, ComparisonDegree comparisonDegree) {
+                     GrammaticalCase grammaticalCase, GrammaticalForm grammaticalForm, ComparisonDegree comparisonDegree,
+                     boolean grammaticalAnimacy) {
         super(lemma, weight, pos, plural, grammaticalGender);
         this.grammaticalCase = grammaticalCase;
         this.grammaticalForm = grammaticalForm;
         this.comparisonDegree = comparisonDegree;
+        this.grammaticalAnimacy = grammaticalAnimacy;
     }
 
     public Adjective(CharSeq lemma, double weight, boolean plural, GrammaticalGender grammaticalGender,
-                     GrammaticalCase grammaticalCase, GrammaticalForm grammaticalForm, ComparisonDegree comparisonDegree) {
+                     GrammaticalCase grammaticalCase, GrammaticalForm grammaticalForm, ComparisonDegree comparisonDegree,
+                     boolean grammaticalAnimacy) {
         super(lemma, weight, PartOfSpeech.A, plural, grammaticalGender);
         this.grammaticalCase = grammaticalCase;
         this.grammaticalForm = grammaticalForm;
         this.comparisonDegree = comparisonDegree;
+        this.grammaticalAnimacy = grammaticalAnimacy;
     }
 
     public GrammaticalCase grammaticalCase() {
@@ -38,11 +43,16 @@ public class Adjective extends CorePOS {
         return this.comparisonDegree;
     }
 
+    public boolean isAnimate() {
+        return this.grammaticalAnimacy;
+    }
+
     @Override
     public String toString() {
         return lemma() + "(прил., " + grammaticalGender().description() + ", " +
                 grammaticalCase().description() + ", " + grammaticalForm().description + ", " +
-                comparisonDegree().description + ", " + (isPlural() ? "мн." : "ед.")+ ")";
+                comparisonDegree().description + ", " + (isAnimate() ? "одуш." : "неодущ") + ", " +
+                (isPlural() ? "мн." : "ед.")+ ")";
     }
 
     public enum GrammaticalForm {
@@ -96,6 +106,7 @@ public class Adjective extends CorePOS {
         protected GrammaticalCase grammaticalCase;
         protected GrammaticalForm grammaticalForm;
         protected ComparisonDegree comparisonDegree;
+        protected boolean grammaticalAnimacy;
 
         public Factory(PartOfSpeech pos) {
             super(pos);
@@ -108,6 +119,10 @@ public class Adjective extends CorePOS {
         @Override
         public Factory accept(CharSeq property) {
             super.accept(property);
+            if (property.equals("од"))
+                grammaticalAnimacy = true;
+            if (property.equals("неод"))
+                grammaticalAnimacy = false;
             grammaticalCase = grammaticalCase != null ? grammaticalCase : GrammaticalCase.parse(property);
             grammaticalForm = grammaticalForm != null ? grammaticalForm : GrammaticalForm.parse(property);
             comparisonDegree = comparisonDegree != null ? comparisonDegree : ComparisonDegree.parse(property);
@@ -117,7 +132,7 @@ public class Adjective extends CorePOS {
         @Override
         public LemmaInfo build() {
             return new Adjective(lemma, weight, plural, grammaticalGender,
-                    grammaticalCase, grammaticalForm, comparisonDegree);
+                    grammaticalCase, grammaticalForm, comparisonDegree, grammaticalAnimacy);
         }
     }
 }

@@ -5,8 +5,8 @@ import com.expleague.commons.seq.CharSeq;
 public class ProNoun extends Noun {
 
     public ProNoun(CharSeq lemma, double weight, boolean plural, GrammaticalGender grammaticalGender,
-                        GrammaticalCase grammaticalCase, boolean name, boolean animate) {
-        super(lemma, weight, PartOfSpeech.SPRO, plural, grammaticalGender, grammaticalCase, name, animate);
+                        GrammaticalCase grammaticalCase, boolean name, boolean grammaticalAnimacy) {
+        super(lemma, weight, PartOfSpeech.SPRO, plural, grammaticalGender, grammaticalCase, name, grammaticalAnimacy);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ProNoun extends Noun {
         @Override
         public LemmaInfo build() {
             return new ProNoun(lemma, weight, plural, grammaticalGender,
-                    grammaticalCase, name, animate);
+                    grammaticalCase, name, grammaticalAnimacy);
         }
     }
 }

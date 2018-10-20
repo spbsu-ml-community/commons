@@ -6,17 +6,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.stream.Stream;
 
 public class CorePOS extends LemmaInfo{
-  private boolean plural;
+  private boolean grammaticalNumber;
   private GrammaticalGender grammaticalGender;
 
-  public CorePOS(CharSeq lemma, double weight, PartOfSpeech pos, boolean plural, GrammaticalGender grammaticalGender) {
+  public CorePOS(CharSeq lemma, double weight, PartOfSpeech pos, boolean grammaticalNumber, GrammaticalGender grammaticalGender) {
     super(lemma, weight, pos);
-    this.plural = plural;
+    this.grammaticalNumber = grammaticalNumber;
     this.grammaticalGender = grammaticalGender;
   }
 
   public boolean isPlural() {
-    return plural;
+    return this.grammaticalNumber;
   }
 
   public GrammaticalGender grammaticalGender() {

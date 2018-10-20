@@ -4,23 +4,23 @@ import com.expleague.commons.seq.CharSeq;
 
 public class Noun extends CorePOS {
   private final GrammaticalCase grammaticalCase;
-  private final boolean name;
-  private final boolean animate;
+  private final boolean isPartOfName;
+  private final boolean grammaticalAnimacy;
 
     public Noun(CharSeq lemma, double weight, PartOfSpeech pos, boolean plural, GrammaticalGender grammaticalGender,
-                GrammaticalCase grammaticalCase, boolean name, boolean animate) {
+                GrammaticalCase grammaticalCase, boolean isPartOfName, boolean grammaticalAnimacy) {
         super(lemma, weight, pos, plural, grammaticalGender);
         this.grammaticalCase = grammaticalCase;
-        this.name = name;
-        this.animate = animate;
+        this.isPartOfName = isPartOfName;
+        this.grammaticalAnimacy = grammaticalAnimacy;
     }
 
   public Noun(CharSeq lemma, double weight, boolean plural, GrammaticalGender grammaticalGender,
-              GrammaticalCase grammaticalCase, boolean name, boolean animate) {
+              GrammaticalCase grammaticalCase, boolean isPartOfName, boolean grammaticalAnimacy) {
     super(lemma, weight, PartOfSpeech.S, plural, grammaticalGender);
     this.grammaticalCase = grammaticalCase;
-    this.name = name;
-    this.animate = animate;
+    this.isPartOfName = isPartOfName;
+    this.grammaticalAnimacy = grammaticalAnimacy;
   }
 
   public GrammaticalCase grammaticalCase() {
@@ -28,11 +28,11 @@ public class Noun extends CorePOS {
   }
 
   public boolean isName() {
-        return name;
+        return isPartOfName;
     }
 
   public boolean isAnimate() {
-    return animate;
+    return grammaticalAnimacy;
   }
 
   @Override
@@ -45,7 +45,7 @@ public class Noun extends CorePOS {
   static class Factory extends CorePOS.Factory {
     protected GrammaticalCase grammaticalCase;
     protected boolean name;
-    protected boolean animate;
+    protected boolean grammaticalAnimacy;
 
     public Factory(PartOfSpeech pos) {
           super(pos);
@@ -62,16 +62,16 @@ public class Noun extends CorePOS {
         name = true;
       }
       if (property.equals("од"))
-          animate = true;
+        grammaticalAnimacy = true;
       if (property.equals("неод"))
-          animate = false;
+        grammaticalAnimacy = false;
       grammaticalCase = grammaticalCase != null ? grammaticalCase : GrammaticalCase.parse(property);
       return this;
     }
 
     @Override
     public LemmaInfo build() {
-      return new Noun(lemma, weight, plural, grammaticalGender, grammaticalCase, name, animate);
+      return new Noun(lemma, weight, plural, grammaticalGender, grammaticalCase, name, grammaticalAnimacy);
     }
   }
 }
