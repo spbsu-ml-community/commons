@@ -1,6 +1,7 @@
 package com.expleague.commons.math.vectors;
 
 import com.expleague.commons.math.MathTools;
+import com.expleague.commons.math.vectors.impl.mx.SparseMx;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.math.AnalyticFunc;
 import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
@@ -191,12 +192,27 @@ public class MxTools {
   }
 
   public static Mx transpose(final Mx a) {
-    final Mx result = new VecBasedMx(a.columns(), a.rows());
-    for (int i = 0; i < a.rows(); i++) {
-      for (int j = 0; j < a.columns(); j++)
-        result.set(j, i, a.get(i, j));
+    if (a instanceof SparseMx) {
+      final SparseMx result = new SparseMx(a.columns(), a.rows());
+
+      for (int j = 0; j < a.rows(); j++) {
+        final VecIterator nz = a.row(j).nonZeroes();
+        while (nz.advance()) {
+          final SparseVec row = result.row(nz.index());
+          row.indices.add(j);
+          row.values.add(nz.value());
+        }
+      }
+      return result;
     }
-    return result;
+    else {
+      final Mx result = new VecBasedMx(a.columns(), a.rows());
+      for (int i = 0; i < a.rows(); i++) {
+        for (int j = 0; j < a.columns(); j++)
+          result.set(j, i, a.get(i, j));
+      }
+      return result;
+    }
   }
 
   public static Mx transposeIt(final Mx a) {

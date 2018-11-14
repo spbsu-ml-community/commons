@@ -14,7 +14,6 @@ import com.expleague.commons.math.vectors.impl.vectors.SparseVec;
  */
 public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
   private final B mxBasis;
-  private final Vec emptyRow;
   private final IntBasis vecBasis;
   private final SparseVec[] rows;
 
@@ -22,14 +21,12 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
     this.mxBasis = mxBasis;
     this.vecBasis = new IntBasis(mxBasis.columns());
     this.rows = new SparseVec[mxBasis.rows()];
-    this.emptyRow = new SparseVec(this.vecBasis.size());
   }
 
   public CustomBasisMx(final B mxBasis, final SparseVec[] rows) {
     this.mxBasis = mxBasis;
     this.rows = rows;
     this.vecBasis = new IntBasis(mxBasis.columns());
-    this.emptyRow = new SparseVec(vecBasis.size());
   }
 
   @Override
@@ -85,16 +82,16 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
       if (rows[k + i] != null)
         copyRows[k] = (SparseVec) rows[k + i].sub(j, width);
     }
-    return new CustomBasisMx<MxBasisImpl>(new MxBasisImpl(height, width), copyRows);
+    return new CustomBasisMx<>(new MxBasisImpl(height, width), copyRows);
   }
 
   /**
    * @important NEVER CHANGE RETURNED VALUE, IT HAS SIDE AFFECTS
    */
   @Override
-  public Vec row(final int i) {
-    final Vec row = rows[i];
-    return row != null ? row : emptyRow;
+  public SparseVec row(final int i) {
+    final SparseVec row = rows[i];
+    return row != null ? row : (rows[i] = new SparseVec(columns()));
   }
 
   @Override
@@ -109,7 +106,7 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
 
   @Override
   public Vec adjust(final int i, final double increment) {
-    return null;
+    return adjust(i / mxBasis.columns(), i % mxBasis.columns(), increment);
   }
 
   @Override
@@ -142,6 +139,16 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
     return mxBasis.rows();
   }
 
+  public void clear() {
+    for (SparseVec row : rows) {
+      if (row != null)
+        row.clear();
+    }
+  }
+
+  public boolean isRowEmpty(int i) {
+    return rows[i] == null;
+  }
 
   private void rangeCheck(final int i, final int j) {
     if (i < 0 || i >= mxBasis.rows() || j < 0 || j >= mxBasis.columns())
@@ -156,11 +163,10 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
 
     SparseMxIterator() {
       cRow = nextNotNullRow(0);
-      if (cRow >= 0) {
+      if (cRow >= 0)
         cIter = rows[cRow].nonZeroes();
-      } else {
-        cIter = emptyRow.nonZeroes();
-      }
+      else
+        cIter = null;
     }
 
     @Override
@@ -190,6 +196,8 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
 
     @Override
     public boolean advance() {
+      if (cIter == null)
+        return false;
       if (!cIter.advance()) {
         //check if we have removed row
         if (wasRemoved && !rows[cRow].nonZeroes().isValid())

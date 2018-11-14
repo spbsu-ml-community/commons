@@ -2,6 +2,7 @@ package com.expleague.commons.math.vectors;
 
 import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.impl.mx.ColsVecArrayMx;
+import com.expleague.commons.math.vectors.impl.mx.SparseMx;
 import com.expleague.commons.math.vectors.impl.vectors.*;
 import com.expleague.commons.seq.IntSeq;
 import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
@@ -123,6 +124,14 @@ public class VecTools {
         final OperableVec operableVec = (OperableVec) vec;
         //noinspection unchecked
         operableLeft.add(operableVec);
+      }
+      else if (vec instanceof SparseMx && left instanceof SparseMx) {
+        final int rows = ((SparseMx) vec).rows();
+        for (int i = 0; i < rows; i++) {
+          if (((SparseMx) vec).isRowEmpty(i))
+            continue;
+          append(((SparseMx) left).row(i), ((SparseMx) vec).row(i));
+        }
       }
       else {
         final VecIterator viter = vec.nonZeroes();
