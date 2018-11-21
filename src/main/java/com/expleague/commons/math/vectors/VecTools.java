@@ -432,7 +432,15 @@ public class VecTools {
     }
     if (vec instanceof ArrayVec) {
       final ArrayVec arrayVec = (ArrayVec) vec;
-      return (T)new ArrayVec(arrayVec.data.array.clone(), arrayVec.data.start, arrayVec.data.length);
+      final int start = arrayVec.data.start;
+      final int length = arrayVec.data.length;
+      if (length < arrayVec.data.array.length) {
+        final ArrayVec copy = new ArrayVec(length);
+        copy.assign(arrayVec);
+        return (T) copy;
+      }
+      else
+        return (T)new ArrayVec(arrayVec.data.array.clone(), start, length);
     }
     if (vec instanceof IndexTransVec) {
       final IndexTransVec indexTransVec = (IndexTransVec) vec;

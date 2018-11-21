@@ -26,8 +26,7 @@ public class ReaderChopper {
   @Nullable
   public CharSeq chop(char delimiter) throws IOException {
     final CharSeqBuilder builder = new CharSeqBuilder();
-    chop(builder, delimiter);
-    return builder.length() == 0 ? null : builder.build();
+    return chop(builder, delimiter) || builder.length() > 0 ? builder.build() : null;
   }
 
   public CharSeq chopQuiet(char delimiter) {
@@ -73,21 +72,21 @@ public class ReaderChopper {
     return mask;
   }
 
-  public void chop(CharSeqBuilder builder, char delimiter) throws IOException {
+  public boolean chop(CharSeqBuilder builder, char delimiter) throws IOException {
     if (read < 0)
-      return;
+      return false;
     int start = offset;
     while (true) {
       if (offset >= read) {
         builder.append(buffer, start, read);
         readNext();
         if (read < 0)
-          return;
+          return false;
         start = 0;
       }
       if (buffer[offset++] == delimiter) {
         builder.append(buffer, start, offset - 1);
-        return;
+        return true;
       }
     }
   }
