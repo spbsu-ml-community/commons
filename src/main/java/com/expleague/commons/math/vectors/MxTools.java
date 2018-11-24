@@ -161,10 +161,10 @@ public class MxTools {
   }
 
   public static Mx multiply(final Mx a, final Mx b) {
-    final int dim = a.columns();
-    if (dim != b.rows())
+    if (a.columns() != b.rows())
       throw new IllegalArgumentException("Matrices must have a.columns == b.rows!");
-    final VecBasedMx result = new VecBasedMx(b.columns(), b.vec() instanceof SparseVec ? new SparseVec(b.dim()) : new ArrayVec(b.dim()));
+    final int dim = b.columns() * a.rows();
+    final VecBasedMx result = new VecBasedMx(b.columns(), b.vec() instanceof SparseVec ? new SparseVec(dim) : new ArrayVec(dim));
     return multiplyTo(a, b, result);
   }
 

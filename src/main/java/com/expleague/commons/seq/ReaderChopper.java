@@ -163,4 +163,11 @@ public class ReaderChopper {
     }
     return builder.build();
   }
+
+  public char next() throws IOException {
+    if (read < 0)
+      return 0;
+    readNext();
+    return buffer[offset++];
+  }
 }

@@ -20,13 +20,13 @@ import java.util.stream.StreamSupport;
 public class CsvTools {
   private static final Logger log = Logger.create(CsvTools.class);
   public static Stream<CharSeq[]> readCSV(Reader reader, boolean parallel) {
-    return readCSV(reader, parallel, ',', '"', true);
+    return readCSV(reader, parallel, ',', '"', '"', true);
   }
 
-  public static Stream<CharSeq[]> readCSV(Reader reader, boolean parallel, char separator, char quote, boolean skipErrors) {
+  public static Stream<CharSeq[]> readCSV(Reader reader, boolean parallel, char separator, char quote, char escape, boolean skipErrors) {
     final ReaderChopper chopper = new ReaderChopper(reader);
     return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-        new CSVLinesIterator(chopper, quote, separator, skipErrors),
+        new CSVLinesIterator(chopper, quote, separator, escape, skipErrors),
         Spliterator.IMMUTABLE),
         parallel
     ).onClose(() -> StreamTools.close(reader));
@@ -71,12 +71,12 @@ public class CsvTools {
   }
 
   public static Stream<CsvRow> csvLines(Reader reader) {
-    return csvLines(reader, ',', '"', true);
+    return csvLines(reader, ',', '"', '"', true);
   }
 
-  public static Stream<CsvRow> csvLines(Reader reader, char separator, char quote, boolean skipErrors) {
+  public static Stream<CsvRow> csvLines(Reader reader, char separator, char quote, char escape, boolean skipErrors) {
     final TObjectIntMap<String> names = new TObjectIntHashMap<>();
-    final Stream<CharSeq[]> lines = readCSV(reader, false, separator, quote, skipErrors);
+    final Stream<CharSeq[]> lines = readCSV(reader, false, separator, quote, escape, skipErrors);
     final Spliterator<CharSeq[]> spliterator = lines.spliterator();
     spliterator.tryAdvance(header -> {
       for (int i = 0; i < header.length; i++) {
@@ -95,11 +95,12 @@ public class CsvTools {
     private CharSeqBuilder builder;
     private final char fieldQuote;
     private final char fieldSeparator;
+    private final char escape;
     private final boolean skipErrors;
 
-    public CSVLinesIterator(ReaderChopper chopper, char quote, char separator, boolean skipErrors) {
+    public CSVLinesIterator(ReaderChopper chopper, char quote, char separator, char escape, boolean skipErrors) {
       this.mask = new BitSet(Character.MAX_VALUE);
-      IntStream.of(this.fieldQuote = quote, this.fieldSeparator = separator, '\n').forEach(mask::set);
+      IntStream.of(this.fieldQuote = quote, this.fieldSeparator = separator, this.escape = escape, '\n').forEach(mask::set);
       this.skipErrors = skipErrors;
       this.chopper = chopper;
       builder = new CharSeqBuilder();
@@ -116,27 +117,42 @@ public class CsvTools {
           final int result = chopper.chop(builder, mask);
           if (result == fieldQuote) {
             while (true) {
-              chopper.chop(builder, fieldQuote);
-              if (chopper.eat(fieldQuote))
-                builder.add(fieldQuote);
-              else
-                break;
+              final int ch = chopper.chop(builder, mask);
+              if (ch == fieldQuote) {
+                if (chopper.eat(fieldQuote))
+                  builder.add(fieldQuote);
+                else
+                  break;
+              }
+              else if (ch == escape) {
+                final char next = chopper.next();
+                if (next > 0)
+                  builder.append(next);
+                else
+                  return false;
+              }
+              else builder.append((char)ch);
             }
           }
           else if (result == fieldSeparator) {
             appendAt(index++);
           }
+          else if (result == escape) {
+              builder.append((char)result);
+          }
           else {
             if (builder.length() > 0)
               appendAt(index++);
 
-            if (index > 0 && index < next.length) { // not enough records in this line, skip it
+            if (index > 0 && index < next.length - 1) { // not enough records in this line, skip it
               if (skipErrors) {
                 index = 0;
                 continue;
               }
               else throw new RuntimeException("");
             }
+            else if (index < next.length)
+              appendAt(index);
             return result == '\n';
           }
         }
