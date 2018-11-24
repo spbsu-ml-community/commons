@@ -8,13 +8,13 @@ import org.junit.Test;
 import java.nio.file.Paths;
 
 @SuppressWarnings("ConstantConditions")
-public class MyStemTest {
+public class MyStemImplTest {
 
-  private MyStem stemmer;
+  private MyStemImpl stemmer;
 
   @Before
   public void setUp() throws Exception {
-    stemmer = new MyStem(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
+    stemmer = new MyStemImpl(Paths.get("/home/mpikalov/Downloads/SimpleSearch/mystem"));
   }
 
   @Test
