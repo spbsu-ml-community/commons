@@ -254,7 +254,7 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
           try {
             return new CharSeqInt(CharSeqTools.parseInt(seq));
           }
-          catch (NumberFormatException ignore) { // integer failure
+          catch (IllegalArgumentException ignore) { // integer failure
             return new CharSeqLong(CharSeqTools.parseLong(seq));
           }
         }
@@ -262,7 +262,7 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
           return new CharSeqLong(CharSeqTools.parseLong(seq));
         }
       }
-      catch (NumberFormatException ignore) { // long failure
+      catch (IllegalArgumentException ignore) { // long failure
       }
     }
     {
