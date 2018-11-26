@@ -11,13 +11,14 @@ import java.util.concurrent.*;
 public class MyStemImpl implements MyStem {
   private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.DAYS, new LinkedBlockingQueue<>());
   private final Writer toMyStem;
-  private final Reader fromMyStem;
+  private ReaderChopper chopper;
 
   public MyStemImpl(Path mystemExecutable) {
     try {
       Process mystem = Runtime.getRuntime().exec(mystemExecutable.toString() + " -i --weight -c");
       toMyStem = new OutputStreamWriter(mystem.getOutputStream(), StandardCharsets.UTF_8);
-      fromMyStem = new InputStreamReader(mystem.getInputStream(), StandardCharsets.UTF_8);
+      Reader fromMyStem = new InputStreamReader(mystem.getInputStream(), StandardCharsets.UTF_8);
+      chopper  = new ReaderChopper(fromMyStem);
     }
     catch (IOException e) {
       throw new RuntimeException(e);
@@ -26,7 +27,8 @@ public class MyStemImpl implements MyStem {
 
   public MyStemImpl(InputStream fromMyStem, OutputStream toMyStem) {
     this.toMyStem = new OutputStreamWriter(toMyStem, StandardCharsets.UTF_8);
-    this.fromMyStem = new InputStreamReader(fromMyStem, StandardCharsets.UTF_8);
+    Reader fromMyStemReader = new InputStreamReader(fromMyStem, StandardCharsets.UTF_8);
+    chopper = new ReaderChopper(fromMyStemReader);
   }
 
   @Override
@@ -47,6 +49,7 @@ public class MyStemImpl implements MyStem {
     }
   }
 
+
   private class Task implements Runnable {
     private final CharSequence request;
     private final List<WordInfo> answer = new ArrayList<>();
@@ -63,7 +66,6 @@ public class MyStemImpl implements MyStem {
         toMyStem.append(request);
         toMyStem.append(" ").append("eol").append("\n");
         toMyStem.flush();
-        final ReaderChopper chopper = new ReaderChopper(fromMyStem);
         WordInfo next;
         //noinspection EqualsBetweenInconvertibleTypes
         while (!((next = readNext(chopper)).token()).equals("eol")) {
