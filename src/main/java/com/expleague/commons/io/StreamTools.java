@@ -4,7 +4,7 @@ package com.expleague.commons.io;
 import com.expleague.commons.util.logging.Logger;
 import com.expleague.commons.seq.CharSeqBuilder;
 import gnu.trove.list.array.TByteArrayList;
-import org.apache.tools.bzip2.CBZip2InputStream;
+//import org.apache.tools.bzip2.CBZip2InputStream;
 
 import java.io.*;
 import java.net.URL;
@@ -327,8 +327,8 @@ public class StreamTools {
     if (file.endsWith(".gz"))
       stream = new GZIPInputStream(stream);
     else if (file.endsWith(".bz2"))
-      stream = new CBZip2InputStream(stream);
-//      throw new NotImplementedException();
+//      stream = new CBZip2InputStream(stream);
+      throw new UnsupportedOperationException();
     return new InputStreamReader(stream, UTF);
   }
 

@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.nio.file.Paths;
 
 @SuppressWarnings("ConstantConditions")
-public class MyStemImplTest {
+public abstract class MyStemImplTest {
 
   private MyStemImpl stemmer;
 
