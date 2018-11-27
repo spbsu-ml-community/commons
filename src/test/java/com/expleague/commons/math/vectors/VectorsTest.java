@@ -533,7 +533,7 @@ public class VectorsTest extends JUnitIOCapture {
     MxTools.lanczos(a, q, sigma, rng);
     MxTools.divideAndConquer(sigma, sigma1, qq);
     Mx result = MxTools.multiply(MxTools.transpose(qq), MxTools.multiply(sigma1, qq));
-    if (VecTools.distance(sigma, result) > 1e-4 * dim * dim) {
+    if (VecTools.distance(sigma, result) > 1e-3 * dim * dim) {
       assertTrue("" + VecTools.distance(sigma, result), VecTools.distance(sigma, result) < 1);
     }
     q = MxTools.multiply(qq, q);
