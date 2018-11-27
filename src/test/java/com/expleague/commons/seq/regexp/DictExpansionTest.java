@@ -3,19 +3,17 @@ package com.expleague.commons.seq.regexp;
 
 import com.expleague.commons.JUnitIOCapture;
 import com.expleague.commons.func.types.ConversionRepository;
-import com.expleague.commons.math.MathTools;
-import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.io.codec.seq.DictExpansion;
 import com.expleague.commons.io.codec.seq.ListDictionary;
+import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
+import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.seq.*;
 import com.expleague.commons.util.ArrayTools;
 import com.expleague.commons.util.logging.Interval;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.TLongIntMap;
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.Attributes;
@@ -26,7 +24,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -230,121 +227,6 @@ public class DictExpansionTest extends JUnitIOCapture {
       }
     }
   }
-
-  private <T extends Comparable<T>> boolean isSubstring(final Seq<T> s, final Seq<T> t) {
-    // t is substr of s
-    if (t.length() > s.length()) return false;
-    for (int i = 0; i <= s.length() - t.length(); i++) {
-      if (s.sub(i, i + t.length()).equals(t)) {
-        //System.out.println(t + " is substr of " + s);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public void testOptimalReduce() {
-    final List<Character> alphabet = new ArrayList<>();
-    for (char a = 'a'; a <= 'c'; a++)
-      alphabet.add(a);
-    final Random rnd = new FastRandom(0);
-    final DictExpansion<Character> de = new DictExpansion<>(alphabet, 10);
-    for (int i = 0; i < 200; i++) {
-      final int len = rnd.nextInt(150);
-      final StringBuilder builder = new StringBuilder(len);
-      for (int c = 0; c < len; c++)
-        builder.append((char)('a' + rnd.nextInt('c' - 'a' + 1)));
-      //System.out.println(CharSeq.create(builder));
-      de.accept(CharSeq.create(builder));
-    }
-    System.out.println(de.result());
-    /*System.out.println(isSubstring(CharSeq.create("aaa"), CharSeq.create("aa")));
-    System.out.println(isSubstring(CharSeq.create("aaa"), CharSeq.create("aab")));
-    System.out.println(isSubstring(CharSeq.create("aaab"), CharSeq.create("aab")));
-    System.out.println(isSubstring(CharSeq.create("aaba"), CharSeq.create("aab")));*/
-  }
-
-  private <T extends Comparable<T>> T indexOfTwoStr(final Seq<T> first, final Seq<T> second, T betw, int ind) {
-    if (ind >= 0 && ind < first.length()) {
-      return first.at(ind);
-    } else if (ind == first.length()) {
-      return betw;
-    } else if (ind > first.length() && ind < first.length() + 1 + second.length()) {
-      return second.at(ind - first.length() - 1);
-    } else {
-      return null;
-    }
-  }
-
-  private int[] pi = new int[10000];
-  private Seq nullSymCache;
-  private Seq nullSym(Seq s) {
-//    if (nullSymCache == null) {
-      Object nullStr = Array.newInstance(s.elementType(), 1);
-      return nullSymCache = CharSeqTools.create(nullStr);
-//    }
-//    return nullSymCache;
-  }
-  private <T extends Comparable<T>> boolean isSubstring2(final Seq<T> s, final Seq<T> t) {
-    // t is substr of s
-    //Seq<T> superStr = CharSeqTools.concat(t, (Seq<T>)CharSeqTools.create(new null), s);
-    if (t.length() > s.length())
-      return false;
-
-    int[] pi = new int[s.length()];
-//    int n = t.length() + 1 + s.length();
-//    if (s.elementType() == char.class) {
-//      CharSeq concat = (CharSeq)CharSeqTools.<CharSeq>concat((CharSeq)t, new CharSeqChar((char)0), (CharSeq)s);
-//      for (int i = 1; i < n; i++) {
-//        int j = pi[i-1];
-//        while (j > 0 && concat.charAt(i) != concat.charAt(j))
-//          j = pi[j-1];
-//        if (concat.charAt(i) == concat.charAt(j))
-//          j++;
-//        if (j == t.length())
-//          return true;
-//        pi[i] = j;
-//      }
-//    }
-//    else {
-//      T symb = null;
-//      Seq<T> nullSym = nullSym(s);
-//      Seq<T> concat = CharSeqTools.concat(t, nullSym, s);
-//      for (int i = 1; i < n; i++) {
-//        int j = pi[i-1];
-//        while (j > 0 && concat.at(i) != concat.at(j))
-//          j = pi[j-1];
-//        if (concat.at(i) == concat.at(j))
-//          j++;
-//        if (j == t.length())
-//          return true;
-//        pi[i] = j;
-//      }
-//    }
-    return false;
-  }
-
-  @Test
-  public void testIsSubstringCorrect() {
-    final Random rnd = new FastRandom(0);
-    for (int i = 0; i < 10000; i++) {
-      final int len1 = rnd.nextInt(150);
-      final StringBuilder builder1 = new StringBuilder(len1);
-      for (int c = 0; c < 1 + len1; c++)
-        builder1.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
-      final int len2 = rnd.nextInt(150);
-      final StringBuilder builder2 = new StringBuilder(len1);
-      for (int c = 0; c < 1 + len2; c++)
-        builder2.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
-      CharSeq left = CharSeq.compact(builder1.toString());
-      CharSeq right = CharSeq.compact(builder2.toString());
-      if (isSubstring(left, right) != isSubstring2(left, right)) {
-        isSubstring2(left, right);
-        Assert.assertEquals(isSubstring(left, right), isSubstring2(left, right));
-      }
-    }
-  }
-
   @Test
   public void testIsSubstringSpeed() {
     Interval.start();
