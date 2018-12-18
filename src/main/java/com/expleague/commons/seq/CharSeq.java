@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.text.CharacterIterator;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -61,6 +62,73 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
         return charAt(index++);
       }
     }).limit(length());
+  }
+
+  public CharacterIterator it() {
+    return new CharacterIterator() {
+      int index = 0;
+      @Override
+      public char first() {
+        if (length() == 0)
+          return DONE;
+        return charAt(0);
+      }
+
+      @Override
+      public char last() {
+        if (length() == 0)
+          return DONE;
+        return charAt(length() - 1);
+      }
+
+      @Override
+      public char current() {
+        return index > length() || index < 0 ? DONE : charAt(index);
+      }
+
+      @Override
+      public char next() {
+        return index < length() - 1 ? charAt(++index) : DONE;
+      }
+
+      @Override
+      public char previous() {
+        return index >= 0 ? charAt(--index) : DONE;
+      }
+
+      @Override
+      public char setIndex(int position) {
+        if (position < 0 || position >= length())
+          return DONE;
+        index = position;
+        return charAt(index);
+      }
+
+      @Override
+      public int getBeginIndex() {
+        return 0;
+      }
+
+      @Override
+      public int getEndIndex() {
+        return length();
+      }
+
+      @Override
+      public int getIndex() {
+        return index;
+      }
+
+      @Override
+      public Object clone() {
+        try {
+          return super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    };
   }
 
   @Override

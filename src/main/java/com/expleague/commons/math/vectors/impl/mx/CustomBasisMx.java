@@ -15,12 +15,12 @@ import com.expleague.commons.math.vectors.impl.vectors.SparseVec;
 public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
   private final B mxBasis;
   private final IntBasis vecBasis;
-  private final SparseVec[] rows;
+  private final Vec[] rows;
 
   public CustomBasisMx(final B mxBasis) {
     this.mxBasis = mxBasis;
     this.vecBasis = new IntBasis(mxBasis.columns());
-    this.rows = new SparseVec[mxBasis.rows()];
+    this.rows = new Vec[mxBasis.rows()];
   }
 
   public CustomBasisMx(final B mxBasis, final SparseVec[] rows) {
@@ -32,7 +32,7 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
   @Override
   public double get(final int i, final int j) {
     rangeCheck(i, j);
-    final SparseVec row = rows[i];
+    final Vec row = rows[i];
     if (row != null) {
       return row.get(j);
     }
@@ -42,7 +42,7 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
   @Override
   public Mx set(final int i, final int j, final double val) {
     rangeCheck(i, j);
-    SparseVec row = rows[i];
+    Vec row = rows[i];
     if (row != null) {
       row.set(j, val);
     } else {
@@ -57,9 +57,13 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
   /**
    * nothing is checked, use on your own responsibility
    */
-  public Mx setRow(final int i, final SparseVec row) {
+  public Mx setRow(final int i, final Vec row) {
     rows[i] = row;
     return this;
+  }
+
+  public Vec getRow(final int i) {
+    return rows[i];
   }
 
   @Override
@@ -89,8 +93,8 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
    * @important NEVER CHANGE RETURNED VALUE, IT HAS SIDE AFFECTS
    */
   @Override
-  public SparseVec row(final int i) {
-    final SparseVec row = rows[i];
+  public Vec row(final int i) {
+    final Vec row = rows[i];
     return row != null ? row : (rows[i] = new SparseVec(columns()));
   }
 
@@ -140,9 +144,8 @@ public class CustomBasisMx<B extends MxBasis> extends Mx.Stub {
   }
 
   public void clear() {
-    for (SparseVec row : rows) {
-      if (row != null)
-        row.clear();
+    for (Vec row : rows) {
+       VecTools.scale(row, 0);
     }
   }
 

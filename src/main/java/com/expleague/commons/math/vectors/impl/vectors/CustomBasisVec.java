@@ -20,6 +20,7 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
   public TIntArrayList indices = new TIntArrayList();
   public TDoubleArrayList values = new TDoubleArrayList();
   protected B basis;
+  private ArrayVec backup;
 
   public CustomBasisVec(final B basis, final int[] indeces, final double[] values) {
     this.basis = basis;
@@ -57,8 +58,8 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
 
   @Override
   public Vec set(final int i, final double val) {
-    if (Double.isNaN(val))
-      throw new IllegalArgumentException();
+//    if (Double.isNaN(val))
+//      throw new IllegalArgumentException();
     final int realIndex = index(i);
     if (realIndex >= 0 && indices.getQuick(realIndex) == i) {
       if (val == 0) {
@@ -141,7 +142,6 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
     for (int i = 0; i < indicesLen; ++i) {
       src[offset + indices.getQuick(i)] = values.getQuick(i);
     }
-
   }
 
   @Override

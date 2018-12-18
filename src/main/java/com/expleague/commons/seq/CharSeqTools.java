@@ -397,21 +397,45 @@ public class CharSeqTools {
   }
 
   public static Stream<CharSeq> lines(final Reader input) {
-    return lines(input, false);
+    return llines(input, false).map(Line::line);
   }
 
   public static Stream<CharSeq> lines(final Reader input, boolean parallel) {
+    return llines(input, parallel).map(Line::line);
+  }
+
+  public static class Line {
+    public final int number;
+    public final CharSeq line;
+
+    private Line(int number, CharSeq line) {
+      this.number = number;
+      this.line = line;
+    }
+
+    int number() {
+      return number;
+    }
+
+    CharSeq line() {
+      return line;
+    }
+  }
+
+  public static Stream<Line> llines(final Reader input, boolean parallel) {
     final ReaderChopper chopper = new ReaderChopper(input);
     CharSequence next;
-    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<CharSeq>() {
-      CharSeq next;
+    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<Line>() {
+      int index = 0;
+      Line next;
       @Override
       public boolean hasNext() {
         try {
-          next = chopper.chop('\n');
-          if (next != null) {
-            if (next.length() > 0 && next.at(next.length() - 1) == '\r')
-              next = next.subSequence(0, next.length() - 1);
+          CharSeq nextLine = chopper.chop('\n');
+          if (nextLine != null) {
+            if (nextLine.length() > 0 && nextLine.at(nextLine.length() - 1) == '\r')
+              nextLine = nextLine.subSequence(0, nextLine.length() - 1);
+            next = new Line(index++, nextLine);
             return true;
           }
           return false;
@@ -421,7 +445,7 @@ public class CharSeqTools {
       }
 
       @Override
-      public CharSeq next() {
+      public Line next() {
         return next;
       }
     }, Spliterator.IMMUTABLE), parallel).onClose(() -> StreamTools.close(input));

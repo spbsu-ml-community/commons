@@ -1,6 +1,8 @@
 package com.expleague.commons.math.vectors;
 
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
+import com.expleague.commons.math.vectors.impl.vectors.SparseVec;
+import com.expleague.commons.random.FastRandom;
 import junit.framework.TestCase;
 
 /**
@@ -33,5 +35,28 @@ public class VecToolsTest extends TestCase {
   public void testJoin() throws Exception {
     final Vec expected = new ArrayVec(1, 2, 3, 4);
     assertEquals(expected, VecTools.join(expected.sub(0, 2), expected.sub(2, 2)));
+  }
+
+  public void testSparseAppend() {
+    FastRandom rng = new FastRandom(100500);
+    Vec sparseA = new SparseVec(100);
+    Vec sparseB = new SparseVec(100);
+    Vec denseA = new ArrayVec(100);
+    Vec denseB = new ArrayVec(100);
+    for (int i = 0; i < 1000; i++) {
+      VecTools.scale(denseA, 0);
+      for (int j = 0; j < 100; j+= rng.nextPoisson(5)) {
+        double val = rng.nextDouble();
+        denseA.set(j, val);
+      }
+      VecTools.scale(denseB, 0);
+      for (int j = 0; j < 100; j+= rng.nextPoisson(5)) {
+        double val = rng.nextDouble();
+        denseB.set(j, val);
+      }
+      VecTools.assign(sparseA, denseA);
+      VecTools.assign(sparseB, denseB);
+      assertEquals(VecTools.append(denseA, denseB), VecTools.append(sparseA, sparseB));
+    }
   }
 }

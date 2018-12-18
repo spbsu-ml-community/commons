@@ -115,16 +115,16 @@ public class CsvTools {
         int index = 0;
         while (true) {
           final int result = chopper.chop(builder, mask);
-          if (result == fieldQuote) {
+          if (result == this.fieldQuote) {
             while (true) {
               final int ch = chopper.chop(builder, mask);
-              if (ch == fieldQuote) {
-                if (chopper.eat(fieldQuote))
-                  builder.add(fieldQuote);
+              if (ch == this.fieldQuote) {
+                if (chopper.eat(this.fieldQuote))
+                  builder.add(this.fieldQuote);
                 else
                   break;
               }
-              else if (ch == escape) {
+              else if (ch == this.escape) {
                 final char next = chopper.next();
                 if (next > 0)
                   builder.append(next);
@@ -134,26 +134,28 @@ public class CsvTools {
               else builder.append((char)ch);
             }
           }
-          else if (result == fieldSeparator) {
-            appendAt(index++);
-          }
-          else if (result == escape) {
-              builder.append((char)result);
-          }
           else {
-            if (builder.length() > 0)
+            if (result == this.fieldSeparator) {
               appendAt(index++);
-
-            if (index > 0 && index < next.length - 1) { // not enough records in this line, skip it
-              if (skipErrors) {
-                index = 0;
-                continue;
-              }
-              else throw new RuntimeException("");
             }
-            else if (index < next.length)
-              appendAt(index);
-            return result == '\n';
+            else if (result == this.escape) {
+                builder.append((char)result);
+            }
+            else {
+              if (builder.length() > 0)
+                appendAt(index++);
+
+              if (index > 0 && index < next.length - 1) { // not enough records in this line, skip it
+                if (skipErrors) {
+                  index = 0;
+                  continue;
+                }
+                else throw new RuntimeException("");
+              }
+              else if (index < next.length)
+                appendAt(index);
+              return result == '\n';
+            }
           }
         }
       }

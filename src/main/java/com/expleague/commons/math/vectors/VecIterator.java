@@ -1,5 +1,7 @@
 package com.expleague.commons.math.vectors;
 
+import gnu.trove.procedure.TIntDoubleProcedure;
+
 import java.util.Iterator;
 
 /**
@@ -16,6 +18,16 @@ public interface VecIterator extends Iterator<Double> {
   boolean seek(int pos);
 
   double setValue(double v);
+
+  default boolean advance(int index, TIntDoubleProcedure todo) {
+    todo.execute(index(), value());
+    while(advance()) {
+      if (index() >= index)
+        return true;
+      todo.execute(index(), value());
+    }
+    return false;
+  }
 
   @Override
   default boolean hasNext() {

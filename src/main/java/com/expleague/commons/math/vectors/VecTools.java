@@ -14,6 +14,7 @@ import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.procedure.TIntDoubleProcedure;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -83,33 +84,40 @@ public class VecTools {
       if (vec instanceof VecBasedMx)
         vec = ((VecBasedMx)vec).vec;
       if (left instanceof CustomBasisVec) {
-        final VecIterator iterRight = vec.nonZeroes();
         final int maxSize = countNonZeroesUpperBound(left) + countNonZeroesUpperBound(vec);
         final TIntArrayList newIndeces = new TIntArrayList(maxSize);
         final TDoubleArrayList newValues = new TDoubleArrayList(maxSize);
+        TIntDoubleProcedure append = (i, v) -> {
+          newIndeces.add(i);
+          newValues.add(v);
+          return true;
+        };
+
         final VecIterator iterLeft = left.nonZeroes();
+        final VecIterator iterRight = vec.nonZeroes();
         iterLeft.advance();
         iterRight.advance();
 
         while (iterLeft.isValid() || iterRight.isValid()) {
-          if (iterLeft.isValid() && (!iterRight.isValid() || iterLeft.index() < iterRight.index())) {
-            newIndeces.add(iterLeft.index());
-            newValues.add(iterLeft.value());
-            iterLeft.advance();
-          }
-          else if (iterLeft.isValid() && iterLeft.index() == iterRight.index()) {
-            final double newVal = iterLeft.value() + iterRight.value();
-            if (newVal != 0) {
-              newIndeces.add(iterLeft.index());
-              newValues.add(newVal);
+          if (iterLeft.isValid() && iterRight.isValid()) {
+            if (iterLeft.index() < iterRight.index()) {
+              iterLeft.advance(iterRight.index(), append);
             }
-            iterLeft.advance();
-            iterRight.advance();
+            else if (iterLeft.index() > iterRight.index()) {
+              iterRight.advance(iterLeft.index(), append);
+            }
+            else {
+              newIndeces.add(iterLeft.index());
+              newValues.add(iterLeft.value() + iterRight.value());
+              iterLeft.advance();
+              iterRight.advance();
+            }
+          }
+          else if (iterLeft.isValid()) {
+            iterLeft.advance(Integer.MAX_VALUE, append);
           }
           else {
-            newIndeces.add(iterRight.index());
-            newValues.add(iterRight.value());
-            iterRight.advance();
+            iterRight.advance(Integer.MAX_VALUE, append);
           }
         }
         if (maxSize > newIndeces.size() * 1.3) {
@@ -296,6 +304,16 @@ public class VecTools {
     return copy;
   }
 
+  public static Vec copyDense(final Vec vec) {
+    if (vec instanceof SparseVec && ((SparseVec) vec).size() / (double)vec.dim() > 0.3) {
+      Vec copy = new ArrayVec(vec.dim());
+      assign(copy, vec);
+      return copy;
+    }
+
+    return copy(vec);
+  }
+
   public static double l1(final Vec vec) {
     double result = 0;
     final VecIterator iterator = vec.nonZeroes();
@@ -454,7 +472,7 @@ public class VecTools {
 
   @SuppressWarnings("unchecked")
   public static <T extends  Vec> T sum(final Vec a, final Vec b) {
-    final Vec result = copy(a);
+    final Vec result = copyDense(a);
     return (T)append(result, b);
   }
 
@@ -483,9 +501,7 @@ public class VecTools {
       } else if (source instanceof ArrayVec && target instanceof ArrayVec)
         ((ArrayVec) target).assign((ArrayVec) source);
       else {
-        final VecIterator aiter = target.nonZeroes();
-        while (aiter.advance())
-          aiter.setValue(0.);
+        scale(target, 0);
         return append(target, source);
       }
       return target;

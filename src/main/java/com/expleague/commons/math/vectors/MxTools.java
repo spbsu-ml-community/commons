@@ -198,9 +198,8 @@ public class MxTools {
       for (int j = 0; j < a.rows(); j++) {
         final VecIterator nz = a.row(j).nonZeroes();
         while (nz.advance()) {
-          final SparseVec row = result.row(nz.index());
-          row.indices.add(j);
-          row.values.add(nz.value());
+          final Vec row = result.row(nz.index());
+          row.set(j, nz.value());
         }
       }
       return result;
