@@ -1,5 +1,6 @@
 package com.expleague.commons.math.vectors.impl.vectors;
 
+import com.expleague.commons.func.IntDoubleConsumer;
 import com.expleague.commons.math.vectors.OperableVec;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecIterator;
@@ -9,6 +10,7 @@ import com.expleague.commons.util.ArrayTools;
 
 import java.util.function.DoubleSupplier;
 import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 /**
  * User: solar
@@ -139,6 +141,15 @@ public class ArrayVec extends Vec.Stub implements OperableVec<ArrayVec> {
   @Override
   public VecIterator nonZeroes() {
     return new SkipVecNZIterator(this);
+  }
+
+  @Override
+  public void visitNonZeroes(IntDoubleConsumer consumer) {
+    IntStream.range(0, dim()).forEach(i -> {
+      double v = get(i);
+      if (v != 0)
+        consumer.accept(i, v);
+    });
   }
 
   @Override

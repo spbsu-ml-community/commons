@@ -1,5 +1,6 @@
 package com.expleague.commons.math.vectors;
 
+import com.expleague.commons.func.IntDoubleConsumer;
 import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.seq.Seq;
@@ -20,7 +21,11 @@ public interface Vec extends Seq<Double> {
   double get(int i);
   Vec set(int i, double val);
   Vec adjust(int i, double increment);
+
+  /** ordered access to non zero elements */
   VecIterator nonZeroes();
+  /** unordered access to non zero elements */
+  void visitNonZeroes(IntDoubleConsumer consumer);
 
   int dim();
 
@@ -94,6 +99,14 @@ public interface Vec extends Seq<Double> {
     @Override
     public DoubleStream stream() {
       return IntStream.range(0, length()).mapToDouble(this::get);
+    }
+
+    @Override
+    public void visitNonZeroes(IntDoubleConsumer consumer) {
+      final VecIterator nz = nonZeroes();
+      while (nz.advance()) {
+        consumer.accept(nz.index(), nz.value());
+      }
     }
   }
 }

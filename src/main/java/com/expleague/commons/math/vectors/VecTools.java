@@ -107,8 +107,11 @@ public class VecTools {
               iterRight.advance(iterLeft.index(), append);
             }
             else {
-              newIndeces.add(iterLeft.index());
-              newValues.add(iterLeft.value() + iterRight.value());
+              double val = iterLeft.value() + iterRight.value();
+              if (val != 0.) {
+                newIndeces.add(iterLeft.index());
+                newValues.add(val);
+              }
               iterLeft.advance();
               iterRight.advance();
             }
@@ -141,12 +144,7 @@ public class VecTools {
           append(((SparseMx) left).row(i), ((SparseMx) vec).row(i));
         }
       }
-      else {
-        final VecIterator viter = vec.nonZeroes();
-        while (viter.advance()) {
-          left.adjust(viter.index(), viter.value());
-        }
-      }
+      else vec.visitNonZeroes(left::adjust);
     }
 
     return leftOrig;
