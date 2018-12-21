@@ -11,8 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import com.expleague.commons.func.types.ConversionDependant;
 import com.expleague.commons.func.types.TypeConverter;
 import com.expleague.commons.util.Pair;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -25,7 +25,7 @@ import java.util.function.Predicate;
  */
 @SuppressWarnings("unchecked")
 public class TypeConvertersCollection implements ConversionRepository {
-  private static final Log LOG = LogFactory.getLog(TypeConvertersCollection.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TypeConvertersCollection.class);
   private final ConversionRepository base;
   private final Predicate<TypeConverter> customize;
   private Map<Pair<Class, Class>, Factory<TypeConverter>> factories = new HashMap<>();
@@ -120,13 +120,8 @@ public class TypeConvertersCollection implements ConversionRepository {
   @Override
   public synchronized <U,V> TypeConverter<U,V> converter(final Class<U> from, final Class<V> to) {
     if (to.isAssignableFrom(from))
-      return new TypeConverter<U, V>() {
-        @Override
-        public V convert(final U from) {
-          return (V)from;
-        }
-      };
-    final Pair<Class, Class> key = Pair.create((Class)from, (Class)to);
+      return from1 -> (V) from1;
+    final Pair<Class, Class> key = Pair.create(from, to);
     TypeConverter<U, V> converter = (TypeConverter<U, V>)cache.get(key);
     if (converter == null) { // trying to fall back by inheritance
       Pair<Class, Class> bestMatch = null;
@@ -195,17 +190,14 @@ public class TypeConvertersCollection implements ConversionRepository {
       //noinspection SimplifiableIfStatement
       if (params.length != 2 || params[0] == null || params[1] == null)
         return false;
-      return registerInner(Pair.create(params[0], params[1]), new Factory<TypeConverter>() {
-        @Override
-        public TypeConverter create() {
-          try {
-            return (TypeConverter) converterClass.newInstance();
-          } catch (InstantiationException e) {
-            LOG.warn("Unable to create converter ", e);
-            return null;
-          } catch (IllegalAccessException e) {
-            throw new RuntimeException("Should never happen!", e);
-          }
+      return registerInner(Pair.create(params[0], params[1]), () -> {
+        try {
+          return (TypeConverter) converterClass.newInstance();
+        } catch (InstantiationException e) {
+          LOG.warn("Unable to create converter ", e);
+          return null;
+        } catch (IllegalAccessException e) {
+          throw new RuntimeException("Should never happen!", e);
         }
       });
     }

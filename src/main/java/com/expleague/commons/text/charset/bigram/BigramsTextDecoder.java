@@ -1,10 +1,11 @@
 package com.expleague.commons.text.charset.bigram;
 
-import com.expleague.commons.util.logging.Logger;
 import com.expleague.commons.text.charset.TextDecoder;
 import com.expleague.commons.text.charset.TextDecoderTools;
 import com.expleague.commons.util.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -18,7 +19,7 @@ import java.util.TreeMap;
  * @author lyadzhin
  */
 public class BigramsTextDecoder implements TextDecoder {
-  private static final Logger log = Logger.create(BigramsTextDecoder.class);
+  private static final Logger log = LoggerFactory.getLogger(BigramsTextDecoder.class);
 
   // Tuning params. Obtained experimentally
 

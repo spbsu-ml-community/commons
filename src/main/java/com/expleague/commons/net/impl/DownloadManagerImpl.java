@@ -16,8 +16,8 @@ import com.expleague.commons.net.Policy;
 import com.expleague.commons.net.Task;
 import com.expleague.commons.net.URLConnectionTools;
 import com.expleague.commons.util.Pair;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: solar
@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
  * Time: 16:33:44
  */
 public class DownloadManagerImpl implements DownloadManager {
-  private static final Log LOG = LogFactory.getLog(DownloadManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DownloadManagerImpl.class);
   private final ExecutorService executor = new ThreadPoolExecutor(10, 20, 100, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
 
     @Override
@@ -73,7 +73,7 @@ public class DownloadManagerImpl implements DownloadManager {
                 }
               }
               catch (InterruptedException e) {
-                LOG.warn(e);
+                LOG.warn("", e);
               }
             }
           }
@@ -94,7 +94,7 @@ public class DownloadManagerImpl implements DownloadManager {
                     tasksQueue.wait();
                   }
                   catch (InterruptedException e) {
-                    LOG.error(e);
+                    LOG.error("", e);
                   }
                 }
                 pair = tasksQueue.remove();
@@ -144,7 +144,7 @@ public class DownloadManagerImpl implements DownloadManager {
                     tasksQueue.wait();
                   }
                   catch (InterruptedException e) {
-                    LOG.error(e);
+                    LOG.error("", e);
                   }
                   continue;
                 }
@@ -157,7 +157,7 @@ public class DownloadManagerImpl implements DownloadManager {
                 executor.execute(command);
               }
               catch (Exception th) {
-                LOG.warn(th);
+                LOG.warn("", th);
               }
             }
           }

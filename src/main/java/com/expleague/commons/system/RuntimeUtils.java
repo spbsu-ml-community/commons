@@ -3,9 +3,10 @@ package com.expleague.commons.system;
 import com.expleague.commons.io.StreamTools;
 import com.expleague.commons.seq.CharSeqTools;
 import com.expleague.commons.util.MultiMap;
-import com.expleague.commons.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -28,7 +29,8 @@ import java.util.logging.Level;
  *         Date: 27.09.11
  */
 public class RuntimeUtils {
-  private static final Logger LOG = Logger.create(RuntimeUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RuntimeUtils.class);
+
   /**
    * Method adapted from http://jlibs.googlecode.com/svn/trunk/core/src/main/java/jlibs/core/lang/RuntimeUtil.java.
    * See http://jlibs.googlecode.com for more information

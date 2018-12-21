@@ -1,9 +1,10 @@
 package com.expleague.commons.io;
 
 
-import com.expleague.commons.util.logging.Logger;
 import com.expleague.commons.seq.CharSeqBuilder;
 import gnu.trove.list.array.TByteArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //import org.apache.tools.bzip2.CBZip2InputStream;
 
 import java.io.*;
@@ -22,7 +23,7 @@ import java.util.zip.ZipInputStream;
  */
 public class StreamTools {
   public static final Charset UTF = Charset.forName("UTF-8");
-  private static final Logger LOG = Logger.create(StreamTools.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StreamTools.class);
   private static final int BUFFER_LENGTH = 4096;
   private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
@@ -278,7 +279,7 @@ public class StreamTools {
     }
     catch (IOException ioe) {
       System.err.println(readByteStream(process.getErrorStream()));
-      LOG.error(ioe);
+      LOG.error("", ioe);
       throw ioe;
     }
     return bytes;

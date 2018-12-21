@@ -1,11 +1,11 @@
 package com.expleague.commons.util;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
 
-
-import org.apache.commons.logging.LogFactory;
 
 /**
  * User: solar
@@ -13,7 +13,7 @@ import org.apache.commons.logging.LogFactory;
  * Time: 14:42
  */
 public final class ThreadTools {
-
+  public static final Logger log = LoggerFactory.getLogger(ThreadTools.class);
   public static final int COMPUTE_UNITS = Runtime.getRuntime().availableProcessors();
 
   private ThreadTools() {
@@ -37,7 +37,7 @@ public final class ThreadTools {
         thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
           @Override
           public void uncaughtException(@NotNull final Thread t, @NotNull final Throwable e) {
-            LogFactory.getLog(ThreadTools.class).error("Thread " + t + " dead", e);
+            log.error("Thread " + t + " dead", e);
           }
         });
         return thread;

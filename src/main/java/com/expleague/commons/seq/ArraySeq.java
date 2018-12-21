@@ -1,10 +1,7 @@
 package com.expleague.commons.seq;
 
-
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -98,22 +95,20 @@ public class ArraySeq<T> extends Seq.Stub<T> {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (obj == this)
-      return true;
-    if (obj == null || obj.getClass() != getClass())
-      return false;
-
-    final ArraySeq other = (ArraySeq) obj;
-    return new EqualsBuilder().
-        append(arr, other.arr).
-        append(start, other.start).
-        append(end, other.end).
-        isEquals();
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ArraySeq)) return false;
+    if (!super.equals(o)) return false;
+    ArraySeq<?> arraySeq = (ArraySeq<?>) o;
+    return start == arraySeq.start &&
+        end == arraySeq.end &&
+        Arrays.equals(arr, arraySeq.arr);
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(arr).append(start).append(end).toHashCode();
+    int result = Objects.hash(super.hashCode(), start, end);
+    result = 31 * result + Arrays.hashCode(arr);
+    return result;
   }
 }

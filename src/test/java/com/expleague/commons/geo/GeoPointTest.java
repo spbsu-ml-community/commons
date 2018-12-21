@@ -1,7 +1,8 @@
 package com.expleague.commons.geo;
 
-import junit.framework.Assert;
+import com.expleague.commons.math.MathTools;
 import junit.framework.TestCase;
+import org.junit.Assert;
 
 /**
  * User: lyadzhin
@@ -74,8 +75,8 @@ public class GeoPointTest extends TestCase {
   }
 
   public void testEquals() {
-    assertTrue(GeoPoint.valueOf("-90,180").equals(GeoPoint.valueOf("-90,180")));
-    assertFalse(GeoPoint.valueOf("-90,180").equals(GeoPoint.valueOf("-90,179.5")));
+    Assert.assertTrue(GeoPoint.valueOf("-90,180").equals(GeoPoint.valueOf("-90,180")));
+    Assert.assertFalse(GeoPoint.valueOf("-90,180").equals(GeoPoint.valueOf("-90,179.5")));
   }
 
   public void testDistance() {
@@ -83,6 +84,6 @@ public class GeoPointTest extends TestCase {
     Assert.assertFalse(Double.isNaN(distance1));
     final double distance2 = GEO_SPB_BENUA.distanceTo(GEO_MSK_MOROZOV);
     Assert.assertFalse(Double.isNaN(distance2));
-    Assert.assertEquals(distance1, distance2);
+    Assert.assertEquals(distance1, distance2, MathTools.EPSILON);
   }
 }

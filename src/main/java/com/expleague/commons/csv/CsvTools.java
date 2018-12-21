@@ -4,9 +4,10 @@ import com.expleague.commons.io.StreamTools;
 import com.expleague.commons.seq.CharSeq;
 import com.expleague.commons.seq.CharSeqBuilder;
 import com.expleague.commons.seq.ReaderChopper;
-import com.expleague.commons.util.logging.Logger;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -18,7 +19,8 @@ import java.util.stream.StreamSupport;
 
 @SuppressWarnings("unused")
 public class CsvTools {
-  private static final Logger log = Logger.create(CsvTools.class);
+  private static final Logger log = LoggerFactory.getLogger(CsvTools.class);
+
   public static Stream<CharSeq[]> readCSV(Reader reader, boolean parallel) {
     return readCSV(reader, parallel, ',', '"', '"', true);
   }

@@ -2,8 +2,9 @@ package com.expleague.commons.net.impl;
 
 import com.expleague.commons.net.DownloadManager;
 import com.expleague.commons.net.URLConnectionTools;
-import com.expleague.commons.util.logging.Logger;
 import com.expleague.commons.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -19,7 +20,7 @@ import java.util.List;
  * Time: 17:25:29
  */
 public final class URLStatusImpl implements DownloadManager.URLStatus {
-  private static final Logger LOG = Logger.create(URLStatusImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(URLStatusImpl.class);
   private final String encoding;
   private final int statusCode;
   private Pair<String, Integer>[] redirects;
@@ -104,7 +105,7 @@ public final class URLStatusImpl implements DownloadManager.URLStatus {
       }
     }
     catch (IOException e) {
-      LOG.error(e);
+      LOG.error("", e);
     }
 
     //noinspection unchecked

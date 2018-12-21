@@ -4,11 +4,11 @@ import com.expleague.commons.seq.CharSeq;
 import com.expleague.commons.seq.CharSeqTools;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import org.apache.commons.lang3.time.DateParser;
-import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.io.Reader;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,9 +103,9 @@ public interface CsvRow extends Function<String, Optional<CharSeq>>, Cloneable {
     }
   }
 
-  Map<String, DateParser> dateParsers = new HashMap<>();
+  Map<String, DateFormat> dateParsers = new HashMap<>();
   default Date asDate(String name, String pattern) {
-    final DateParser parser = dateParsers.compute(pattern, (p, v) -> v != null ? v : FastDateFormat.getInstance(p));
+    final DateFormat parser = dateParsers.compute(pattern, (p, v) -> v != null ? v : new SimpleDateFormat(p));
     try {
       Optional<CharSeq> apply = apply(name);
       if (apply.isPresent())

@@ -3,7 +3,6 @@ package com.expleague.commons.text.charset;
 import com.expleague.commons.text.charset.bigram.BigramsTextAnalyzer;
 import com.expleague.commons.text.charset.bigram.BigramsTextDecoder;
 import com.expleague.commons.text.charset.bigram.CharFilter;
-import com.expleague.commons.util.logging.Logger;
 import com.expleague.commons.text.charset.bigram.BigramsTable;
 
 import java.io.InputStream;
@@ -15,6 +14,8 @@ import java.util.ArrayList;
 import java.nio.charset.Charset;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * To change this template use File | Settings | File Templates.
  */
 public class TextDecoderTools {
-    private static final Logger LOG = Logger.create(TextDecoderTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TextDecoderTools.class);
 
   public static final String UTF8 = "UTF8";
   public static final String UTF16 = "UTF-16";
@@ -49,12 +50,12 @@ public class TextDecoderTools {
     try {
       properties.load(is);
     } catch (IOException e) {
-      LOG.error(e);
+      LOG.error("", e);
     } finally {
       try {
         is.close();
       } catch (IOException e) {
-        LOG.error(e);
+        LOG.error("", e);
       }
     }
     final BigramsTable cyrBigramsTable = BigramsTable.create(properties);
@@ -82,7 +83,7 @@ public class TextDecoderTools {
       return sequence.toString().getBytes(encName);
     }
     catch (UnsupportedEncodingException e) {
-      LOG.error(e);
+      LOG.error("", e);
     }
     return null;
   }
