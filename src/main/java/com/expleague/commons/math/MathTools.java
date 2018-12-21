@@ -27,6 +27,7 @@ public abstract class MathTools {
   public static final ConversionRepository CONVERSION = new TypeConvertersCollection(ConversionRepository.ROOT, MathTools.class, "com.expleague.commons.math.io");
   public static final double EPSILON = 1e-6;
   public static final double SQRT3 = sqrt(3.);
+  public static final double GAMMA = 0.5772156649015328606065120900824;
 
   private MathTools() {
   }
@@ -421,6 +422,53 @@ public abstract class MathTools {
     }
     final Mx state = states.get(states.size() - 1);
     return state.get(state.dim() - 1);
+  }
+
+  private static final double C_LIMIT = 49;
+  private static final double S_LIMIT = 1e-5;
+  private static final double F_1_6 = 1d / 6;
+  private static final double F_1_30 = 1d / 30;
+  private static final double F_1_42 = 1d / 42;
+  private static final double F_M1_12 = -1d / 12;
+  private static final double F_1_120 = 1d / 120;
+  private static final double F_M1_252 = -1d / 252;
+
+  public static double trigamma(double x) {
+    if (Double.isNaN(x) || Double.isInfinite(x))
+      return x;
+    if (x > 0 && x <= S_LIMIT)
+      return 1 / sqr(x);
+    if (x >= C_LIMIT) {
+      final double inv = 1 / sqr(x);
+      return 1 / x + inv / 2 + inv / x * (F_1_6 - inv * (F_1_30 + F_1_42 * inv));
+    }
+    return trigamma(x + 1) + 1 / sqr(x);
+  }
+
+  public static double digamma(double x) {
+    if (Double.isNaN(x) || Double.isInfinite(x)) {
+      return x;
+    }
+
+    double digamma = 0;
+    if (x < 0) {
+      digamma -= Math.PI / Math.tan(Math.PI * x);
+      x = 1 - x;
+    }
+
+    if (x > 0 && x <= S_LIMIT) {
+      return digamma - GAMMA - 1 / x;
+    }
+
+    while (x < C_LIMIT) {
+      digamma -= 1 / x;
+      x += 1;
+    }
+
+    final double inv = 1 / (x * x);
+    digamma += Math.log(x) - 0.5 / x + inv * (F_M1_12 + inv * (F_1_120 + F_M1_252 * inv));
+
+    return digamma;
   }
 }
 

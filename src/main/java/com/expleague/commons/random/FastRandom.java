@@ -191,6 +191,10 @@ public class FastRandom extends Random {
     return out;
   }
 
+  public int nextBinomial(int trials, double q) {
+    return IntStream.range(0, trials).map(i -> nextDouble() < q ? 1 : 0).sum();
+  }
+
   public double nextGamma(final double shape, final double scale) {
     return scale * nextStandardGamma(shape);
   }
