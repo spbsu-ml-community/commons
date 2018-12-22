@@ -44,4 +44,8 @@ public class Functions {
       }
     };
   }
+
+  public static <A, B> Function<B, A> cast(Class<A> clazz) {
+    return x -> clazz.isAssignableFrom(x.getClass()) ? (A)x : null;
+  }
 }
