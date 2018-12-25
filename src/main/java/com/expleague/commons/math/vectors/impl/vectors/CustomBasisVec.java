@@ -90,7 +90,7 @@ public class CustomBasisVec<B extends Basis> extends Vec.Stub {
       }
       return -size-1;
     }
-    return indicesLocal.binarySearch(n);
+    return indicesLocal.getQuick(size - 1) == n ? size - 1 : indicesLocal.binarySearch(n);
   }
 
   @Override

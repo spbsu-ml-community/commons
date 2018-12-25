@@ -40,8 +40,9 @@ public class VecBuilder implements SeqBuilder<Double> {
     return this;
   }
 
-  public void append(final double d) {
+  public VecBuilder append(final double d) {
     data.add(d);
+    return this;
   }
 
   @Override

@@ -39,12 +39,18 @@ public class SparseVecBuilder extends VecBuilder {
     return this;
   }
 
-  public void append(final double d) {
+  public SparseVecBuilder append(final double d) {
     if (d > MathTools.EPSILON) {
       data.add(d);
       indices.add(index);
     }
     index++;
+    return this;
+  }
+
+  public SparseVecBuilder append(int index, double val) {
+    this.index = index;
+    return append(val);
   }
 
   @Override

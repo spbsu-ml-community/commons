@@ -372,6 +372,10 @@ public class VecTools {
         ((SparseVec) x).clear();
         return x;
       }
+      if (x instanceof RandomAccessVec) {
+        ((RandomAccessVec) x).clear();
+        return x;
+      }
     }
     if (x instanceof OperableVec) {
       ((OperableVec) x).fill(val);

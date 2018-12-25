@@ -10,10 +10,16 @@ import java.util.Arrays;
 
 public class RandomAccessVec extends Vec.Stub {
   private final int dim;
-  private final TIntDoubleMap data = new TIntDoubleHashMap();
+  private final TIntDoubleMap data;
 
   public RandomAccessVec(int dim) {
     this.dim = dim;
+    data = new TIntDoubleHashMap();
+  }
+
+  public RandomAccessVec(int dim, TIntDoubleMap data) {
+    this.dim = dim;
+    this.data = data;
   }
 
   public TIntDoubleMap data() {
@@ -27,13 +33,17 @@ public class RandomAccessVec extends Vec.Stub {
 
   @Override
   public Vec set(int i, double val) {
-    data.put(i, val);
+    if (val == 0)
+      data.remove(i);
+    else
+      data.put(i, val);
     return this;
   }
 
   @Override
   public Vec adjust(int i, double increment) {
-    data.adjustValue(i, increment);
+    if (data.adjustOrPutValue(i, increment, increment) == 0.0)
+      data.remove(i);
     return this;
   }
 
@@ -110,5 +120,9 @@ public class RandomAccessVec extends Vec.Stub {
       return true;
     });
     return result;
+  }
+
+  public void clear() {
+    data.clear();
   }
 }
