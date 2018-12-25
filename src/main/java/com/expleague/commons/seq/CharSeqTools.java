@@ -9,6 +9,7 @@ import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
 import com.expleague.commons.seq.trash.FloatingDecimal;
 import com.expleague.commons.util.ArrayTools;
 import gnu.trove.strategy.HashingStrategy;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -17,12 +18,16 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
+import java.text.BreakIterator;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static java.util.Spliterator.IMMUTABLE;
+import static java.util.Spliterator.ORDERED;
 
 /**
  * User: terry
@@ -922,5 +927,69 @@ public class CharSeqTools {
         builder.append(right.subSequence(substitutionStart, substitutionEnd));
     }
     return result;
+  }
+
+  public static Stream<CharSeq> words(CharSeq line) {
+    BreakIterator breakIterator = BreakIterator.getWordInstance();
+    return convertBreakIterator(line, breakIterator);
+  }
+
+  public static Stream<CharSeq> sentences(CharSeq line) {
+    BreakIterator breakIterator = BreakIterator.getSentenceInstance();
+    return convertBreakIterator(line, breakIterator);
+  }
+
+  @NotNull
+  private static Stream<CharSeq> convertBreakIterator(CharSeq line, BreakIterator breakIterator) {
+    if (line instanceof CharSeqComposite)
+      line = new CharSeqArray(line.toCharArray());
+    breakIterator.setText(line.it());
+    return StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize(
+            new BreakIteratorIterator(breakIterator, line),
+            IMMUTABLE | ORDERED
+        ), false);
+  }
+
+  private static class BreakIteratorIterator implements Iterator<CharSeq> {
+    private final BreakIterator breakIterator;
+    private final CharSeq line;
+    int lastIndex;
+    CharSeq next;
+
+    public BreakIteratorIterator(BreakIterator breakIterator, CharSeq line) {
+      this.breakIterator = breakIterator;
+      this.line = line;
+      lastIndex = breakIterator.first();
+    }
+
+    @Override
+    public boolean hasNext() {
+      if (next != null)
+        return true;
+
+      while (BreakIterator.DONE != lastIndex) {
+        int firstIndex = lastIndex;
+        lastIndex = breakIterator.next();
+        if (lastIndex != BreakIterator.DONE && Character.isLetterOrDigit(line.charAt(firstIndex))) {
+          next = line.sub(firstIndex, lastIndex);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public CharSeq next() {
+      try {
+        if (hasNext())
+          return next;
+        else
+          throw new NoSuchElementException();
+      }
+      finally {
+        next = null;
+      }
+    }
   }
 }
