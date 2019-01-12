@@ -8,10 +8,14 @@ import gnu.trove.list.array.TIntArrayList;
  * Date: 08.09.14
  */
 public class IntSeqBuilder implements SeqBuilder<Integer> {
-  private final TIntList data;
+  private final TIntArrayList data;
 
   public IntSeqBuilder() {
     data = new TIntArrayList();
+  }
+
+  public IntSeqBuilder(int capacity) {
+    data = new TIntArrayList(capacity);
   }
 
   public IntSeqBuilder append(final int value) {
@@ -90,6 +94,6 @@ public class IntSeqBuilder implements SeqBuilder<Integer> {
       final int mark = marks.get(marks.size() - 1);
       data.remove(mark, data.size() - mark);
     }
-    else data.clear();
+    else data.resetQuick();
   }
 }

@@ -318,9 +318,9 @@ public class StreamTools {
 
   public static String stripExtension(String fileName) {
     final int index = fileName.lastIndexOf('.');
-    if (fileName.substring(index).equals(".gz") || fileName.substring(index).equals(".bz2"))
+    if (index > 0 && (fileName.substring(index).equals(".gz") || fileName.substring(index).equals(".bz2")))
       return stripExtension(fileName.substring(0, index));
-    return fileName.substring(0, index);
+    return fileName.substring(0, index > 0 ? index : fileName.length());
   }
 
   public static Reader openTextFile(String file) throws IOException {

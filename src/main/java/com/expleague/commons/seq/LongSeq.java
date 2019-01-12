@@ -2,23 +2,24 @@ package com.expleague.commons.seq;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 /**
  * User: solar
  * Date: 08.07.14
  * Time: 11:07
  */
-public class IntSeq extends Seq.Stub<Integer> {
-  public static final IntSeq EMPTY = new IntSeq();
-  public final int[] arr;
-  public final int start;
-  public final int end;
+public class LongSeq extends Seq.Stub<Long> {
+  public static final LongSeq EMPTY = new LongSeq();
+  final long[] arr;
+  final int start;
+  private final int end;
 
-  public IntSeq(final int... arr) {
+  public LongSeq(final long... arr) {
     this(arr, 0, arr.length);
   }
 
-  public IntSeq(final int[] arr, final int start, final int end) {
+  public LongSeq(final long[] arr, final int start, final int end) {
     if (start < 0 || end > arr.length)
       throw new ArrayIndexOutOfBoundsException();
     this.arr = arr;
@@ -26,12 +27,12 @@ public class IntSeq extends Seq.Stub<Integer> {
     this.end = end;
   }
 
-  public static IntSeq empty() {
+  public static LongSeq empty() {
     return EMPTY;
   }
 
   @Override
-  public Integer at(final int i) {
+  public Long at(final int i) {
     return arr[start + i];
   }
 
@@ -41,26 +42,33 @@ public class IntSeq extends Seq.Stub<Integer> {
   }
 
   @Override
-  public IntSeq sub(final int start, final int end) {
-    return new IntSeq(arr, start + this.start, end + this.start);
+  public LongSeq sub(final int start, final int end) {
+    return new LongSeq(arr, start + this.start, end + this.start);
   }
 
   @Override
-  public IntSeq sub(int[] indices) {
-    return new IntSeq(IntStream.of(indices).map(idx -> arr[start + idx]).toArray());
+  public LongSeq sub(int[] indices) {
+    return new LongSeq(IntStream.of(indices).mapToLong(idx -> arr[start + idx]).toArray());
   }
 
-  public int seek(int x) {
-    return Arrays.binarySearch(arr, start, end, x);
+  public int seek(long x) {
+    int optimismLimit = Math.min(start + 8, this.end); // single cache line read
+    for (int i = start; i < optimismLimit; i++) {
+      if (arr[i] >= x)
+        return arr[i] == x ? i : -i - 1;
+    }
+    return Arrays.binarySearch(arr, optimismLimit, end, x);
   }
 
   @Override
-  public int[] toArray() {
+  public long[] toArray() {
     if (start == 0 && end == arr.length)
       return arr;
-    final int[] result = new int[length()];
-    System.arraycopy(arr, start, result, 0, length());
-    return result;
+    return Arrays.copyOfRange(arr, start, start + length());
+  }
+
+  public long[] data() {
+    return arr;
   }
 
   @Override
@@ -73,11 +81,11 @@ public class IntSeq extends Seq.Stub<Integer> {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof IntSeq)) {
+    if (!(o instanceof LongSeq)) {
       return false;
     }
 
-    final IntSeq intSeq = (IntSeq) o;
+    final LongSeq intSeq = (LongSeq) o;
 
     if (end != intSeq.end) {
       return false;
@@ -97,8 +105,8 @@ public class IntSeq extends Seq.Stub<Integer> {
   }
 
   @Override
-  public Class<Integer> elementType() {
-    return int.class;
+  public Class<Long> elementType() {
+    return long.class;
   }
 
   @Override
@@ -106,14 +114,12 @@ public class IntSeq extends Seq.Stub<Integer> {
     return Arrays.toString(arr);
   }
 
-  public int intAt(final int index) {
-    //    if (index >= arr.length)
-    //      throw new ArrayIndexOutOfBoundsException();
+  public long longAt(final int index) {
     return arr[start + index];
   }
 
   @SuppressWarnings("unchecked")
-  public IntStream stream() {
+  public LongStream stream() {
     return Arrays.stream(arr, start, end);
   }
 }

@@ -524,6 +524,30 @@ public abstract class ArrayTools {
     return maxIndex;
   }
 
+  public static int max(final long[] arr) {
+    int maxIndex = -1;
+    long max = Long.MIN_VALUE;
+    for (int i = 0; i < arr.length; i++) {
+      if (max < arr[i]) {
+        maxIndex = i;
+        max = arr[i];
+      }
+    }
+    return maxIndex;
+  }
+
+  public static int max(final int[] arr) {
+    int maxIndex = -1;
+    int max = Integer.MIN_VALUE;
+    for (int i = 0; i < arr.length; i++) {
+      if (max < arr[i]) {
+        maxIndex = i;
+        max = arr[i];
+      }
+    }
+    return maxIndex;
+  }
+
   public static int maxMod(final double[] arr) {
     int maxIndex = -1;
     double max = Double.NEGATIVE_INFINITY;
