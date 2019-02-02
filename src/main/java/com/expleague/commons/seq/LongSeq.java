@@ -111,7 +111,18 @@ public class LongSeq extends Seq.Stub<Long> {
 
   @Override
   public String toString() {
-    return Arrays.toString(arr);
+    int iMax = length() - 1;
+    if (iMax == -1)
+      return "[]";
+
+    StringBuilder b = new StringBuilder();
+    b.append('[');
+    for (int i = 0; ; i++) {
+      b.append(longAt(i));
+      if (i == iMax)
+        return b.append(']').toString();
+      b.append(", ");
+    }
   }
 
   public long longAt(final int index) {

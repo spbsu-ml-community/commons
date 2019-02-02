@@ -16,6 +16,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
 
 import static org.junit.Assert.assertTrue;
 
@@ -207,6 +209,20 @@ public class MathToolsTest extends JUnitIOCapture {
       MathTools.maxTimedKnapsack(gain, vol, time, maxVolumes, subset);
       Assert.assertEquals(new IntSeq(4, 3, 2, 0), subset.build());
     }
+  }
+
+  @Test
+  public void testBitsCountMask() {
+    final int bitsCount = 10;
+    long count = MathTools.bitCountMasks(bitsCount).mapToInt(Long::bitCount).peek(new IntConsumer() {
+      int prev = 0;
+      @Override
+      public void accept(int value) {
+        Assert.assertTrue(prev <= value);
+        prev = value;
+      }
+    }).count();
+    Assert.assertEquals((1 << bitsCount), count);
   }
 
   private void assertEquals(double a, double b) {

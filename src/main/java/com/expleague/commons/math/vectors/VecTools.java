@@ -566,14 +566,15 @@ public class VecTools {
     }
   }
 
-  public static void normalizeL2(final Vec row) {
+  public static Vec normalizeL2(final Vec row) {
     final double norm2 = norm(row);
     if (norm2 <= 0)
-      return;
+      return row;
     final VecIterator it = row.nonZeroes();
     while(it.advance()) {
       it.setValue(it.value() / norm2);
     }
+    return row;
   }
 
   public static double entropy(final Vec prob) {

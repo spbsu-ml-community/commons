@@ -105,6 +105,13 @@ public abstract class ArrayTools {
     parallelSort(a, linked, 0, a.length );
   }
 
+  public static void parallelSort(final long[] a, final long[] linked) {
+    if(a.length != linked.length)
+      throw new IllegalArgumentException("arrays sizes are not equal");
+//      shuffle(a, linked); // to guard against worst-case
+    parallelSort(a, linked, 0, a.length );
+  }
+
   public static void parallelSort(final double[] a, final double[] linked1, final double[] linked2) {
     parallelSort(a,linked1,linked2,0,a.length);
   }
@@ -151,10 +158,21 @@ public abstract class ArrayTools {
     }
   }
 
-
-
-
   public static void parallelSort(final long[] a, final int[] linked, int left, int right) {
+    if (right <= left) return;
+    while (left < right) {
+      final int i = partition(a, linked, left, right);
+      if (right - i > i - left) {
+        parallelSort(a, linked, left, i );
+        left = i + 1;
+      } else {
+        parallelSort(a, linked, i + 1, right);
+        right = i;
+      }
+    }
+  }
+
+  public static void parallelSort(final long[] a, final long[] linked, int left, int right) {
     if (right <= left) return;
     while (left < right) {
       final int i = partition(a, linked, left, right);
@@ -352,6 +370,29 @@ public abstract class ArrayTools {
     return i;
   }
 
+  private static int partition(final long[] a, final long[] linked, final int left, final int right) {
+    int i = left - 1;
+    int j = right;
+    final int partition = left + rng.nextInt(right - left);
+    final double sentinel = a[partition];
+    while (true) {
+      while (++i < right && a[i] < sentinel);      // find item on left to swap
+      while (--j >= left && sentinel < a[j]);      // find item on right to swap
+      if (i >= j)
+        break;              // check if pointers cross
+      else if (i == partition)
+        j++;
+      else if (j == partition)
+        i--;
+      else swap(a, linked, i, j);     // swap two elements into place
+    }
+    if (partition > i)
+      swap(a, linked, i, partition);    // swap with partition element
+    else if (partition < i)
+      swap(a, linked, --i, partition);    // swap with partition element
+    return i;
+  }
+
 
 
   private static int partition(final double[] a, final double[] linked1,  final double[] linked2, final int left, final int right) {
@@ -479,6 +520,20 @@ public abstract class ArrayTools {
     }
     {
       final int swap = linked[i];
+      linked[i] = linked[j];
+      linked[j] = swap;
+    }
+  }
+
+  // exchange a[i] and a[j]
+  private static void swap(final long[] a, final long[] linked, final int i, final int j) {
+    {
+      final long swap = a[i];
+      a[i] = a[j];
+      a[j] = swap;
+    }
+    {
+      final long swap = linked[i];
       linked[i] = linked[j];
       linked[j] = swap;
     }

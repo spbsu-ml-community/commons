@@ -12,12 +12,15 @@ import com.expleague.commons.seq.IntSeqBuilder;
 
 import java.math.RoundingMode;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.function.LongConsumer;
+import java.util.stream.LongStream;
+import java.util.stream.StreamSupport;
 
 import static com.expleague.commons.math.vectors.VecTools.*;
 import static java.lang.Math.abs;
+import static java.lang.Math.exp;
+import static java.lang.Math.log;
 import static java.lang.Math.*;
 
 /**
@@ -62,6 +65,18 @@ public abstract class MathTools {
       result *= i;
     }
     return result;
+  }
+
+  public static int binomial(final int n, final int k) {
+    if (n < k)
+      return 0;
+    if (k == 0 || n == k)
+      return 1;
+    if (k == 1)
+      return n;
+    if (n - k < k)
+      return binomial(n, n - k);
+    return binomial(n - 1, k - 1) + binomial(n - 1, k);
   }
 
   public static final LogFactorial cache = new LogFactorial(1000000);
@@ -354,6 +369,51 @@ public abstract class MathTools {
       }
     }
     while (!last);
+  }
+
+  public static LongStream bitCountMasks(int bitsCount) {
+    Spliterator.OfLong spliterator = new Spliterators.AbstractLongSpliterator(Long.MAX_VALUE,
+        Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL) {
+      long mask = 0;
+      int count = 0;
+      int bits = 0;
+
+      @Override
+      public boolean tryAdvance(LongConsumer action) {
+        if (count == 0) {
+          if (++bits == bitsCount)
+            return false;
+          count = MathTools.binomial(bitsCount, bits) - 1;
+          mask = (1 << bits) - 1;
+        }
+        else {
+          int ones = 0;
+          long bit = 1 << (bitsCount - 1);
+          long mask = this.mask;
+          while ((mask & bit) > 0) {
+            mask ^= bit;
+            bit >>= 1;
+            ones++;
+          }
+          while ((mask & bit) == 0 && bit > 0)
+            bit >>= 1;
+          mask ^= bit;
+          if (bit == 0)
+            bit = 1;
+          bit <<= 1;
+          ones++;
+          while (ones-- > 0) {
+            mask |= bit;
+            bit <<= 1;
+          }
+          this.count--;
+          this.mask = mask;
+        }
+        action.accept(mask);
+        return true;
+      }
+    };
+    return LongStream.concat(LongStream.of(0), LongStream.concat(StreamSupport.longStream(spliterator, false), LongStream.of((1 << (bitsCount + 1)) - 1)));
   }
 
   public static double maxKnapsack(Vec gain, IntSeq volume, int maxVolume, IntSeqBuilder resultSubset) {
