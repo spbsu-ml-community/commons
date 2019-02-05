@@ -1,21 +1,19 @@
 package com.expleague.commons.math.vectors.impl.nn.lsh;
 
+import com.expleague.commons.func.Functions;
 import com.expleague.commons.func.HashFunction;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.nn.NearestNeighbourIndex;
+import com.expleague.commons.math.vectors.impl.nn.impl.EntryImpl;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
-import com.expleague.commons.util.ArrayTools;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public class LSHCosIndex implements NearestNeighbourIndex {
@@ -39,35 +37,32 @@ public class LSHCosIndex implements NearestNeighbourIndex {
   public Stream<Entry> nearest(Vec query) {
     final double queryNorm = VecTools.norm(query);
     final long qhash = hash(query);
-    final long[] keys = buckets.keys();
-    final long[] distances = new long[keys.length];
-    for (int i = 0; i < keys.length; i++) {
-      distances[i] = Long.bitCount(keys[i] ^ qhash);
-    }
-    ArrayTools.parallelSort(distances, keys);
+    return IntStream.range(minDiff, hashes.length + 1).mapToObj(diff ->
+        resultsWithDiff(qhash, diff).stream()
+            .peek(entry -> entry.setDistance((1 - VecTools.multiply(query, entry.vec()) / queryNorm) / 2))
+            .sorted(EntryImpl::compareTo)
+            .map(Functions.cast(Entry.class))
+    ).flatMap(Function.identity());
+  }
 
-    return IntStream.range(minDiff, hashes.length + 1).mapToObj(new IntFunction<LongStream>() {
-      int start = 0;
-      @Override
-      public LongStream apply(int value) {
-        int end = start;
-        while (end < distances.length && distances[end] <= value)
-          end++;
-        return Arrays.stream(keys, start, start = end);
-      }
-    }).map(hashes -> {
-      final List<Entry> result = new ArrayList<>();
-      hashes.forEach(bucketId -> {
-        final TLongObjectHashMap<Vec> bucket = buckets.get(bucketId);
-        bucket.forEachEntry((id, vec) -> {
-          final double distance = (1 - VecTools.multiply(query, vec) / queryNorm) / 2;
-          result.add(new Entry(id, vec, distance));
-          return true;
-        });
+  protected Stream<EntryImpl> resultsWithDiff(Vec query, int diff) {
+    final long qhash = hash(query);
+    return resultsWithDiff(qhash, diff).stream();
+  }
+
+  private List<EntryImpl> resultsWithDiff(long qhash, int diff) {
+    final List<EntryImpl> result = new ArrayList<>();
+    buckets.forEachEntry((bucketId, bucket) -> {
+      final int dist = Long.bitCount(bucketId ^ qhash);
+      if (dist > diff || (diff != minDiff && dist < diff))
+        return true;
+      bucket.forEachEntry((id, vec) -> {
+        result.add(new EntryImpl(id, vec, dist));
+        return true;
       });
-      result.sort(Entry::compareTo);
-      return result.stream();
-    }).flatMap(Function.identity());
+      return true;
+    });
+    return result;
   }
 
   public long hash(Vec query) {

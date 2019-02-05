@@ -3,6 +3,7 @@ package com.expleague.commons.math.vectors.impl.nn.naive;
 import com.expleague.commons.math.vectors.Distance;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.impl.nn.NearestNeighbourIndex;
+import com.expleague.commons.math.vectors.impl.nn.impl.EntryImpl;
 import com.expleague.commons.util.ArrayTools;
 import gnu.trove.list.array.TLongArrayList;
 
@@ -32,7 +33,7 @@ public class NaiveNNIndex implements NearestNeighbourIndex {
     final double[] distances = vecs.stream().mapToDouble(v -> distance.distance(query, v)).toArray();
     final int[] order = ArrayTools.sequence(0, ids.size());
     ArrayTools.parallelSort(distances, order);
-    return IntStream.range(0, ids.size()).mapToObj(idx -> new Entry(this.ids.get(order[idx]), this.vecs.get(order[idx]), distances[idx]));
+    return IntStream.range(0, ids.size()).mapToObj(idx -> new EntryImpl(this.ids.get(order[idx]), this.vecs.get(order[idx]), distances[idx]));
   }
 
   @Override
