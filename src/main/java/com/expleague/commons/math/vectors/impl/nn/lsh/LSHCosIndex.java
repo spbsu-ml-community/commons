@@ -6,9 +6,8 @@ import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.nn.NearestNeighbourIndex;
 import com.expleague.commons.math.vectors.impl.nn.impl.EntryImpl;
-import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
-import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.list.array.TLongArrayList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +16,18 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class LSHCosIndex implements NearestNeighbourIndex {
+  public static final int HASHES_COUNT = 64;
   private final HashFunction<Vec>[] hashes;
-  private final TLongObjectHashMap<TLongObjectHashMap<Vec>> buckets = new TLongObjectHashMap<>();
+  private final TLongArrayList sketches = new TLongArrayList();
+  private final TLongArrayList ids = new TLongArrayList();
+  private final List<Vec> vecs = new ArrayList<>();
   private final int dim;
   private final int minDiff;
 
-  public LSHCosIndex(FastRandom rng, int minDiff, int hashes, int dim) {
+  public LSHCosIndex(FastRandom rng, int minDiff, int dim) {
     this.dim = dim;
     this.minDiff = minDiff;
-    this.hashes = IntStream.range(0, hashes).mapToObj(i -> new CosDistanceHashFunction(dim, rng)).<HashFunction<Vec>>toArray(HashFunction[]::new);
+    this.hashes = IntStream.range(0, HASHES_COUNT).mapToObj(i -> new CosDistanceHashFunction(dim, rng)).<HashFunction<Vec>>toArray(HashFunction[]::new);
   }
 
   @Override
@@ -36,36 +38,27 @@ public class LSHCosIndex implements NearestNeighbourIndex {
   @Override
   public Stream<Entry> nearest(Vec query) {
     final double queryNorm = VecTools.norm(query);
-    final long qhash = hash(query);
+    final long qhash = sketch(query);
     return IntStream.range(minDiff, hashes.length + 1).mapToObj(diff ->
-        resultsWithDiff(qhash, diff).stream()
-            .peek(entry -> entry.setDistance((1 - VecTools.multiply(query, entry.vec()) / queryNorm) / 2))
+        resultsWithDiff(qhash, diff, diff == minDiff)
+            .mapToObj(idx -> {
+              final Vec vec = vecs.get(idx);
+              return new EntryImpl(ids.getQuick(idx), vec, (1 - VecTools.multiply(query, vec) / queryNorm));
+            })
             .sorted(EntryImpl::compareTo)
             .map(Functions.cast(Entry.class))
     ).flatMap(Function.identity());
   }
 
-  protected Stream<EntryImpl> resultsWithDiff(Vec query, int diff) {
-    final long qhash = hash(query);
-    return resultsWithDiff(qhash, diff).stream();
+  private IntStream resultsWithDiff(long qhash, int diff, boolean less) {
+    if (less)
+      return IntStream.range(0, sketches.size()).parallel()
+          .filter(i -> Long.bitCount(qhash ^ sketches.getQuick(i)) <= diff);
+    return IntStream.range(0, sketches.size()).parallel()
+        .filter(i -> Long.bitCount(qhash ^ sketches.getQuick(i)) == diff);
   }
 
-  private List<EntryImpl> resultsWithDiff(long qhash, int diff) {
-    final List<EntryImpl> result = new ArrayList<>();
-    buckets.forEachEntry((bucketId, bucket) -> {
-      final int dist = Long.bitCount(bucketId ^ qhash);
-      if (dist > diff || (diff != minDiff && dist < diff))
-        return true;
-      bucket.forEachEntry((id, vec) -> {
-        result.add(new EntryImpl(id, vec, dist));
-        return true;
-      });
-      return true;
-    });
-    return result;
-  }
-
-  public long hash(Vec query) {
+  public long sketch(Vec query) {
     long qhash = 0;
     long bit = 1;
     for (int i = 0; i < hashes.length; i++, bit <<= 1) {
@@ -76,34 +69,17 @@ public class LSHCosIndex implements NearestNeighbourIndex {
   }
 
   @Override
-  public void append(long id, Vec vec) {
-    final long hash = hash(vec);
-    TLongObjectHashMap<Vec> bucket = buckets.get(hash);
-    if (bucket == null)
-      buckets.put(hash, bucket = new TLongObjectHashMap<>());
-    bucket.put(id, VecTools.normalizeL2(VecTools.copy(vec)));
+  public synchronized void append(long id, Vec vec) {
+    sketches.add(sketch(vec));
+    ids.add(id);
+    vecs.add(vec);
   }
 
   @Override
-  public void remove(long id) {
-    buckets.forEachValue(bucket -> bucket.remove(id) == null);
-  }
-
-  private static class CosDistanceHashFunction implements HashFunction<Vec> {
-    Vec w;
-
-    CosDistanceHashFunction(int dim, FastRandom rng) {
-      w = VecTools.fillGaussian(new ArrayVec(dim), rng);
-    }
-
-    @Override
-    public int hash(Vec v) {
-      return VecTools.multiply(v, w) > 0 ? 0 : 1;
-    }
-
-    @Override
-    public int bits() {
-      return 1;
-    }
+  public synchronized void remove(long id) {
+    final int index = ids.indexOf(id);
+    ids.remove(index, 1);
+    sketches.remove(index, 1);
+    vecs.remove(index);
   }
 }

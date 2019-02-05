@@ -24,7 +24,7 @@ public interface NearestNeighbourIndex {
   static NearestNeighbourIndex create(Distance type, int dim) {
     switch (type) {
       case COS:
-        return new LSHCosIndex(new FastRandom(), 4, 20, dim);
+        return new LSHCosIndex(new FastRandom(), 24, dim);
       case L2:
         return null;
     }

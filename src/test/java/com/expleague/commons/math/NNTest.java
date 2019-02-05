@@ -5,6 +5,7 @@ import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.nn.NearestNeighbourIndex;
 import com.expleague.commons.math.vectors.impl.nn.lsh.LSHCosIndex;
+import com.expleague.commons.math.vectors.impl.nn.lsh.QuantLSHCosIndex;
 import com.expleague.commons.math.vectors.impl.nn.naive.NaiveNNIndex;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
@@ -22,7 +23,7 @@ public class NNTest {
   @Test
   public void testLSHCos() {
     final NearestNeighbourIndex naive = new NaiveNNIndex(Distance.COS, DIM);
-    final LSHCosIndex lsh = new LSHCosIndex(rng,24, 63, DIM);
+    final LSHCosIndex lsh = new LSHCosIndex(rng, 24, DIM);
 
     for (int i = 0; i < 100000; i++) {
       Vec v = VecTools.fillUniform(new ArrayVec(DIM), rng);
@@ -42,6 +43,39 @@ public class NNTest {
       Interval.suspend();
 //      naive.nearest(query).limit(10).forEach(e -> {
 //        System.out.println(e.distance() + " " + Long.toBinaryString(lsh.hash(e.vec()) ^ lsh.hash(query)));
+//      });
+      long found = naive.nearest(query).limit(NN_SIZE)
+          .mapToLong(NearestNeighbourIndex.Entry::id).filter(lshAnswer::contains).count();
+      total += found / (double)NN_SIZE;
+    }
+
+    Interval.stopAndPrint("LSH precision: " + (total / tries));
+    Assert.assertTrue("Current LSH precision: " + (total / tries), total / tries > 0.5);
+  }
+
+  @Test
+  public void testQuantLSHCos() {
+    final NearestNeighbourIndex naive = new NaiveNNIndex(Distance.COS, DIM);
+    final QuantLSHCosIndex lsh = new QuantLSHCosIndex(rng,10, DIM, 130);
+
+    for (int i = 0; i < 100000; i++) {
+      Vec v = VecTools.fillUniform(new ArrayVec(DIM), rng);
+      naive.append(i, v);
+      lsh.append(i, v);
+    }
+
+    double total = 0;
+    final int tries = 100;
+    Interval.start();
+    Interval.suspend();
+    for (int i = 0; i < tries; i++) {
+      Vec query = VecTools.fillUniform(new ArrayVec(DIM), rng);
+      Interval.resume();
+      final TLongHashSet lshAnswer = new TLongHashSet(lsh.nearest(query).limit(NN_SIZE * 100)
+          .mapToLong(NearestNeighbourIndex.Entry::id).toArray());
+      Interval.suspend();
+//      naive.nearest(query).limit(10).forEach(e -> {
+//        System.out.println(e.distance() + " " + Long.toBinaryString(lsh.sketch(e.vec()) ^ lsh.sketch(query)));
 //      });
       long found = naive.nearest(query).limit(NN_SIZE)
           .mapToLong(NearestNeighbourIndex.Entry::id).filter(lshAnswer::contains).count();
