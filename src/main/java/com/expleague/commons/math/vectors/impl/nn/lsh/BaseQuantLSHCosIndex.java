@@ -11,25 +11,22 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.array.TLongArrayList;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class QuantLSHCosIndex implements NearestNeighbourIndex {
+public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
   public static final int SKETCH_BITS_PER_QUANT = 32;
-  private final HashFunction<Vec>[] hashes;
-  private final List<TIntArrayList> sketches = new ArrayList<>();
-  private final TLongArrayList ids = new TLongArrayList();
-  private final List<Vec> vecs = new ArrayList<>();
+  protected final HashFunction<Vec>[] hashes;
+  protected final List<TIntArrayList> sketches = new ArrayList<>();
+  protected final TLongArrayList ids = new TLongArrayList();
 
   private final int dim;
-  private int minDist;
+  protected int minDist;
 
-  public QuantLSHCosIndex(FastRandom rng, int quantDim, int dim, int minDist) {
+  public BaseQuantLSHCosIndex(FastRandom rng, int quantDim, int dim, int minDist) {
     this.dim = dim;
     this.minDist = minDist;
 
@@ -67,7 +64,7 @@ public class QuantLSHCosIndex implements NearestNeighbourIndex {
     return IntStream.of(ints);
   }
 
-  public int[] sketch(Vec x) {
+  private int[] sketch(Vec x) {
     final int[] result = new int[hashes.length / SKETCH_BITS_PER_QUANT];
     for (int i = 0; i < result.length; i++) {
       int bit = 1;
@@ -79,15 +76,14 @@ public class QuantLSHCosIndex implements NearestNeighbourIndex {
     return result;
   }
 
-  @Override
-  public Stream<Entry> nearest(Vec query) {
+  protected Stream<Entry> baseNearest(Vec query, IntFunction<Vec> getVec) {
     final double queryNorm = VecTools.norm(query);
     final int[] sketch = sketch(query);
 
     return IntStream.range(minDist, hashes.length + 1).mapToObj(diff ->
         resultsWithDiff(sketch, diff, diff == minDist)
             .mapToObj(idx -> {
-              final Vec vec = vecs.get(idx);
+              final Vec vec = getVec.apply(idx);
               return new EntryImpl(ids.getQuick(idx), vec, (1 - VecTools.multiply(query, vec) / queryNorm));
             })
             .sorted(EntryImpl::compareTo)
@@ -95,22 +91,20 @@ public class QuantLSHCosIndex implements NearestNeighbourIndex {
     ).flatMap(Function.identity());
   }
 
-  @Override
-  public synchronized void append(long id, Vec vec) {
+  protected synchronized void baseAppend(long id, Vec vec) {
     final int[] sketch = sketch(vec);
-    vecs.add(vec);
     ids.add(id);
     for (int i = 0; i < sketch.length; i++) {
       sketches.get(i).add(sketch[i]);
     }
   }
 
-  @Override
-  public synchronized void remove(long id) {
+  protected synchronized int baseRemove(long id) {
     final int index = ids.indexOf(id);
     ids.remove(index, 1);
-    for (int i = 0; i < sketches.size(); i++) {
-      sketches.get(i).remove(index, 1);
+    for (TIntArrayList sketch : sketches) {
+      sketch.remove(index, 1);
     }
+    return index;
   }
 }

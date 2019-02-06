@@ -5,7 +5,9 @@ import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.nn.NearestNeighbourIndex;
 import com.expleague.commons.math.vectors.impl.nn.lsh.LSHCosIndex;
-import com.expleague.commons.math.vectors.impl.nn.lsh.QuantLSHCosIndex;
+import com.expleague.commons.math.vectors.impl.nn.lsh.BaseQuantLSHCosIndex;
+import com.expleague.commons.math.vectors.impl.nn.lsh.QuantLSHCosIndexDB;
+import com.expleague.commons.math.vectors.impl.nn.lsh.QuantLSHCosIndexRAM;
 import com.expleague.commons.math.vectors.impl.nn.naive.NaiveNNIndex;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
@@ -13,6 +15,11 @@ import com.expleague.commons.util.logging.Interval;
 import gnu.trove.set.hash.TLongHashSet;
 import org.junit.Assert;
 import org.junit.Test;
+
+import javax.imageio.IIOException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class NNTest {
   public static final int DIM = 100;
@@ -54,9 +61,9 @@ public class NNTest {
   }
 
   @Test
-  public void testQuantLSHCos() {
+  public void testQuantLSHCos() throws IOException {
     final NearestNeighbourIndex naive = new NaiveNNIndex(Distance.COS, DIM);
-    final QuantLSHCosIndex lsh = new QuantLSHCosIndex(rng,10, DIM, 130);
+    final NearestNeighbourIndex lsh = new QuantLSHCosIndexDB(rng,10, DIM, 130, Files.createTempDirectory(null));
 
     for (int i = 0; i < 100000; i++) {
       Vec v = VecTools.fillUniform(new ArrayVec(DIM), rng);
