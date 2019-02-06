@@ -6,7 +6,6 @@ import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.nn.NearestNeighbourIndex;
 import com.expleague.commons.math.vectors.impl.nn.lsh.LSHCosIndex;
 import com.expleague.commons.math.vectors.impl.nn.lsh.BaseQuantLSHCosIndex;
-import com.expleague.commons.math.vectors.impl.nn.lsh.QuantLSHCosIndexDB;
 import com.expleague.commons.math.vectors.impl.nn.lsh.QuantLSHCosIndexRAM;
 import com.expleague.commons.math.vectors.impl.nn.naive.NaiveNNIndex;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
