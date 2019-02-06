@@ -20,15 +20,17 @@ import java.util.stream.Stream;
 public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
   public static final int SKETCH_BITS_PER_QUANT = 32;
   protected final HashFunction<Vec>[] hashes;
-  protected final List<TIntArrayList> sketches = new ArrayList<>();
-  protected final TLongArrayList ids = new TLongArrayList();
+  protected final List<TIntArrayList> sketches;
+  protected final TLongArrayList ids;
 
   private final int dim;
-  protected int minDist;
+  protected final int minDist;
 
   public BaseQuantLSHCosIndex(FastRandom rng, int quantDim, int dim, int minDist) {
     this.dim = dim;
     this.minDist = minDist;
+    this.ids = new TLongArrayList();
+    this.sketches = new ArrayList<>();
 
     //noinspection unchecked
     this.hashes = (HashFunction<Vec>[]) new HashFunction[SKETCH_BITS_PER_QUANT * (int)Math.ceil(dim / (double)quantDim)];
@@ -45,6 +47,14 @@ public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
       }
       sketches.add(new TIntArrayList());
     }
+  }
+
+  public BaseQuantLSHCosIndex(int dim, int minDist, TLongArrayList ids, List<TIntArrayList> sketches, HashFunction<Vec>[] hashes) {
+    this.dim = dim;
+    this.minDist = minDist;
+    this.ids = ids;
+    this.sketches = sketches;
+    this.hashes = hashes;
   }
 
   @Override

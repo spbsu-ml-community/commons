@@ -63,7 +63,7 @@ public class NNTest {
   @Test
   public void testQuantLSHCos() throws IOException {
     final NearestNeighbourIndex naive = new NaiveNNIndex(Distance.COS, DIM);
-    final NearestNeighbourIndex lsh = new QuantLSHCosIndexDB(rng,10, DIM, 130, Files.createTempDirectory(null));
+    final NearestNeighbourIndex lsh = new QuantLSHCosIndexRAM(rng,10, DIM, 130);
 
     for (int i = 0; i < 100000; i++) {
       Vec v = VecTools.fillUniform(new ArrayVec(DIM), rng);
