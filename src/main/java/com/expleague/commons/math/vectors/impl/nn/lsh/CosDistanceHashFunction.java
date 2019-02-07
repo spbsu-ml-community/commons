@@ -6,10 +6,14 @@ import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
 
-class CosDistanceHashFunction implements HashFunction<Vec> {
+public class CosDistanceHashFunction implements HashFunction<Vec> {
   private final Vec w;
-  CosDistanceHashFunction(int dim, FastRandom rng) {
+  public CosDistanceHashFunction(int dim, FastRandom rng) {
     w = VecTools.fillGaussian(new ArrayVec(dim), rng);
+  }
+
+  public CosDistanceHashFunction(Vec w) {
+    this.w = w;
   }
 
   @Override
@@ -20,5 +24,9 @@ class CosDistanceHashFunction implements HashFunction<Vec> {
   @Override
   public int bits() {
     return 1;
+  }
+
+  public Vec randVec() {
+    return w;
   }
 }
