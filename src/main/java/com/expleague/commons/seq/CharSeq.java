@@ -2,7 +2,6 @@ package com.expleague.commons.seq;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -19,7 +18,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.IntSupplier;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -222,8 +220,8 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
     int nonWsEnd = length;
     //noinspection StatementWithEmptyBody
     while (nonWsStart < length && CharSeqTools.isWhitespace(charAt(nonWsStart++))) ;
-    //noinspection StatementWithEmptyBody
     nonWsStart--;
+    //noinspection StatementWithEmptyBody
     while (--nonWsEnd >= 0 && CharSeqTools.isWhitespace(charAt(nonWsEnd))) ;
     nonWsEnd++;
 
