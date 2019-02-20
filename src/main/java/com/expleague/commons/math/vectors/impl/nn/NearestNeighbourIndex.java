@@ -16,6 +16,7 @@ public interface NearestNeighbourIndex {
   void remove(long id);
 
   interface Entry extends Comparable<Entry> {
+    int index();
     long id();
     Vec vec();
     double distance();

@@ -1045,7 +1045,7 @@ public class VecTools {
       synchronized (kMeansState.class) {
         if (G_SUM == null) {
           TDoubleList lst = new TDoubleArrayList();
-          double sum = 1;
+          double sum = 0;
           double pow = 1;
           while (pow > 1e-3) {
             sum += pow;

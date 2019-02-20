@@ -4,6 +4,7 @@ import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
+import com.expleague.commons.util.logging.Interval;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -79,15 +80,17 @@ public class KMeansTest {
 
   @Test
   public void testKMeansHundred() {
-    FastRandom rng = new FastRandom(100500);
-    final Vec[] centroids = IntStream.range(0, 100)
+    final FastRandom rng = new FastRandom(100500);
+    final Vec[] centroids = IntStream.range(0, 1000)
         .mapToObj(idx -> new ArrayVec(10))
         .peek(v -> VecTools.fillGaussian(v, rng))
         .peek(v -> VecTools.scale(v, 10))
         .toArray(Vec[]::new);
-    final Vec[] answer = VecTools.kMeans(centroids.length, 15, rng, IntStream.range(0, 100000).mapToObj(i ->
+    Interval.start();
+    final Vec[] answer = VecTools.kMeans(centroids.length, 15, rng, IntStream.range(0, 1000000).mapToObj(i ->
         VecTools.append(VecTools.fillGaussian(new ArrayVec(centroids[0].dim()), rng), centroids[rng.nextInt(centroids.length)]))
     );
+    Interval.stopAndPrint();
 
     double totalDist = 0;
     for (final Vec q : answer) {

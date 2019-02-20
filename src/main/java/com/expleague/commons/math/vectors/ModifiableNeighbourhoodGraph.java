@@ -58,13 +58,13 @@ public class ModifiableNeighbourhoodGraph {
   long tries = 0;
   public int nearest(Vec vec, int[] result, double[] distances) {
     final int knearest = knearest(vec, 0, result.length, result, distances);
-    BestHolder<Integer> bestHolder = new BestHolder<>();
-    for (int i = 0; i < points.size(); i++) {
-      bestHolder.update(i, -VecTools.distance(points.get(i), vec));
-    }
-    tries++;
-    if (result[0] != bestHolder.getValue())
-      errors++;
+//    BestHolder<Integer> bestHolder = new BestHolder<>();
+//    for (int i = 0; i < points.size(); i++) {
+//      bestHolder.update(i, -VecTools.distance(points.get(i), vec));
+//    }
+//    tries++;
+//    if (result[0] != bestHolder.getValue())
+//      errors++;
 
     return knearest;
   }
@@ -110,6 +110,7 @@ public class ModifiableNeighbourhoodGraph {
   }
 
   public Vec[] points() {
+    System.out.println("Ratio: " + (errors / (double)tries));
     return points.toArray(new Vec[points.size()]);
   }
 

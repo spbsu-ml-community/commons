@@ -43,7 +43,7 @@ public class LSHCosIndex implements NearestNeighbourIndex {
         resultsWithDiff(qhash, diff, diff == minDiff)
             .mapToObj(idx -> {
               final Vec vec = vecs.get(idx);
-              return new EntryImpl(ids.getQuick(idx), vec, (1 - VecTools.multiply(query, vec) / queryNorm));
+              return new EntryImpl(idx, ids.getQuick(idx), vec, (1 - VecTools.multiply(query, vec) / queryNorm) / 2);
             })
             .sorted(EntryImpl::compareTo)
             .map(Functions.cast(Entry.class))

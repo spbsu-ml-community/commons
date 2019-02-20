@@ -74,9 +74,6 @@ public class NNTest {
       final TLongHashSet lshAnswer = new TLongHashSet(lsh.nearest(query).limit(NN_SIZE * 100)
           .mapToLong(NearestNeighbourIndex.Entry::id).toArray());
       Interval.suspend();
-//      naive.nearest(query).limit(10).forEach(e -> {
-//        System.out.println(e.distance() + " " + Long.toBinaryString(lsh.sketch(e.vec()) ^ lsh.sketch(query)));
-//      });
       long found = naive.nearest(query).limit(NN_SIZE)
           .mapToLong(NearestNeighbourIndex.Entry::id).filter(lshAnswer::contains).count();
       total += found / (double)NN_SIZE;

@@ -7,22 +7,28 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class EntryImpl implements NearestNeighbourIndex.Entry {
+  private final int index;
   private final long id;
   private Vec vec;
   private double distance;
   private int hashDistance;
 
-  public EntryImpl(long id, Vec vec, double distance) {
+  public EntryImpl(int index, long id, Vec vec, double distance) {
     this.id = id;
     this.vec = vec;
     this.distance = distance;
+    this.index = index;
   }
 
-  public EntryImpl(long id, Vec vec, int hashDistance) {
+  public EntryImpl(int index, long id, int hashDistance) {
     this.id = id;
-    this.vec = vec;
     this.hashDistance = hashDistance;
     this.distance = -1;
+    this.index = index;
+  }
+
+  public int index() {
+    return index;
   }
 
   public long id() {

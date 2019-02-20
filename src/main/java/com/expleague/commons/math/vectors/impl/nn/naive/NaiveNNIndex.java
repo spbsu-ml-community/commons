@@ -33,7 +33,7 @@ public class NaiveNNIndex implements NearestNeighbourIndex {
     final double[] distances = vecs.stream().mapToDouble(v -> distance.distance(query, v)).toArray();
     final int[] order = ArrayTools.sequence(0, ids.size());
     ArrayTools.parallelSort(distances, order);
-    return IntStream.range(0, ids.size()).mapToObj(idx -> new EntryImpl(this.ids.get(order[idx]), this.vecs.get(order[idx]), distances[idx]));
+    return IntStream.range(0, ids.size()).mapToObj(idx -> new EntryImpl(idx, this.ids.get(order[idx]), this.vecs.get(order[idx]), distances[idx]));
   }
 
   @Override
