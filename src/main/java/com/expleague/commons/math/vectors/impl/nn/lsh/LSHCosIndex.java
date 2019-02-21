@@ -58,7 +58,7 @@ public class LSHCosIndex implements NearestNeighbourIndex {
         .filter(i -> Long.bitCount(qhash ^ sketches.getQuick(i)) == diff);
   }
 
-  public long sketch(Vec query) {
+  private long sketch(Vec query) {
     long qhash = 0;
     long bit = 1;
     for (int i = 0; i < hashes.length; i++, bit <<= 1) {
