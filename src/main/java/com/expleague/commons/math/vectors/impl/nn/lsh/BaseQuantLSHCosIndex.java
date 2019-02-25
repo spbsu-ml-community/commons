@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
   public static final int SKETCH_BITS_PER_QUANT = 32;
   protected final CosDistanceHashFunction[] hashes;
-  protected final List<TIntArrayList> sketches;
+  protected final List<TLongArrayList> sketches = new ArrayList<>();
   protected final TLongArrayList ids;
 
   protected int quantDim;
@@ -32,7 +32,6 @@ public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
     this.dim = dim;
     this.batchSize = batchSize;
     this.ids = new TLongArrayList();
-    this.sketches = new ArrayList<>();
 
     this.hashes = new CosDistanceHashFunction[SKETCH_BITS_PER_QUANT * (int)Math.ceil(dim / (double)quantDim)];
     for (int i = 0; i < dim; i += quantDim) {
@@ -46,7 +45,9 @@ public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
           }
         };
       }
-      sketches.add(new TIntArrayList());
+    }
+    for (int i = 0; i < (int)Math.ceil(hashes.length / 64.); i++) {
+      sketches.add(new TLongArrayList());
     }
   }
 
@@ -54,7 +55,18 @@ public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
     this.dim = dim;
     this.batchSize = batchSize;
     this.ids = ids;
-    this.sketches = sketches;
+    for (int i = 0; i < sketches.size(); i+= 2) {
+      final TIntArrayList merge1 = sketches.get(i);
+      final TIntArrayList merge2 = i < sketches.size() - 1 ? sketches.get(i + 1) : null;
+      TLongArrayList result = new TLongArrayList(merge1.size());
+      for (int j = 0; j < merge1.size(); j++) {
+        long next = ((long)merge1.getQuick(j) & 0xFFFFFFFFL);
+        if (merge2 != null)
+          next |= ((long)merge2.getQuick(j) & 0xFFFFFFFFL) << 32;
+        result.add(next);
+      }
+      this.sketches.add(result);
+    }
     this.hashes = hashes;
   }
 
@@ -63,36 +75,48 @@ public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
     return dim;
   }
 
-  private Stream<EntryImpl> orderBySketch(int[] sketch) {
-    int[] order = ArrayTools.sequence(0, ids.size());
+  private Stream<EntryImpl> orderBySketch(BitSet sketch) {
     int[] distance = new int[ids.size()];
+    final long[] sketchL = sketch.toLongArray();
+    final TIntArrayList[] buckets = new TIntArrayList[hashes.length];
 
     for (int i = 0; i < sketches.size(); i++) {
-      final int qsketch = sketch[i];
-      final TIntArrayList sketches_i = sketches.get(i);
+      final long qsketch = sketchL[i];
+      final TLongArrayList sketches_i = sketches.get(i);
       IntStream.range(0, sketches_i.size()).parallel().forEach(j -> {
-        distance[j] += Integer.bitCount(sketches_i.getQuick(j) ^ qsketch);
+        distance[j] += Long.bitCount(sketches_i.getQuick(j) ^ qsketch);
       });
     }
-    ArrayTools.parallelSort(distance, order);
-    return IntStream.of(order).mapToObj(i -> new EntryImpl(i, ids.getQuick(i), distance[i]));
+
+    for (int i = 0; i < distance.length; i++) {
+      final int dist = distance[i];
+      TIntArrayList bucket = buckets[dist];
+      if (bucket == null)
+        bucket = buckets[dist] = new TIntArrayList(1000);
+      bucket.add(i);
+    }
+
+//    ArrayTools.parallelSort(distance, order);
+    return IntStream.range(0, buckets.length)
+        .mapToObj(d -> buckets[d] == null ?
+            Stream.<EntryImpl>empty() :
+            IntStream.of(buckets[d].toArray()).mapToObj(i -> new EntryImpl(i, ids.getQuick(i), d))
+        )
+        .flatMap(Function.identity());
   }
 
-  private int[] sketch(Vec x) {
-    final int[] result = new int[hashes.length / SKETCH_BITS_PER_QUANT];
-    for (int i = 0; i < result.length; i++) {
-      int bit = 1;
-      for (int b = 0; b < SKETCH_BITS_PER_QUANT; b++, bit <<= 1) {
-        if (hashes[i * SKETCH_BITS_PER_QUANT + b].hash(x) > 0)
-          result[i] |= bit;
-      }
+  protected BitSet sketch(Vec x) {
+    final BitSet result = new BitSet(hashes.length);
+    for (int h = 0; h < hashes.length; h++) {
+      if (hashes[h].hash(x) > 0)
+        result.set(h);
     }
     return result;
   }
 
   protected Stream<Entry> baseNearest(Vec query, IntFunction<Vec> getVec) {
     final double queryNorm = VecTools.norm(query);
-    final int[] sketch = sketch(query);
+    final BitSet sketch = sketch(query);
 
     return Stream.concat(orderBySketch(sketch), Stream.of((EntryImpl)null))
         .map(new Function<EntryImpl, List<EntryImpl>>() {
@@ -123,7 +147,7 @@ public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
   }
 
   protected synchronized void baseAppend(long id, Vec vec) {
-    final int[] sketch = sketch(vec);
+    final long[] sketch = sketch(vec).toLongArray();
     ids.add(id);
     for (int i = 0; i < sketch.length; i++) {
       sketches.get(i).add(sketch[i]);
@@ -133,7 +157,7 @@ public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
   protected synchronized int baseRemove(long id) {
     final int index = ids.indexOf(id);
     ids.remove(index, 1);
-    for (TIntArrayList sketch : sketches) {
+    for (TLongArrayList sketch : sketches) {
       sketch.remove(index, 1);
     }
     return index;

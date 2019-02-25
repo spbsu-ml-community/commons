@@ -110,7 +110,7 @@ public class ModifiableNeighbourhoodGraph {
   }
 
   public Vec[] points() {
-    System.out.println("Ratio: " + (errors / (double)tries));
+//    System.out.println("Ratio: " + (errors / (double)tries));
     return points.toArray(new Vec[points.size()]);
   }
 

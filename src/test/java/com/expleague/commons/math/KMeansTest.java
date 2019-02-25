@@ -78,10 +78,10 @@ public class KMeansTest {
     Assert.assertTrue("Mean residual: " + (totalDist / centroids.length) + " while mean norm is: " + Stream.of(centroids).mapToDouble(VecTools::norm).average().orElse(Double.POSITIVE_INFINITY), totalDist / answer.length < centroids[0].dim() * 1e-2);
   }
 
-  @Test
+//  @Test
   public void testKMeansHundred() {
     final FastRandom rng = new FastRandom(100500);
-    final Vec[] centroids = IntStream.range(0, 1000)
+    final Vec[] centroids = IntStream.range(0, 1024)
         .mapToObj(idx -> new ArrayVec(10))
         .peek(v -> VecTools.fillGaussian(v, rng))
         .peek(v -> VecTools.scale(v, 10))
