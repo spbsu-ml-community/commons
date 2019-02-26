@@ -117,7 +117,7 @@ public class DictExpansionTest extends JUnitIOCapture {
       final Vec probabs = new ArrayVec(reference.size());
       VecTools.fill(probabs, 1.);
       VecTools.normalizeL1(probabs);
-      for (int j = 0; j < 50000; j++) {
+      for (int j = 0; j < 5000; j++) {
         final int len = rnd.nextInt(30);
         final StringBuilder builder = new StringBuilder(len);
         for (int c = 0; c < len; c++)
@@ -226,32 +226,6 @@ public class DictExpansionTest extends JUnitIOCapture {
         parse.stream().forEach(idx -> freqs.setQuick(idx, freqs.getQuick(idx) + 1));
       }
     }
-  }
-  @Test
-  public void testIsSubstringSpeed() {
-    Interval.start();
-    Interval.suspend();
-    final Random rnd = new FastRandom(0);
-    for (int i = 0; i < 1000000; i++) {
-      final int len1 = rnd.nextInt(150);
-      final StringBuilder builder1 = new StringBuilder(len1);
-      for (int c = 0; c < 1 + len1; c++)
-        builder1.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
-      final int len2 = rnd.nextInt(150);
-      final StringBuilder builder2 = new StringBuilder(len1);
-      for (int c = 0; c < 1 + len2; c++)
-        builder2.append((char)('a' + rnd.nextInt('z' - 'a' + 1)));
-      CharSeq left = CharSeq.create(builder1.toString());
-      String str = builder2.toString();
-      CharSeq right = CharSeq.create(str);
-
-      Interval.resume();
-//      builder1.indexOf(str);
-//      isSubstring2(left, right);
-      CharSeqTools.indexOf(left, right);
-      Interval.suspend();
-    }
-    Interval.stopAndPrint();
   }
 
   @SuppressWarnings("unused")
