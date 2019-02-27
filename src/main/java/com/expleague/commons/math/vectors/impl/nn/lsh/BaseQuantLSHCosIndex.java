@@ -51,22 +51,11 @@ public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
     }
   }
 
-  public BaseQuantLSHCosIndex(int dim, int batchSize, TLongArrayList ids, List<TIntArrayList> sketches, CosDistanceHashFunction[] hashes) {
+  public BaseQuantLSHCosIndex(int dim, int batchSize, TLongArrayList ids, List<TLongArrayList> sketches, CosDistanceHashFunction[] hashes) {
     this.dim = dim;
     this.batchSize = batchSize;
     this.ids = ids;
-    for (int i = 0; i < sketches.size(); i+= 2) {
-      final TIntArrayList merge1 = sketches.get(i);
-      final TIntArrayList merge2 = i < sketches.size() - 1 ? sketches.get(i + 1) : null;
-      TLongArrayList result = new TLongArrayList(merge1.size());
-      for (int j = 0; j < merge1.size(); j++) {
-        long next = ((long)merge1.getQuick(j) & 0xFFFFFFFFL);
-        if (merge2 != null)
-          next |= ((long)merge2.getQuick(j) & 0xFFFFFFFFL) << 32;
-        result.add(next);
-      }
-      this.sketches.add(result);
-    }
+    this.sketches.addAll(sketches);
     this.hashes = hashes;
   }
 
