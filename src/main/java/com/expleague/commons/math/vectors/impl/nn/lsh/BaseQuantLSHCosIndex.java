@@ -6,7 +6,6 @@ import com.expleague.commons.math.vectors.VecTools;
 import com.expleague.commons.math.vectors.impl.nn.NearestNeighbourIndex;
 import com.expleague.commons.math.vectors.impl.nn.impl.EntryImpl;
 import com.expleague.commons.random.FastRandom;
-import com.expleague.commons.util.ArrayTools;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.array.TLongArrayList;
 
@@ -18,27 +17,28 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
-  public static final int SKETCH_BITS_PER_QUANT = 32;
   protected final CosDistanceHashFunction[] hashes;
   protected final List<TLongArrayList> sketches = new ArrayList<>();
   protected final TLongArrayList ids;
 
   protected int quantDim;
+  protected int sketchBitsPerQuant;
   protected final int dim;
   protected final int batchSize;
 
-  public BaseQuantLSHCosIndex(FastRandom rng, int quantDim, int dim, int batchSize) {
-    this.quantDim = quantDim;
+  public BaseQuantLSHCosIndex(FastRandom rng, int dim, int quantDim, int sketchBitsPerQuant, int batchSize) {
     this.dim = dim;
+    this.quantDim = quantDim;
+    this.sketchBitsPerQuant = sketchBitsPerQuant;
     this.batchSize = batchSize;
     this.ids = new TLongArrayList();
 
-    this.hashes = new CosDistanceHashFunction[SKETCH_BITS_PER_QUANT * (int)Math.ceil(dim / (double)quantDim)];
+    this.hashes = new CosDistanceHashFunction[sketchBitsPerQuant * (int)Math.ceil(dim / (double)quantDim)];
     for (int i = 0; i < dim; i += quantDim) {
       int finalI = i;
       final int currentDim = Math.min(quantDim, dim - i);
-      for (int b = 0; b < SKETCH_BITS_PER_QUANT; b++) {
-        hashes[i / quantDim * SKETCH_BITS_PER_QUANT + b] = new CosDistanceHashFunction(currentDim, rng) { // quant sketch
+      for (int b = 0; b < sketchBitsPerQuant; b++) {
+        hashes[i / quantDim * sketchBitsPerQuant + b] = new CosDistanceHashFunction(currentDim, rng) { // quant sketch
           @Override
           public int hash(Vec v) {
             return super.hash(v.sub(finalI, currentDim));

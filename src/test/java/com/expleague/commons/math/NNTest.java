@@ -56,7 +56,7 @@ public class NNTest {
   @Test
   public void testQuantLSHCos() {
     final NearestNeighbourIndex naive = new NaiveNNIndex(Distance.COS, DIM);
-    final NearestNeighbourIndex lsh = new QuantLSHCosIndexRAM(rng,10, DIM, 130);
+    final NearestNeighbourIndex lsh = new QuantLSHCosIndexRAM(rng, DIM, 10, 32, 500);
 
     for (int i = 0; i < 100000; i++) {
       Vec v = VecTools.fillUniform(new ArrayVec(DIM), rng);

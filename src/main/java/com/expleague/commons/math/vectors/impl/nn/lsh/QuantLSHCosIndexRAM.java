@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 public class QuantLSHCosIndexRAM extends BaseQuantLSHCosIndex {
     private final List<Vec> vecs = new ArrayList<>();
 
-    public QuantLSHCosIndexRAM(FastRandom rng, int quantDim, int dim, int minDist) {
-        super(rng, quantDim, dim, minDist);
+    public QuantLSHCosIndexRAM(FastRandom rng, int dim, int quantDim, int sketchBitsPerQuant, int batchSize) {
+        super(rng, dim, quantDim, sketchBitsPerQuant, batchSize);
     }
 
     @Override
