@@ -127,9 +127,12 @@ public abstract class BaseQuantLSHCosIndex implements NearestNeighbourIndex {
         .flatMap(entries -> entries.stream()
             .peek(entry -> {
               final Vec vec = getVec.apply(entry.index());
+              if (vec == null)
+                return;
               entry.setVec(vec);
               entry.setDistance((1 - VecTools.multiply(query, vec) / queryNorm) / 2);
             })
+            .filter(entry -> entry.vec() != null)
             .sorted(EntryImpl::compareTo)
         )
         .map(Functions.cast(Entry.class));
