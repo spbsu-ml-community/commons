@@ -186,13 +186,19 @@ public abstract class CharSeq implements Seq<Character>, CharSequence, Comparabl
     return new String(toCharArray());
   }
 
+  int hashCode = 0;
   public int hashCode() {
+    if (hashCode != 0) {
+      return hashCode;
+    }
+
     final int len = length();
     int h = 0;
     for (int i = 0; i < len; i++) {
       h = 31 * h + charAt(i);
     }
-    return h == 0 ? 1 : h;
+
+    return hashCode = h == 0 ? 1 : h;
   }
 
   public char[] toArray() {

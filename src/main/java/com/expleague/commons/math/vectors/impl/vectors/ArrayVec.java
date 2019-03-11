@@ -67,6 +67,16 @@ public class ArrayVec extends Vec.Stub implements OperableVec<ArrayVec> {
     ArrayTools.mul(data.array, data.start, data.length, s);
   }
 
+  @Override
+  public double sum() {
+    return ArrayTools.sum(data.array, data.start, data.length);
+  }
+
+  @Override
+  public double sum2() {
+    return ArrayTools.sum2(data.array, data.start, data.length);
+  }
+
   public void scale(final ArrayVec other) {
     ArrayTools.scale(data.array, data.start, other.data.array, other.data.start, data.length);
   }

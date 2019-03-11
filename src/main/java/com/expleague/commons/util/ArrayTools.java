@@ -896,6 +896,24 @@ public abstract class ArrayTools {
     return result;
   }
 
+  public static double sum(final double[] arr, final int from, final int length) {
+    double result = 0;
+    int end = from + length;
+    for (int i = from; i < end; i++) {
+      result += arr[i];
+    }
+    return result;
+  }
+
+  public static double sum2(final double[] arr, final int from, final int length) {
+    double result = 0;
+    int end = from + length;
+    for (int i = from; i < end; i++) {
+      result += arr[i] * arr[i];
+    }
+    return result;
+  }
+
   public static int sum(final int[] arr) {
     return sum(arr, 0, arr.length);
   }

@@ -535,6 +535,9 @@ public class VecTools {
   }
 
   public static double sum2(final Vec target) {
+    if (target instanceof OperableVec) {
+      return ((OperableVec) target).sum2();
+    }
     final VecIterator iterator = target.nonZeroes();
     double sum2 = 0;
     while(iterator.advance()) {

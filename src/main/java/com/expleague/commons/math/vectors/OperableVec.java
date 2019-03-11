@@ -14,4 +14,8 @@ public interface OperableVec<T extends OperableVec> {
   void inscale(T other, double scale);
 
   void scale(double scale);
+
+  double sum();
+
+  double sum2();
 }
