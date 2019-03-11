@@ -114,7 +114,8 @@ public class RowsVecArrayMx extends Mx.Stub {
       public boolean advance() {
         while (row < vec.length() && !rowIter.advance()) {
           row++;
-          rowIter = vec.at(row).nonZeroes();
+          if (row < vec.length())
+            rowIter = vec.at(row).nonZeroes();
         }
         return row < vec.length();
       }
