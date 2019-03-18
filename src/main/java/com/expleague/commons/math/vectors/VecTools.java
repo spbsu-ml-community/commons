@@ -1076,7 +1076,7 @@ public class VecTools {
         bDist.set(buffer.size(), MathTools.sqr(distances[0]));
         buffer.add(vec);
         if (buffer.size() == BUFFER_SIZE) { // add cluster like k-means++
-          final int nextCentroid = rng.nextSimple(bDist);
+          final int nextCentroid = Math.abs(rng.nextSimple(bDist));
           centroids.append(buffer.get(nextCentroid));
 //          Arrays.fill(centroidsCount, 0);
           buffer.clear();
