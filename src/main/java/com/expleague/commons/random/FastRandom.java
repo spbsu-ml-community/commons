@@ -3,6 +3,7 @@ package com.expleague.commons.random;
 import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecIterator;
+import com.expleague.commons.math.vectors.VecTools;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -78,14 +79,7 @@ public class FastRandom extends Random {
   }
 
   public int nextSimple(final Vec row) {
-    double sum = 0;
-    {
-      final VecIterator it = row.nonZeroes();
-      while(it.advance()) {
-        sum += it.value();
-      }
-    }
-    return nextSimple(row, sum);
+    return nextSimple(row, VecTools.sum(row));
   }
 
   public int nextSimple(final Vec row, final double len) {

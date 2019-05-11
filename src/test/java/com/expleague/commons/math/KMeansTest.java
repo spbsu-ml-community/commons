@@ -1,10 +1,15 @@
 package com.expleague.commons.math;
 
+import com.expleague.commons.math.vectors.Distance;
 import com.expleague.commons.math.vectors.Vec;
 import com.expleague.commons.math.vectors.VecTools;
+import com.expleague.commons.math.vectors.impl.nn.NearestNeighbourIndex;
+import com.expleague.commons.math.vectors.impl.nn.faiss.Faiss;
+import com.expleague.commons.math.vectors.impl.nn.naive.NaiveNNIndex;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.util.logging.Interval;
+import gnu.trove.set.hash.TLongHashSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -78,6 +83,15 @@ public class KMeansTest {
     Assert.assertTrue("Mean residual: " + (totalDist / centroids.length) + " while mean norm is: " + Stream.of(centroids).mapToDouble(VecTools::norm).average().orElse(Double.POSITIVE_INFINITY), totalDist / answer.length < centroids[0].dim() * 1e-2);
   }
 
+  @Test
+  public void testKMeansUniform() {
+    final FastRandom rng = new FastRandom(100500);
+    final Vec[] vecs = IntStream.range(0, 100000)
+        .mapToObj(i -> VecTools.fillUniform(new ArrayVec(100), rng))
+        .toArray(Vec[]::new);
+    final Vec[] answer = VecTools.kMeans(10, 10, rng, IntStream.range(0, 1000000).mapToObj(i -> vecs[rng.nextInt(vecs.length)]));
+    System.out.println();
+  }
 //  @Test
   public void testKMeansHundred() {
     final FastRandom rng = new FastRandom(100500);

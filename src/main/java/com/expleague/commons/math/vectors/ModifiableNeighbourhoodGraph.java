@@ -58,21 +58,21 @@ public class ModifiableNeighbourhoodGraph {
   long tries = 0;
   public int nearest(Vec vec, int[] result, double[] distances) {
     final int knearest = knearest(vec, 0, result.length, result, distances);
-//    BestHolder<Integer> bestHolder = new BestHolder<>();
-//    for (int i = 0; i < points.size(); i++) {
-//      bestHolder.update(i, -VecTools.distance(points.get(i), vec));
-//    }
-//    tries++;
-//    if (result[0] != bestHolder.getValue())
-//      errors++;
+    BestHolder<Integer> bestHolder = new BestHolder<>();
+    for (int i = 0; i < points.size(); i++) {
+      bestHolder.update(i, -VecTools.distance(points.get(i), vec));
+    }
+    tries++;
+    if (bestHolder.filled() && result[0] != bestHolder.getValue())
+      errors++;
 
     return knearest;
   }
 
   private int knearest(Vec q, int start, int k, int[] result, double[] distances) {
+    Arrays.fill(distances, Double.POSITIVE_INFINITY);
     if (points.isEmpty())
       return 0;
-    Arrays.fill(distances, Double.POSITIVE_INFINITY);
     Arrays.fill(result, -1);
     TIntArrayList candidates = new TIntArrayList(100);
     BitSet visited = new BitSet(points.size());
@@ -110,7 +110,7 @@ public class ModifiableNeighbourhoodGraph {
   }
 
   public Vec[] points() {
-//    System.out.println("Ratio: " + (errors / (double)tries));
+    System.out.println("Ratio: " + (errors / (double)tries));
     return points.toArray(new Vec[points.size()]);
   }
 

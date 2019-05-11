@@ -425,7 +425,7 @@ public class VecTools {
 
   public static double maxMod(final Vec vec) {
     if (vec instanceof ArrayVec) {
-      return ((ArrayVec) vec).data.array[ArrayTools.maxMod(((ArrayVec) vec).data.array)];
+      return Math.abs(((ArrayVec) vec).data.array[ArrayTools.maxMod(((ArrayVec) vec).data.array)]);
     }
     else {
       double max = Double.NEGATIVE_INFINITY;
@@ -724,7 +724,7 @@ public class VecTools {
     return vec;
   }
 
-  public static void exp(Vec result) {
+  public static <T extends Vec> T exp(T result) {
     if (result instanceof ArrayVec) {
       ArrayPart<double[]> data = ((ArrayVec) result).data;
       final double[] array = data.array;
@@ -741,6 +741,7 @@ public class VecTools {
         result.set(i, Math.exp(result.get(i)));
       }
     }
+    return result;
   }
   public static void log(Vec result) {
     if (result instanceof ArrayVec) {
@@ -1062,12 +1063,6 @@ public class VecTools {
     }
 
     public void accept(Vec vec) {
-      if (centroids.size() == 0) {
-        centroids.append(vec);
-        centroidsCount[0] = 1;
-        return;
-      }
-
       final int[] result = new int[1];
       final double[] distances = new double[1];
       centroids.nearest(vec, result, distances);
@@ -1076,8 +1071,9 @@ public class VecTools {
         bDist.set(buffer.size(), MathTools.sqr(distances[0]));
         buffer.add(vec);
         if (buffer.size() == BUFFER_SIZE) { // add cluster like k-means++
-          final int nextCentroid = Math.abs(rng.nextSimple(bDist));
-          centroids.append(buffer.get(nextCentroid));
+          final int nextCentroid = rng.nextSimple(bDist);
+          centroidsCount[centroids.size()] = 1;
+          centroids.append(VecTools.copy(buffer.get(nextCentroid)));
 //          Arrays.fill(centroidsCount, 0);
           buffer.clear();
         }
@@ -1085,9 +1081,11 @@ public class VecTools {
       }
       // update centroid
       Vec centroid = centroids.get(nearest);
-      VecTools.scale(centroid, G * G_SUM[Math.min(G_SUM.length - 1, centroidsCount[nearest])]); // unpack and scale
+      final int gsumCursor = Math.min(G_SUM.length - 1, centroidsCount[nearest]);
+      VecTools.scale(centroid, G * G_SUM[gsumCursor]); // unpack and scale
       VecTools.append(centroid, vec); // update
-      VecTools.scale(centroid, 1. / G_SUM[Math.min(G_SUM.length - 1, ++centroidsCount[nearest])]); // pack back
+      VecTools.scale(centroid, 1. / (G * G_SUM[gsumCursor] + 1)); // pack back
+      centroidsCount[nearest]++;
       noUpdates = centroids.update(nearest, centroid) ? 0 : noUpdates + 1;
     }
 
@@ -1113,7 +1111,7 @@ public class VecTools {
     final kMeansState state = new kMeansState(k, m, rng);
     int index = 0;
     //noinspection StatementWithEmptyBody
-    while (state.noUpdates < 200000 && spliterator.tryAdvance(state::accept));
+    while (state.noUpdates < k * 1000 && spliterator.tryAdvance(state::accept));
     return state.centroids();
   }
 }
