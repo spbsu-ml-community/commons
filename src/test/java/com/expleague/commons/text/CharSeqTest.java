@@ -96,4 +96,8 @@ public class CharSeqTest extends TestCase {
     Assert.assertEquals(CharSeq.create("char_seq_test"), CharSeqTools.fromCamelHumpsToUnderscore(getClass().getSimpleName()));
     Assert.assertEquals(CharSeq.create(getClass().getSimpleName()), CharSeqTools.fromUnderscoreToCamelHumps(CharSeqTools.fromCamelHumpsToUnderscore(getClass().getSimpleName()), true));
   }
+
+  public void testHash() {
+    assertEquals(CharSeq.create("pizdesh").hashCode(), CharSeq.compact(CharSeq.create("pizdesh")).hashCode());
+  }
 }
