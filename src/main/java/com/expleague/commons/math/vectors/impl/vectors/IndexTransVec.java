@@ -83,6 +83,9 @@ public class IndexTransVec extends Vec.Stub {
       ArrayTools.parallelSort(nzIndicesA, transA);
       result = new TransformedSparseVecIterator(indices, sparseVec.values, new TIntArrayList(nzIndicesA), new TIntArrayList(transA));
     }
+    else if (base instanceof Vec) {
+      result = new SkipVecNZIterator(this);
+    }
     else if (base instanceof ArrayVec) {
       result = new SkipVecNZIterator(this);
     }
