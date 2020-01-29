@@ -1,10 +1,10 @@
 package com.expleague.commons.math.vectors;
 
+import com.expleague.commons.math.AnalyticFunc;
 import com.expleague.commons.math.MathTools;
 import com.expleague.commons.math.vectors.impl.mx.SparseMx;
-import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
-import com.expleague.commons.math.AnalyticFunc;
 import com.expleague.commons.math.vectors.impl.mx.VecBasedMx;
+import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.math.vectors.impl.vectors.SparseVec;
 import com.expleague.commons.random.FastRandom;
 import com.expleague.commons.util.ArrayTools;
@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 
 import static com.expleague.commons.math.vectors.VecTools.*;
 import static java.lang.Math.abs;
-import static java.lang.Math.signum;
 import static java.lang.Math.sqrt;
 
 /**
@@ -160,6 +159,20 @@ public class MxTools {
     return result;
   }
 
+  public static void adjust(final Mx a, final Mx b) {
+    if (a.columns() != b.columns())
+      throw new IllegalArgumentException("Matrices must have a.columns == b.columns!");
+
+    if (a.rows() != b.rows())
+      throw new IllegalArgumentException("Matrices must have a.rows == b.rows!");
+
+    for (int i = 0; i < a.rows(); ++i) {
+      for (int j = 0; j < a.columns(); ++j) {
+        a.adjust(i, j, b.get(i, j));
+      }
+    }
+  }
+
   public static Mx multiply(final Mx a, final Mx b) {
     if (a.columns() != b.rows())
       throw new IllegalArgumentException("Matrices must have a.columns == b.rows!");
@@ -203,8 +216,7 @@ public class MxTools {
         }
       }
       return result;
-    }
-    else {
+    } else {
       final Mx result = new VecBasedMx(a.columns(), a.rows());
       for (int i = 0; i < a.rows(); i++) {
         for (int j = 0; j < a.columns(); j++)
@@ -362,8 +374,7 @@ public class MxTools {
 
       if (Math.abs(beta) <= MathTools.EPSILON) {
         VecTools.fillGaussian(v, rng);
-      }
-      else VecTools.incscale(v, w, 1./beta);
+      } else VecTools.incscale(v, w, 1. / beta);
 
       if (rng.nextDouble() < 0.1) { // restore ortonormality
         for (int k = j - 1; k >= 0; k--) {
@@ -379,6 +390,7 @@ public class MxTools {
       incscale(w, v, -alpha);
     }
   }
+
   public static void divideAndConquer(Mx trisigma, Mx sigma, Mx q) {
     fill(sigma, 0);
     fill(q, 0);
@@ -399,14 +411,14 @@ public class MxTools {
     trisigma.adjust(div - 1, div - 1, -beta);
     trisigma.adjust(div, div, -beta);
     divideAndConquerInner(
-        trisigma.sub(0, 0, div, div),
-        sigma.sub(0, 0, div, div),
-        q.sub(0, 0, div, div)
+            trisigma.sub(0, 0, div, div),
+            sigma.sub(0, 0, div, div),
+            q.sub(0, 0, div, div)
     );
     divideAndConquerInner(
-        trisigma.sub(div, div, dim - div, dim - div),
-        sigma.sub(div, div, dim - div, dim - div),
-        q.sub(div, div, dim - div, dim - div)
+            trisigma.sub(div, div, dim - div, dim - div),
+            sigma.sub(div, div, dim - div, dim - div),
+            q.sub(div, div, dim - div, dim - div)
     );
 
     final Mx resultQ = new VecBasedMx(dim, dim);
@@ -467,7 +479,7 @@ public class MxTools {
           double sumRight;
           double sumLeft;
           int it = 0;
-          while(true) {
+          while (true) {
             double sumDotLeft = 0;
             double sumDotRight = 0;
             sumLeft = 0;
@@ -477,8 +489,7 @@ public class MxTools {
               if (rorder[t] <= i) {
                 sumLeft += beta * u.get(t) * u.get(t) / (d.get(t) - x);
                 sumDotLeft += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
-              }
-              else {
+              } else {
                 sumRight += beta * u.get(t) * u.get(t) / (d.get(t) - x);
                 sumDotRight += beta * u.get(t) * u.get(t) / MathTools.sqr(d.get(t) - x);
               }
@@ -489,9 +500,9 @@ public class MxTools {
             double c3 = 1 + sumLeft + sumRight - sumDotLeft * (d_i - x) - sumDotRight * (d_i1 - x);
 
             MathTools.quadratic(roots,
-                c3,
-                - (c1 + c2 + c3 * (d_i + d_i1)),
-                c1 * d_i1 + c2 * d_i + c3 * d_i * d_i1
+                    c3,
+                    -(c1 + c2 + c3 * (d_i + d_i1)),
+                    c1 * d_i1 + c2 * d_i + c3 * d_i * d_i1
             );
             double nextX = roots[0] < d_i1 && roots[0] > d_i ? roots[0] : roots[1];
             if (Math.abs(1 + sumLeft + sumRight) < 1e-6)
@@ -504,8 +515,7 @@ public class MxTools {
             }
             x = nextX;
           }
-        }
-        else { // linear approx f(x) \sim c_2 + \frac{c_1}{d_i - x}
+        } else { // linear approx f(x) \sim c_2 + \frac{c_1}{d_i - x}
           x = d_i + 100;
           double sum;
           int it = 0;
@@ -523,8 +533,7 @@ public class MxTools {
             final double nextX = d_i + c1 / c2;
             if (Math.abs(1 + sum) < MathTools.EPSILON) {
               break;
-            }
-            else if (nextX == x || it++ > 10000 || nextX <= d_i) {
+            } else if (nextX == x || it++ > 10000 || nextX <= d_i) {
               break;
             }
             x = nextX;
@@ -539,8 +548,7 @@ public class MxTools {
           eigenVec.set(k, val);
         }
         VecTools.normalizeL2(eigenVec);
-      }
-      else {
+      } else {
         eigenVal = d_i;
         eigenVec.set(index, 1);
       }
@@ -585,8 +593,7 @@ public class MxTools {
     return multiply(transpose(inverseL), inverseL);
   }
 
-  public static Vec solveSystemCholesky(final Mx a, Vec b)
-  {
+  public static Vec solveSystemCholesky(final Mx a, Vec b) {
     return multiply(inverseCholesky(a), b);
   }
 
@@ -671,6 +678,7 @@ public class MxTools {
   public static Vec solveSystemGaussZeildel(Mx a, Vec b) {
     return solveGaussZeildel(a, b, MathTools.EPSILON);
   }
+
   //Converge if a is symmetric positive-definite or
   //a is strictly or irreducibly diagonally dominant
   public static Vec solveGaussZeildel(Mx a, Vec b, double stopCondition) {
@@ -696,8 +704,7 @@ public class MxTools {
           x1.set(i, value / a.get(i, i));
         } else if (Math.abs(value) < MathTools.EPSILON) {
           x1.set(i, 0);
-        }
-        else {
+        } else {
           throw new InvalidParameterException("Matrix must have non-zero diagonal elements");
         }
       }
@@ -745,7 +752,7 @@ public class MxTools {
     @Override
     public double gradient(double x) {
       double value = 0;
-      for (int i = 0; i < d.dim(); i ++) {
+      for (int i = 0; i < d.dim(); i++) {
         value += beta * u.get(i) * u.get(i) / MathTools.sqr(d.get(i) - x);
       }
       return value;
