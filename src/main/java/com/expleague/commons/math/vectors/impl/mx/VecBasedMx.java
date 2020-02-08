@@ -102,7 +102,7 @@ public class VecBasedMx extends Mx.Stub {
 
   @Override
   public int rows() {
-    return vec.dim()/columns;
+    return columns > 0 ? vec.dim()/columns : 0;
   }
 
   @Override

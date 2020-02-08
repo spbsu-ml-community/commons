@@ -24,7 +24,7 @@ import static java.lang.Math.sqrt;
  */
 public class MxTools {
   private static final Logger log = Logger.getLogger(MxTools.class.getName());
-  private static final double EPSILON = 1e-5;
+  private static final double EPSILON = 1e-10;
 
   public static boolean checkSymmetry(final Mx a) {
     if (a.columns() != a.rows())
@@ -90,18 +90,18 @@ public class MxTools {
           val -= l.get(i, k) * l.get(j, k);
         }
         final double diagonal = l.get(j, j);
-        if (abs(diagonal) > MathTools.EPSILON)
+        if (abs(diagonal) > EPSILON)
           val /= diagonal;
         else
-          val = abs(val) < EPSILON ? 0 : (val * diagonal > 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY);
+          val = 0;
         l.set(i, j, val);
         sum2 += val * val;
       }
       double diagonal = a.get(i, i) - sum2;
+      if (abs(diagonal) < 1e-6)
+        diagonal = 0.;
       if (diagonal < 0)
         throw new IllegalArgumentException("Matrix must be positive definite!");
-      if (abs(diagonal) < EPSILON)
-        diagonal = 0.;
       l.set(i, i, sqrt(diagonal));
     }
     return l;
