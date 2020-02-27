@@ -13,6 +13,7 @@ import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import static com.expleague.commons.math.vectors.VecTools.*;
 import static java.lang.Math.abs;
@@ -271,6 +272,12 @@ public class MxTools {
     scale(covar, 1. / pool.size());
     final Mx l = choleskyDecomposition(covar);
     return inverseLTriangle(l);
+  }
+
+  public static double quadraticForm(Mx A, Vec x) {
+    return IntStream.range(0, A.rows()).mapToDouble(i ->
+        x.get(i) * VecTools.multiply(A.row(i), x)
+    ).sum();
   }
 
   public static void householderLQ(final Mx A, final Mx L, final Mx Q) {
