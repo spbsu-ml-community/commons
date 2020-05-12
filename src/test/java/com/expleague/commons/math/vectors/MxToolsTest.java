@@ -55,4 +55,9 @@ public class MxToolsTest extends TestCase {
     Vec answer = MxTools.solveSystemGaussZeildel(matrix, vector);
     assertEquals(0, VecTools.distance(vector, MxTools.multiply(matrix, answer)), 1e-3);
   }
+
+  public void testMainEigenValue() {
+    final double l1 = MxTools.mainEigenValue(matrix);
+    assertTrue(Math.abs(l1 - 2.79) < 1e-3);
+  }
 }

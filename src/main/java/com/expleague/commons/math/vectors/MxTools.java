@@ -725,6 +725,24 @@ public class MxTools {
     return x1;
   }
 
+  public static double mainEigenValue(Mx m) {
+    Vec[] vecs = new Vec[]{new ArrayVec(m.rows()), new ArrayVec(m.rows())};
+    double prevLambda = Double.POSITIVE_INFINITY;
+    VecTools.fill(vecs[0], Math.sqrt(1. / m.columns()));
+    double lambda = 0;
+    for (int iter = 0; iter < 100; iter++) {
+      final Vec dst = vecs[(iter + 1) % 2];
+      final Vec src = vecs[iter % 2];
+      multiplyTo(m, src, dst);
+      lambda = VecTools.multiply(dst, src);
+      VecTools.normalizeL2(dst);
+      if (Math.abs(prevLambda - lambda) < EPSILON)
+        break;
+      prevLambda = lambda;
+    }
+    return lambda;
+  }
+
   public enum NormalizationType {
     SPHERE,
     PCA,

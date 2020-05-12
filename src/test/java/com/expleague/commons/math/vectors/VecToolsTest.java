@@ -1,5 +1,7 @@
 package com.expleague.commons.math.vectors;
 
+import com.expleague.commons.math.MathTools;
+import com.expleague.commons.math.stat.StatTools;
 import com.expleague.commons.math.vectors.impl.vectors.ArrayVec;
 import com.expleague.commons.math.vectors.impl.vectors.SparseVec;
 import com.expleague.commons.random.FastRandom;
@@ -59,4 +61,23 @@ public class VecToolsTest extends TestCase {
       assertEquals(VecTools.append(denseA, denseB), VecTools.append(sparseA, sparseB));
     }
   }
+
+  public void testFillGaussianLong() {
+    final Vec vec = new ArrayVec(100000);
+    VecTools.fillGaussian(vec, new FastRandom(100500));
+    final double mean = StatTools.mean(vec);
+    final double variance = StatTools.variance(vec);
+    assertTrue(Math.abs(mean) < 1e-2);
+    assertTrue(Math.abs(variance - 1.0) < 1e-2);
+  }
+
+  public void testFillGaussian() {
+    final Vec vec = new ArrayVec(100);
+    VecTools.fillGaussian(vec, new FastRandom(100500));
+    final double mean = StatTools.mean(vec);
+    final double variance = StatTools.variance(vec);
+    assertTrue(Math.abs(mean) < 1e-1);
+    assertTrue(Math.abs(variance - 1.0) < 2e-1);
+  }
+
 }

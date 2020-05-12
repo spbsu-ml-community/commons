@@ -22,7 +22,7 @@ import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 
 /**
  * User: solar
@@ -700,9 +700,24 @@ public class VecTools {
   }
 
   public static <T extends Vec> T fillGaussian(T vec, FastRandom rng) {
-    for (int i = 0; i < vec.length(); i++) {
-      vec.set(i, rng.nextGaussian());
-    }
+    final int PARTS_LEN = 1000;
+    final long[] seeds = IntStream.range(0, vec.dim() / PARTS_LEN + 1)
+        .mapToLong(idx -> rng.nextLong())
+        .toArray();
+    IntStream.range(0, vec.dim() / PARTS_LEN + 1).parallel().forEach(i -> {
+      final FastRandom localRng = new FastRandom(seeds[i]);
+      final int start = i * PARTS_LEN;
+      final int end = Math.min(vec.dim(), start + PARTS_LEN);
+      final int unrollEnd = (end / 2) * 2;
+      for (int k = start; k < unrollEnd; k += 2) {
+        final double sqrtLogA = sqrt(-2. * Math.log(localRng.nextDouble()));
+        final double b = localRng.nextDouble();
+        vec.set(k, sqrtLogA * cos(2 * Math.PI * b));
+        vec.set(k + 1, sqrtLogA * sin(2 * Math.PI * b));
+      }
+      if (end > unrollEnd)
+        vec.set(unrollEnd, localRng.nextGaussian());
+    });
     return vec;
   }
 
