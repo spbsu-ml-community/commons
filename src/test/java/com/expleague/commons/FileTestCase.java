@@ -14,6 +14,7 @@ import java.util.zip.GZIPOutputStream;
 public abstract class FileTestCase extends TestCase {
   public static final File TESTS_DIR = new File("./wd/tests");
   protected String fileText;
+  protected IOException ioe;
 
   @Override
   protected void setUp() throws Exception {
@@ -26,8 +27,14 @@ public abstract class FileTestCase extends TestCase {
     }
     catch(IOException ioe) {
       fileText = null;
-//      ioe.printStackTrace();
+      this.ioe = ioe;
     }
+  }
+
+  protected CharSequence fileText() {
+    if (fileText != null)
+      return fileText;
+    throw new RuntimeException(ioe);
   }
 
   protected abstract String getInputFileExtension();

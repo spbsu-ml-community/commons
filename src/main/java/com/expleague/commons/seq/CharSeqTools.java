@@ -22,6 +22,7 @@ import java.text.BreakIterator;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -188,6 +189,23 @@ public class CharSeqTools {
     }
 
     return result.build();
+  }
+
+  public static IntSeq concat(IntSeq... sub) {
+    int totalLen = 0;
+    for (final IntSeq intSeq : sub) {
+      totalLen += intSeq.length();
+    }
+    final int[] result = new int[totalLen];
+
+    int off = 0;
+    for (final IntSeq integers : sub) {
+      final int len = integers.length();
+      for (int t = 0; t < len; t++, off++) {
+        result[off] = integers.intAt(t);
+      }
+    }
+    return new IntSeq(result);
   }
 
   @SafeVarargs
@@ -937,6 +955,38 @@ public class CharSeqTools {
   public static Stream<CharSeq> sentences(CharSeq line) {
     BreakIterator breakIterator = BreakIterator.getSentenceInstance();
     return convertBreakIterator(line, breakIterator);
+  }
+
+  public static IntSeq transformToCodePoints(final CharSequence seq) {
+    final int len = seq.length();
+    final int[] result = new int[len];
+    int resultOff = 0;
+    for (int off = 0; off < len; off++) {
+      final char nextChar = seq.charAt(off);
+      final int nextCodePoint;
+      if (Character.isHighSurrogate(nextChar)) {
+        if (off + 1 < len) {
+          final char c2 = seq.charAt(off + 1);
+          if (Character.isLowSurrogate(c2)) {
+            nextCodePoint = Character.toCodePoint(nextChar, c2);
+            off++;
+          } else {
+            nextCodePoint = 0;
+          }
+        } else {
+          nextCodePoint = 0;
+        }
+      } else {
+        nextCodePoint = nextChar;
+      }
+      result[resultOff++] = nextCodePoint;
+    }
+
+    return new IntSeq(result, 0, resultOff);
+  }
+
+  public static String codePointsToChars(final IntSeq seq) {
+    return seq.stream().mapToObj(Character::toChars).map(String::new).collect(Collectors.joining());
   }
 
   @NotNull

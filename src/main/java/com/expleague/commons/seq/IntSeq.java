@@ -54,6 +54,10 @@ public class IntSeq extends Seq.Stub<Integer> {
     return Arrays.binarySearch(arr, start, end, x);
   }
 
+  public int last() {
+    return arr[arr.length - 1];
+  }
+
   @Override
   public int[] toArray() {
     if (start == 0 && end == arr.length)
