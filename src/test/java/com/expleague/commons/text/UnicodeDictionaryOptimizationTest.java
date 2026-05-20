@@ -260,7 +260,7 @@ public class UnicodeDictionaryOptimizationTest {
 
     public static final int BATCH_SIZE = 1000;
 
-    @Test
+//    @Test
     public void testQueryParts() throws IOException {
         final UnicodeDictionaryOptimization optimization = new UnicodeDictionaryOptimization(50_000, 1_000_000);
         final String dir = "/Users/ikuralenok/Downloads/";
@@ -312,7 +312,7 @@ public class UnicodeDictionaryOptimizationTest {
         trainedDict.dump(Files.newBufferedWriter(Paths.get("./", "query-parts.dict")));
     }
 
-    @Test
+//    @Test
     public void testQueryWords() throws IOException {
         final UnicodeDictionaryOptimization optimization = new UnicodeDictionaryOptimization(15_000, 1_000_000);
         final String dir = "/Users/ikuralenok/Downloads/";
