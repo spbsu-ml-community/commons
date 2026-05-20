@@ -261,7 +261,7 @@ public class UnicodeDictionaryOptimizationTest {
     public static final int BATCH_SIZE = 1000;
 
     @Test
-    public void testQueries() throws IOException {
+    public void testQueryParts() throws IOException {
         final UnicodeDictionaryOptimization optimization = new UnicodeDictionaryOptimization(50_000, 1_000_000);
         final String dir = "/Users/ikuralenok/Downloads/";
         final String[] files = new String[]{
@@ -300,7 +300,7 @@ public class UnicodeDictionaryOptimizationTest {
         final Consumer<UnicodeStatDictionary> dictWriter = dict -> {
             try {
                 if (++iteration[0] % 100 == 0) {
-                    dict.dump(Files.newBufferedWriter(Paths.get("./", "output-" + iteration[0] + ".dict")));
+                    dict.dump(Files.newBufferedWriter(Paths.get("./", "query-parts-" + iteration[0] + ".dict")));
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -309,6 +309,58 @@ public class UnicodeDictionaryOptimizationTest {
         optimization.addListener(dictWriter);
         final UnicodeStatDictionary trainedDict = optimization.train(data.limit(10_000_000).iterator());
 
-        trainedDict.dump(Files.newBufferedWriter(Paths.get("./", "output.dict")));
+        trainedDict.dump(Files.newBufferedWriter(Paths.get("./", "query-parts.dict")));
+    }
+
+    @Test
+    public void testQueryWords() throws IOException {
+        final UnicodeDictionaryOptimization optimization = new UnicodeDictionaryOptimization(15_000, 1_000_000);
+        final String dir = "/Users/ikuralenok/Downloads/";
+        final String[] files = new String[]{
+                "part-00000-d12261b6-41ca-4c18-891d-2bec0cfb2501-c000.txt",
+                "part-00001-d12261b6-41ca-4c18-891d-2bec0cfb2501-c000.txt"
+        };
+
+        final Stream<List<CharSequence>> data = StreamSupport.stream(new Spliterators.AbstractSpliterator<List<CharSequence>>(Long.MAX_VALUE, 0) {
+            BufferedReader reader;
+            int iteration = 0;
+            @Override
+            public boolean tryAdvance(Consumer<? super List<CharSequence>> action) {
+                try {
+                    if (reader == null)
+                        reader = Files.newBufferedReader(Paths.get(dir, files[iteration++ % files.length]));
+                    final List<CharSequence> batch = new ArrayList<>(BATCH_SIZE);
+                    while (batch.size() < BATCH_SIZE) {
+                        final String line = reader.readLine();
+                        if (line == null) {
+                            break;
+                        }
+                        batch.addAll(Arrays.asList(line.split("\\s+")));
+                    }
+                    if (!batch.isEmpty()) {
+                        action.accept(batch);
+                        return true;
+                    }
+                } catch (IOException ignore) {
+                }
+                reader = null;
+                return tryAdvance(action);
+            }
+        }, false);
+
+        int[] iteration = new int[]{0};
+        final Consumer<UnicodeStatDictionary> dictWriter = dict -> {
+            try {
+                if (++iteration[0] % 100 == 0) {
+                    dict.dump(Files.newBufferedWriter(Paths.get("./", "query-tokens-" + iteration[0] + ".dict")));
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+        optimization.addListener(dictWriter);
+        final UnicodeStatDictionary trainedDict = optimization.train(data.limit(10_000_000).iterator());
+
+        trainedDict.dump(Files.newBufferedWriter(Paths.get("./", "query-tokens.dict")));
     }
 }
